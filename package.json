@@ -1,0 +1,22 @@
+{
+  "name": "cluster-manager",
+  "version": "1.0.0",
+  "description": "An EU industrial strategy simulation in a single HTML file.",
+  "type": "module",
+  "license": "GPL-3.0-or-later",
+  "homepage": "https://ddbxl.github.io/cluster-manager/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ddbxl/cluster-manager.git"
+  },
+  "scripts": {
+    "build": "node build/build.mjs",
+    "build:readable": "node build/build.mjs --readable",
+    "start": "node build/build.mjs && echo 'Open index.html in your browser.'"
+  },
+  "devDependencies": {
+    "esbuild": "^0.23.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}
