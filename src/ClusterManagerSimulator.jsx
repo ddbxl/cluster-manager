@@ -1,10 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 
-// ─────────────────────────────────────────────────────────────
-// EU regional reference data
-// 27 countries · 180 NUTS regions · 14 industrial ecosystems.
-// ─────────────────────────────────────────────────────────────
-
 const DATA_ECOSYSTEMS = [{"id": "energy_renewables", "name": "Energy-Renewables", "icon": "leaf", "color": "#34d399"}, {"id": "agri_food", "name": "Agri-food", "icon": "wheat-awn", "color": "#4ade80"}, {"id": "mobility_transport", "name": "Mobility, Transport, Automotive", "icon": "car", "color": "#60a5fa"}, {"id": "digital", "name": "Digital", "icon": "display", "color": "#38bdf8"}, {"id": "health", "name": "Health", "icon": "hospital", "color": "#f87171"}, {"id": "energy_intensive_i", "name": "Energy Intensive Industries", "icon": "industry", "color": "#fb923c"}, {"id": "tourism", "name": "Tourism", "icon": "plane", "color": "#2dd4bf"}, {"id": "construction", "name": "Construction", "icon": "trowel", "color": "#f0a020"}, {"id": "creative_and_cultu", "name": "Creative and Cultural Industries", "icon": "palette", "color": "#c084fc"}, {"id": "electronics", "name": "Electronics", "icon": "microchip", "color": "#facc15"}, {"id": "aerospace_and_defe", "name": "Aerospace and Defence", "icon": "rocket", "color": "#94a3b8"}, {"id": "proximity_and_soci", "name": "Proximity and Social Economy", "icon": "handshake", "color": "#a78bfa"}, {"id": "textiles", "name": "Textiles", "icon": "shirt", "color": "#f472b6"}, {"id": "retail", "name": "Retail", "icon": "bag-shopping", "color": "#fb7185"}];
 
 const RIS_MODIFIER = {
@@ -109,8 +104,6 @@ input[type=range]{width:100%;accent-color:#3860ED;cursor:pointer}
 /* ═══════════════════════════════════════════════════════════
    PALETTE
 ═══════════════════════════════════════════════════════════ */
-// EU Commission digital colour system (ECL v4, ec.europa.eu/component-library).
-// Verified live from the official source, not an approximation.
 const P = {
   bg:"#F8F9FD",     panel:"#FFFFFF",   card:"#F3F5FB",   border:"#CDD5EF",    // ecl-neutral-20/white/40/80
   bright:"#E0E5F5", text:"#26324B",    muted:"#546FA6",                      // ecl-neutral-60, ecl-dark-100, ecl-dark-80
