@@ -77,14 +77,27 @@ import App from "./ClusterManagerSimulator.jsx";
 createRoot(document.getElementById("root")).render(<App/>);
 `;
 
+// esbuild inserts module-path banner comments (e.g. "// index.jsx",
+// "// node_modules/react/index.js") into non-minified bundles. Strip any
+// line that is nothing but such a comment so the readable build doesn't
+// advertise internal file names. Real code comments are left untouched.
+function stripModuleComments(js) {
+  const marker = /^\s*\/\/\s*\S+\.(jsx|mjs|cjs|js|ts|json)\s*$/;
+  return js
+    .split("\n")
+    .filter((line) => !marker.test(line))
+    .join("\n");
+}
+
 function htmlShell(js, { readable }) {
   const title =
     "Cluster Manager · EU Industrial Strategy Simulation" +
     (readable ? " (readable build)" : "");
   const header = readable
     ? `
-<!-- CLUSTER MANAGER · human-readable build · built from src/ClusterManagerSimulator.jsx -->`
+<!-- Cluster Manager — readable build. Free software (GNU GPL v3). -->`
     : "";
+  if (readable) js = stripModuleComments(js);
   // Escape any literal </script> in the bundle so it can't close our tag early.
   const safeJs = js.replace(/<\/script/g, "<\\/script");
   return `<!DOCTYPE html>${header}

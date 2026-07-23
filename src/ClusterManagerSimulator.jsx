@@ -1,10 +1,8 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 
 // ─────────────────────────────────────────────────────────────
-// clusterData.js
-// AUTO-GENERATED from priorities.json (1102 EU S3 priorities).
+// EU regional reference data
 // 27 countries · 180 NUTS regions · 14 industrial ecosystems.
-// Do not edit by hand · regenerate with: python3 tools/build_data.py
 // ─────────────────────────────────────────────────────────────
 
 const DATA_ECOSYSTEMS = [{"id": "energy_renewables", "name": "Energy-Renewables", "icon": "leaf", "color": "#34d399"}, {"id": "agri_food", "name": "Agri-food", "icon": "wheat-awn", "color": "#4ade80"}, {"id": "mobility_transport", "name": "Mobility, Transport, Automotive", "icon": "car", "color": "#60a5fa"}, {"id": "digital", "name": "Digital", "icon": "display", "color": "#38bdf8"}, {"id": "health", "name": "Health", "icon": "hospital", "color": "#f87171"}, {"id": "energy_intensive_i", "name": "Energy Intensive Industries", "icon": "industry", "color": "#fb923c"}, {"id": "tourism", "name": "Tourism", "icon": "plane", "color": "#2dd4bf"}, {"id": "construction", "name": "Construction", "icon": "trowel", "color": "#f0a020"}, {"id": "creative_and_cultu", "name": "Creative and Cultural Industries", "icon": "palette", "color": "#c084fc"}, {"id": "electronics", "name": "Electronics", "icon": "microchip", "color": "#facc15"}, {"id": "aerospace_and_defe", "name": "Aerospace and Defence", "icon": "rocket", "color": "#94a3b8"}, {"id": "proximity_and_soci", "name": "Proximity and Social Economy", "icon": "handshake", "color": "#a78bfa"}, {"id": "textiles", "name": "Textiles", "icon": "shirt", "color": "#f472b6"}, {"id": "retail", "name": "Retail", "icon": "bag-shopping", "color": "#fb7185"}];
@@ -66,6 +64,14 @@ html.dark .float-delta{--delta-halo:rgba(5,10,20,.92)}
 .map-home{animation:breathe 3.6s ease-in-out infinite}
 .map-new{animation:regionPop 1.6s ease-out both}
 .map-contested{animation:shimmer 2.6s ease-in-out infinite}
+/* The map sea fills its whole panel edge-to-edge; the dot grid is a fixed-size CSS
+   layer so it stays crisp no matter how the SVG map scales inside it. */
+.map-sea{background:radial-gradient(circle at 42% 36%, #fbfdff 0%, #eef3fb 70%, #e7edf7 100%)}
+html.dark .map-sea{background:radial-gradient(circle at 42% 36%, #101a30 0%, #0b1220 70%, #0a1120 100%)}
+.map-sea::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(#dbe4f2 1px, transparent 1px);
+  background-size:15px 15px;opacity:.55}
+html.dark .map-sea::before{background-image:radial-gradient(#1b2740 1px, transparent 1px);opacity:.6}
 .threat-pulse{animation:threatPulse 2.4s ease-in-out infinite}
 @keyframes threatPulse{0%,100%{box-shadow:0 0 0 0 var(--threat)}50%{box-shadow:0 0 0 3px color-mix(in srgb, var(--threat) 22%, transparent)}}
 .sheen{position:relative;overflow:hidden}
@@ -1727,22 +1733,9 @@ function EUMap({ gs, sel, setSel }) {
   const coverageLabel = `Map of Europe. Your cluster is active in ${(gs.regions||[]).length} region${(gs.regions||[]).length===1?"":"s"} across ${(gs.countries||[]).length} countr${(gs.countries||[]).length===1?"y":"ies"}. ${(gs.rivals||[]).length} rival${(gs.rivals||[]).length===1?"":"s"} on the board.`;
   return (
     <svg viewBox={`0 0 ${MAP_W} ${MAP_H}`} role="img" aria-label={coverageLabel} style={{width:"100%",height:"100%",display:"block"}} xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-      {/* Background texture: dot grid + faint grid lines */}
-      <defs>
-        <pattern id="cm-dotgrid" width="14" height="14" patternUnits="userSpaceOnUse">
-          <circle cx="1.2" cy="1.2" r="1.2" fill={THEME_DARK ? "#1b2740" : "#dbe4f2"} opacity="0.6"/>
-        </pattern>
-        <radialGradient id="cm-seagrad" cx="42%" cy="38%" r="75%">
-          <stop offset="0%" stopColor={THEME_DARK ? "#101a30" : "#fbfdff"}/>
-          <stop offset="100%" stopColor={THEME_DARK ? "#0b1220" : "#eef3fb"}/>
-        </radialGradient>
-      </defs>
-      <rect x={0} y={0} width={MAP_W} height={MAP_H} fill="url(#cm-seagrad)"/>
-      <rect x={0} y={0} width={MAP_W} height={MAP_H} fill="url(#cm-dotgrid)"/>
-      {[100,200,300,400,500].map(y=><line key={`h${y}`} x1={0} y1={y} x2={MAP_W} y2={y} stroke={THEME_DARK?"#1a2338":"#c8d8ea"} strokeWidth={0.5} opacity={0.5}/>)}
-      {[100,200,300,400,500,600].map(x=><line key={`v${x}`} x1={x} y1={0} x2={x} y2={MAP_H} stroke={THEME_DARK?"#1a2338":"#c8d8ea"} strokeWidth={0.5} opacity={0.5}/>)}
-
-      {/* Clicking open water / background closes a pinned tooltip */}
+      {/* Clicking open water / background closes a pinned tooltip. The sea + dot texture
+          now lives on the map panel (see .map-sea) so it fills the whole window rather
+          than a letterboxed square. */}
       <rect x={0} y={0} width={MAP_W} height={MAP_H} fill="transparent" onClick={() => setSel && setSel(null)}/>
 
       {/* NUTS-2 basemap: every region is a real border polygon. Active regions fill with the sector colour. */}
@@ -3657,7 +3650,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
         </div>
 
         {/* Map */}
-        <div style={{flex:1,overflow:"hidden",position:"relative",minHeight:0}}>
+        <div className="map-sea" style={{flex:1,overflow:"hidden",position:"relative",minHeight:0}}>
           <EUMap gs={gs} sel={sel} setSel={setSel}/>
           <DigestCard gs={gs} digestOn={digestOn} reopenTick={digestReopen} onDigestToggle={onDigestToggle}/>
           <MapLegend gs={gs}/>
@@ -3803,7 +3796,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
       <div style={{flex:1,display:"flex",overflow:"hidden"}}>
         <LeftPanel gs={gs} dispatch={dispatch}/>
         <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
-          <div style={{flex:1,overflow:"hidden",padding:4,position:"relative"}}>
+          <div className="map-sea" style={{flex:1,overflow:"hidden",position:"relative"}}>
             <EUMap gs={gs} sel={sel} setSel={setSel}/>
             <DigestCard gs={gs} digestOn={digestOn} reopenTick={digestReopen} onDigestToggle={onDigestToggle}/>
             <MapLegend gs={gs}/>
