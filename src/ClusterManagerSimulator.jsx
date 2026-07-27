@@ -1,5 +1,10 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 
+// ─────────────────────────────────────────────────────────────
+// EU regional reference data
+// 27 countries · 180 NUTS regions · 14 industrial ecosystems.
+// ─────────────────────────────────────────────────────────────
+
 const DATA_ECOSYSTEMS = [{"id": "energy_renewables", "name": "Energy-Renewables", "icon": "leaf", "color": "#34d399"}, {"id": "agri_food", "name": "Agri-food", "icon": "wheat-awn", "color": "#4ade80"}, {"id": "mobility_transport", "name": "Mobility, Transport, Automotive", "icon": "car", "color": "#60a5fa"}, {"id": "digital", "name": "Digital", "icon": "display", "color": "#38bdf8"}, {"id": "health", "name": "Health", "icon": "hospital", "color": "#f87171"}, {"id": "energy_intensive_i", "name": "Energy Intensive Industries", "icon": "industry", "color": "#fb923c"}, {"id": "tourism", "name": "Tourism", "icon": "plane", "color": "#2dd4bf"}, {"id": "construction", "name": "Construction", "icon": "trowel", "color": "#f0a020"}, {"id": "creative_and_cultu", "name": "Creative and Cultural Industries", "icon": "palette", "color": "#c084fc"}, {"id": "electronics", "name": "Electronics", "icon": "microchip", "color": "#facc15"}, {"id": "aerospace_and_defe", "name": "Aerospace and Defence", "icon": "rocket", "color": "#94a3b8"}, {"id": "proximity_and_soci", "name": "Proximity and Social Economy", "icon": "handshake", "color": "#a78bfa"}, {"id": "textiles", "name": "Textiles", "icon": "shirt", "color": "#f472b6"}, {"id": "retail", "name": "Retail", "icon": "bag-shopping", "color": "#fb7185"}];
 
 const RIS_MODIFIER = {
@@ -104,6 +109,8 @@ input[type=range]{width:100%;accent-color:#3860ED;cursor:pointer}
 /* ═══════════════════════════════════════════════════════════
    PALETTE
 ═══════════════════════════════════════════════════════════ */
+// EU Commission digital colour system (ECL v4, ec.europa.eu/component-library).
+// Verified live from the official source, not an approximation.
 const P = {
   bg:"#F8F9FD",     panel:"#FFFFFF",   card:"#F3F5FB",   border:"#CDD5EF",    // ecl-neutral-20/white/40/80
   bright:"#E0E5F5", text:"#26324B",    muted:"#546FA6",                      // ecl-neutral-60, ecl-dark-100, ecl-dark-80
@@ -504,6 +511,18 @@ const PROJECTS = [
   {id:"gold", name:"Gold Label + EEN Integration", cat:"comms",    s:4,dur:4,mem:260,part:0,  base:110000,pb:0,     pres:40,mg:10, sr:4,fund:"eu",       preq:85,s3:1, desc:"Gold Excellence Label and EEN integration"},
   {id:"kic",  name:"Knowledge & Innovation Community", cat:"research", s:4,dur:10,mem:300,part:25,base:10500000,pb:500000,pres:72,mg:40,sr:7,fund:"eu",      ctr:10,reg:14,preq:88,cofin:0.30, desc:"EIT Knowledge and Innovation Community"},
   {id:"unify",name:"EU Cluster Unification Treaty",cat:"network",  s:4,dur:8,mem:400,part:30, base:18000000,pb:750000,pres:90,mg:80,sr:8,fund:"eu",      ctr:15,preq:95,brd:70,cofin:0.30, desc:"Final merger of all EU sector clusters"},
+  /* ── Added calls: fill gaps in the ladder (a cheap stage-0 comms option, two
+        mid-game network plays, a lobbying route, and two late flagships).
+        Fields: s=min stage, dur=quarters, mem=min members, part=max partners,
+        base=budget, pb=per-partner top-up, pres=influence, mg=member gain,
+        sr=min staff, cofin=own contribution, reg/preq/brd=extra gates.     ── */
+  {id:"opendoor",name:"Open Doors Week",              cat:"comms",    s:0,dur:1,mem:8,  part:2,  base:14000,   pb:3000,  pres:3, mg:5,  sr:0, fund:"local",    cofin:0.05, desc:"Member sites open to schools, press and the public for a week"},
+  {id:"mentor",  name:"SME Mentoring Exchange",       cat:"training", s:1,dur:3,mem:25, part:3,  base:70000,   pb:11000, pres:6, mg:6,  sr:2, fund:"regional", cofin:0.10, desc:"Experienced member firms coach newcomers through scale-up decisions"},
+  {id:"procure", name:"Joint Procurement Framework",  cat:"network",  s:2,dur:3,mem:55, part:5,  base:210000,  pb:26000, pres:9, mg:8,  sr:5, fund:"regional", cofin:0.12, reg:2, desc:"Pooled buying power for energy, logistics and certification services"},
+  {id:"datasp",  name:"Sectoral Data Space",          cat:"research", s:3,dur:4,mem:120,part:7,  base:640000,  pb:70000, pres:14,mg:11, sr:9, fund:"eu",       cofin:0.20, preq:60, desc:"Shared data infrastructure so members can trade information without losing control of it"},
+  {id:"posit",   name:"Position Paper Campaign",      cat:"lobbying", s:2,dur:2,mem:70, part:4,  base:120000,  pb:18000, pres:16,mg:3,  sr:6, fund:"national", cofin:0.10, brd:50, desc:"Evidence-backed sector position taken to national and EU consultations"},
+  {id:"flagship",name:"Pan-European Flagship Alliance",cat:"network", s:4,dur:5,mem:300,part:9,  base:1900000, pb:180000,pres:22,mg:18, sr:16,fund:"eu",       cofin:0.25, preq:82, desc:"A standing alliance of national clusters with a joint work programme and shared secretariat"},
+
 ];
 
 const EVENTS = [
@@ -590,6 +609,62 @@ const EVENTS = [
     choices:[{label:"Send your lobbyist", fx:{pfx:6,brd:2}},{label:"Decline on transparency grounds", fx:{pfx:2,mfx:1}}]},
   {id:"rstumble",n:"{RIVAL} Stumbles",            t:"choice",p:.05, minS:2, d:"An audit scandal hits {RIVAL}. Their members are looking around.",
     choices:[{label:"Poach openly", fx:{mfx:6,pfx:-2,brd:1,rvProg:-6}},{label:"Stay above it", fx:{pfx:4}}]},
+  /* ── Added content wave: policy-cycle texture, ecosystem-specific news and
+        state-gated dilemmas. Effects follow the existing conventions:
+        bfx <1 = share of treasury, >=1 = euros; mfx members; pfx influence
+        (0-100); brd board confidence; sfx -1 loses a staff member.        ── */
+
+  // — EU policy cycle —
+  {id:"midterm", n:"Cohesion Mid-Term Review",        t:"choice",p:.05, minS:2, d:"The managing authority reopens the {COUNTRY} programme. Reallocating means new money, but a rewritten smart-specialisation strategy may leave {SECTOR} outside the priority list.",
+    choices:[{label:"Lobby to keep the current priorities", fx:{bfx:-30000,pfx:5,brd:3}},{label:"Bid for the new thematic envelope", fx:{bfx:180000,pfx:-2,brd:-2}}]},
+  {id:"cbam",    n:"Carbon Border Adjustment Kicks In", t:"bad", p:.05, minS:2, eco:["energy_intensive_i","construction","electronics"], bfx:-.06, mfx:-4, pfx:0, d:"CBAM reporting duties land on your members' supply chains. Compliance costs bite before the free-allowance phase-out is even complete."},
+  {id:"nzia",    n:"Net-Zero Industry Act Windfall",   t:"good",p:.05, minS:2, eco:["energy_renewables","energy_intensive_i","electronics"], bfx:140000, mfx:7, pfx:6, d:"Your {SECTOR} members qualify as a strategic net-zero technology. Permitting is fast-tracked and a national allocation follows."},
+  {id:"aiconf",  n:"AI Act Conformity Scramble",        t:"choice",p:.05, minS:1, eco:["digital","electronics","health"], d:"High-risk classification lands on several member products. They want the cluster to run conformity support.",
+    choices:[{label:"Set up a shared compliance desk (€45k)", fx:{bfx:-45000,mfx:6,pfx:5,brd:4}},{label:"Point them to national authorities", fx:{mfx:-5,brd:-3}}]},
+  {id:"stateaid",n:"State Aid Investigation",          t:"bad", p:.04, minS:3, req:"flush", bfx:-.09, mfx:0, pfx:-5, d:"DG COMP queries whether your member support scheme constitutes selective advantage. Legal fees mount and disbursements freeze."},
+  {id:"jtf",     n:"Just Transition Fund Allocation",  t:"good",p:.05, minS:1, eco:["energy_intensive_i","energy_renewables","construction"], bfx:110000, mfx:5, pfx:4, d:"Your region qualifies for Just Transition support. Reskilling money arrives with reporting duties attached."},
+  {id:"interreg",n:"Interreg Partner Search",          t:"choice",p:.06, minS:1, d:"A cross-border programme wants a {SECTOR} partner. Modest money, real visibility, and a great deal of coordination.",
+    choices:[{label:"Join the consortium", fx:{bfx:55000,pfx:6,brd:2,mfx:3}},{label:"Stay focused at home", fx:{pfx:-1,brd:1}}]},
+  {id:"eukic",   n:"EIT Innovation Community Call",    t:"choice",p:.05, minS:2, req:"researchHeavy", d:"An EIT Knowledge and Innovation Community invites your research members into a co-location centre. Prestigious, and expensive to co-finance.",
+    choices:[{label:"Commit the co-financing (€90k)", fx:{bfx:-90000,pfx:11,mfx:8,brd:5}},{label:"Send observers only", fx:{pfx:1}}]},
+  {id:"omnibus", n:"Simplification Omnibus",           t:"good",p:.05, minS:2, req:"highBoard", bfx:.04, pfx:3, mfx:2, d:"A reporting-burden reduction package lands. Fewer templates, faster payment claims, and members notice the difference."},
+  {id:"audittr", n:"Managing Authority Spot Check",    t:"bad", p:.05, minS:1, req:"manyProjects", bfx:-.05, pfx:-2, d:"An on-the-spot verification arrives mid-delivery. Timesheets and procurement files consume a fortnight of staff time."},
+
+  // — membership and governance —
+  {id:"anchoutx",n:"Anchor Firm Relocates",            t:"bad", p:.05, minS:2, req:"corpHeavy", bfx:-.07, mfx:-11, pfx:-4, d:"Your largest corporate member shifts production out of {REGION}. Fee income and credibility go with it."},
+  {id:"smerev",  n:"SME Fee Revolt",                   t:"choice",p:.05, minS:2, req:"smeHeavy", d:"Small members argue the fee schedule favours large firms and threaten a collective exit.",
+    choices:[{label:"Introduce a tiered fee (costly but fair)", fx:{bfx:-.05,mfx:5,brd:5}},{label:"Hold the line on pricing", fx:{mfx:-9,brd:-5,pfx:1}}]},
+  {id:"univspin",n:"University Spin-Out Wave",         t:"good",p:.06, minS:1, req:"researchHeavy", mfx:9, pfx:4, bfx:0, d:"A partner faculty spins out several ventures and all of them join the cluster on research-rate membership."},
+  {id:"govchg",  n:"Regional Government Changes Hands",t:"choice",p:.05, minS:1, req:"aligned", d:"A new coalition takes office in {REGION} with different industrial priorities. Your standing invitation to the S3 working group is suddenly informal.",
+    choices:[{label:"Court the new administration hard", fx:{bfx:-25000,pfx:7,brd:2}},{label:"Keep your head down and deliver", fx:{pfx:-4,brd:3,bfx:15000}}]},
+  {id:"boardsplit",n:"Board Splits Over Strategy",     t:"choice",p:.05, minS:2, req:"lowBoard", d:"Half the board wants consolidation, half wants expansion. Someone will be unhappy.",
+    choices:[{label:"Consolidate: pause expansion, fix delivery", fx:{brd:9,pfx:-3,bfx:40000}},{label:"Expand: press on regardless", fx:{brd:-6,pfx:5,mfx:4}}]},
+  {id:"succplan",n:"Succession Planning Pressure",     t:"choice",p:.04, minS:3, req:"bigTeam", d:"The board wants a documented succession plan for your senior team. It is sensible, and it is a quarter of somebody's life.",
+    choices:[{label:"Do it properly", fx:{bfx:-20000,brd:7}},{label:"Promise it for next year", fx:{brd:-4}}]},
+
+  // — ecosystem-specific news —
+  {id:"gigafab", n:"Battery Gigafactory Announcement", t:"good",p:.05, minS:2, eco:["mobility_transport","energy_renewables","electronics"], bfx:120000, mfx:12, pfx:7, d:"A gigafactory picks a site within your footprint. Suppliers rush to join anything that looks like a local cluster."},
+  {id:"chipact", n:"Chips Act Pilot Line",             t:"good",p:.05, minS:3, eco:["electronics","digital"], bfx:260000, mfx:9, pfx:8, d:"A Chips Act pilot line lands in your network. Your members gain access to fabrication capacity they could never finance alone."},
+  {id:"farm2f",  n:"Farm to Fork Reformulation Push",  t:"choice",p:.05, minS:1, eco:["agri_food"], d:"Reformulation targets arrive. Members can lead the transition or resist it.",
+    choices:[{label:"Run a joint reformulation programme", fx:{bfx:-35000,mfx:7,pfx:6,brd:3}},{label:"Lobby for a longer transition", fx:{pfx:-3,brd:2,bfx:20000}}]},
+  {id:"textrec", n:"Textile Recycling Mandate",        t:"bad", p:.05, minS:1, eco:["textiles"], bfx:-.05, mfx:-3, pfx:2, d:"Separate collection duties arrive before the sorting infrastructure does. Members absorb the cost and the confusion."},
+  {id:"overtour",n:"Overtourism Backlash",             t:"bad", p:.05, minS:1, eco:["tourism"], mfx:-6, pfx:-3, bfx:-.03, d:"Residents in {REGION} campaign against visitor pressure. Several members quietly distance themselves from growth messaging."},
+  {id:"edfbid",  n:"European Defence Fund Consortium", t:"choice",p:.04, minS:3, eco:["aerospace_and_defe","electronics"], d:"An EDF call needs a cluster to assemble the supply chain. The money is substantial and the paperwork is formidable.",
+    choices:[{label:"Lead the consortium", fx:{bfx:220000,pfx:9,brd:3,sfx:0}},{label:"Participate as a partner", fx:{bfx:70000,pfx:3}}]},
+  {id:"careint", n:"Care Sector Integration Pilot",    t:"good",p:.05, minS:1, eco:["health","proximity_and_soci"], bfx:80000, mfx:8, pfx:5, d:"A regional health authority contracts your members for an integrated-care pilot. Social innovation with an invoice attached."},
+  {id:"herit",   n:"Cultural Heritage Fund Award",     t:"good",p:.05, minS:1, eco:["creative_and_cultu","tourism"], bfx:70000, mfx:5, pfx:6, d:"A heritage-led regeneration award names your cluster as delivery partner. Visibility far beyond the sector follows."},
+
+  {id:"bridge",  n:"Bridge Financing Offer",            t:"choice",p:.06, minS:1, req:"thin", d:"With the treasury nearly empty, a regional development bank offers bridge financing against future claims. It costs, and it buys time.",
+    choices:[{label:"Take the bridge loan", fx:{bfx:120000,pfx:-2,brd:2}},{label:"Cut costs and ride it out", fx:{sfx:-1,brd:-3,pfx:1}}]},
+
+  // — late game and rivalry —
+  {id:"monopoly",n:"Competition Concerns Raised",      t:"bad", p:.05, minS:4, req:"lastRival", pfx:-6, brd:-4, bfx:-.04, d:"With the field nearly cleared, a national authority asks whether one cluster should represent an entire ecosystem. Scrutiny is not the same as praise."},
+  {id:"poachwar",n:"Talent War Escalates",             t:"bad", p:.06, minS:2, req:"crowded", sfx:-1, bfx:-.03, pfx:-2, d:"Four clusters chasing the same specialists in {COUNTRY}. Someone leaves for a competitor's offer you could not match."},
+  {id:"seatlev", n:"Seat Brings Leverage",             t:"good",p:.06, minS:2, req:"hasSeat", pfx:5, bfx:.05, brd:5, d:"Your committee seat pays off: a programme amendment lands in your members' favour before the call text is even published."},
+  {id:"outsider",n:"Shut Out of the Room",             t:"bad", p:.06, minS:2, req:"noSeat", pfx:-4, brd:-3, d:"The call text is written without you. Two eligibility criteria fit a rival's membership almost exactly."},
+  {id:"kingmkr", n:"Kingmaker in the Consultation",    t:"good",p:.05, minS:4, req:"allSeats", pfx:4, bfx:.07, brd:6, d:"Holding all three chairs, your response to the consultation is treated as the sector position. Members notice who opens doors."},
+  {id:"borderfx",n:"Cross-Border Cluster Bonus",       t:"good",p:.05, minS:2, req:"fullCoverage", bfx:.06, mfx:6, pfx:4, d:"Complete national coverage makes you the obvious counterpart for a neighbouring country's cluster programme."},
+
 ];
 
 /* ── event selection: stage gates, state conditions, tokens, no repeat ── */
@@ -599,6 +674,21 @@ const EVENT_REQ = {
   idle:         s => (s.activeProjects||[]).length === 0,
   manyProjects: s => (s.activeProjects||[]).length >= 3,
   multiCountry: s => (s.countries||[]).length >= 4,
+  // added gates: let events respond to the shape of the cluster, not just its stage
+  highBoard:    s => (s.boardConf||0) >= 75,
+  flush:        s => (s.budget||0) > 1500000,
+  thin:         s => (s.budget||0) < 120000,
+  bigTeam:      s => staffTotal(s.roster) >= 12,
+  hasSeat:      s => seatsHeld(s) >= 1,
+  noSeat:       s => seatsHeld(s) === 0,
+  allSeats:     s => seatsHeld(s) === 3,
+  researchHeavy:s => resShare(s) > 0.18,
+  corpHeavy:    s => corpShare(s) > 0.30,
+  smeHeavy:     s => mixOf(s).sme / Math.max(1, s.members||1) > 0.78,
+  fullCoverage: s => (s.fullCountries||[]).length >= 1,
+  crowded:      s => (s.rivals||[]).length >= 3, // a full field — the engine caps rivals at 3
+  lastRival:    s => (s.rivals||[]).length === 1,
+  aligned:      s => !!s.s3Aligned,
 };
 function fillTokens(text, s) {
   return String(text)
@@ -664,6 +754,9 @@ function pickEvent(s) {
   const pool = EVENTS.filter(ev =>
     (ev.minS ?? 0) <= s.stage && s.stage <= (ev.maxS ?? 5) &&
     (!ev.req || (EVENT_REQ[ev.req] && EVENT_REQ[ev.req](s))) &&
+    // `eco` restricts an event to one or more industrial ecosystems, so a
+    // textiles cluster doesn't get battery-gigafactory news
+    (!ev.eco || (Array.isArray(ev.eco) ? ev.eco : [ev.eco]).includes(s.sector?.id)) &&
     ev.id !== s.lastEventId
   );
   if (!pool.length) return null;
@@ -901,6 +994,27 @@ const SCENARIOS = [
       completedProjects:[...Array(4)].map((_,i)=>({id:"leg"+i,fund:"local"})) }) },
   { id:"late",    name:"Late Entrant",     desc:"The race started without you: every rival is already established at Stage 2. Extra seed capital is your only edge.",
     apply: gs => ({ ...gs, budget:Math.round(gs.budget*1.5), rivals:(gs.rivals||[]).map(rv=>({ ...rv, stage:2, progress:Math.random()*40, members:rv.members+30 })) }) },
+  { id:"merger",  name:"Merger Aftermath", desc:"Two clusters just became one. Plenty of members and a corporate-heavy roll, but a duplicated payroll, a sceptical board and integration nobody has actually done yet.",
+    apply: gs => {
+      const members = 210;
+      const sme  = Math.round(members * 0.50);
+      const corp = Math.round(members * 0.38);
+      return { ...gs, stage:2, members, boardConf:30, prestige:44,
+        budget: Math.round(gs.budget * 2.4),
+        // corporate-heavy composition: strong fee income, weaker cohesion
+        mix: { sme, corp, res: members - sme - corp },
+        // the duplicated payroll is the whole problem: two of several roles
+        roster: [...gs.roster,
+          {role:"comms",  hiredTurn:0, name:staffName(), skill:3},
+          {role:"comms",  hiredTurn:0, name:staffName(), skill:2},
+          {role:"pm",     hiredTurn:0, name:staffName(), skill:3},
+          {role:"pm",     hiredTurn:0, name:staffName(), skill:2},
+          {role:"analyst",hiredTurn:0, name:staffName(), skill:2},
+          {role:"trainer",hiredTurn:0, name:staffName(), skill:2},
+          {role:"finance",hiredTurn:0, name:staffName(), skill:3}],
+        completedProjects: [...Array(14)].map((_,i)=>({ id:"mrg"+i, fund: i%3===0 ? "regional" : "local" })),
+        focus: "balanced" };
+    } },
 ];
 const scenarioOf = gs => SCENARIOS.find(x => x.id === (gs?.scenario||"classic")) || SCENARIOS[0];
 
@@ -1426,7 +1540,11 @@ function applyEvent(state, ev, choiceIdx) {
   if (fx.rvProg && Array.isArray(rivals) && rivals.length > 0) {
     rivals = rivals.map((rv, i) => i === 0 ? { ...rv, progress: Math.min(99, Math.max(0, (rv.progress||0) + fx.rvProg)) } : rv);
   }
-  return { ...state, budget, members, prestige, roster, boardConf, rivals };
+  { // events change membership (member deltas, poaching, steals) — keep the
+    // SME/corporate/research ledger reconciled so composition never drifts.
+    const out = { ...state, budget, members, prestige, roster, boardConf, rivals };
+    return { ...out, mix: mixOf(out) };
+  }
 }
 
 // National coverage: activating every region of a country grants a one-time bonus
@@ -1444,7 +1562,8 @@ function applyCoverage(state) {
     boardConf = Math.min(100, (boardConf||0) + Math.round(5*mul));
     log = [{t:"good",txt:`National coverage of ${c}: every region is active · +${Math.round(10*mul)} influence, +${Math.round(5*mul)}% members, board +${Math.round(5*mul)}${contested ? " (halved: a rival still operates there)" : ""}`}, ...(log||[])];
   });
-  return { ...state, fullCountries: full, prestige, members, boardConf, log };
+  { const out = { ...state, fullCountries: full, prestige, members, boardConf, log };
+    return { ...out, mix: mixOf(out) }; }
 }
 
 function reducer(state, action) {
@@ -1658,8 +1777,166 @@ function activeNutsCodes(gs) {
   return out;
 }
 
+/* ── Map pan & zoom ───────────────────────────────────────────
+   The map fits its panel by default. On a phone the smaller countries
+   (Benelux, the Baltics, the Aegean) are too small to inspect, so the
+   view supports drag-to-pan, pinch-to-zoom, wheel-zoom and buttons.
+   Zoom is expressed as a factor on the base viewBox; panning is clamped
+   so you can never lose the map off-screen.
+─────────────────────────────────────────────────────────────── */
+const MAP_ZOOM_MIN = 1;
+const MAP_ZOOM_MAX = 7;
+const DRAG_SLOP = 6; // px of movement before a tap becomes a drag
+
+function clampMapView(v) {
+  const z = Math.max(MAP_ZOOM_MIN, Math.min(MAP_ZOOM_MAX, v.z));
+  const w = MAP_W / z, h = MAP_H / z;
+  return {
+    z,
+    x: Math.max(0, Math.min(MAP_W - w, v.x)),
+    y: Math.max(0, Math.min(MAP_H - h, v.y)),
+  };
+}
+
+// Zoom by `factor` while keeping the SVG point (px,py) pinned under the finger.
+function zoomMapAt(v, factor, px, py) {
+  const z2 = Math.max(MAP_ZOOM_MIN, Math.min(MAP_ZOOM_MAX, v.z * factor));
+  const w1 = MAP_W / v.z, h1 = MAP_H / v.z;
+  const w2 = MAP_W / z2,  h2 = MAP_H / z2;
+  const rx = w1 ? (px - v.x) / w1 : 0.5;
+  const ry = h1 ? (py - v.y) / h1 : 0.5;
+  return clampMapView({ x: px - rx * w2, y: py - ry * h2, z: z2 });
+}
+
+function useMapView() {
+  const [view, setView] = useState({ x: 0, y: 0, z: 1 });
+  const svgRef = useRef(null);
+  const pointers = useRef(new Map());   // pointerId → {x,y} in client px
+  const pinch = useRef(null);           // {dist, cx, cy} at gesture start
+  const dragged = useRef(false);        // did this gesture move far enough to be a pan?
+  const last = useRef(null);            // last single-pointer position
+  const lastTap = useRef(0);
+
+  // client px → SVG user units, accounting for the letterbox fit
+  const toSvg = (cx, cy) => {
+    const el = svgRef.current;
+    if (!el) return { x: MAP_W / 2, y: MAP_H / 2 };
+    const r = el.getBoundingClientRect();
+    if (!r.width || !r.height) return { x: MAP_W / 2, y: MAP_H / 2 };
+    const vw = MAP_W / view.z, vh = MAP_H / view.z;
+    // preserveAspectRatio="xMidYMid meet": the viewBox is scaled uniformly and centred
+    const scale = Math.min(r.width / vw, r.height / vh);
+    const drawW = vw * scale, drawH = vh * scale;
+    const offX = r.left + (r.width - drawW) / 2;
+    const offY = r.top + (r.height - drawH) / 2;
+    return {
+      x: view.x + (cx - offX) / scale,
+      y: view.y + (cy - offY) / scale,
+    };
+  };
+
+  const onPointerDown = (e) => {
+    // ignore the secondary mouse buttons so right-click menus still work
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    dragged.current = false;
+    if (pointers.current.size === 1) {
+      last.current = { x: e.clientX, y: e.clientY };
+    } else if (pointers.current.size === 2) {
+      const [a, b] = [...pointers.current.values()];
+      pinch.current = {
+        dist: Math.hypot(a.x - b.x, a.y - b.y),
+        mid: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 },
+      };
+    }
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+  };
+
+  const onPointerMove = (e) => {
+    if (!pointers.current.has(e.pointerId)) return;
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pointers.current.size >= 2 && pinch.current) {
+      const [a, b] = [...pointers.current.values()];
+      const dist = Math.hypot(a.x - b.x, a.y - b.y);
+      if (pinch.current.dist > 0 && dist > 0) {
+        const factor = dist / pinch.current.dist;
+        if (Math.abs(factor - 1) > 0.01) {
+          const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+          const p = toSvg(mid.x, mid.y);
+          setView((v) => zoomMapAt(v, factor, p.x, p.y));
+          pinch.current = { dist, mid };
+          dragged.current = true;
+        }
+      }
+      return;
+    }
+
+    if (last.current) {
+      const dx = e.clientX - last.current.x;
+      const dy = e.clientY - last.current.y;
+      if (!dragged.current && Math.hypot(dx, dy) < DRAG_SLOP) return;
+      dragged.current = true;
+      const el = svgRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const vw = MAP_W / view.z, vh = MAP_H / view.z;
+      const scale = Math.min(r.width / vw, r.height / vh) || 1;
+      setView((v) => clampMapView({ ...v, x: v.x - dx / scale, y: v.y - dy / scale }));
+      last.current = { x: e.clientX, y: e.clientY };
+    }
+  };
+
+  const endPointer = (e) => {
+    pointers.current.delete(e.pointerId);
+    if (pointers.current.size < 2) pinch.current = null;
+    if (pointers.current.size === 0) {
+      last.current = null;
+      // double-tap (or double-click) toggles between fit and a 2.5× look
+      if (!dragged.current) {
+        const now = Date.now();
+        if (now - lastTap.current < 300) {
+          const p = toSvg(e.clientX, e.clientY);
+          setView((v) => (v.z > 1.2 ? { x: 0, y: 0, z: 1 } : zoomMapAt(v, 2.5, p.x, p.y)));
+          lastTap.current = 0;
+        } else {
+          lastTap.current = now;
+        }
+      }
+    }
+  };
+
+  const onWheel = (e) => {
+    e.preventDefault();
+    const p = toSvg(e.clientX, e.clientY);
+    const factor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
+    setView((v) => zoomMapAt(v, factor, p.x, p.y));
+  };
+
+  // Suppress the click that follows a pan, so dragging across the map doesn't
+  // also select whatever region happened to be under the finger.
+  const onClickCapture = (e) => {
+    if (dragged.current) { e.stopPropagation(); e.preventDefault(); }
+  };
+
+  const zoomBy = (factor) =>
+    setView((v) => zoomMapAt(v, factor, v.x + MAP_W / v.z / 2, v.y + MAP_H / v.z / 2));
+  const reset = () => setView({ x: 0, y: 0, z: 1 });
+
+  return {
+    view, svgRef, zoomBy, reset,
+    zoomed: view.z > 1.02,
+    handlers: {
+      onPointerDown, onPointerMove,
+      onPointerUp: endPointer, onPointerCancel: endPointer, onPointerLeave: endPointer,
+      onWheel, onClickCapture,
+    },
+  };
+}
+
 function EUMap({ gs, sel, setSel }) {
   const [hov, setHov] = useState(null);
+  const map = useMapView();
   const sc      = gs?.sector?.color || P.accent;
   const homeISO = NAME_TO_ISO[gs?.country] || "";
   const activeSet = new Set((gs?.countries||[]).map(c => NAME_TO_ISO[c]).filter(Boolean));
@@ -1724,8 +2001,12 @@ function EUMap({ gs, sel, setSel }) {
   }
 
   const coverageLabel = `Map of Europe. Your cluster is active in ${(gs.regions||[]).length} region${(gs.regions||[]).length===1?"":"s"} across ${(gs.countries||[]).length} countr${(gs.countries||[]).length===1?"y":"ies"}. ${(gs.rivals||[]).length} rival${(gs.rivals||[]).length===1?"":"s"} on the board.`;
+  const vb = `${map.view.x} ${map.view.y} ${MAP_W / map.view.z} ${MAP_H / map.view.z}`;
   return (
-    <svg viewBox={`0 0 ${MAP_W} ${MAP_H}`} role="img" aria-label={coverageLabel} style={{width:"100%",height:"100%",display:"block"}} xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+    <>
+    <svg ref={map.svgRef} viewBox={vb} role="img" aria-label={coverageLabel}
+      style={{width:"100%",height:"100%",display:"block",touchAction:"none",cursor:map.zoomed?"grab":"default"}}
+      xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" {...map.handlers}>
       {/* Clicking open water / background closes a pinned tooltip. The sea + dot texture
           now lives on the map panel (see .map-sea) so it fills the whole window rather
           than a letterboxed square. */}
@@ -1847,9 +2128,36 @@ function EUMap({ gs, sel, setSel }) {
         </g>
       ))}
 
-      {/* Watermark */}
-      <text x={MAP_W-6} y={MAP_H-6} textAnchor="end" fontSize={10} fill={P.muted} fontFamily="DM Mono,monospace" opacity={0.5}>{STAGES[gs?.stage||0]?.name} · Quarter {gs?.quarter||1} {gs?.year||2024} · {diffOf(gs).label}</text>
     </svg>
+
+    {/* Watermark — HTML, not SVG, so zooming the map doesn't magnify it */}
+    <div style={{position:"absolute",right:8,bottom:6,pointerEvents:"none",fontSize:10,color:P.muted,opacity:0.55,fontFamily:"'DM Mono',monospace",whiteSpace:"nowrap"}}>
+      {STAGES[gs?.stage||0]?.name} · Quarter {gs?.quarter||1} {gs?.year||2024} · {diffOf(gs).label}
+    </div>
+
+    {/* Zoom controls: buttons matter for anyone who can't pinch (desktop, or
+        assistive input), and give a visible way back to the full view. */}
+    <div style={{position:"absolute",right:8,bottom:26,zIndex:36,display:"flex",flexDirection:"column",gap:4}}>
+      <button className="btn" onClick={()=>map.zoomBy(1.5)} title="Zoom in" aria-label="Zoom in on the map"
+        style={{width:30,height:30,borderRadius:7,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:15,fontWeight:700,lineHeight:1,boxShadow:"0 2px 8px rgba(10,25,60,.12)",display:"flex",alignItems:"center",justifyContent:"center"}}>+</button>
+      <button className="btn" onClick={()=>map.zoomBy(1/1.5)} title="Zoom out" aria-label="Zoom out of the map"
+        style={{width:30,height:30,borderRadius:7,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:17,fontWeight:700,lineHeight:1,boxShadow:"0 2px 8px rgba(10,25,60,.12)",display:"flex",alignItems:"center",justifyContent:"center"}}>−</button>
+      {map.zoomed && (
+        <button className="btn" onClick={map.reset} title="Fit the whole map" aria-label="Reset the map to fit the whole of Europe"
+          style={{width:30,height:30,borderRadius:7,border:`1px solid ${P.accent}66`,background:`${P.accent}12`,color:P.accent,boxShadow:"0 2px 8px rgba(10,25,60,.12)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <Icon name="rotate-left" size={12} color={P.accent}/>
+        </button>
+      )}
+    </div>
+
+    {map.zoomed && (
+      <div style={{position:"absolute",left:"50%",transform:"translateX(-50%)",top:8,zIndex:36,pointerEvents:"none",
+        fontSize:9.5,fontFamily:"'DM Mono',monospace",color:P.muted,background:P.panel,border:`1px solid ${P.border}`,
+        borderRadius:20,padding:"3px 10px",boxShadow:"0 2px 8px rgba(10,25,60,.10)",whiteSpace:"nowrap"}}>
+        {map.view.z.toFixed(1)}× · drag to pan
+      </div>
+    )}
+    </>
   );
 }
 
@@ -2939,8 +3247,8 @@ function StatsModal({ gs, onClose, dispatch }) {
           </div>
         </Card>
 
-        {(gs.activeProjects||[]).length === 0 && avail.length > 0 && (
-          <Card><EmptyState icon="folder-open" title="No active projects" hint="Launch a call below to start earning. Projects pre-finance in instalments, interim payments cover 70% as you deliver, and success pays a margin on top."/></Card>
+        {(gs.activeProjects||[]).length === 0 && (
+          <Card><EmptyState icon="folder-open" title="No active projects" hint="Open the Projects tab to launch a call. Projects pre-finance in instalments, interim payments cover 70% as you deliver, and success pays a margin on top."/></Card>
         )}
         {(gs.activeProjects||[]).length > 0 && (
           <Card>
@@ -3594,7 +3902,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
       {modal==="rivals"   && <RivalsModal   gs={gs} dispatch={dispatch} onClose={() => setModal(null)}/>}
       {modal==="evolve"   && <EvolveModal   gs={gs} dispatch={dispatch} onClose={() => setModal(null)}/>}
       {modal==="log"      && <LogModal      gs={gs}                     onClose={() => setModal(null)}/>}
-      {modal==="slots"    && <SaveSlots     gs={gs} onLoad={s => dispatch({type:"loadState", state:s})} onClose={() => setModal(null)}/>}
+      {modal==="slots"    && <SaveSlots     gs={gs} onLoad={s => { dispatch({type:"loadState", state:s}); setModal(null); }} onClose={() => setModal(null)}/>}
       <Confetti burst={burst}/>
       <StageBanner banner={stageBanner} sector={gs.sector}/>
       <FloatingDeltas gs={gs}/>
@@ -3983,10 +4291,120 @@ async function readSlots() {
   return out;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   SAVE EXPORT / IMPORT
+   Saves live in browser storage, which is lost if you clear site data
+   or move to another device. These turn a run into a portable string
+   (or a small file) you can keep, move or send to someone else.
+═══════════════════════════════════════════════════════════ */
+const SAVE_CODE_TAG = "CMSAVE1";
+
+// UTF-8-safe base64 both ways (btoa alone mangles non-ASCII region names).
+function b64encode(str) {
+  if (typeof TextEncoder !== "undefined" && typeof btoa !== "undefined") {
+    const bytes = new TextEncoder().encode(str);
+    let bin = ""; for (const b of bytes) bin += String.fromCharCode(b);
+    return btoa(bin);
+  }
+  return Buffer.from(str, "utf8").toString("base64"); // node (tests)
+}
+function b64decode(b64) {
+  if (typeof TextDecoder !== "undefined" && typeof atob !== "undefined") {
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+  return Buffer.from(b64, "base64").toString("utf8"); // node (tests)
+}
+
+// A short checksum so a truncated or mistyped code fails loudly rather than
+// loading a half-broken campaign.
+function saveChecksum(str) {
+  let h = 2166136261;
+  for (let i=0;i<str.length;i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return (h >>> 0).toString(36).slice(0, 6);
+}
+
+// Floats like 61.58456424774336 cost ~15 characters each and no player will
+// ever notice 2 decimal places, so round the whole tree on the way out.
+function roundFloats(v) {
+  if (typeof v === "number") return Number.isInteger(v) ? v : Math.round(v * 100) / 100;
+  if (Array.isArray(v)) return v.map(roundFloats);
+  if (v && typeof v === "object") {
+    const o = {};
+    for (const k of Object.keys(v)) o[k] = roundFloats(v[k]);
+    return o;
+  }
+  return v;
+}
+
+// The quarter log and the pending digest are presentation-only and account for
+// most of a save's bulk, so they're left out; history is trimmed to what the
+// sparklines actually display.
+function slimSave(gs) {
+  return roundFloats({
+    ...gs,
+    log: [],
+    digest: null,
+    pendingEvent: gs.pendingEvent || null,
+    history: (gs.history || []).slice(-60),
+  });
+}
+
+function exportSave(gs) {
+  if (!gs) return "";
+  const json = JSON.stringify(slimSave(gs));
+  return `${SAVE_CODE_TAG}.${saveChecksum(json)}.${b64encode(json)}`;
+}
+
+/* Returns { ok:true, state } or { ok:false, error } — never throws, so the UI
+   can show a plain-language reason. */
+function importSave(code) {
+  const raw = String(code || "").trim().replace(/\s+/g, "");
+  if (!raw) return { ok:false, error:"Paste a save code first." };
+  const parts = raw.split(".");
+  if (parts.length !== 3 || parts[0] !== SAVE_CODE_TAG) {
+    return { ok:false, error:"That doesn't look like a Cluster Manager save code." };
+  }
+  const [, sum, payload] = parts;
+  let json;
+  try { json = b64decode(payload); }
+  catch { return { ok:false, error:"The code is damaged and couldn't be decoded." }; }
+  if (saveChecksum(json) !== sum) {
+    return { ok:false, error:"The code looks incomplete — copy the whole thing and try again." };
+  }
+  let parsed;
+  try { parsed = JSON.parse(json); }
+  catch { return { ok:false, error:"The code is damaged and couldn't be read." }; }
+  if (!parsed || typeof parsed !== "object" || typeof parsed.turn !== "number" || !parsed.sector) {
+    return { ok:false, error:"That code doesn't contain a valid campaign." };
+  }
+  return { ok:true, state: migrateSave({ ...parsed, log: parsed.log || [] }) };
+}
+
+// Download the current run as a small file, for players who'd rather keep a
+// backup than hold a long string on a clipboard.
+function downloadSave(gs) {
+  try {
+    const name = `cluster-manager-${(gs?.sector?.name||"run").toLowerCase().replace(/[^a-z0-9]+/g,"-")}-Q${(gs?.turn||0)}.cmsave`;
+    const blob = new Blob([exportSave(gs)], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    return true;
+  } catch(e) { return false; }
+}
+
 /* ═══ SaveSlots panel (shown in-game via the Log/menu and on Setup) ═══ */
 function SaveSlots({ gs, onClose, onLoad }) {
   const [slots, setSlots] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [code, setCode] = useState("");   // generated export code
+  const [paste, setPaste] = useState(""); // code the player is restoring
+  const [msg, setMsg] = useState(null);   // {t:"good"|"bad", x:string}
   const refresh = () => readSlots().then(setSlots);
   useEffect(() => { refresh(); }, []);
   const doSave = async i => { setBusy(true); await saveToSlot(i, gs); await refresh(); setBusy(false); };
@@ -4004,6 +4422,73 @@ function SaveSlots({ gs, onClose, onLoad }) {
           {!s.empty && onLoad && <button className="btn" onClick={()=>doLoad(s.i)} style={{padding:"5px 11px",borderRadius:5,border:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11,fontWeight:700}}>Load</button>}
         </div>
       ))}
+
+      <div style={{marginTop:16,paddingTop:14,borderTop:`1px solid ${P.border}`}}>
+        <Lbl t="Move a run between devices"/>
+        <div style={{fontSize:11,color:P.muted,marginBottom:9,lineHeight:1.5}}>
+          Slots live in this browser only — clearing site data or switching device loses them.
+          A save code (or file) is a portable copy you can keep or send to someone else.
+        </div>
+
+        {gs && (
+          <div style={{marginBottom:12}}>
+            <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:6}}>
+              <button className="btn" onClick={()=>{ setCode(exportSave(gs)); setMsg(null); }} style={{padding:"6px 12px",borderRadius:6,border:`1px solid ${P.accent}66`,background:`${P.accent}0d`,color:P.accent,fontSize:11,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5}}>
+                <Icon name="clipboard-list" size={11} color={P.accent}/> Create save code
+              </button>
+              <button className="btn" onClick={()=>{ setMsg(downloadSave(gs) ? {t:"good",x:"Save file downloaded."} : {t:"bad",x:"This browser blocked the download."}); }} style={{padding:"6px 12px",borderRadius:6,border:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5}}>
+                <Icon name="floppy-disk" size={11} color={P.muted}/> Download file
+              </button>
+            </div>
+            {code && (
+              <div>
+                <textarea readOnly value={code} onFocus={e=>e.target.select()} rows={3} aria-label="Your save code — copy all of it"
+                  style={{width:"100%",boxSizing:"border-box",fontFamily:"'DM Mono',monospace",fontSize:9.5,padding:8,borderRadius:6,border:`1px solid ${P.border}`,background:P.bright,color:P.text,resize:"vertical",lineHeight:1.35}}/>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginTop:5}}>
+                  <button className="btn" onClick={async()=>{
+                    let done=false;
+                    try { if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(code); done=true; } } catch(e) {}
+                    setMsg(done ? {t:"good",x:"Save code copied to the clipboard."} : {t:"bad",x:"Couldn't copy automatically — select the text and copy it manually."});
+                  }} style={{padding:"5px 11px",borderRadius:5,border:`1px solid ${P.accent}66`,background:"transparent",color:P.accent,fontSize:11,fontWeight:700}}>Copy</button>
+                  <span style={{fontSize:10,color:P.muted,fontFamily:"'DM Mono',monospace"}}>{code.length.toLocaleString()} characters — copy all of it</span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div>
+          <div style={{fontSize:11,fontWeight:700,color:P.text,marginBottom:5}}>Restore from a code or file</div>
+          <textarea value={paste} onChange={e=>{ setPaste(e.target.value); setMsg(null); }} rows={2} placeholder="Paste a save code here…" aria-label="Paste a save code to restore a run"
+            style={{width:"100%",boxSizing:"border-box",fontFamily:"'DM Mono',monospace",fontSize:9.5,padding:8,borderRadius:6,border:`1px solid ${P.border}`,background:P.card,color:P.text,resize:"vertical"}}/>
+          <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:6}}>
+            <button className="btn" disabled={!paste.trim()} onClick={()=>{
+              const r = importSave(paste);
+              if (r.ok && onLoad) { onLoad(r.state); }
+              else setMsg({t:"bad",x:r.error||"That code could not be read."});
+            }} style={{padding:"6px 12px",borderRadius:6,border:`1px solid ${paste.trim()?P.green:P.border}66`,background:paste.trim()?`${P.green}0d`:"transparent",color:paste.trim()?P.greenText:P.muted,fontSize:11,fontWeight:700}}>Restore this run</button>
+            <label className="btn" style={{padding:"6px 12px",borderRadius:6,border:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11,fontWeight:700,cursor:"pointer",display:"inline-flex",alignItems:"center",gap:5}}>
+              <Icon name="folder-open" size={11} color={P.muted}/> Choose a file
+              <input type="file" accept=".cmsave,.txt,text/plain" style={{display:"none"}} onChange={e=>{
+                const f = e.target.files && e.target.files[0];
+                if (!f) return;
+                const rd = new FileReader();
+                rd.onload = () => { setPaste(String(rd.result||"").trim()); setMsg({t:"good",x:`Loaded ${f.name} — press “Restore this run”.`}); };
+                rd.onerror = () => setMsg({t:"bad",x:"That file couldn't be read."});
+                rd.readAsText(f);
+                e.target.value = "";
+              }}/>
+            </label>
+          </div>
+        </div>
+
+        {msg && (
+          <div role="status" style={{marginTop:9,fontSize:11,padding:"7px 10px",borderRadius:6,lineHeight:1.45,
+            border:`1px solid ${msg.t==="good"?P.green:P.red}55`,
+            background:`${msg.t==="good"?P.green:P.red}0d`,
+            color:msg.t==="good"?P.greenText:P.redText}}>{msg.x}</div>
+        )}
+      </div>
     </Modal>
   );
 }

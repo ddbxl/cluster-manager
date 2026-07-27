@@ -39,7 +39,9 @@ You win by reaching Stage 5 first, or by eliminating every rival (market consoli
 
 **Living rivals.** Rival clusters, each with a distinct archetype — Poacher, Brussels Insider, Expansionist, Deliverer, Discounter. They expand territorially, contest your funding bids, raid your members and draw from the same finite market. Collapsed or acquired rivals are replaced by new entrants, so the field keeps refilling; only eliminating the last one ends the race. If you run away with the lead they may form a temporary coalition against you. Fight back with talent raids, PR campaigns, consortium pacts, scouting operations and outright acquisitions of collapsing rivals.
 
-**Scenarios, achievements & shareable runs.** Start a Classic Campaign, a Rescue Mission (take over a collapsing cluster) or as a Late Entrant (rivals already established). Ten achievements reward particular feats. A seed makes campaign starts reproducible: copy a challenge code from the end-of-run report card and a friend can race the identical start, then compare scores and grades.
+**Four scenarios, achievements & shareable runs.** Start a Classic Campaign, a Rescue Mission (take over a collapsing cluster), a Late Entrant race (rivals already established) or a Merger Aftermath — two clusters just became one, so you inherit a large corporate-heavy membership, a sceptical board and a duplicated payroll that already exceeds your management capacity. Ten achievements reward particular feats. A seed makes campaign starts reproducible: copy a challenge code from the end-of-run report card and a friend can race the identical start, then compare scores and grades.
+
+**A living policy cycle.** Around a hundred events draw on the real instruments your members would actually meet — CBAM reporting, the Net-Zero Industry Act, AI Act conformity, Just Transition allocations, Interreg partner searches, EIT communities, state-aid scrutiny, the cohesion mid-term review — and many are specific to your ecosystem, so a textiles cluster and an aerospace cluster read different news. Others respond to the shape of your cluster: whether you hold a seat, how corporate-heavy your membership is, whether the treasury is thin, how crowded the field has become. Nearly forty funding calls span the ladder from an Open Doors Week to a Pan-European Flagship Alliance.
 
 **Three difficulties.** Junior to learn the ropes, Officer for a fair fight, Expert for no safety net.
 
@@ -50,6 +52,8 @@ You win by reaching Stage 5 first, or by eliminating every rival (market consoli
 - Dark mode, a larger-text toggle, colour-blind-friendly rival map patterns, and full `prefers-reduced-motion` support
 - Keyboard shortcuts (Space to advance the quarter, 1–4 for panels, U to undo, Esc to close)
 - One-step undo on Junior and Officer, sound effects you can mute, and a run-history CSV export
+- Pan and zoom the map: drag, pinch, scroll or use the on-screen buttons — so the Baltics and Benelux are legible on a phone
+- Move a run between devices: export it as a save code or a small file, and restore it anywhere (browser storage alone is lost when you clear site data)
 - Works on desktop (tabbed side panel) and mobile (bottom navigation), with a screen-reader label on the map
 
 ## Grounded in reality
@@ -59,7 +63,8 @@ The game mechanics are based on publicly available European Commission reports a
 ## Tech notes
 
 - Single self-contained HTML file: React 18 + game engine pre-compiled and minified with esbuild, no CDN calls
-- Saves via `localStorage` (with an in-memory fallback for restrictive privacy modes) plus three manual save slots
+- Saves via `localStorage` (with an in-memory fallback for restrictive privacy modes), three manual save slots, and portable export/import as a code or `.cmsave` file
+- Built from source with one command (`npm run build`) and covered by a test suite of ~240 checks — engine rules, a fuzz harness that plays hundreds of games asserting invariants, a competent bot that exercises the late game, and jsdom component tests. See [CONTRIBUTING.md](CONTRIBUTING.md)
 - Installable as a Progressive Web App (bundled `manifest.json`)
 - Works on desktop (tabbed side panel) and mobile (bottom navigation)
 - The embedded React library carries its standard MIT licence header (© Meta) — that notice covers the framework, not the game

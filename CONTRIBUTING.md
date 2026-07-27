@@ -1,71 +1,146 @@
-# Cluster Manager
+# Contributing to Cluster Manager
 
-An EU industrial strategy simulation in a single HTML file.
+Thanks for your interest. This is a single-file browser game, deliberately kept
+simple to build and hack on: no framework, no bundler config, one build script.
 
-Take a small regional cluster initiative and build it into the Pan-European Cluster Network — or outlast your rivals and win by market consolidation. Manage a named team, finance publicly funded projects, expand across a real map of Europe, play politics in Brussels, and fight off rival clusters with personalities of their own.
+## How the project is laid out
 
-## Play
+```
+cluster-manager/
+├── src/
+│   └── ClusterManagerSimulator.jsx   ← THE SOURCE. Everything lives here:
+│                                        game engine, React UI, map data, styles.
+├── build/
+│   └── build.mjs                     ← Compiles the source into index.html.
+├── test/                             ← The test suite (see below).
+│   ├── build-bundle.mjs              ← Makes the source importable by tests.
+│   ├── helpers.mjs                   ← Tiny assertion helper, no framework.
+│   ├── engine.test.mjs               ← Rules, finance, evolution, saves, content.
+│   ├── fuzz.test.mjs                 ← Random play; invariants must never break.
+│   ├── bot.test.mjs                  ← Competent play; exercises the late game.
+│   └── ui.test.cjs                   ← Components render and respond (jsdom).
+├── index.html                        ← BUILD OUTPUT, committed so GitHub Pages
+│                                        can serve it. Do not edit by hand.
+├── manifest.json                     ← PWA manifest (home-screen install).
+├── preview.png                       ← Image used for link previews (og:image).
+├── package.json                      ← Build/test dependencies and scripts.
+├── README.md
+└── LICENSE                           ← GNU GPL v3.
+```
 
-Play now in your browser: **[ddbxl.github.io/cluster-manager](https://ddbxl.github.io/cluster-manager)**
+The entire game — the reducer, the quarter engine, the map geometry, every React
+component, and the CSS — is one `.jsx` file. That is intentional: it keeps the
+mental model small and the build trivial. Search within the file; the sections
+are separated by banner comments (e.g. `function advanceTurn`, `function EUMap`,
+`const EVENTS`, `const PROJECTS`).
 
-Or run it locally — no install, no server, no dependencies:
+## Building it yourself
 
-1. Download `index.html` (or clone the repository: `git clone https://github.com/ddbxl/cluster-manager.git`)
-2. Open it in any modern browser (double-click works)
+You need [Node.js](https://nodejs.org) 18 or newer.
 
-That's it. React, the game engine, the map data and the styling are all bundled inside the one file (~530 KB). Your game saves automatically to your browser's local storage, and you also get three manual save slots — close the tab and continue later. An internet connection is only used to load fonts; the game itself runs fully offline, and it installs to a phone home screen as a Progressive Web App.
+```bash
+npm install            # one time: installs esbuild, react and jsdom
+npm run build          # → writes index.html
+```
 
-An in-game **How to Play** button (setup screen and header) contains the full manual.
+Then just open `index.html` in any browser — double-clicking works. The build
+bundles the source with React, minifies it, and wraps it in the HTML shell
+(meta tags, favicon, manifest link). The result is a ~540 KB self-contained
+page that makes no network calls except to load web fonts.
 
-## The game
+For a readable (unminified) build to debug in browser dev-tools:
 
-You run a cluster organisation — the body that connects companies, universities and public authorities in one industrial ecosystem. Pick a country, a NUTS-2 home region and one of 14 industrial ecosystems, then grow through six stages:
+```bash
+npm run build:readable   # → also writes index_readable.html
+```
 
-**Cluster Initiative → Cluster Organisation → National Association → Cross-Border Metacluster → EU Platform → Pan-European Cluster Network**
+`index_readable.html` is git-ignored — it's a throwaway debugging artifact.
 
-You win by reaching Stage 5 first, or by eliminating every rival (market consolidation). You lose if the board's confidence collapses, the money runs out — or a rival builds the Network before you.
+## Running the tests
 
-## Core systems
+```bash
+npm test              # everything: engine, fuzz, bot and UI
+npm run test:engine   # just the rules and content checks
+npm run test:fuzz     # random play, invariant checking
+npm run test:bot      # competent play; also a rough balance report
+npm run test:ui       # component rendering in jsdom
+npm run test:soak     # a long run: 2000 fuzz games + 40 bot runs per difficulty
+```
 
-**Projects are investments.** Publicly funded calls don't hand you their volume: you pre-finance delivery in quarterly instalments, interim payments reimburse 70 % as you go, and success pays the balance plus a margin (local ~15 % → EU ~32 %). Failure is audited down to 60 % of costs — a real loss. Every call shows its cash-flow deal and enabling conditions before you commit.
+`npm test` takes well under a minute. Please run it before opening a pull
+request, and add a test alongside any behaviour change.
 
-**Named team, one boss.** Nothing advances without your General Manager (exactly one, ever). The GM manages 7 staff; each Executive Director extends the span by 7; no role may exceed a third of the team. Every hire is a named person with a skill level (1–5) that grows with tenure and lifts their output; roughly one in eight arrives as a star. Top performers occasionally demand raises, and rivals will try to headhunt them. Every new office hires mandatory local staff you can't dismiss, and salaries inflate +1 % per quarter.
+What each suite is for:
 
-**Member composition.** Your members are a mix of SMEs (low fees, volatile), corporates (high fees; an anchor share lifts board confidence) and research institutes (low fees; a strong share improves research-project margins). A recruitment-focus control steers who joins next. Regions with an *Emerging* innovation-scoreboard tier carry cohesion-fund intensity: richer regional and national margins, at slightly higher delivery risk.
+- **engine** — the rules a change is most likely to break by accident: the
+  quarter loop, project finance, staff capacity, evolution gates, territory,
+  rivals, scenarios, scoring, save export/import, and the map pan/zoom maths.
+  It also checks content integrity — unique ids, sane probabilities,
+  satisfiable stage windows, and that **every event and project is reachable**
+  in some legal game state. That last one matters: it is easy to write a gate
+  nothing can satisfy, and dead content is invisible in play.
+- **fuzz** — plays hundreds of games making random decisions across all 14
+  industrial ecosystems and all 4 scenarios, asserting a dozen invariants after
+  every quarter: finite money, membership of at least one, board confidence in
+  range, exactly one General Manager, no duplicate rivals, and the
+  SME/corporate/research ledger always summing to the headline member count.
+- **bot** — a deliberately *competent* player that expands territory and hires
+  against the next stage gate. Random play rarely survives a dozen quarters, so
+  without this the late game (stage 3 and up, political seats, victory) would
+  never be exercised. It doubles as a balance guard.
+- **ui** — mounts every component in jsdom and checks the things that rot
+  silently: the map drawing its geography, seat pins, the legend, rival threat
+  cues, the save panel, and the accessibility affordances.
 
-**Real geography.** 232 NUTS-2 regions with true borders (Eurostat geometry). Country expansion is bordering-only (ferry links count) and capped by maturity — a National Association manages 3 countries, a Metacluster 9, an EU Platform 19. Full national coverage earns a political bonus. From National Association onward the cluster becomes cross-ecosystem.
+## Making a change
 
-**Influence & political seats.** Influence — your standing with public authorities — fades unless maintained, and converts into three contested chairs: the Regional S3 Committee, the National Cluster Platform and the EU High-Level Group. Each grants better margins, cheaper expansion, poaching protection or slower rivals. One chair each; rivals race you for them, and can be displaced.
+1. Edit **`src/ClusterManagerSimulator.jsx`** — never `index.html` directly.
+2. Run `npm run build`.
+3. Run `npm test`.
+4. Open `index.html` and check it in the browser. Try both light and dark mode,
+   and resize down to a phone width — the layout switches from a tabbed side
+   panel (desktop) to bottom navigation (mobile) around 820 px. If you touched
+   `EUMap`, check drag-to-pan and pinch-to-zoom still behave.
+5. Commit **both** `src/ClusterManagerSimulator.jsx` **and** the regenerated
+   `index.html`. The committed `index.html` is what the live site serves, so it
+   must stay in step with the source.
 
-**Living rivals.** Rival clusters, each with a distinct archetype — Poacher, Brussels Insider, Expansionist, Deliverer, Discounter. They expand territorially, contest your funding bids, raid your members and draw from the same finite market. Collapsed or acquired rivals are replaced by new entrants, so the field keeps refilling; only eliminating the last one ends the race. If you run away with the lead they may form a temporary coalition against you. Fight back with talent raids, PR campaigns, consortium pacts, scouting operations and outright acquisitions of collapsing rivals.
+### Conventions worth knowing
 
-**Scenarios, achievements & shareable runs.** Start a Classic Campaign, a Rescue Mission (take over a collapsing cluster) or as a Late Entrant (rivals already established). Ten achievements reward particular feats. A seed makes campaign starts reproducible: copy a challenge code from the end-of-run report card and a friend can race the identical start, then compare scores and grades.
+- **Displayed vs internal names.** Some fields differ from their labels for
+  save compatibility — the stat shown as "Influence" is stored as `prestige`.
+  Don't rename stored fields casually; it breaks existing saves. `migrateSave()`
+  upgrades old save shapes — extend it rather than breaking the format.
+- **Money is in whole euros** internally, formatted by `fmt()`, which follows
+  the browser's locale for separators.
+- **Difficulty is a set of multipliers** (`DIFFICULTIES`), not magic numbers
+  scattered through the engine. Balance tweaks belong there.
+- **The member composition ledger must always reconcile.** `gs.mix` (SME /
+  corporate / research) must sum exactly to `gs.members`. Anything that changes
+  membership — growth, churn, events, coverage rewards — has to keep it in
+  step; call `mixOf()` on the way out. The fuzz suite enforces this.
+- **Adding content.** Events live in `EVENTS`, projects in `PROJECTS`,
+  scenarios in `SCENARIOS`. An event's effects follow fixed conventions: `bfx`
+  below 1 is a *share* of the treasury while 1 or more is a euro amount; `mfx`
+  is a member delta; `pfx` is influence (clamped 0–100); `brd` is board
+  confidence; `sfx: -1` costs you a staff member. Gate an event with
+  `minS`/`maxS` for stages, `req` for a named predicate in `EVENT_REQ`, and
+  `eco` to restrict it to one or more industrial ecosystems. The reachability
+  test will tell you if nothing can ever trigger what you added.
+- **Accessibility:** honour `prefers-reduced-motion` (the CSS already gates
+  animations behind it), keep colour-carried information also encoded another
+  way (the rival map patterns do this), and keep tap targets reachable on
+  mobile.
 
-**Three difficulties.** Junior to learn the ropes, Officer for a fair fight, Expert for no safety net.
+## Reporting bugs and requesting features
 
-## Quality-of-life & accessibility
+Open an [issue](https://github.com/ddbxl/cluster-manager/issues). For a bug,
+include your browser, whether you were on desktop or mobile, and the steps to
+reproduce. A screenshot helps a lot for anything visual. If you can, paste a
+save code (Save Slots → "Create save code") so the exact run can be reproduced.
 
-- Live trend indicators on every stat, with tap-or-hover breakdowns that explain each contributing factor
-- A compact per-quarter review card (headline deltas, cash flow, events) that never blocks the screen
-- Dark mode, a larger-text toggle, colour-blind-friendly rival map patterns, and full `prefers-reduced-motion` support
-- Keyboard shortcuts (Space to advance the quarter, 1–4 for panels, U to undo, Esc to close)
-- One-step undo on Junior and Officer, sound effects you can mute, and a run-history CSV export
-- Works on desktop (tabbed side panel) and mobile (bottom navigation), with a screen-reader label on the map
+## Licence of contributions
 
-## Grounded in reality
-
-The game mechanics are based on publicly available European Commission reports and research on clusters, innovation ecosystems and Smart Specialisation (S3).
-
-## Tech notes
-
-- Single self-contained HTML file: React 18 + game engine pre-compiled and minified with esbuild, no CDN calls
-- Saves via `localStorage` (with an in-memory fallback for restrictive privacy modes) plus three manual save slots
-- Installable as a Progressive Web App (bundled `manifest.json`)
-- Works on desktop (tabbed side panel) and mobile (bottom navigation)
-- The embedded React library carries its standard MIT licence header (© Meta) — that notice covers the framework, not the game
-
-## Licence
-
-This project is free software, released under the **GNU General Public License v3.0** — see [LICENSE](LICENSE). You may run, study, share and modify it; derivative works must remain under the GPL v3.
-
-The embedded React library is © Meta Platforms, Inc. and is used under its own MIT licence, which is compatible with distribution inside this GPL-licensed work.
+By contributing you agree that your contribution is licensed under the
+**GNU General Public License v3.0**, the same licence as the project.
+Derivative works must remain under the GPL v3.
