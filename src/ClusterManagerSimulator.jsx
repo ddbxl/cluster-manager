@@ -1816,6 +1816,7 @@ function useMapView() {
   const dragged = useRef(false);        // did this gesture move far enough to be a pan?
   const last = useRef(null);            // last single-pointer position
   const lastTap = useRef(0);
+  const lastTapPos = useRef(null);
 
   // client px → SVG user units, accounting for the letterbox fit
   const toSvg = (cx, cy) => {
@@ -1887,21 +1888,36 @@ function useMapView() {
     }
   };
 
-  const endPointer = (e) => {
+  // `countAsTap` is false for cancel/leave: those are cleanup, not a deliberate tap.
+  const endPointer = (countAsTap) => (e) => {
+    // A pointer we never saw go down on the map is not ours. This happens when
+    // an overlay (an event modal, say) closes on pointerdown and the matching
+    // pointerup lands on the map underneath — that must not count as a tap,
+    // or dismissing two events quickly reads as a double-tap and zooms.
+    const ours = pointers.current.has(e.pointerId);
     pointers.current.delete(e.pointerId);
     if (pointers.current.size < 2) pinch.current = null;
+    if (!ours) { if (pointers.current.size === 0) last.current = null; return; }
+
     if (pointers.current.size === 0) {
       last.current = null;
-      // double-tap (or double-click) toggles between fit and a 2.5× look
-      if (!dragged.current) {
-        const now = Date.now();
-        if (now - lastTap.current < 300) {
-          const p = toSvg(e.clientX, e.clientY);
+      if (!countAsTap || dragged.current) { lastTap.current = 0; return; }
+      // Double-tap toggles between the fitted view and a 2.5x look. Both taps
+      // must be close together in space as well as time, so two unrelated
+      // clicks in different places never zoom.
+      const now = Date.now();
+      const prev = lastTapPos.current;
+      const near = prev && Math.hypot(e.clientX - prev.x, e.clientY - prev.y) < 40;
+      if (now - lastTap.current < 300 && near) {
+        const p = toSvg(e.clientX, e.clientY);
+        if (Number.isFinite(p.x) && Number.isFinite(p.y)) {
           setView((v) => (v.z > 1.2 ? { x: 0, y: 0, z: 1 } : zoomMapAt(v, 2.5, p.x, p.y)));
-          lastTap.current = 0;
-        } else {
-          lastTap.current = now;
         }
+        lastTap.current = 0;
+        lastTapPos.current = null;
+      } else {
+        lastTap.current = now;
+        lastTapPos.current = { x: e.clientX, y: e.clientY };
       }
     }
   };
@@ -1909,6 +1925,7 @@ function useMapView() {
   const onWheel = (e) => {
     e.preventDefault();
     const p = toSvg(e.clientX, e.clientY);
+    if (!Number.isFinite(p.x) || !Number.isFinite(p.y)) return;
     const factor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
     setView((v) => zoomMapAt(v, factor, p.x, p.y));
   };
@@ -1928,7 +1945,8 @@ function useMapView() {
     zoomed: view.z > 1.02,
     handlers: {
       onPointerDown, onPointerMove,
-      onPointerUp: endPointer, onPointerCancel: endPointer, onPointerLeave: endPointer,
+      onPointerUp: endPointer(true),
+      onPointerCancel: endPointer(false), onPointerLeave: endPointer(false),
       onWheel, onClickCapture,
     },
   };
