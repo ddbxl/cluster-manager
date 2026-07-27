@@ -64,6 +64,22 @@ html.dark .float-delta{--delta-halo:rgba(5,10,20,.92)}
 .map-home{animation:breathe 3.6s ease-in-out infinite}
 .map-new{animation:regionPop 1.6s ease-out both}
 .map-contested{animation:shimmer 2.6s ease-in-out infinite}
+
+/* The wordmark is gradient-filled text. That relies on clipping a background to
+   the glyphs, which fails in two situations: browsers that don't support
+   background-clip:text, and — more commonly — a repaint that happens before the
+   webfont has loaded. When it fails the gradient paints the whole box and the
+   transparent glyphs vanish, leaving a coloured bar where the title should be.
+   So: the title is solid-coloured by default, and only becomes gradient-filled
+   once the fonts are known to be ready AND the browser supports the clip. */
+.brand-title{color:#3860ED;background-image:linear-gradient(135deg,#3860ED,#FF9D0A)}
+html.dark .brand-title{color:#5C8AFF;background-image:linear-gradient(135deg,#5C8AFF,#FFB042)}
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  html.fonts-ready .brand-title{
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;color:transparent;
+  }
+}
 /* The map sea fills its whole panel edge-to-edge; the dot grid is a fixed-size CSS
    layer so it stays crisp no matter how the SVG map scales inside it. */
 .map-sea{background:radial-gradient(circle at 42% 36%, #fbfdff 0%, #eef3fb 70%, #e7edf7 100%)}
@@ -3504,7 +3520,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
       <div style={{maxWidth:740,width:"100%",margin:"auto",paddingBottom:8}}>
         <div style={{textAlign:"center",marginBottom:mobile?22:"clamp(14px,3vh,32px)"}}>
           <div style={{fontSize:9,letterSpacing:5,color:P.muted,textTransform:"uppercase",marginBottom:"clamp(6px,1.2vh,12px)"}}>EU Industrial Strategy Simulation</div>
-          <h1 style={{fontSize:mobile?40:"clamp(34px,6.5vh,54px)",fontWeight:700,lineHeight:1,marginBottom:"clamp(6px,1.2vh,10px)",letterSpacing:-2,background:`linear-gradient(135deg,${P.accent},${P.gold})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>CLUSTER<br/>MANAGER</h1>
+          <h1 className="brand-title" style={{fontSize:mobile?40:"clamp(34px,6.5vh,54px)",fontWeight:700,lineHeight:1,marginBottom:"clamp(6px,1.2vh,10px)",letterSpacing:-2}}>CLUSTER<br/>MANAGER</h1>
           <div style={{fontSize:12,color:P.muted,marginBottom:14}}>From a local cluster initiative to a Pan-European Cluster Network</div>
           {canResume && (
             <div style={{marginTop:16}}>
@@ -4516,6 +4532,20 @@ function SaveSlots({ gs, onClose, onLoad }) {
 ═══════════════════════════════════════════════════════════ */
 export default function App() {
   const [screen, setScreen] = useState("setup");
+  // Enable gradient-filled text only once the webfonts have actually loaded;
+  // before that the wordmark stays solid-coloured and therefore always legible.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const mark = () => { try { document.documentElement.classList.add("fonts-ready"); } catch(e) {} };
+    let t;
+    if (document.fonts && document.fonts.ready && typeof document.fonts.ready.then === "function") {
+      document.fonts.ready.then(mark, mark);
+      t = setTimeout(mark, 3000); // don't leave it solid forever if the promise stalls
+    } else {
+      t = setTimeout(mark, 400);  // no Font Loading API: give the font a moment
+    }
+    return () => clearTimeout(t);
+  }, []);
   const [dark, setDark] = useState(false);
   useEffect(() => { // restore theme
     try { window.storage?.get?.("cm_theme").then(r => { if (r?.value === "dark") { applyTheme(true); setDark(true); } }).catch(()=>{}); } catch(e) {}
