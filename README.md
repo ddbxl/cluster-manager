@@ -3,6 +3,7 @@
 An EU industrial strategy simulation in a single HTML file.
 
 You start with a small regional cluster initiative and build it into the Pan-European Cluster Network. Or you outlast your rivals and win by consolidating the market. On the way you hire a named team, finance projects that run on public funding, expand across a real map of Europe, play politics in Brussels, and fend off rival clusters that each have a personality.
+<img width="1920" height="1080" alt="preview" src="https://github.com/user-attachments/assets/56848206-8831-4c62-9d46-f5b786265cf3" />
 
 ## Play
 
