@@ -361,6 +361,92 @@ const fresh = (country = "Austria", region = "Steiermark") =>
   t.ok(G.EVENTS.length >= 90, `the event pool is substantial (${G.EVENTS.length} events)`);
 }
 
+/* ── composition calibrated to the ECCP registry ──────────── */
+{
+  const mult = (s, c, r) => s * G.FEE_W.sme + c * G.FEE_W.corp + r * G.FEE_W.res;
+  const b = G.BASE_MIX;
+  t.near(b.sme + b.corp + b.res, 1, 0.005, "the baseline composition shares sum to one");
+  t.near(mult(b.sme, b.corp, b.res), 1, 0.02,
+         "the median real composition earns a 1.0x fee multiplier, so the economy stays calibrated");
+  t.ok(b.sme > 0.75, `the baseline is SME-dominated as the registry shows (${(b.sme * 100).toFixed(0)}%)`);
+
+  // the relative incentive to recruit corporates must survive the rescale
+  t.ok(G.FEE_W.corp / G.FEE_W.sme > 2, "corporates are still worth far more per member than SMEs");
+  t.ok(G.FEE_W.res < G.FEE_W.sme, "research members still pay the lowest fees");
+
+  // per-ecosystem mixes must be well formed and actually differentiate
+  const mults = [];
+  for (const [eco, mix] of Object.entries(G.ECO_MIX)) {
+    t.near(mix.sme + mix.corp + mix.res, 1, 0.005, `${eco} composition shares sum to one`);
+    mults.push(mult(mix.sme, mix.corp, mix.res));
+  }
+  t.ok(Object.keys(G.ECO_MIX).length >= 10, "most ecosystems carry their own observed composition");
+  t.ok(Math.max(...mults) - Math.min(...mults) > 0.15,
+       `ecosystem choice meaningfully changes fee income (spread ${(Math.max(...mults) - Math.min(...mults)).toFixed(2)}x)`);
+
+  // a new game starts on its ecosystem's mix, and the ledger reconciles
+  for (const ecoId of ["mobility_transport", "textiles", "digital"]) {
+    const gs = G.initState("Austria", "Steiermark", { id: ecoId, name: ecoId, color: "#888", icon: "industry" });
+    const m = gs.mix;
+    t.eq(m.sme + m.corp + m.res, gs.members, `a new ${ecoId} cluster has a reconciled ledger`);
+  }
+  // at scale the ecosystem difference is visible
+  const big = n => G.defaultMix(1000, n);
+  t.ok(big("mobility_transport").corp > big("textiles").corp * 2,
+       "mobility clusters start far more corporate-heavy than textiles");
+}
+
+/* ── the cluster registry ─────────────────────────────────── */
+{
+  t.ok(G.ECCP_CLUSTERS.length > 1200, `the registry carries the real cluster profiles (${G.ECCP_CLUSTERS.length})`);
+  t.ok(G.ECCP_CLUSTERS.every(c => c.n && c.c), "every profile has a name and a country");
+  t.ok(G.ECCP_CLUSTERS.every(c => /^[A-Z]{2}$/.test(c.c)), "country codes are well formed");
+
+  // no personal data may ever reach the bundle
+  const fields = new Set(G.ECCP_CLUSTERS.flatMap(c => Object.keys(c)));
+  t.ok([...fields].every(f => ["n", "c", "e", "y"].includes(f)),
+       `the registry carries organisational fields only (${[...fields].join(", ")})`);
+  const blob = JSON.stringify(G.ECCP_CLUSTERS);
+  t.ok(!/@[a-z0-9.-]+\.[a-z]{2,}/i.test(blob), "no contact email survived into the registry");
+
+  // ecosystem tags must match the game's own ids
+  const ecoIds = new Set(G.ECOSYSTEMS.map(e => e.id));
+  t.ok(G.ECCP_CLUSTERS.filter(c => c.e).every(c => ecoIds.has(c.e)),
+       "every tagged profile names an ecosystem the game knows");
+  const names = G.ECCP_CLUSTERS.map(c => c.n);
+  t.eq(new Set(names).size, names.length, "registry names are unique");
+}
+
+/* ── rivals are seeded coherently from the registry ───────── */
+{
+  const byName = new Map(G.ECCP_CLUSTERS.map(c => [c.n, c]));
+  let sampled = 0, fromRegistry = 0, mismatched = 0, dupes = 0, homeClash = 0;
+  for (let i = 0; i < 60; i++) {
+    const sector = G.ECOSYSTEMS[i % G.ECOSYSTEMS.length];
+    const gs = G.initState("Austria", "Steiermark", sector);
+    const seen = new Set();
+    for (const rv of gs.rivals) {
+      sampled++;
+      if (seen.has(rv.name)) dupes++;
+      seen.add(rv.name);
+      const hit = byName.get(rv.name);
+      if (hit) {
+        fromRegistry++;
+        if (hit.e !== rv.sectorId) mismatched++;
+        if (G.NAME_TO_ISO[rv.country] !== hit.c) mismatched++;
+      }
+    }
+    if (gs.rivals.some(r => r.country === "Austria")) homeClash++;
+  }
+  t.eq(homeClash, 0, "no rival is ever based in the player's own country");
+  t.eq(mismatched, 0, "a rival's registry name always matches its own country and ecosystem");
+  t.eq(dupes, 0, "no two rivals on a board share a name");
+  t.ok(fromRegistry / sampled > 0.8, `rivals are usually real clusters (${Math.round(100 * fromRegistry / sampled)}%)`);
+  t.ok(G.registrySeed("textiles", "Austria", []) !== null, "a seed can be drawn for a named ecosystem");
+  t.ok(G.registrySeed("no_such_ecosystem", "Austria", []) === null,
+       "an unknown ecosystem yields no seed, so the caller falls back to an invented name");
+}
+
 /* ── every event is actually reachable ────────────────────── */
 {
   // Content that can never fire is dead weight, and it's easy to write a gate

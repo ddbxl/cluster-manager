@@ -39,7 +39,8 @@ const ENGINE_EXPORTS = [
   "NUTS2_PATHS", "NUTS0_PATHS", "MAP_CENT", "NAME_TO_ISO", "ISO_TO_NAME",
   "exportSave", "importSave", "downloadSave", "slimSave", "saveChecksum",
   "clampMapView", "zoomMapAt", "MAP_ZOOM_MIN", "MAP_ZOOM_MAX", "MAP_W", "MAP_H",
-  "pickEvent", "EVENT_REQ", "ECOSYSTEMS",
+  "pickEvent", "EVENT_REQ", "ECOSYSTEMS", "ECCP_CLUSTERS", "clusterPicks", "registrySeed",
+  "ECO_MIX", "BASE_MIX", "FEE_W", "mixFor", "defaultMix",
 ];
 
 // Components + styling, for render tests.

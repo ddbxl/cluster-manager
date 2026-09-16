@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 
 // ─────────────────────────────────────────────────────────────
 // EU regional reference data
@@ -65,13 +65,9 @@ html.dark .float-delta{--delta-halo:rgba(5,10,20,.92)}
 .map-new{animation:regionPop 1.6s ease-out both}
 .map-contested{animation:shimmer 2.6s ease-in-out infinite}
 
-/* The wordmark is gradient-filled text. That relies on clipping a background to
-   the glyphs, which fails in two situations: browsers that don't support
-   background-clip:text, and — more commonly — a repaint that happens before the
-   webfont has loaded. When it fails the gradient paints the whole box and the
-   transparent glyphs vanish, leaving a coloured bar where the title should be.
-   So: the title is solid-coloured by default, and only becomes gradient-filled
-   once the fonts are known to be ready AND the browser supports the clip. */
+/* Gradient-filled wordmark. If the gradient cannot be clipped to the glyphs it
+   fills the whole box instead and the transparent text disappears, so the title
+   stays solid-coloured until both the feature query and the fonts confirm. */
 .brand-title{color:#3860ED;background-image:linear-gradient(135deg,#3860ED,#FF9D0A)}
 html.dark .brand-title{color:#5C8AFF;background-image:linear-gradient(135deg,#5C8AFF,#FFB042)}
 @supports ((-webkit-background-clip:text) or (background-clip:text)){
@@ -125,8 +121,7 @@ input[type=range]{width:100%;accent-color:#3860ED;cursor:pointer}
 /* ═══════════════════════════════════════════════════════════
    PALETTE
 ═══════════════════════════════════════════════════════════ */
-// EU Commission digital colour system (ECL v4, ec.europa.eu/component-library).
-// Verified live from the official source, not an approximation.
+// EU Commission colour system (ECL v4); trailing comments name each token.
 const P = {
   bg:"#F8F9FD",     panel:"#FFFFFF",   card:"#F3F5FB",   border:"#CDD5EF",    // ecl-neutral-20/white/40/80
   bright:"#E0E5F5", text:"#26324B",    muted:"#546FA6",                      // ecl-neutral-60, ecl-dark-100, ecl-dark-80
@@ -149,7 +144,7 @@ let THEME_DARK = false;
 function applyTextScale(big) {
   if (typeof document === "undefined") return;
   // Inline font sizes are in px, so a root font-size change does nothing; zoom the app
-  // container instead. Only on wider screens — on phones the fixed-height layout would
+  // container instead, and only on wider screens. On phones the fixed-height layout would
   // overflow the viewport, and native pinch-zoom already covers that need there.
   const root = document.getElementById("root") || document.documentElement;
   const wide = (typeof window !== "undefined" ? window.innerWidth : 1024) >= 900;
@@ -170,10 +165,8 @@ const darkHex = (h, f=0.5) => {
 };
 
 /* ═══════════════════════════════════════════════════════════
-   ICONS: Font Awesome Free 6 (solid), embedded as raw path data.
-   Source: github.com/FortAwesome/Font-Awesome (CC BY 4.0 / MIT).
-   No external request, no npm dependency: works in-sandbox and
-   in the standalone Vite build alike.
+   ICONS: Font Awesome Free 6 (solid), CC BY 4.0 / MIT.
+   Path data is embedded so the game makes no external request.
 ═══════════════════════════════════════════════════════════ */
 const ICON_PATHS = {
   "star":[576,512,"M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"],
@@ -274,17 +267,16 @@ function FAGlyph({ name, x, y, size=9, color="currentColor" }) {
   return <path d={d} fill={color} transform={`translate(${x},${y}) scale(${s})`} />;
 }
 
-/* ISO maps now come from clusterData.js (NAME_TO_ISO) */
 const NAME_TO_ISO = DATA_NAME_TO_ISO;
 const ISO_TO_NAME = Object.fromEntries(Object.entries(NAME_TO_ISO).map(([k,v])=>[v,k]));
 
 /* ═══════════════════════════════════════════════════════════
-   GAME DATA  ·  regions & ecosystems sourced from priorities.json
+   GAME DATA  ·  regions and industrial ecosystems
 ═══════════════════════════════════════════════════════════ */
-// Region records (name, nuts, ecos[], ris) keyed by country, from the dataset.
-// The dataset carries a country-level record (nuts = 2-letter ISO) alongside real
+// Region records (name, nuts, ecos[], ris) keyed by country.
+// Some countries carry a country-level record (nuts = 2-letter ISO) alongside real
 // NUTS-2 regions for some countries; a country is not a region of itself, so drop
-// those — except where the country genuinely is a single NUTS-2 unit (EE, LV, MT...).
+// those, except where the country is a single NUTS-2 unit (EE, LV, MT and so on).
 const REGION_RECORDS = Object.fromEntries(
   Object.entries(REGIONS_BY_COUNTRY).map(([c, regs]) => [
     c, regs.length > 1 ? regs.filter(r => (r.nuts||"").length > 2) : regs
@@ -301,8 +293,1504 @@ for (const [c, regs] of Object.entries(REGION_RECORDS)) {
 }
 const getRegion = (country, name) => REGION_LOOKUP[`${country}|||${name}`] || null;
 
-// 14 official EU industrial ecosystems, straight from the dataset.
+// The 14 EU industrial ecosystems a cluster can specialise in.
 const ECOSYSTEMS = DATA_ECOSYSTEMS;
+
+/* ═══════════════════════════════════════════════════════════
+   CLUSTER REGISTRY
+   Names, countries and cities of real cluster organisations listed on the
+   European Cluster Collaboration Platform (ECCP), used to name your cluster
+   and your rivals. Organisational fields only: no contact details or people.
+   Rival conduct in this game is invented and describes no real organisation.
+   1445 profiles across the EU-27 and candidate countries.
+═══════════════════════════════════════════════════════════ */
+const ECCP_CLUSTERS = [
+{n:"AgriNet Albania",c:"AL",y:"Korçë"},
+{n:"Albanian ICT Association (AITA)",c:"AL",y:"Tirana"},
+{n:"PROEKSPORT ALBANIA ASSOCIATION TEXTILE&FOOTWEAR",c:"AL",e:"textiles",y:"Albania"},
+{n:"Wood Industry Cluster Albania",c:"AL",e:"retail",y:"Tirana"},
+{n:"ACstyria Mobilitätscluster",c:"AT",e:"aerospace_and_defe",y:"Raaba-Grambach"},
+{n:"Austrian Centre of Industrial Biotechnology (acib)",c:"AT",y:"Graz"},
+{n:"Automotive Cluster @Business Upper Austria - OÖ Wirtschaftsagentur",c:"AT",y:"Linz"},
+{n:"BioNanoNet Forschungsgesellschaft mbH (BNN)",c:"AT",e:"health",y:"Graz"},
+{n:"Building Innovation Cluster @Business Upper Austria - OÖ Wirtschaftsagentur GmbH",c:"AT",y:"Linz"},
+{n:"Cluster for Automation & Advanced Technologies Styria",c:"AT",e:"construction",y:"Graz"},
+{n:"Creative Industries Styria",c:"AT",e:"creative_and_cultu",y:"Österreich"},
+{n:"Food Cluster @Business Upper - OÖ Wirtschaftsagentur GmbH",c:"AT",e:"agri_food",y:"Linz"},
+{n:"Green Tech Valley Cluster",c:"AT",e:"energy_intensive_i",y:"Graz"},
+{n:"Holzcluster Steiermark GmbH",c:"AT",e:"agri_food",y:"Graz"},
+{n:"Human.technology Styria GmbH",c:"AT",e:"health",y:"Graz"},
+{n:"IT Cluster of Business Upper Austria GmbH",c:"AT",y:"Linz"},
+{n:"Kreativwirtschaft Austria",c:"AT",y:"Vienna"},
+{n:"LISAvienna",c:"AT",e:"agri_food",y:"Vienna"},
+{n:"Mechatronics Cluster @ Business Upper Austria - OÖ Wirtschaftsagentur",c:"AT",y:"Linz"},
+{n:"Medical Technology Cluster @Business Upper Austria - OÖ Wirtschaftsagentur GmbH",c:"AT",e:"digital",y:"Linz"},
+{n:"Network Human Resources Cluster @Business Upper Austria - Wirtschaftsagentur GmbH",c:"AT",y:"Linz"},
+{n:"OÖ Energiesparverband - Cleantech-Cluster Energy",c:"AT",e:"energy_renewables",y:"Linz"},
+{n:"Photonics Austria",c:"AT",e:"aerospace_and_defe",y:"Weiz"},
+{n:"Plastics Cluster @ Business Upper Austria - OÖ Wirtschaftsagentur GmbH",c:"AT",y:"Linz"},
+{n:"Silicon Alps",c:"AT",y:"Villach"},
+{n:"Silicon Alps Cluster GmbH",c:"AT",e:"electronics",y:"Österreich"},
+{n:"Social Entrepreneurship Network Austria",c:"AT",y:"Vienna"},
+{n:"Standortagentur Tirol GmbH | Cluster Mechatronik Tirol",c:"AT",e:"construction",y:"Österreich"},
+{n:"Standortagentur Tirol GmbH: Cluster IT Tirol",c:"AT",y:"Innsbruck"},
+{n:"Standortagentur Tirol GmbH: Cluster Life Sciences Tirol",c:"AT",y:"Innsbruck"},
+{n:"Standortagentur Tirol GmbH: Cluster Renewable Energies Tirol",c:"AT",y:"Innsbruck"},
+{n:"Standortagentur Tirol GmbH: Cluster Wellness Tirol",c:"AT",e:"agri_food",y:"Innsbruck"},
+{n:"ecoplus. The Business Agency of Lower Austria, Food Cluster",c:"AT",e:"agri_food",y:"St. Pölten"},
+{n:"ecoplus. The Business Agency of Lower Austria, Green Building Cluster",c:"AT",e:"construction",y:"St. Pölten"},
+{n:"ecoplus. The Business Agency of Lower Austria, Mechatronics-Cluster",c:"AT",e:"electronics",y:"St. Pölten"},
+{n:"ecoplus. The Business Agency of Lower Austria, Plastics-Cluster",c:"AT",e:"digital",y:"St. Pölten"},
+{n:"Bit Alliance",c:"BA",y:"Sarajevo"},
+{n:"BioWin",c:"BE",y:"Gosselies"},
+{n:"Biovia",c:"BE",e:"health",y:"Gent"},
+{n:"Blue Cluster",c:"BE",e:"construction",y:"Oostende"},
+{n:"CAP Construction",c:"BE",y:"Les Isnes"},
+{n:"CIDSS.be",c:"BE",y:"Brussel"},
+{n:"Catalisti",c:"BE",e:"digital",y:"Antwerpen"},
+{n:"Cluster Eco Construction",c:"BE",y:"Namur"},
+{n:"Cluster H2O",c:"BE",e:"agri_food",y:"Belgique"},
+{n:"Cluster Innovatieve Coatings",c:"BE",y:"Brussels"},
+{n:"DSP Valley",c:"BE",y:"Leuven"},
+{n:"EquisFair",c:"BE",y:"Vielsalm"},
+{n:"European Association of Remote Sensing Companies",c:"BE",y:"BRUSSELS"},
+{n:"Flanders Bike Valley",c:"BE",y:"Beringen"},
+{n:"Flanders Biobased Valley",c:"BE",y:"Gent"},
+{n:"Flanders Make",c:"BE",y:"Lommel"},
+{n:"Flanders Space",c:"BE",e:"aerospace_and_defe",y:"Hoboken"},
+{n:"Flanders' FOOD",c:"BE",e:"agri_food",y:"Brussels"},
+{n:"Flemish Aerospace Group (FLAG)",c:"BE",y:"Brussels"},
+{n:"Flux50 vzw",c:"BE",e:"construction",y:"Brussels"},
+{n:"GREENWIN, Belgian Innovation Cluster",c:"BE",y:"Gosselies"},
+{n:"Groen Licht Vlaanderen",c:"BE",y:"Gent"},
+{n:"Hydrogen Industry Cluster",c:"BE",e:"energy_renewables",y:"Turnhout"},
+{n:"IBN Offshore Energy (OWI-Lab)",c:"BE",y:"Heverlee"},
+{n:"INFOPOLE Cluster TIC",c:"BE",e:"digital",y:"Charleroi"},
+{n:"LSEC - Leaders In Security",c:"BE",y:"Leuven"},
+{n:"Logistics in Wallonia",c:"BE",e:"mobility_transport",y:"Grâce-Hollogne"},
+{n:"Mechanical Engineering and Mechatronics Cluster West Flanders",c:"BE",y:"Brugge"},
+{n:"PLASTIWIN",c:"BE",y:"Nivelles"},
+{n:"Pack4Food",c:"BE",e:"agri_food",y:"Ghent"},
+{n:"Pôle MecaTech",c:"BE",e:"aerospace_and_defe",y:"Suarlée"},
+{n:"REWAN",c:"BE",e:"energy_intensive_i",y:"Liège"},
+{n:"Skywin",c:"BE",y:"Wavre"},
+{n:"Smart Digital Farming",c:"BE",y:"Merelbeke"},
+{n:"Smart Hub Flemish Brabant Cleantech",c:"BE",y:"Leuven"},
+{n:"Smart Hub Flemish Brabant Health",c:"BE",y:"Leuven"},
+{n:"Smart Region Flanders V.Z.W.",c:"BE",y:"Leuven"},
+{n:"Strategisch Initiatief Materialen - Flam3D",c:"BE",y:"ZWIJNAARDE"},
+{n:"TWIST Cluster",c:"BE",e:"creative_and_cultu",y:"Seraing"},
+{n:"Valbiom",c:"BE",e:"agri_food",y:"Belgique"},
+{n:"Wagralim, the agri-food innovation cluster of Wallonia, Belgium",c:"BE",e:"agri_food",y:"Gosselies"},
+{n:"circlemade",c:"BE",y:"Bruxelles"},
+{n:"ecobuild.brussels",c:"BE",y:"Brussels"},
+{n:"hospitality.brussels",c:"BE",y:"Brussels"},
+{n:"lifetech.brussels",c:"BE",y:"Brussels"},
+{n:"play.brussels",c:"BE",y:"Brussels"},
+{n:"AI Cluster Bulgaria",c:"BG",e:"digital",y:"Sofia"},
+{n:"AgriVentures",c:"BG",e:"agri_food",y:"София-Град"},
+{n:"Association for innovation, business excellence, services and technology",c:"BG",y:"Sofia"},
+{n:"Automotive Cluster Bulgaria",c:"BG",e:"mobility_transport",y:"Sofia"},
+{n:"Black Sea Energy Cluster",c:"BG",y:"Varna"},
+{n:"Bulgarian Branch Association Polymers",c:"BG",y:"Sofia"},
+{n:"Bulgarian Digital Cluster",c:"BG",e:"digital",y:"Ruse"},
+{n:"Bulgarian Fashion Association",c:"BG",e:"creative_and_cultu",y:"Ruse"},
+{n:"Bulgarian Fintech Association",c:"BG",y:"Sofia"},
+{n:"Bulgarian Furniture Cluster",c:"BG",e:"creative_and_cultu",y:"Montana"},
+{n:"CLUSTER HOISTING DEVICES LTD.",c:"BG",y:"Sofia"},
+{n:"CREATECH BULGARIA",c:"BG",e:"creative_and_cultu",y:"Vidin"},
+{n:"Cleantech Bulgaria",c:"BG",y:"Sofia"},
+{n:"Cluster Aero-Space Technologies, Research and Applications/ CASTRA",c:"BG",y:"Sofiia"},
+{n:"Cluster Green Transport",c:"BG",y:"Sofia"},
+{n:"Cluster Information and Communication Technologies Blagoevgrad",c:"BG",y:"Sofia"},
+{n:"Cluster Mechatronics and Automation",c:"BG",y:"Sofia"},
+{n:"Cluster Sofia Knowledge City",c:"BG",e:"creative_and_cultu",y:"Sofia"},
+{n:"Cluster for Digital Transformation and Innovations",c:"BG",e:"digital",y:"Sofia"},
+{n:"Cluster for development and training of doctors in dental medicine",c:"BG",y:"Sofia"},
+{n:"Cluster of information and communication technologies Burgas",c:"BG",e:"digital",y:"Burgas"},
+{n:"Culinary Arts and Hospitality Association",c:"BG",y:"Dobrich"},
+{n:"DIGITAL HEALTH AND INNOVATION CLUSTER BULGARIA",c:"BG",y:"Sofia"},
+{n:"E-Business Cluster",c:"BG",y:"Пловдив"},
+{n:"Electric vehicles industrial cluster",c:"BG",y:"Sofia"},
+{n:"Green Synergy Cluster",c:"BG",e:"energy_intensive_i",y:"Plovdiv"},
+{n:"Health and Life Sciences Cluster Bulgaria",c:"BG",e:"agri_food",y:"Sofia"},
+{n:"ICT Cluster",c:"BG",y:"Sofia"},
+{n:"ICT Cluster Plovdiv",c:"BG",y:"Plovdiv"},
+{n:"ICT Cluster Varna",c:"BG",e:"digital",y:"Varna"},
+{n:"Industrial Cluster Srednogorie",c:"BG",y:"Sofia"},
+{n:"Innovative cluster Simulation models in medicine",c:"BG",y:"Sofia"},
+{n:"Marine Cluster Bulgaria",c:"BG",e:"energy_intensive_i",y:"Varna"},
+{n:"Regional Innovation Centre \"Ambitious Gabrovo\"",c:"BG",e:"digital",y:"Gabrovo"},
+{n:"Renewable Energy Sources Cluster",c:"BG",e:"digital",y:"Blagoevgrad"},
+{n:"Space & STEAM Cluster",c:"BG",e:"aerospace_and_defe",y:"Sofia"},
+{n:"Specialized Cluster and Institute for Apparel and Textile - Danube",c:"BG",y:"Ruse"},
+{n:"Cyprus Foundation of the Sea",c:"CY",e:"tourism",y:"Limassol"},
+{n:"Cyprus Space Cluster",c:"CY",e:"aerospace_and_defe",y:"Nicosia"},
+{n:"Green Cluster",c:"CY",y:"Nicosia"},
+{n:"Shopkeepers Artisans and Production Marketing Cooperative",c:"CY",y:"Nicosia"},
+{n:"Smart Cities Mediterranean Cluster",c:"CY",y:"Limassol"},
+{n:"AUTOKLASTR",c:"CZ",e:"mobility_transport",y:"Česko"},
+{n:"Art of Glass - Czech and Moravian Glass Cluster",c:"CZ",e:"creative_and_cultu",y:"Czechia"},
+{n:"Association for Applied Research in IT",c:"CZ",e:"creative_and_cultu",y:"Prague"},
+{n:"CLUTEX - klastr technicke textilie, z.s.",c:"CZ",e:"textiles",y:"Liberec"},
+{n:"CREA Hydro&Energy, z.s.",c:"CZ",y:"Brno"},
+{n:"CZECH STONE CLUSTER, družstvo",c:"CZ",y:"Lázně Bělohrad"},
+{n:"CZECHIMPLANT",c:"CZ",e:"digital",y:"Kladno"},
+{n:"Cluster of Czech Furniture Manufacturers",c:"CZ",e:"creative_and_cultu",y:"Brno"},
+{n:"Czech Aerospace Cluster, z.s.",c:"CZ",e:"mobility_transport",y:"Kunovice"},
+{n:"Czech Battery Cluster",c:"CZ",e:"aerospace_and_defe",y:"Brno"},
+{n:"Czech Machinery Cluster",c:"CZ",y:"Ostrava-Vítkovice"},
+{n:"Czech Marine Cluster, z. s.",c:"CZ",y:"Zlín"},
+{n:"Czech National Semiconductor Cluster",c:"CZ",e:"electronics",y:"Brno"},
+{n:"Czech Optical Cluster",c:"CZ",e:"aerospace_and_defe",y:"Olomouc"},
+{n:"Czech Pellets Cluster",c:"CZ",y:"Dobrichovice"},
+{n:"Czech Shoe and Leather Association",c:"CZ",e:"textiles",y:"Zlín"},
+{n:"Czech Smart City Cluster",c:"CZ",e:"mobility_transport",y:"Prague"},
+{n:"CzechBio",c:"CZ",y:"Prague"},
+{n:"Defence and Security Industry Association of the Czech Republic",c:"CZ",y:"Prague"},
+{n:"E-commerce & Tech cluster, z.s.",c:"CZ",e:"digital",y:"Ostrava"},
+{n:"Energy-Technical Innovation Cluster",c:"CZ",e:"digital",y:"Pardubice"},
+{n:"General Engineering Cluster",c:"CZ",e:"digital",y:"Planá nad Lužnicí"},
+{n:"HK kovo cluster",c:"CZ",y:"Havířov"},
+{n:"HR Development Cluster",c:"CZ",e:"digital",y:"Želechovice nad Dřevnicí"},
+{n:"INDUSTRY CLUSTER 4.0",c:"CZ",e:"digital",y:"Brno"},
+{n:"IT Cluster",c:"CZ",e:"digital",y:"Ostrava-Mariánské Hory"},
+{n:"IT People Technological Platform",c:"CZ",e:"retail",y:"Podlesí"},
+{n:"Klastr Mechatronika, z.s.",c:"CZ",e:"digital",y:"Dobřany"},
+{n:"MedChemBio",c:"CZ",e:"health",y:"Olomouc - Holice"},
+{n:"Moravian-Silesian Hydrogen Cluster",c:"CZ",e:"energy_renewables",y:"Česko"},
+{n:"NATIONAL ENERGY CLUSTER, z.s.",c:"CZ",y:"Ostrava - Poruba"},
+{n:"NATIONAL WOOD PROCESSING CLUSTER",c:"CZ",y:"Ostrava-Poruba"},
+{n:"Nanoprogress",c:"CZ",e:"agri_food",y:"Pardubice"},
+{n:"National Construction Cluster",c:"CZ",e:"construction",y:"Ostrava - Pustkovec"},
+{n:"Network Security Monitoring Cluster, cooperative",c:"CZ",y:"Brno"},
+{n:"Plastics Cluster",c:"CZ",y:"Zlín"},
+{n:"Prague.bio",c:"CZ",e:"health",y:"Prague"},
+{n:"Safety Technology Cluster",c:"CZ",e:"health",y:"Ostrava – Radvanice"},
+{n:"Scientific Expansion z.s.",c:"CZ",e:"construction",y:"Kravare"},
+{n:"The Association for Innovation in Logistics",c:"CZ",e:"digital",y:"Ostrava-Mariánské Hory"},
+{n:"The Czech Hemp Cluster",c:"CZ",e:"agri_food",y:"Svor"},
+{n:"WASTen, z.s.",c:"CZ",e:"construction",y:"Ústí nad Labem"},
+{n:"Zlín Creative Cluster",c:"CZ",y:"Zlín"},
+{n:"AFBW",c:"DE",y:"Stuttgart"},
+{n:"AMZ Sachsen",c:"DE",e:"mobility_transport",y:"Dresden"},
+{n:"AVIASPACE BREMEN e.V.",c:"DE",y:"Bremen"},
+{n:"Additive Manufacturing Berlin Brandenburg",c:"DE",e:"aerospace_and_defe",y:"Deutschland"},
+{n:"Agronym - Network for Sustainable Bioeconomy",c:"DE",y:"Dresden"},
+{n:"Artificial Intelligence Regensburg",c:"DE",e:"creative_and_cultu",y:"Deutschland"},
+{n:"Automotive Nordwest e.V.",c:"DE",y:"Bremen"},
+{n:"Baden Württemberg: Connected e.V.",c:"DE",y:"Stuttgart"},
+{n:"BalticNet-PlasmaTec e.V.",c:"DE",y:"Greifswald"},
+{n:"Bavarian Food Cluster",c:"DE",y:"Kulmbach"},
+{n:"Bayern Innovativ Digital",c:"DE",e:"agri_food",y:"München"},
+{n:"Berlin-Brandenburg Aerospace Allianz e.V. (BBAA)",c:"DE",y:"Wildau"},
+{n:"BioCon Valley GmbH®",c:"DE",y:"Rostock"},
+{n:"BioEconomy Cluster Central Germany",c:"DE",y:"Halle/ Saale"},
+{n:"BioLAGO e.V. the health network",c:"DE",e:"health",y:"Konstanz"},
+{n:"BioM Biotech Cluster Development GmbH",c:"DE",y:"Martinsried/Munich"},
+{n:"BioPark Regensburg GmbH / BioRegio Regensburg",c:"DE",y:"Regensburg"},
+{n:"BioRN - Life Science Cluster Rhine-Neckar",c:"DE",e:"health",y:"Deutschland"},
+{n:"BioRegio STERN Management GmbH",c:"DE",e:"health",y:"Stuttgart"},
+{n:"Bioanalytik Münster",c:"DE",e:"health",y:"Münster"},
+{n:"Bioeconomy at Marine Sites (BaMS)",c:"DE",y:"Kiel"},
+{n:"Bioeconomy in the metropolitan area",c:"DE",y:"Frankfurt Am Main"},
+{n:"CLEANTECH Initiative Eastern Germany",c:"DE",y:"Dresden"},
+{n:"CLIB - Cluster Industrial Biotechnology",c:"DE",e:"agri_food",y:"Duesseldorf"},
+{n:"CNA Railway Technology Cluster",c:"DE",y:"Nürnberg"},
+{n:"CURPAS",c:"DE",y:"Wildau"},
+{n:"Chemistry Cluster Bavaria / Chemie-Cluster Bayern",c:"DE",e:"energy_intensive_i",y:"Munich / München"},
+{n:"Circular Saxony",c:"DE",e:"agri_food",y:"Chemnitz"},
+{n:"Cluster Automotive",c:"DE",e:"mobility_transport",y:"Nürnberg"},
+{n:"Cluster Electric Mobility South-West managed by e-mobil BW",c:"DE",e:"mobility_transport",y:"Deutschland"},
+{n:"Cluster Energietechnik",c:"DE",e:"energy_intensive_i",y:"Nürnberg"},
+{n:"Cluster Energy Technology Berlin-Brandenburg",c:"DE",y:"Potsdam"},
+{n:"Cluster Food Industry Brandenburg",c:"DE",y:"Potsdam"},
+{n:"Cluster H2BW (managed by e-mobil BW)",c:"DE",e:"energy_intensive_i",y:"Stuttgart"},
+{n:"Cluster ICT, Media, Creative Industries Berlin-Brandenburg",c:"DE",y:"Potsdam"},
+{n:"Cluster Mechatronik & Automation @ Bayern Innovativ",c:"DE",e:"digital",y:"Nürnberg"},
+{n:"Cluster Medizin.NRW",c:"DE",e:"health",y:"Düsseldorf"},
+{n:"Cluster Metal Industry Brandenburg",c:"DE",y:"Potsdam"},
+{n:"Cluster Mobility & Logistics",c:"DE",e:"digital",y:"Regensburg"},
+{n:"Cluster NanoMicroMaterialsPhotonics.NRW",c:"DE",e:"aerospace_and_defe",y:"Düsseldorf"},
+{n:"Cluster Nanotechnology/ Nanoinitiative Bayern GmbH",c:"DE",y:"Würzburg"},
+{n:"Cluster New Materials",c:"DE",y:"Nuremberg"},
+{n:"Cluster Plastics and Chemistry Brandenburg",c:"DE",y:"Potsdam"},
+{n:"Cluster Sensor technology Bavaria / Strategic Partnership for Sensor Technologies",c:"DE",e:"aerospace_and_defe",y:"Regensburg"},
+{n:"Cluster Smart Industries",c:"DE",e:"construction",y:"Mannheim"},
+{n:"Cluster Transport, Mobility and Logistics Berlin-Brandenburg",c:"DE",e:"mobility_transport",y:"Berlin"},
+{n:"Cluster for Individualized Immune Intervention (Ci3)",c:"DE",y:"Mainz"},
+{n:"Commercial Vehicle Cluster - Nutzfahrzeug GmbH",c:"DE",y:"Kaiserslautern"},
+{n:"Competence Center of aerospace and space technology Saxony/Thuringia r.a.",c:"DE",y:"Dresden"},
+{n:"Cool Silicon e.V.",c:"DE",y:"Dresden"},
+{n:"CyberForum e.V.",c:"DE",y:"Karlsruhe"},
+{n:"DiWISH Digitale Wirtschaft Schleswig-Holstein",c:"DE",y:"Kiel"},
+{n:"EIN Quantum NRW",c:"DE",e:"digital",y:"Duesseldorf"},
+{n:"ENERGIEregion Nürnberg e.V.",c:"DE",y:"Nuremberg"},
+{n:"EPSI - European Platform for Sport Innovation",c:"DE",y:"Munich"},
+{n:"Ecoliance Rhineland-Palatinate",c:"DE",y:"Hoppstädten-Weiersbach"},
+{n:"Electrifying Technical Organic Syntheses",c:"DE",e:"energy_intensive_i",y:"Karlsruhe"},
+{n:"Energy Saxony e.V.",c:"DE",y:"Dresden"},
+{n:"Food Cluster Hamburg GmbH",c:"DE",e:"agri_food",y:"Deutschland"},
+{n:"Franconian Plastics Network (KNF)",c:"DE",y:"Bayreuth"},
+{n:"GeoEnergy Celle e.V.",c:"DE",y:"Celle"},
+{n:"Geokompetenzzentrum Freiberg e.V. (GKZ)",c:"DE",e:"energy_intensive_i",y:"Freiberg"},
+{n:"Green Tech Cluster",c:"DE",y:"Regensburg"},
+{n:"HZwo Hydrogen Technology Cluster",c:"DE",e:"mobility_transport",y:"Chemnitz"},
+{n:"Hamburg Aviation e.V.",c:"DE",y:"Hamburg"},
+{n:"Hamburg Kreativ Gesellschaft mbH",c:"DE",y:"Hamburg"},
+{n:"Health Innovation Network by Bayern Innovativ GmbH",c:"DE",e:"health",y:"Nürnberg"},
+{n:"HealthCapital - Cluster Healthcare Industries Berlin Brandenburg",c:"DE",y:"Berlin"},
+{n:"Hydrogen Clusters4Future",c:"DE",e:"energy_renewables",y:"Aachen"},
+{n:"INPLAS Network of Competence Industrial Plasma Surface Technology e.V.",c:"DE",e:"mobility_transport",y:"Braunschweig"},
+{n:"IT-Security Cluster",c:"DE",y:"93053 Regensburg"},
+{n:"ITS mobility e. V.",c:"DE",y:"Braunschweig"},
+{n:"IVAM Microtechnology Network",c:"DE",y:"Dortmund"},
+{n:"Industrial Association for Finishing - Yarns - Fabrics - Technical Textiles (IVGT)",c:"DE",y:"Frankfurt am Main"},
+{n:"InfectoGnostics Research Campus Jena",c:"DE",y:"Jena"},
+{n:"InnoZent OWL e.V.",c:"DE",y:"Paderborn"},
+{n:"Innonet Kunststoff, Technologiezentrum Horb GmbH&Co.KG",c:"DE",y:"Horb am Neckar"},
+{n:"Innovations- und Effizienzcluster innoEFF",c:"DE",y:"Freiburg"},
+{n:"KI.NRW",c:"DE",e:"digital",y:"Sankt Augustin"},
+{n:"Kunststoff-Institut Lüdenscheid",c:"DE",y:"Lüdenscheid"},
+{n:"Kunststoff-Netzwerk Franken",c:"DE",y:"Bayreuth"},
+{n:"Leichtbau BW",c:"DE",y:"Stuttgart"},
+{n:"Life Science Nord",c:"DE",e:"health",y:"Hamburg"},
+{n:"Logistics Initiative Hamburg (Logistik-Initiative Hamburg Management GmbH)",c:"DE",e:"mobility_transport",y:"Hamburg"},
+{n:"MAI Carbon Cluster Management",c:"DE",y:"Augsburg"},
+{n:"MAI Carbon of Carbon Composites e.V.",c:"DE",y:"Augsburg"},
+{n:"Maritime Cluster Northern Germany",c:"DE",e:"mobility_transport",y:"Hamburg"},
+{n:"Measurement Valley e.V.",c:"DE",y:"Goettingen"},
+{n:"Medical Valley EMN e.V.",c:"DE",e:"digital",y:"Deutschland"},
+{n:"MedicalMountains GmbH",c:"DE",y:"Tuttlingen"},
+{n:"MoWiN.net e.V., Cluster Mobility, Regionalmanagement Nordhessen GmbH",c:"DE",y:"Kassel"},
+{n:"Mobility|Medical goes Additive e.V.",c:"DE",e:"aerospace_and_defe",y:"Berlin"},
+{n:"NaGeB eV, Foodindustrie Bremen",c:"DE",y:"Bremen"},
+{n:"NanoMat",c:"DE",y:"Eggenstein-Leopoldshafen"},
+{n:"Netzwerk Energie und Umwelt e.V. (NEU)",c:"DE",y:"Leipzig"},
+{n:"Niedersachsen Aviation",c:"DE",y:"Hannover"},
+{n:"OLEC e.V.",c:"DE",y:"Oldenburg"},
+{n:"Optence e.V. / Photonics Hub",c:"DE",y:"Wörrstadt"},
+{n:"OptoNet e.V. Photonics Network Thuringia",c:"DE",e:"aerospace_and_defe",y:"Jena"},
+{n:"Organic Electronics Saxony (OES)",c:"DE",e:"electronics",y:"Dresden"},
+{n:"PROXIDRUGS",c:"DE",e:"health",y:"Frankfurt am Main"},
+{n:"Packaging Valley Germany e.V.",c:"DE",e:"agri_food",y:"Deutschland"},
+{n:"PhotonicNet GmbH",c:"DE",e:"agri_food",y:"Hannover"},
+{n:"Photonics BW e.V.",c:"DE",e:"electronics",y:"Aalen"},
+{n:"Photonics Cluster Berlin Brandenburg",c:"DE",e:"agri_food",y:"Berlin"},
+{n:"Power Electronics Cluster within ECPE e.V.",c:"DE",y:"Nürnberg"},
+{n:"Process4Sustainability",c:"DE",e:"energy_intensive_i",y:"Frankfurt am Main"},
+{n:"REGINA e.V.",c:"DE",y:"Aachen"},
+{n:"ROBONOM - AUTONOMOUS SERVICE ROBOTS",c:"DE",y:"Ellwangen"},
+{n:"Rail.S e.V.",c:"DE",e:"mobility_transport",y:"Dresden"},
+{n:"Rhine-Neckar Metropolitan Region Ltd.",c:"DE",y:"Mannheim"},
+{n:"SACHSEN!TEXTIL",c:"DE",y:"Chemnitz"},
+{n:"SaxoCell",c:"DE",e:"health",y:"Dresden"},
+{n:"Security Network Munich",c:"DE",y:"Garching bei München"},
+{n:"Silicon Saxony",c:"DE",e:"digital",y:"Dresden"},
+{n:"Silicon Vilstal",c:"DE",y:"Geisenhausen"},
+{n:"Smart Infrastructure Hub Leipzig",c:"DE",e:"construction",y:"Leipzig"},
+{n:"Smart Logistics Cluster",c:"DE",y:"Aachen"},
+{n:"Smart Systems Hub",c:"DE",e:"digital",y:"Deutschland"},
+{n:"SmartTex Network",c:"DE",y:"Weimar"},
+{n:"Social Entrepreneurship City Hamburg",c:"DE",e:"proximity_and_soci",y:"Hamburg"},
+{n:"Sondermaschinen- und Anlagenbau SMAB",c:"DE",y:"Magdeburg"},
+{n:"SpectroNet c/o Technologie- und Innovationspark Jena GmbH",c:"DE",y:"Jena"},
+{n:"TRANSFORMOTIVE DIALOG",c:"DE",e:"energy_intensive_i",y:"Deutschland"},
+{n:"TechnologyMountains e. V",c:"DE",e:"aerospace_and_defe",y:"Villingen-Schwenningen"},
+{n:"Thurigian Renewable Energies Network (ThEEN)",c:"DE",e:"energy_renewables",y:"Erfurt"},
+{n:"Transmedia Bayern",c:"DE",y:"Munich"},
+{n:"Umweltcluster Bayern",c:"DE",y:"Augsburg"},
+{n:"Virtual Dimension Center Fellbach w.V.",c:"DE",y:"Fellbach"},
+{n:"automotive-bw",c:"DE",y:"Stuttgart"},
+{n:"bavAIRia e.V. / Cluster Aerospace",c:"DE",y:"Gilching"},
+{n:"bayern photonics e. V.",c:"DE",y:"Grafrath"},
+{n:"biomastec",c:"DE",y:"Ellwangen"},
+{n:"biosaxony e.V.",c:"DE",y:"Dresden"},
+{n:"cyberLAGO e.V. - digital competence network",c:"DE",y:"Konstanz"},
+{n:"food.net:z",c:"DE",y:"Heidelberg"},
+{n:"foodRegio",c:"DE",e:"agri_food",y:"Lübeck"},
+{n:"health.textil",c:"DE",y:"Chemnitz"},
+{n:"it's OWL Clustermanagement GmbH",c:"DE",y:"Paderborn"},
+{n:"kunststoffland NRW e.V.",c:"DE",e:"energy_intensive_i",y:"Düsseldorf"},
+{n:"media:net berlinbrandenburg e.V.",c:"DE",y:"Berlin"},
+{n:"medways e.V.",c:"DE",y:"Jena"},
+{n:"microTEC Südwest e.V.",c:"DE",y:"Freiburg"},
+{n:"nanodiag BW",c:"DE",e:"health",y:"Freiburg im Breisgau"},
+{n:"smart³ e.V.",c:"DE",y:"Bautzen"},
+{n:"thermoPre e. V. - Fibre composites for large-scale production",c:"DE",y:"Chemnitz"},
+{n:"BigScience.dk or Big Science.dk",c:"DK",e:"aerospace_and_defe",y:"Danmark"},
+{n:"CLEAN",c:"DK",e:"agri_food",y:"Sønderborg"},
+{n:"CenSec",c:"DK",e:"aerospace_and_defe",y:"Viborg"},
+{n:"Copenhagen Fintech",c:"DK",y:"København K"},
+{n:"DAMRC",c:"DK",y:"Herning"},
+{n:"Danish Life Science Cluster",c:"DK",y:"Copenhagen"},
+{n:"Danish Materials Network",c:"DK",e:"energy_renewables",y:"Esbjerg"},
+{n:"Danish Sound Cluster",c:"DK",y:"Struer"},
+{n:"Dansk Center for Lys",c:"DK",y:"Ballerup"},
+{n:"DigitalLead",c:"DK",y:"Aarhus N"},
+{n:"Energy Cluster Denmark",c:"DK",e:"energy_intensive_i",y:"Aalborg"},
+{n:"Filmby Aarhus",c:"DK",y:"Aarhus C."},
+{n:"Food & Bio Cluster Denmark",c:"DK",e:"agri_food",y:"Aarhus - Head Quarters, hubs: Copenhagen and 4 other cities"},
+{n:"Indo Nordic Innovation Cluster",c:"DK",e:"agri_food",y:"Ballerup"},
+{n:"InnoBYG",c:"DK",y:"Taastrup"},
+{n:"Lifestyle & Design Cluster",c:"DK",y:"Herning"},
+{n:"MADE - Manufacturing Academy of Denmark",c:"DK",e:"aerospace_and_defe",y:"Copenhagen"},
+{n:"Maritime & Logistics Innovation Denmark - MARLOG",c:"DK",y:"Copenhagen"},
+{n:"Maritime Cluster Copenhagen North",c:"DK",y:"Elsingore"},
+{n:"Medicon Valley Alliance",c:"DK",y:"Copenhagen S"},
+{n:"Odense Robotics",c:"DK",e:"aerospace_and_defe",y:"Odense M"},
+{n:"WE BUILD DENMARK",c:"DK",y:"Albertslund"},
+{n:"Active Life Cluster SportEST",c:"EE",y:"Tallinn"},
+{n:"CREATIVE ESTONIA",c:"EE",y:"Tallinn"},
+{n:"Cleantech Estonia",c:"EE",e:"aerospace_and_defe",y:"Tallinn"},
+{n:"Defence Estonia Cluster",c:"EE",y:"Tallinn"},
+{n:"Eesti Vesinikuklaster",c:"EE",e:"energy_renewables",y:"Tartu"},
+{n:"Estonian Aviation Cluster",c:"EE",y:"Tallinn"},
+{n:"Estonian Digital Construction Cluster",c:"EE",e:"construction",y:"Tallinn"},
+{n:"Estonian ICT Cluster",c:"EE",y:"Tallinn"},
+{n:"Estonian Logistics Cluster",c:"EE",y:"Tallinn"},
+{n:"Estonian Maritime Cluster",c:"EE",e:"aerospace_and_defe",y:"Tallinn"},
+{n:"Estonian Recycling Competence Center/Green Economy Cluster",c:"EE",y:"Tallinn"},
+{n:"Estonian Smart City Cluster",c:"EE",y:"Tartu"},
+{n:"Estonian Wooden Houses Cluster",c:"EE",y:"Tallinn"},
+{n:"Medicine Estonia",c:"EE",y:"TALLINN"},
+{n:"Tartu Health cluster",c:"EE",e:"digital",y:"Estonia"},
+{n:"Tehnopol Greentech Cluster",c:"EE",e:"digital",y:"Tallinn"},
+{n:"Tehnopol HealthTech Community (former Estonian Connected Health Cluster)",c:"EE",e:"health",y:"Tallinn"},
+{n:"4icvesport",c:"ES",e:"agri_food",y:"valencia"},
+{n:"AEI CLUSTER DEL TURISMO DE EXTREMADURA",c:"ES",y:"Cáceres"},
+{n:"AEI Conocimiento Asturias / Innovative Knowledge Business Association of Asturias",c:"ES",y:"Gijón"},
+{n:"AEI de la Infancia - Asociación de Empresas Innovadoras de la Infancia",c:"ES",y:"Valencia (VALENCIA)"},
+{n:"AEICE",c:"ES",y:"VALLADOLID"},
+{n:"AFM Cluster - Advanced Manufacturing Technologies",c:"ES",e:"aerospace_and_defe",y:"San Sebastian"},
+{n:"AINIA",c:"ES",y:"PATERNA"},
+{n:"AMEC - Association for the Impulse of Internationalized Industry.",c:"ES",e:"construction",y:"Barcelona"},
+{n:"AMUEBLA | Innovative Business Association of Furniture Manufacturers in the Region of Murcia",c:"ES",y:"Murcia"},
+{n:"APIDIT CTCR",c:"ES",y:"Arnedo"},
+{n:"ASICE. Rubber Cluster",c:"ES",y:"MADRID"},
+{n:"ASINCAR Agrifood Cluster of Asturias / ASINCAR",c:"ES",e:"agri_food",y:"Norena"},
+{n:"ASOCIACION DE EMPRESAS DE TECNOLOGIA DE GALICIA (INEO)",c:"ES",y:"VIGO (PONTEVEDRA)"},
+{n:"ASOCIACION VALENCIANA DE EMPRESARIOS DE PLASTICOS - AVEP",c:"ES",y:"Valencia"},
+{n:"ASOCIACIÓN CLÚSTER DEL PAPEL DE EUSKADI",c:"ES",y:"San Sebastián"},
+{n:"ASSOCIATION OF TEXTILE COMPANIES OF THE VALENCIAN REGION",c:"ES",e:"textiles",y:"ONTINYENT"},
+{n:"ATANA, Clúster TIC de Navarra (ICT Cluster of Navarra)",c:"ES",y:"Pamplona"},
+{n:"AVAESEN",c:"ES",y:"Valencia"},
+{n:"AVEBIOM Biomass Spanish Cluster",c:"ES",y:"Valladolid"},
+{n:"Aclima- Basque Environment Cluster - Asociación Cluster de Industrias de Medio Ambiente de Euskadi",c:"ES",y:"Bilbao"},
+{n:"Advanced Materials Cluster of Catalonia (MAV)",c:"ES",e:"mobility_transport",y:"Barcelona"},
+{n:"Aerospace, Space and Defence Cluster of Catalonia",c:"ES",e:"aerospace_and_defe",y:"Viladecans"},
+{n:"Andalucia Aerospace",c:"ES",e:"aerospace_and_defe",y:"San José de la Rinconada (Sevilla)"},
+{n:"Andalusian Cluster of Renewable Energy and Energy Efficiency",c:"ES",y:"Malaga"},
+{n:"Andalusian Food Cluster",c:"ES",e:"agri_food",y:"España"},
+{n:"Andalusian Hydrogen Cluster",c:"ES",e:"energy_renewables",y:"Granada"},
+{n:"Andalusian Plastic Cluster",c:"ES",e:"agri_food",y:"Martos"},
+{n:"Aragon Audiovisual Cluster",c:"ES",e:"creative_and_cultu",y:"ZARAGOZA"},
+{n:"Aragon Automotive and Mobility Cluster - CAAR",c:"ES",y:"Zaragoza"},
+{n:"Aragonese Cluster of Agricultural and Livestock Production Means",c:"ES",e:"agri_food",y:"Zaragoza"},
+{n:"Aragonian Aerospace Cluster",c:"ES",e:"aerospace_and_defe",y:"España"},
+{n:"Aragón-Energy-Cluster-CLENAR",c:"ES",e:"energy_renewables",y:"Zaragoza"},
+{n:"Arahealth",c:"ES",e:"health",y:"Zaragoza"},
+{n:"Asociación Cluster del Naval Gallego (ACLUNAGA)",c:"ES",e:"construction",y:"Vigo"},
+{n:"Asociación de Empresas del Metal de Madrid (AECIM)",c:"ES",e:"aerospace_and_defe",y:"Madrid"},
+{n:"Asociación de Industrias de Forja por Estampación",c:"ES",y:"Bilbao"},
+{n:"Associació Clúster Foodservice of Catalonia",c:"ES",e:"agri_food",y:"Barcelona"},
+{n:"Audiovisual Cluster of Navarre",c:"ES",y:"Pamplona"},
+{n:"Automotive Valencian Cluster",c:"ES",y:"Almussafes"},
+{n:"BIOENERGY CLUSTER OF CATALONIA",c:"ES",e:"agri_food",y:"Terrassa"},
+{n:"BIOGA Cluster Tecnolóxico Empresarial das Ciencias da Vida",c:"ES",e:"agri_food",y:"Santiago de Compostela"},
+{n:"BIOPLAT",c:"ES",y:"Madrid"},
+{n:"BIOVEGEN - Spanish Technology Platform for Plant Biotechnology",c:"ES",y:"Madrid"},
+{n:"Balearic Marine Cluster",c:"ES",y:"Palma"},
+{n:"Balears.t Clúster d’Innovació Tecnològica en Turisme de les Illes Balears",c:"ES",y:"Palma"},
+{n:"Barcelona Finance Cluster",c:"ES",e:"proximity_and_soci",y:"Barcelona"},
+{n:"Barcelona Nautical Cluster",c:"ES",e:"tourism",y:"Barcelona"},
+{n:"Basque Energy Cluster (Cluster de Energía)",c:"ES",e:"energy_renewables",y:"Bilbao"},
+{n:"Basque Health Cluster",c:"ES",e:"health",y:"Derio"},
+{n:"Basque Mobility and Logistics Cluster, MLC ITS Euskadi",c:"ES",e:"mobility_transport",y:"San Sebastian"},
+{n:"Beauty Cluster",c:"ES",e:"health",y:"Barcelona"},
+{n:"Biocat (Bioregion of Catalonia)",c:"ES",e:"health",y:"Barcelona"},
+{n:"Biotecnology and Biomedical Cluster of the Balearic Islands",c:"ES",e:"health",y:"Palma"},
+{n:"Bioval",c:"ES",e:"agri_food",y:"Valencia"},
+{n:"CATALAN FINE FOOD CLUSTER CATALONIA GOURMET",c:"ES",y:"Barcelona"},
+{n:"CEEC",c:"ES",e:"digital",y:"España"},
+{n:"CENFIM Home & Contract Furnishings Cluster",c:"ES",y:"La Sénia"},
+{n:"CENTRO ESPAÑOL DE LOGÍSTICA (CEL)",c:"ES",e:"mobility_transport",y:"Coslada"},
+{n:"CENTRO ESPAÑOL DE PLASTICOS",c:"ES",y:"Barcelona"},
+{n:"CEQUIP",c:"ES",y:"Barcelona"},
+{n:"CICAT: Lighting Cluster",c:"ES",e:"electronics",y:"Barcelona"},
+{n:"CIDATUM",c:"ES",e:"digital",y:"Logroño"},
+{n:"CITET Innovation Cluster for Sustainable Freight Delivery",c:"ES",e:"mobility_transport",y:"Madrid"},
+{n:"CLUSTER DE ALIMENTACUÓN DE EUSKADI - BASQUE FOOD CLUSTER",c:"ES",y:"Zamudio, Vizcaya"},
+{n:"CLUSTER DE BIENES DE EQUIPO DE CASTILLA Y LEON ( CBECYL )",c:"ES",y:"VALLADOLID"},
+{n:"CLUSTER DE FUNDICIÓN DEL PAíS VASCO (AFV - FUNDIGEX). BASQUE FOUNDRY CLUSTER",c:"ES",y:"Bilbao"},
+{n:"CLUSTER DE TURISMO DE MONTAÑA",c:"ES",y:"Jaca"},
+{n:"CLUSTER EMPRESAS INNOVADORAS VALLE DEL JUGUETE",c:"ES",y:"IBI"},
+{n:"CLUSTER MARÍTIMO DE CANARIAS",c:"ES",y:"LAS PALMAS DE GRAN CANARIA"},
+{n:"CLUSTER SMART CITIES DE LA REGIÓN DE MURCIA",c:"ES",y:"Murcia"},
+{n:"COEXPHAL, ASOCIACIÓN DE ORGANIZACIONES DE PRODUCTORES DE FRUTAS Y HORTALIZAS DE ALMERÍA",c:"ES",y:"Almería"},
+{n:"CSIM Real Estate Services Cluster",c:"ES",e:"construction",y:"Barcelona"},
+{n:"CTA Aerospace and Production Processes",c:"ES",y:"Sevilla"},
+{n:"CTA Agrifood",c:"ES",y:"Sevilla"},
+{n:"CTA Biotech",c:"ES",y:"Sevilla"},
+{n:"CTA Construction and Civil Engineering",c:"ES",y:"Sevilla"},
+{n:"CTA Energy and Environment",c:"ES",y:"Sevilla"},
+{n:"CTA ICT",c:"ES",y:"Sevilla"},
+{n:"CTN - Marine Tecnology Centre",c:"ES",y:"Fuente Álamo"},
+{n:"Canarias Excelencia Tecnológica",c:"ES",e:"digital",y:"Las Palmas de Gran Canaria"},
+{n:"Canary Cluster for Transports and Logistics",c:"ES",y:"Las Palmas de Gran Canaria"},
+{n:"Canary Islands Audiovisual Cluster (CLAC)",c:"ES",e:"creative_and_cultu",y:"Santa Cruz de Tenerife"},
+{n:"Canary Islands Enotourism Cluster",c:"ES",e:"agri_food",y:"España"},
+{n:"Catalan Fashion Cluster",c:"ES",e:"textiles",y:"Barcelona"},
+{n:"Catalan Waste Cluster",c:"ES",e:"construction",y:"Barcelona"},
+{n:"Catalan Water Partnership",c:"ES",e:"agri_food",y:"Girona"},
+{n:"Catalonia Fire Safety Cluster",c:"ES",e:"construction",y:"España"},
+{n:"Catalonia Logistics",c:"ES",y:"Barcelona"},
+{n:"Catalonia.health",c:"ES",e:"health",y:"Barcelona"},
+{n:"Chemical Industry Cluster of the Balearic Islands (CliQIB)",c:"ES",e:"tourism",y:"Palma de Mallorca"},
+{n:"Cluster ACUIPLUS",c:"ES",y:"Sant Carles de la Ràpita - Tarragona"},
+{n:"Cluster Audiovisual de Catalunya",c:"ES",e:"creative_and_cultu",y:"Barcelona"},
+{n:"Cluster Construcción Sostenible",c:"ES",y:"S/C de Tenerife"},
+{n:"Cluster EDUTECH IB",c:"ES",e:"digital",y:"Palma"},
+{n:"Cluster FOOD+i",c:"ES",y:"Calahorra"},
+{n:"Cluster ICT Asturias",c:"ES",e:"digital",y:"Gijon"},
+{n:"Cluster IDiA",c:"ES",e:"aerospace_and_defe",y:"Zaragoza"},
+{n:"Cluster Innovacal",c:"ES",e:"agri_food",y:"España"},
+{n:"Cluster SIVI",c:"ES",e:"health",y:"Valladolid"},
+{n:"Cluster Smart City Asturias",c:"ES",e:"aerospace_and_defe",y:"Gijón"},
+{n:"Cluster Social Sumando Empleo Aragón",c:"ES",e:"proximity_and_soci",y:"Zaragoza"},
+{n:"Cluster TEIB Transició Ecològica de les Illes Balears",c:"ES",e:"energy_intensive_i",y:"Palma"},
+{n:"Cluster de Empresas Digitales, Sostenibles e Industrias Innovadoras",c:"ES",e:"digital",y:"Granada"},
+{n:"Cluster de la Acuicultura",c:"ES",y:"Ribeira"},
+{n:"Cluster del Granito",c:"ES",y:"O Porriño"},
+{n:"Cluster of Renevable Energy and Energetic Solutions of Castilla and León",c:"ES",y:"Arroyo de la Encomienda"},
+{n:"Clúster Digital Catalunya",c:"ES",e:"agri_food",y:"Barcelona"},
+{n:"Clúster Marítimo Marino de Andalucía",c:"ES",y:"Málaga"},
+{n:"Clúster de la Industria d'Automoció de Catalunya",c:"ES",e:"mobility_transport",y:"Barcelona"},
+{n:"ConstruLab360 Balearic Islands Innovative Construction Cluster",c:"ES",e:"construction",y:"Bunyola"},
+{n:"CyberLur",c:"ES",e:"aerospace_and_defe",y:"León"},
+{n:"EDUTECH CLUSTER",c:"ES",e:"creative_and_cultu",y:"Barcelona"},
+{n:"EIKEN- Basque Audiovisual and Digital Content",c:"ES",y:"Bilbao"},
+{n:"ENERCLUSTER - WIND ENERGY CLUSTER OF NAVARRE",c:"ES",y:"Pamplona"},
+{n:"ENERGY TECHNOLOGY CONSORTIUM OF ASTURIAS (CONSORCIO TECNOLÓGICO DE LA ENERGÍA DE ASTURIAS, AIE)",c:"ES",y:"MIERES"},
+{n:"ETICOM (Asociación Empresarial Eticom, cluster de Economía Digital de Andalucía",c:"ES",y:"SEVILLA"},
+{n:"EXTREMADURA ENERGY CLUSTER (CLUSTER ENERGIA)",c:"ES",y:"BADAJOZ"},
+{n:"Energy Cluster of the Valencia Region",c:"ES",y:"Paterna"},
+{n:"Engineering Cluster of the Canary Islands",c:"ES",y:"S/C de Tenerife"},
+{n:"Eraikune - Construction Cluster of the Basque Country",c:"ES",y:"Bilbao"},
+{n:"FACYL CASTILLA Y LEON AUTOMOTIVE CLUSTER",c:"ES",y:"Boecillo-Valladolid"},
+{n:"FEDACOVA",c:"ES",y:"Valencia"},
+{n:"FEMAC",c:"ES",e:"agri_food",y:"Lleida"},
+{n:"FEMETALiNDUSTRY. CLUSTER OF ADVANCED MANUFACTURING OF METAL INDUSTRY IN ASTURIAS.",c:"ES",e:"digital",y:"Gijón"},
+{n:"FENIN - Spanish Innovation Platform of Medical Technologies",c:"ES",e:"digital",y:"Madrid"},
+{n:"FLUIDEX",c:"ES",e:"energy_intensive_i",y:"España"},
+{n:"FORO MARITIMO VASCO",c:"ES",y:"BILBAO"},
+{n:"FUNCTIONAL PRINT CLUSTER",c:"ES",y:"Pamplona"},
+{n:"FUNDACIÓN BCD PARA LA PROMOCIÓN DEL DISEÑO INDUSTRIAL",c:"ES",y:"Barcelona"},
+{n:"Feeling Innovation by Stanpa",c:"ES",e:"digital",y:"Madrid"},
+{n:"Food Industry Cluster of Castilla y León",c:"ES",e:"agri_food",y:"Valladolid"},
+{n:"Foodservice Cluster Association",c:"ES",e:"agri_food",y:"Barcelona"},
+{n:"GAIA.-Association of Knowledge and Applied Technologies industries in the Basque Country",c:"ES",y:"San Sebastian"},
+{n:"GALICIAN AUDIOVISUAL CLUSTER",c:"ES",y:"Santiago de Compostela"},
+{n:"GEOPLAT",c:"ES",y:"Madrid"},
+{n:"Galicia Food Cluster",c:"ES",e:"agri_food",y:"Santiago de Compostela"},
+{n:"Galician Automotive and Mobility Cluster (CEAGA)",c:"ES",e:"mobility_transport",y:"Vigo"},
+{n:"Galician Cluster for Environmental Solutions and Circular Economy",c:"ES",e:"agri_food",y:"Santiago de Compostela"},
+{n:"Galician Construction Cluster",c:"ES",e:"construction",y:"A CORUÑA"},
+{n:"Galician Health Cluster",c:"ES",y:"Santiago de Compostela"},
+{n:"Galician ICT Cluster",c:"ES",y:"Santiago de Compostela"},
+{n:"Global Sports Innovation Center powered by Microsoft",c:"ES",y:"Madrid"},
+{n:"Granada Health Technology Park (PTS)",c:"ES",y:"Granada"},
+{n:"Gremi Textil de Terrassa",c:"ES",e:"textiles",y:"Terrassa - Barcelona"},
+{n:"HABIC BASQUE HABITAT, WOOD, OFFICE & HOSPITALITY CLUSTER",c:"ES",e:"construction",y:"Zarautz"},
+{n:"HEGAN - Basque Aerospace Cluster",c:"ES",e:"aerospace_and_defe",y:"Zamudio"},
+{n:"HELICE CLUSTER",c:"ES",y:"La Rinconada"},
+{n:"Habitat Cluster Barcelona",c:"ES",y:"Barcelona"},
+{n:"Health Cluster of Castilla y León: BIOTECYL",c:"ES",y:"VALLADOLID"},
+{n:"Hub Foodtech & Nutrition",c:"ES",e:"agri_food",y:"Reus"},
+{n:"INDESCAT- Catalan Sports Cluster",c:"ES",e:"creative_and_cultu",y:"Barcelona"},
+{n:"INEUSTAR, the Spanish Science Industry Association",c:"ES",e:"electronics",y:"Donostia"},
+{n:"INNOVACC",c:"ES",e:"agri_food",y:"Olot"},
+{n:"INNOVALIMEN",c:"ES",y:"Zaragoza"},
+{n:"INNOVI - Catalan Wine Cluster",c:"ES",e:"agri_food",y:"Vilafranca del Penedès"},
+{n:"ITECAM, Metal-Mechanical Cluster of Castilla-La Mancha",c:"ES",e:"agri_food",y:"Tomelloso"},
+{n:"Iberian Sustainable Mining Cluster",c:"ES",y:"León"},
+{n:"In-Move by Railgrup",c:"ES",e:"mobility_transport",y:"Barcelona"},
+{n:"Industrial Transformation Cluster ain",c:"ES",y:"Cordovilla"},
+{n:"Industrialized Construction Cluster of Catalonia",c:"ES",e:"construction",y:"Martorell"},
+{n:"Innovasturias",c:"ES",e:"agri_food",y:"Gijón"},
+{n:"Innovation Footwear Cluster",c:"ES",y:"Elda (Alicante)"},
+{n:"Innovative Logistics Association of Aragon",c:"ES",e:"mobility_transport",y:"Zaragoza"},
+{n:"KID'S CLUSTER",c:"ES",e:"creative_and_cultu",y:"Barcelona"},
+{n:"Leather Cluster Barcelona",c:"ES",y:"Igualada"},
+{n:"Light Mobility Cluster",c:"ES",e:"mobility_transport",y:"España"},
+{n:"MADRID AEROSPACE CLUSTER",c:"ES",y:"MADRID"},
+{n:"MADRID ICT-AUDIOVISUAL CLUSTER",c:"ES",y:"Madrid"},
+{n:"MAFEX",c:"ES",y:"Leioa"},
+{n:"MARITIME CLUSTER OF BALEARIC ISLANDS",c:"ES",e:"energy_renewables",y:"PALMA"},
+{n:"MCA - Madrid Automotive Cluster",c:"ES",y:"Madrid"},
+{n:"Madrid Capital FinTech",c:"ES",y:"Madrid"},
+{n:"Madrid Sustainability and Renewable Energies Cluster",c:"ES",y:"Madrid"},
+{n:"Madrid World Capital of Engineering, Construction and Architecture",c:"ES",y:"Madrid"},
+{n:"Málaga TechPark",c:"ES",y:"Málaga"},
+{n:"NAGRIFOOD",c:"ES",e:"agri_food",y:"España"},
+{n:"National Technological Centre for Food and Canning",c:"ES",e:"agri_food",y:"MOLINA DE SEGURA"},
+{n:"Navarra Health Cluster",c:"ES",e:"health",y:"Navarra"},
+{n:"New Hydrogen Technologies - Nuevas Tecnologías del Hidrógeno (NTH)",c:"ES",y:"Cuarte"},
+{n:"PIMEC LOGISTICS",c:"ES",y:"Barcelona"},
+{n:"Packaging Cluster",c:"ES",e:"agri_food",y:"Sabadell"},
+{n:"Packaging Cluster of the Valencian Community",c:"ES",e:"textiles",y:"Valencia"},
+{n:"Railway Innovation Hub",c:"ES",y:"Málaga"},
+{n:"SIDEREX BASQUE STEEL CLUSTER",c:"ES",y:"Leioa"},
+{n:"SMART CITY CLUSTER",c:"ES",e:"electronics",y:"MALAGA"},
+{n:"SOLARTYS - Spanish Solar Energy and Energy Efficiency Cluster",c:"ES",e:"energy_renewables",y:"Barcelona"},
+{n:"Smartech Cluster: Home Automation, Smart Cities, Smart Buildings, Digital Transformation and Industry 4.0",c:"ES",e:"digital",y:"Barcelona"},
+{n:"South Catalonia ICT Cluster",c:"ES",e:"agri_food",y:"Reus"},
+{n:"Spanish Association of Semiconductor Industry",c:"ES",e:"aerospace_and_defe",y:"Alcobendas"},
+{n:"Spanish Building Cluster",c:"ES",e:"construction",y:"MADRID"},
+{n:"Spanish Cluster of Pig Producers",c:"ES",e:"agri_food",y:"Zaragoza"},
+{n:"Spanish Railways Technological Platform",c:"ES",y:"Madrid"},
+{n:"Steel Innovation Cluster / Polo del Acero",c:"ES",y:"Aviles"},
+{n:"TECNARA - Aragon IT Cluster",c:"ES",e:"digital",y:"Zaragoza"},
+{n:"TSAC - SUSTAINABLE TOURISM CLUSTER OF ARAGON",c:"ES",y:"Huesca"},
+{n:"Tech Tourism Cluster",c:"ES",e:"digital",y:"España"},
+{n:"Technological and Business Pole of the Biomass of Asturias",c:"ES",e:"digital",y:"Ujo"},
+{n:"Tecnova",c:"ES",e:"agri_food",y:"Almería"},
+{n:"Texfor",c:"ES",e:"textiles",y:"Sabadell"},
+{n:"The Automotive Cluster of Navarra",c:"ES",e:"mobility_transport",y:"Pamplona"},
+{n:"Ticbiomed",c:"ES",y:"MURCIA"},
+{n:"Turisfera - Cluster of Tourism Innovation of the Canary Islands",c:"ES",y:"Santa Cruz de Tenerife"},
+{n:"Turistec International Cluster of Information and Communication technologies applied to tourism",c:"ES",y:"Palma"},
+{n:"Tèxtils.CAT",c:"ES",e:"textiles",y:"TERRASSA"},
+{n:"UNIPORTBILBAO",c:"ES",y:"Bilbao"},
+{n:"VALMETAL CLUSTER",c:"ES",y:"Valencia"},
+{n:"WeMind Cluster",c:"ES",e:"health",y:"Sant Boi de Llobregat"},
+{n:"Wood and Design Cluster Galicia / Cluster da Madeira e o Deseño de Galicia (CMD)",c:"ES",e:"construction",y:"Santiago de Compostela"},
+{n:"ZINNAE",c:"ES",y:"Zaragoza"},
+{n:"amec urbis",c:"ES",y:"Barcelona"},
+{n:"i2CAT",c:"ES",y:"Barcelona"},
+{n:"secpho deep tech innovation cluster",c:"ES",y:"Barcelona"},
+{n:"AFDA - Association of Finnish Defence and Aerospace Industries",c:"FI",y:"Helsinki"},
+{n:"Agri-Food Cluster North Savo",c:"FI",e:"agri_food",y:"Iisalmi"},
+{n:"Arctic Construction Cluster Finland",c:"FI",e:"construction",y:"Oulu"},
+{n:"Arctic Design & Development Environments Cluster, Lapland University of Applied Sciences",c:"FI",y:"Kemi"},
+{n:"Arctic Design Cluster, University of Lapland",c:"FI",y:"Rovaniemi"},
+{n:"Arctic Safety, Lapland University of Applied Sciences",c:"FI",y:"Rovaniemi"},
+{n:"Arctic Smart Rural Community, ProAgria Lapland",c:"FI",y:"Saarenkylä"},
+{n:"Arctic Sport Cluster",c:"FI",e:"digital",y:"Rovaniemi"},
+{n:"Bio and Circular Cluster North Savo",c:"FI",e:"construction",y:"Kuopio"},
+{n:"Biocluster Finland",c:"FI",e:"agri_food",y:"Suomi"},
+{n:"Blue Economy Mikkeli",c:"FI",e:"agri_food",y:"Mikkeli"},
+{n:"Business Joensuu",c:"FI",y:"Joensuu"},
+{n:"CLIC Innovation Oy",c:"FI",e:"energy_renewables",y:"Suomi"},
+{n:"Circular Cluster Oulu",c:"FI",e:"agri_food",y:"Oulu"},
+{n:"DIMECC Ltd.",c:"FI",y:"Tampere"},
+{n:"DigiCenterNS",c:"FI",e:"digital",y:"Kuopio"},
+{n:"Energy Cluster North Savo",c:"FI",e:"energy_intensive_i",y:"Varkaus"},
+{n:"EnergyVaasa (c/o Oy Merinova Ab)",c:"FI",e:"energy_renewables",y:"Vaasa"},
+{n:"Finnish Water Forum",c:"FI",y:"Helsinki"},
+{n:"Green Net Finland",c:"FI",e:"energy_renewables",y:"Helsinki"},
+{n:"Greenreality Network",c:"FI",y:"Lappeenranta"},
+{n:"HealthTurku",c:"FI",y:"Turku"},
+{n:"IBC Finland ry",c:"FI",e:"agri_food",y:"Suomi"},
+{n:"ITS Finland",c:"FI",e:"mobility_transport",y:"Suomi"},
+{n:"Kuopio Health Co-op.",c:"FI",y:"Kuopio"},
+{n:"Kuopio Water Cluster",c:"FI",e:"agri_food",y:"Kuopio"},
+{n:"Lahti Mechatronics Network",c:"FI",y:"Lahti"},
+{n:"Memory Campus",c:"FI",e:"creative_and_cultu",y:"Mikkeli"},
+{n:"Mining Finland",c:"FI",e:"aerospace_and_defe",y:"Leppäkaarre"},
+{n:"Nordic Innovation Accelerator",c:"FI",y:"Lahti"},
+{n:"OIA/ Agile Commercialization",c:"FI",y:"Oulu"},
+{n:"OIA/ ICT & Digitalization",c:"FI",y:"Oulu"},
+{n:"OIA/ OuluHealth",c:"FI",y:"Oulu"},
+{n:"Oulu Automotive Cluster",c:"FI",e:"mobility_transport",y:"Oulu"},
+{n:"Oulu university - AIF Water Ecosystem",c:"FI",y:"Oulu"},
+{n:"Photonics Finland",c:"FI",e:"agri_food",y:"Joensuu"},
+{n:"Robocoast Cluster",c:"FI",y:"Pori"},
+{n:"Smart City Innovation Cluster",c:"FI",e:"construction",y:"Suomi"},
+{n:"Smart and Sustainable Arctic Tourism",c:"FI",y:"Rovaniemi"},
+{n:"South Savo Electric Mobility Cluster",c:"FI",e:"digital",y:"Suomi"},
+{n:"South Savo Food Cluster",c:"FI",e:"agri_food",y:"Mikkeli"},
+{n:"Tampere Imaging Ecosystem",c:"FI",y:"Tampere"},
+{n:"Tampere Region Safety and Security Cluster",c:"FI",e:"aerospace_and_defe",y:"Tampere"},
+{n:"The Arctic Industrial Circular Economy Cluster - Kiertotalouskeskus Digipolis Oy",c:"FI",e:"digital",y:"Kemi"},
+{n:"The Food Province of Finland Cluster",c:"FI",e:"agri_food",y:"Seinajoki"},
+{n:"Water Cluster Finland",c:"FI",e:"energy_intensive_i",y:"Oulu"},
+{n:"ACD Nouvelle-Aquitaine",c:"FR",e:"aerospace_and_defe",y:"Bruges"},
+{n:"AEROSPACE CLUSTER AUVERGNE-RHÔNE-ALPES",c:"FR",y:"LYON"},
+{n:"AFPG - GEODEEP",c:"FR",y:"Paris"},
+{n:"AKTANTIS",c:"FR",e:"digital",y:"Valbonne Sophia-Antipolis"},
+{n:"ALPHA-RLH Route des Lasers et des Hyperfréquences",c:"FR",y:"Talence"},
+{n:"AQM NORMANDY",c:"FR",e:"aerospace_and_defe",y:"CAEN"},
+{n:"AQUIMER",c:"FR",y:"Boulogne-sur-Mer"},
+{n:"ARIA NORMANDY",c:"FR",y:"COLOMBELLES"},
+{n:"Aerospace Valley",c:"FR",e:"aerospace_and_defe",y:"Toulouse"},
+{n:"AgreenTech Valley",c:"FR",e:"agri_food",y:"Orléans Cedex"},
+{n:"Agri Sud-Ouest Innovation",c:"FR",y:"Auzeville-Tolosane"},
+{n:"Alliance Innovation Santé Nouvelle-Aquitaine",c:"FR",e:"health",y:"Pessac"},
+{n:"Aquanova Pole",c:"FR",e:"agri_food",y:"Courbevoie"},
+{n:"Atlanpole Biotherapies",c:"FR",e:"health",y:"Nantes"},
+{n:"Atlansun",c:"FR",y:"Nantes"},
+{n:"BPN Brittany Naval Pole",c:"FR",y:"Lorient"},
+{n:"BRETAGNE AEROSPACE",c:"FR",y:"SAINT-BRIEUC"},
+{n:"BRIT'INOV",c:"FR",y:"PLOUFRAGAN"},
+{n:"BioValley France",c:"FR",y:"ILLKIRCH"},
+{n:"Bioeconomy For Change (B4C)",c:"FR",e:"agri_food",y:"Barenton-Bugny"},
+{n:"Biotech Sante Bretagne",c:"FR",e:"agri_food",y:"Rennes"},
+{n:"CARA",c:"FR",e:"mobility_transport",y:"LYON"},
+{n:"CD2E",c:"FR",y:"Loos-en-Gohelle"},
+{n:"CIMES, Creating Integrated MEchanical Systems",c:"FR",e:"aerospace_and_defe",y:"Clermont-Ferrand"},
+{n:"CLUSTER LUMIERE",c:"FR",e:"digital",y:"LYON"},
+{n:"COSMETIC VALLEY",c:"FR",e:"creative_and_cultu",y:"Chartres"},
+{n:"Cap Digital",c:"FR",y:"Paris"},
+{n:"Capenergies Association",c:"FR",e:"energy_intensive_i",y:"Aix en Provence"},
+{n:"Capital Games",c:"FR",y:"Paris"},
+{n:"CleanTech Valley",c:"FR",e:"energy_renewables",y:"Aramon"},
+{n:"Cluster Eco-Bâtiment",c:"FR",y:"Lyon"},
+{n:"Cluster GAT CARAIBES Logistique et Transports",c:"FR",y:"Fort de France"},
+{n:"Cluster Montagne",c:"FR",e:"tourism",y:"PORTE-DE-SAVOIE"},
+{n:"Cluster TIC SANTE",c:"FR",y:"PESSAC"},
+{n:"Competitiveness Cluster DERBI-CEMATER",c:"FR",e:"energy_renewables",y:"Perpignan"},
+{n:"Creative Factory by Samoa",c:"FR",y:"Nantes"},
+{n:"Céréales Vallée",c:"FR",y:"Saint Beauzire"},
+{n:"DIGITAL LEAGUE",c:"FR",y:"Lyon"},
+{n:"DREAM Cluster",c:"FR",y:"ORLEANS"},
+{n:"Descartes Sustainable City cluster",c:"FR",e:"construction",y:"Champs-sur-Marne"},
+{n:"Digital 113",c:"FR",e:"digital",y:"France"},
+{n:"EMC2",c:"FR",e:"aerospace_and_defe",y:"Bouguenais"},
+{n:"EUROBIOMED",c:"FR",e:"health",y:"MARSEILLE"},
+{n:"Elastopôle",c:"FR",y:"Orléans"},
+{n:"Energeia",c:"FR",y:"Amiens"},
+{n:"EuraMaterials",c:"FR",e:"aerospace_and_defe",y:"TOURCOING"},
+{n:"EuraTechnologies",c:"FR",e:"aerospace_and_defe",y:"France"},
+{n:"Eurasante / Clubster NHL",c:"FR",y:"Loos, Région Hauts-de-France"},
+{n:"European Cluster of Ceramics",c:"FR",e:"aerospace_and_defe",y:"LIMOGES"},
+{n:"FASK - Fashion Skills",c:"FR",e:"textiles",y:"Marseille"},
+{n:"Finance Innovation",c:"FR",e:"digital",y:"Paris"},
+{n:"France FinTech",c:"FR",y:"Paris"},
+{n:"France Water Team",c:"FR",y:"Montpellier"},
+{n:"GENOPOLE",c:"FR",e:"agri_food",y:"Evry"},
+{n:"HYDREOS",c:"FR",y:"Tomblaine"},
+{n:"Hauts-de-France Automotive Cluster",c:"FR",e:"mobility_transport",y:"Famars"},
+{n:"Hippolia cluster",c:"FR",e:"agri_food",y:"Colombelles"},
+{n:"I-Care Cluster",c:"FR",y:"Lyon"},
+{n:"ID4Mobility",c:"FR",e:"mobility_transport",y:"Nantes"},
+{n:"INDURA",c:"FR",y:"Villeurbanne"},
+{n:"INNO'VIN",c:"FR",e:"agri_food",y:"VILLENAVE d'ORNON"},
+{n:"INNOV'ALLIANCE - Natural solutions at the heart of your development",c:"FR",e:"agri_food",y:"Avignon Cedex 9"},
+{n:"INTERBIO Nouvelle-Aquitaine",c:"FR",y:"Bordeaux"},
+{n:"Images & Reseaux",c:"FR",e:"digital",y:"LANNION"},
+{n:"Imaginove",c:"FR",y:"Lyon"},
+{n:"Invivolim",c:"FR",y:"Limoges"},
+{n:"LYONBIOPOLE",c:"FR",e:"health",y:"LYON"},
+{n:"La Mêlée",c:"FR",e:"digital",y:"Toulouse"},
+{n:"Lyon Auvergne Rhône-Alpes Cancer cluster",c:"FR",y:"Lyon"},
+{n:"MA Sphère",c:"FR",y:"Toulouse"},
+{n:"MATIKEM",c:"FR",y:"Villeneuve d'Ascq"},
+{n:"MEDEE",c:"FR",e:"electronics",y:"Lille"},
+{n:"MEDICEN PARIS REGION",c:"FR",y:"Paris"},
+{n:"MONT BLANC INDUSTRIES",c:"FR",y:"cluses"},
+{n:"Materalia",c:"FR",e:"energy_intensive_i",y:"Metz"},
+{n:"Mecanic ValléeM",c:"FR",y:"Viviez"},
+{n:"Minalogic",c:"FR",e:"aerospace_and_defe",y:"Grenoble"},
+{n:"NAE (Normandie AeroEspace - Defense)",c:"FR",y:"Saint Etienne du Rouvray"},
+{n:"NOV@LOG",c:"FR",y:"LE HAVRE"},
+{n:"NextMove",c:"FR",e:"mobility_transport",y:"SAINT-ETIENNE-DU-ROUVRAY"},
+{n:"Nova CHILD",c:"FR",y:"CHOLET"},
+{n:"Nutrition Health Longevity",c:"FR",y:"loos"},
+{n:"OPTICSVALLEY",c:"FR",y:"PALAISEAU"},
+{n:"POLE AVENIA",c:"FR",y:"PAU"},
+{n:"POLEPHARMA",c:"FR",e:"health",y:"CHARTRES"},
+{n:"PRIMI Pôle Transmédia Méditerranée",c:"FR",y:"Marseille"},
+{n:"PRIMUS Défense & Sécurité",c:"FR",y:"Toulouse"},
+{n:"Photonics Bretagne",c:"FR",e:"aerospace_and_defe",y:"Lannion"},
+{n:"Photonics cluster OPTITEC",c:"FR",y:"Marseille"},
+{n:"Pixel Players",c:"FR",e:"creative_and_cultu",y:"France"},
+{n:"Pole Action Media",c:"FR",e:"creative_and_cultu",y:"Le Soler"},
+{n:"Pole Culture et Patrimoines",c:"FR",y:"ARLES"},
+{n:"Pole Media Grand Paris",c:"FR",y:"Saint-Denis"},
+{n:"Polymeris",c:"FR",y:"Bellignat"},
+{n:"Pôle Aqua-Valley",c:"FR",y:"MONTPELLIER"},
+{n:"Pôle Fibres-Energivie",c:"FR",y:"ILLKIRCH-GRAFFENSTADEN"},
+{n:"Pôle Mer Bretagne Atlantique",c:"FR",y:"Plouzané"},
+{n:"Pôle Mer Méditerranée - Business & Innovation Sea Cluster",c:"FR",y:"Ollioules"},
+{n:"Pôle Véhicule du Futur",c:"FR",e:"mobility_transport",y:"Etupes"},
+{n:"QUALITROPIC",c:"FR",e:"agri_food",y:"SAINTE-CLOTILDE"},
+{n:"Qualimediterranée",c:"FR",y:"Montpellier"},
+{n:"Riviera Yachting NETWORK",c:"FR",y:"La Seyne sur Mer"},
+{n:"Robotics Place",c:"FR",e:"aerospace_and_defe",y:"TOULOUSE"},
+{n:"Robotics Valley",c:"FR",e:"digital",y:"Dijon"},
+{n:"S2E2 competitiveness cluster - Smart Electricity Cluster",c:"FR",y:"TOURS"},
+{n:"SAFE",c:"FR",e:"aerospace_and_defe",y:"Aix-en-Provence"},
+{n:"SOLTENA",c:"FR",e:"energy_intensive_i",y:"Limoges"},
+{n:"SYSTEM FACTORY",c:"FR",y:"TOULON"},
+{n:"Shop Expert Valley",c:"FR",e:"retail",y:"BLOIS"},
+{n:"Systematic Paris-Region",c:"FR",e:"aerospace_and_defe",y:"PALAISEAU"},
+{n:"TEAM2",c:"FR",e:"construction",y:"LENS"},
+{n:"TECHTERA",c:"FR",e:"textiles",y:"Ecully"},
+{n:"TEMERGIE",c:"FR",y:"Saint Denis"},
+{n:"TENERRDIS",c:"FR",e:"energy_renewables",y:"GRENOBLE"},
+{n:"TES - Normandy Digital Cluster",c:"FR",e:"creative_and_cultu",y:"Colombelles"},
+{n:"VALORIAL",c:"FR",e:"agri_food",y:"RENNES"},
+{n:"VEGEPOLYS VALLEY",c:"FR",e:"agri_food",y:"Angers"},
+{n:"VITAGORA",c:"FR",y:"DIJON"},
+{n:"Vallée de l'énergie",c:"FR",y:"BELFORT"},
+{n:"Xylofutur, innovation cluster for the forest- and wood-based sector",c:"FR",e:"construction",y:"GRADIGNAN"},
+{n:"cluster of tourism GOazen",c:"FR",y:"BAYONNE"},
+{n:"i-Trans",c:"FR",e:"mobility_transport",y:"Valenciennes"},
+{n:"infra2050",c:"FR",e:"digital",y:"Lyon"},
+{n:"Éa éco-entreprises",c:"FR",e:"energy_renewables",y:"Aix en Provence"},
+{n:"Georgia Medical (Tuberculosis) R&D Cluster",c:"GE",y:"Tbilisi"},
+{n:"Georgian Apparel and Fashion Association - GAFA",c:"GE",y:"Tbilisi"},
+{n:"Georgian Construction Materials Cluster",c:"GE",y:"Tbilisi"},
+{n:"Georgian Furniture Cluster",c:"GE",y:"Tbilisi"},
+{n:"Georgian Tourism Association",c:"GE",y:"Tbilisi"},
+{n:"ICT Cluster Georgia",c:"GE",y:"Tbilisi"},
+{n:"PMAG Packaging Cluster",c:"GE",y:"Tbilisi"},
+{n:"AgriDiverCluster",c:"GR",e:"agri_food",y:"Kozani"},
+{n:"AgroTech Export Cluster NPO",c:"GR",e:"agri_food",y:"Thessaloniki"},
+{n:"BIONIAN CLUSTER",c:"GR",y:"Kallithea"},
+{n:"CHORUS Cluster",c:"GR",e:"construction",y:"Thessaloniki"},
+{n:"CO-PROTECT: Interoperable and Holistic Civil Protection Systems Cluster",c:"GR",e:"digital",y:"Athens"},
+{n:"Cluster of Bioeconomy and Environment of Western Macedonia (CluBE)",c:"GR",e:"agri_food",y:"Kozani"},
+{n:"Hellenic Association of Innovative Small and Medium Enterprises Innovation Greece",c:"GR",y:"Heraklion"},
+{n:"Hellenic BioCluster",c:"GR",y:"Athens"},
+{n:"Hellenic Digital Health Cluster",c:"GR",e:"digital",y:"ATHENS"},
+{n:"Hellenic Emerging Technologies Industry Association",c:"GR",e:"electronics",y:"Athens"},
+{n:"Hellenic Mobile Cluster",c:"GR",y:"Thessaloniki"},
+{n:"Hellenic Photonics Cluster-HPhos",c:"GR",y:"Athens"},
+{n:"ITS Hellas",c:"GR",y:"Athens"},
+{n:"Intelligent Solutions for Zero & Positive Energy Buildings",c:"GR",y:"Thessaloniki"},
+{n:"Pleiades IoT Innovation Cluster",c:"GR",y:"Athens"},
+{n:"Smart Mobility & Logistics Cluster",c:"GR",e:"digital",y:"Thessaloniki"},
+{n:"Strategis Maritime ICT Cluster",c:"GR",e:"aerospace_and_defe",y:"Piraeus"},
+{n:"TECHNOLOGICAL RESEARCH CENTRE OF WESTERN MACEDONIA",c:"GR",y:"KOZANI"},
+{n:"e-CODOMH",c:"GR",e:"construction",y:"Schimatari"},
+{n:"gi-Cluster",c:"GR",e:"creative_and_cultu",y:"Athens"},
+{n:"mi-Cluster",c:"GR",y:"Maroussi, Athens"},
+{n:"si-Cluster",c:"GR",y:"Maroussi, Athens"},
+{n:"3D grupa",c:"HR",y:"Zagreb"},
+{n:"Cluster Inteligentna Energija",c:"HR",e:"energy_renewables",y:"Zagreb"},
+{n:"Cluster for Eco Social Innovation and Development CEDRA Split",c:"HR",y:"Split"},
+{n:"Croatian Competitiveness Cluster for Electro Energetic and Production Machinery and Technology Sector",c:"HR",y:"Zagreb"},
+{n:"Croatian Competitiveness Cluster for Personalised Medicine",c:"HR",y:"Zagreb"},
+{n:"Croatian Competitiveness Cluster of food-processing sector",c:"HR",y:"Zagreb"},
+{n:"Croatian Defense Industry Competitiveness Cluster",c:"HR",y:"Croatia"},
+{n:"Croatian Maritime Industry Competitiveness Cluster",c:"HR",y:"Zagreb"},
+{n:"Croatian Wood Cluster",c:"HR",y:"Zagreb"},
+{n:"Croatian cluster of competitivenes of creative and cultural industries",c:"HR",y:"Zagreb"},
+{n:"EUVITA Cluster",c:"HR",y:"Varaždin"},
+{n:"ICT Cluster Croatia",c:"HR",y:"Zagreb"},
+{n:"Klaster poljomehanizacije d.o.o.",c:"HR",y:"Osijek"},
+{n:"Kvarner Health Tourism Cluster",c:"HR",e:"health",y:"Opatija"},
+{n:"Wood Cluster SLAVONIAN OAK",c:"HR",y:"Vinkovci"},
+{n:"AI3PA SMART CLUSTER",c:"HU",y:"Kecskemét"},
+{n:"Agro ICT Cluster",c:"HU",y:"Budapest"},
+{n:"Alliance Informatics and Innovation Cluster",c:"HU",y:"Budapest"},
+{n:"ArchEnerg Cluster – Renewable Energy & Building Trade",c:"HU",e:"energy_intensive_i",y:"Szeged"},
+{n:"Bakony-Balaton Mechatronics and Automotive Cluster",c:"HU",e:"electronics",y:"Székesfehérvár"},
+{n:"Biotechnology Innovation Base",c:"HU",y:"Pécs"},
+{n:"Cluster of Applied Earth Sciences",c:"HU",y:"Kozármisleny"},
+{n:"Cluster of Hungarian Accredited Organizations",c:"HU",e:"health",y:"Budapest"},
+{n:"Construction Technology Cluster",c:"HU",y:"Pécs"},
+{n:"Creative Industry Cluster Hungary, CICC Association",c:"HU",e:"creative_and_cultu",y:"Pécs"},
+{n:"Digital Export Innovation Cluster",c:"HU",e:"digital",y:"Magyarország"},
+{n:"Green Current Renewable Energetis and Innovation Cluster",c:"HU",y:"Szolnok"},
+{n:"Hungarian Cybersecurity Cluster",c:"HU",e:"digital",y:"Magyarország"},
+{n:"Hungarian Medical Cluster",c:"HU",e:"health",y:"Győr"},
+{n:"Hungarian Mobility and Multimedia Cluster",c:"HU",y:"Budapest"},
+{n:"Hungarian Open Innovation Cluster for Construction Industry",c:"HU",y:"Kecskemét"},
+{n:"Hírös Supplier Cluster",c:"HU",e:"energy_intensive_i",y:"KECSKEMÉT"},
+{n:"Hód Industry Cluster",c:"HU",y:"Szeged"},
+{n:"INNOSKART Digital Cluster",c:"HU",e:"digital",y:"Székesfehérvár"},
+{n:"IT Cluster Eszak-Alfold Hungary",c:"HU",y:"Debrecen"},
+{n:"Information Management Innovation Cluster",c:"HU",y:"Pécs"},
+{n:"KEXPORT Environmental Cluster",c:"HU",y:"Budapest"},
+{n:"MSE Hungarian Sport and Lifestyle Development ClusterCo.",c:"HU",y:"Debrecen"},
+{n:"North Hungarian Automotive Cluster",c:"HU",e:"mobility_transport",y:"Miskolc"},
+{n:"North Hungarian IT Cluster",c:"HU",y:"Miskolc"},
+{n:"OMNIPACK First Hungarian Cluster of Packaging Technology",c:"HU",y:"Budapest"},
+{n:"PANNON WOOD AND FURNITURE INDUSTRY ACCREDITED INNOVATION CLUSTER",c:"HU",e:"construction",y:"Sopron"},
+{n:"PharmAgora Quality of Life Cluster",c:"HU",y:"Balatonfüred"},
+{n:"Pharmapolis Debrecen Innovative Pharmaceutial Cluster",c:"HU",y:"Debrecen"},
+{n:"Professio Metalworking and Engineering Cluster",c:"HU",e:"mobility_transport",y:"Győr"},
+{n:"Science, Technology and Educational Platform for Photonics (STEPP) Cluster",c:"HU",y:"Szeged"},
+{n:"Software Innovation Pole Cluster (cluster management organisation is Porta Novum Nonprofit Ltd.).)",c:"HU",e:"digital",y:"Szeged"},
+{n:"South West Hungarian Engineering Cluster",c:"HU",e:"mobility_transport",y:"Pécs"},
+{n:"System Science Innovation Cluster",c:"HU",y:"Balatonfüred"},
+{n:"Thermal-Health Industrial Cluster",c:"HU",y:"Debrecen"},
+{n:"ZONE Cluster",c:"HU",e:"mobility_transport",y:"Debrecen"},
+{n:"iFood Cluster",c:"HU",e:"agri_food",y:"Kaposvár"},
+{n:"AgriTech Ireland",c:"IE",e:"agri_food",y:"Tralee"},
+{n:"Circular Bioeconomy Cluster",c:"IE",e:"agri_food",y:"Tralee"},
+{n:"Connected Health & Wellbeing Cluster - Dundalk IoT",c:"IE",e:"health",y:"Ireland"},
+{n:"Cyber Ireland",c:"IE",e:"digital",y:"Cork"},
+{n:"IT@Cork",c:"IE",y:"Cork"},
+{n:"Ireland South East Financial Services Cluster at South East Economic Development Office",c:"IE",e:"digital",y:"Waterford"},
+{n:"Irish Bioeconomy Foundation",c:"IE",y:"Thurles"},
+{n:"Irish Digital Engineering and Advanced Manufacturing",c:"IE",y:"Limerick"},
+{n:"Shannon International Aviation Services Centre (IASC)",c:"IE",y:"Shannon"},
+{n:"Technology Ireland Innovation Forum (Formerly ISIN)",c:"IE",y:"Dublin 2"},
+{n:"The Fintech Corridor",c:"IE",e:"digital",y:"Ireland"},
+{n:"advanced technologies in manufacturing cluster",c:"IE",y:"Athlone"},
+{n:"ACMM- Marche Manufacturing Cluster Association",c:"IT",y:"Ancona"},
+{n:"AFIL - Lombardy Intelligent Factory Association",c:"IT",e:"digital",y:"Milano"},
+{n:"AIR - Aerospace Innovation & Research",c:"IT",e:"aerospace_and_defe",y:"Mestre VENEZIA"},
+{n:"Aerospace Technology District",c:"IT",y:"Brindisi"},
+{n:"BION Cluster lombardo scienze della vita",c:"IT",e:"health",y:"Milano"},
+{n:"BIOTECNOMED, Calabria District for Life Sciences",c:"IT",y:"Catanzaro"},
+{n:"Basilicata Aerospace Cluster",c:"IT",e:"aerospace_and_defe",y:"Tito Scalo Potenza PZ"},
+{n:"Basilicata Creativa CCI",c:"IT",e:"creative_and_cultu",y:"Matera"},
+{n:"Blue Italian Growth Technology Cluster (BIG TC)",c:"IT",y:"Napoli"},
+{n:"Brianza Community Cluster",c:"IT",e:"proximity_and_soci",y:"Monza"},
+{n:"C.H.I.CO. Cluster of Health, Innovation and Community",c:"IT",y:"Latina"},
+{n:"CAT.AL, High Technology Agrifood Lombardy Cluster (Parco Tecnologico Padano)",c:"IT",y:"Lodi"},
+{n:"CL.USTER A.GRIFOOD N.AZIONALE - CL.A.N.",c:"IT",y:"Roma"},
+{n:"COMET SCRL - Mechanical Engineering Cluster Friuli Venezia Giulia",c:"IT",e:"aerospace_and_defe",y:"Pordenone"},
+{n:"CRIT",c:"IT",y:"Vignola"},
+{n:"Campania Bioscience - Cluster on Life Sciences",c:"IT",y:"Napoli"},
+{n:"Campania Food and Wine Tourism Cluster",c:"IT",e:"agri_food",y:"Caserta"},
+{n:"Cleantech and energy Innovation Cluster",c:"IT",e:"energy_renewables",y:"Torino"},
+{n:"Clust-ER Agroalimentare Emilia-Romagna",c:"IT",e:"agri_food",y:"Bologna"},
+{n:"Clust-ER Build - Emilia-Romagna",c:"IT",y:"Bologna"},
+{n:"Clust-ER Economia Urbana",c:"IT",e:"proximity_and_soci",y:"Bologna"},
+{n:"Clust-ER Energia e Sviluppo sostenibile",c:"IT",e:"energy_renewables",y:"Italia"},
+{n:"Clust-ER Health | Emilia Romagna",c:"IT",e:"health",y:"Bologna"},
+{n:"Clust-ER Innovate - Emilia-Romagna",c:"IT",e:"aerospace_and_defe",y:"Bologna"},
+{n:"Clust-ER Meccatronica e Motoristica",c:"IT",e:"aerospace_and_defe",y:"Bologna"},
+{n:"Cluster Fabbrica Intelligente",c:"IT",y:"Bologna"},
+{n:"Cluster Lucano di Bioeconomia ETS",c:"IT",y:"Matera"},
+{n:"Cluster Tecnologico Nazionale \"Made in Italy\"",c:"IT",e:"construction",y:"Milano"},
+{n:"Confindustria Emilia Area Centro",c:"IT",e:"aerospace_and_defe",y:"Bologna"},
+{n:"Consorzio Italbiotec",c:"IT",e:"agri_food",y:"Milano"},
+{n:"Consorzio nazionale Idee in rete",c:"IT",y:"Rome"},
+{n:"Create - Cultural and creative industries",c:"IT",y:"Bologna"},
+{n:"Creative Apulia Cluster Association",c:"IT",y:"Bari"},
+{n:"DAC, Campania Aerospace District",c:"IT",y:"Napoli"},
+{n:"DES Social Agriculture",c:"IT",e:"proximity_and_soci",y:"TRENTO"},
+{n:"DID: technological Cluster on Interiors and Design",c:"IT",e:"construction",y:"Poggibonsi"},
+{n:"DITECFER District for Rail Technologies, High Speed, Networks Safety and Security",c:"IT",e:"mobility_transport",y:"Pistoia"},
+{n:"DITEDI Distretto Industriale delle Tecnologie Digitale - Cluster ICT FVG",c:"IT",e:"digital",y:"Tavagnacco (Udine)"},
+{n:"Dhitech Scarl",c:"IT",y:"Lecce"},
+{n:"DiTNE Scarl",c:"IT",y:"Brindisi"},
+{n:"Distretto Ligure delle Tecnologie Marine",c:"IT",e:"mobility_transport",y:"La Spezia"},
+{n:"Distretto Tecnologico Agroalimentare - D.A.Re. Puglia scrl",c:"IT",e:"agri_food",y:"Foggia"},
+{n:"EUTEKNOS",c:"IT",e:"creative_and_cultu",y:"Este"},
+{n:"Ecodomus District",c:"IT",y:"Licata (AG)"},
+{n:"European Platform for Sport Innovation - EPSI",c:"IT",y:"Bergamo"},
+{n:"FVG LIFE SCIENCES CLUSTER",c:"IT",e:"health",y:"Pordenone"},
+{n:"Federation of the Sea",c:"IT",y:"Rome"},
+{n:"Federcanapa",c:"IT",e:"agri_food",y:"ROMA"},
+{n:"Fondazione Agrifood & Bioeconomy FVG",c:"IT",e:"agri_food",y:"Colloredo di Monte Albano"},
+{n:"Fondazione Cluster Smart Cities & Communities (Cluster SCC)- Lombardia",c:"IT",e:"digital",y:"Milano"},
+{n:"Fondazione Distretto Green & High Tech Monza Brianza",c:"IT",y:"Monza"},
+{n:"Forest & Wood FVG Service Cluster",c:"IT",y:"Tolmezzo"},
+{n:"Future Farming",c:"IT",e:"agri_food",y:"Venezia"},
+{n:"GOEL Cooperative Group",c:"IT",e:"agri_food",y:"Gioiosa Ionica"},
+{n:"Green HoMe - Pole of Innovation for Sustainable Building",c:"IT",y:"Rende"},
+{n:"Habitech - Trentino Technological District SCARL SB",c:"IT",e:"construction",y:"Rovereto"},
+{n:"ICT4SSL",c:"IT",e:"digital",y:"Mestre-Venezia (Ve)"},
+{n:"IMAST Italian technological district for the engineering of polymeric and composite materials and structures",c:"IT",y:"Napoli"},
+{n:"INNOVAAL",c:"IT",y:"Lecce"},
+{n:"IR4I Aerospace Cluster",c:"IT",y:"Imola"},
+{n:"Improvenet",c:"IT",e:"digital",y:"Venezia Mestre"},
+{n:"IncrediBOL! Project - Municipality of Bologna",c:"IT",y:"Bologna"},
+{n:"Innovation Cassiodoro Tourism Pole",c:"IT",e:"creative_and_cultu",y:"Catanzaro"},
+{n:"Italian Forest Wood Cluster",c:"IT",e:"construction",y:"Rome"},
+{n:"Italian Technology Cluster for Smart Communities",c:"IT",y:"Turin"},
+{n:"LAZIO CONNECT",c:"IT",y:"Roma"},
+{n:"Lame Bio District",c:"IT",e:"agri_food",y:"Ruvo di Puglia (BA)"},
+{n:"Lombardia Aerospace Cluster",c:"IT",e:"aerospace_and_defe",y:"Varese"},
+{n:"Lombardy Cluster Technologies for Living Environments",c:"IT",y:"Lecco"},
+{n:"Lombardy Energy Cleantech Cluster (LE2C)",c:"IT",e:"energy_intensive_i",y:"Milan"},
+{n:"Lombardy Green Chemistry Cluster",c:"IT",y:"Milano"},
+{n:"Lombardy Life Sciences Cluster",c:"IT",y:"Milan"},
+{n:"Lombardy Mobility Cluster",c:"IT",y:"Milan"},
+{n:"MESAP Innovation Cluster - Smart Products and Manufacturing",c:"IT",e:"aerospace_and_defe",y:"Torino"},
+{n:"Maritime Technology Cluster FVG S.c.ar.l.",c:"IT",e:"energy_intensive_i",y:"Monfalcone"},
+{n:"MeSSInA Foundation",c:"IT",e:"proximity_and_soci",y:"Messina"},
+{n:"NAVIGO",c:"IT",y:"VIAREGGIO"},
+{n:"NET - Polo Innovazione Ambiente e Rischi Naturali - Innovation Cluster for Environment and Natural Risks",c:"IT",y:"Crotone"},
+{n:"National Energy Technology Cluster",c:"IT",y:"Rome"},
+{n:"Optoscana",c:"IT",y:"Sesto Fiorentino"},
+{n:"POINTEX - Textile Innovation Cluster",c:"IT",e:"textiles",y:"Biella"},
+{n:"PROPLAST",c:"IT",e:"agri_food",y:"Alessandria"},
+{n:"Piedmont Aerospace Cluster",c:"IT",y:"Torino"},
+{n:"Piemonte Innova - Polo ICT",c:"IT",e:"digital",y:"Turin"},
+{n:"Polo AGRIFOOD - NEXO Agrifood Hub Scpa",c:"IT",e:"agri_food",y:"Cuneo"},
+{n:"Polo ICT Pitagora",c:"IT",e:"digital",y:"Catanzaro"},
+{n:"Polo Meccatronica",c:"IT",e:"digital",y:"Rovereto"},
+{n:"RETE DI IMPRESE LUCE IN VENETO",c:"IT",e:"construction",y:"Piombino Dese"},
+{n:"RIBES per l'Ecosistema Salute e l'Alimentazione Smart",c:"IT",e:"agri_food",y:"Padova"},
+{n:"RIR FACE DESIGN Cluster",c:"IT",e:"creative_and_cultu",y:"Vigonza"},
+{n:"Regional Innovative Cluster Tech4Life",c:"IT",e:"health",y:"Verona"},
+{n:"Regional Innovative Cluster for Agrifood",c:"IT",e:"agri_food",y:"Verona"},
+{n:"Regional Innovative Cluster for Logistics",c:"IT",e:"mobility_transport",y:"Verona"},
+{n:"Regional Innovative Network M3NET",c:"IT",e:"digital",y:"Venezia Mestre"},
+{n:"Rete Innovativa Regionale Foresta Oro Veneto",c:"IT",y:"Sedico"},
+{n:"SIIT Scpa",c:"IT",y:"GENOVA"},
+{n:"SINFONET",c:"IT",e:"digital",y:"PADOVA"},
+{n:"SMARTLAND VENICE",c:"IT",e:"tourism",y:"Venice"},
+{n:"SMILE _ National Technological Cluster on Smart Living Technologies",c:"IT",y:"Lecce"},
+{n:"SPRING - Italian Circular Bioeconomy Cluster",c:"IT",e:"energy_intensive_i",y:"Milano"},
+{n:"STRESS Scarl - High Tecnology District on Sustainable Construction",c:"IT",y:"Napoli"},
+{n:"Sistema Cosmetico Lombardo",c:"IT",e:"health",y:"Crema"},
+{n:"TRIULZA",c:"IT",e:"proximity_and_soci",y:"Milano"},
+{n:"Technologies for Earth Observation and Natural Risks",c:"IT",y:"Tito (PZ)"},
+{n:"Technology Cluster on Energy and Green Economy (DTE²V) of the Tuscany Region",c:"IT",y:"Firenze"},
+{n:"Tecnopolo SpA",c:"IT",y:"Roma"},
+{n:"The Fisheries and Blue Growth District",c:"IT",y:"MAZARA DEL VALLO"},
+{n:"Torino Social Impact",c:"IT",e:"proximity_and_soci",y:"Torino"},
+{n:"Tourism Clust-ER",c:"IT",e:"tourism",y:"Bologna"},
+{n:"Tuscany Fashion Cluster",c:"IT",e:"textiles",y:"Prato"},
+{n:"Tuscany Life Sciences Cluster",c:"IT",e:"health",y:"Siena"},
+{n:"VCE Regional Innovative Cluster for Energy Efficiency",c:"IT",e:"energy_renewables",y:"Verona"},
+{n:"Venetian Cluster",c:"IT",y:"Vicenza"},
+{n:"Venetian Green Building Cluster",c:"IT",e:"construction",y:"Mestre"},
+{n:"Veneto Green Cluster",c:"IT",e:"agri_food",y:"GRISIGNANO DI ZOCCO (VI)"},
+{n:"Wood Furniture Home Cluster FVG",c:"IT",e:"construction",y:"Manzano"},
+{n:"bioPmed / Bioindustry Park",c:"IT",e:"digital",y:"Colleretto Giacosa"},
+{n:"e-Living Association",c:"IT",y:"Ancona"},
+{n:"AgriFood Lithuania",c:"LT",e:"agri_food",y:"Vilnius"},
+{n:"Artificial Intelligence Technology Cluster (DI-TECH)",c:"LT",y:"Vilnius"},
+{n:"Association of Lithuanian Printing Industries",c:"LT",y:"Vilnius"},
+{n:"BCCS (Blockchain Cybersecurity and Compliance Solutions) Cluster",c:"LT",e:"digital",y:"Kaunas"},
+{n:"Baltic Automotive Components Cluster (BACC)",c:"LT",y:"Kaunas"},
+{n:"Baltic Film & Creative Tech Cluster",c:"LT",e:"creative_and_cultu",y:"Vilnius"},
+{n:"Bleended",c:"LT",e:"digital",y:"Vilnius"},
+{n:"Business Hive Vilnius Cluster",c:"LT",y:"Vilnius"},
+{n:"Cleantech Lithuania",c:"LT",e:"digital",y:"Vilnius"},
+{n:"Cluster of Manufacturing Innovators",c:"LT",e:"aerospace_and_defe",y:"Lithuania"},
+{n:"Digital Rocket LT",c:"LT",e:"digital",y:"Kaunas"},
+{n:"Health technology cluster iVita",c:"LT",e:"health",y:"Kaunas"},
+{n:"Information Technologies in Medicine (MedIT)",c:"LT",y:"Vilnius"},
+{n:"LAuGEA cluster (Lithuanian Automotive Export Association)",c:"LT",y:"Siauliai"},
+{n:"LITMEA | Smart Food Cluster",c:"LT",e:"agri_food",y:"Kaunas"},
+{n:"Laser and Engineering Technologies Cluster (LITEK)",c:"LT",e:"aerospace_and_defe",y:"Vilnius"},
+{n:"Life Sciences Digital Innovation Hub",c:"LT",e:"digital",y:"Vilnius"},
+{n:"LithuaniaBIO",c:"LT",e:"agri_food",y:"Vilnius"},
+{n:"Lithuanian Apparel and Textile Industry Association",c:"LT",y:"Vilnius"},
+{n:"Lithuanian Laser Association",c:"LT",e:"aerospace_and_defe",y:"Vilnius"},
+{n:"Lithuanian Medical Tourism Cluster",c:"LT",y:"Vilnius"},
+{n:"Lithuanian Photovoltaic Industrial Technology Cluster",c:"LT",e:"energy_renewables",y:"Vilnius"},
+{n:"Lithuanian Plastics Cluster",c:"LT",y:"Vilnius"},
+{n:"Lithuanian Prefabricated Wooden House Cluster - PrefabLT",c:"LT",y:"Vilnius"},
+{n:"Lithuanian Social Innovation Cluster (LSIC)",c:"LT",y:"Vilnius"},
+{n:"Lithuanian Space Association (LSA)",c:"LT",y:"Vilnius"},
+{n:"Maritime cluster",c:"LT",y:"Klaipeda"},
+{n:"National Food Cluster Lithuania",c:"LT",y:"Babtai, Kauno r. sav."},
+{n:"NordClinic Life Sciences Cluster",c:"LT",e:"health",y:"Kaunas"},
+{n:"Smart Digital Solutions cluster",c:"LT",y:"Vilnius"},
+{n:"Smart Energy",c:"LT",e:"digital",y:"Vilnius"},
+{n:"Toolas",c:"LT",e:"energy_intensive_i",y:"Vilnius"},
+{n:"Luxembourg Creative Industry Cluster",c:"LU",e:"creative_and_cultu",y:"Belval"},
+{n:"Luxembourg Maritime Cluster",c:"LU",e:"mobility_transport",y:"Luxembourg"},
+{n:"Luxembourg Wood Cluster",c:"LU",y:"Esch-sur-Alzette"},
+{n:"CLEANTECH LATVIA",c:"LV",e:"digital",y:"Riga"},
+{n:"EnterGauja (Gauja National park`s tourism cluster)",c:"LV",y:"Sigulda"},
+{n:"Federation of Security and Defence Industries of Latvia",c:"LV",y:"Rīga"},
+{n:"Green Tech HUB",c:"LV",y:"Liepaja"},
+{n:"Green and Smart Technology Cluster",c:"LV",e:"digital",y:"Liepaja"},
+{n:"LATVIAN FOOD BIOECONOMY CLUSTER",c:"LV",y:"Priekuļi, Cēsu novads"},
+{n:"Latvian Electrical Engineering and Electronics Industry Association",c:"LV",e:"aerospace_and_defe",y:"Riga"},
+{n:"Latvian Food Cluster",c:"LV",e:"agri_food",y:"Riga"},
+{n:"Latvian Health tourism cluster",c:"LV",y:"Riga"},
+{n:"Latvian Hydrogen Association",c:"LV",e:"energy_renewables",y:"Riga"},
+{n:"Latvian IT Cluster",c:"LV",e:"digital",y:"Riga"},
+{n:"Latvian logistics association/ Latvian Supply chain Cluster",c:"LV",y:"Riga"},
+{n:"Latvian wood construction cluster",c:"LV",y:"Jurmala"},
+{n:"Lifescience Cluster of Latvia",c:"LV",e:"health",y:"Riga"},
+{n:"MASOC - Association of Mechanical Engineering and Metalworking Industries of Latvia / Latvian Metalworking Cluster",c:"LV",y:"Riga"},
+{n:"Cahul Beekeeping Cluster",c:"MD",e:"agri_food",y:"Cahul"},
+{n:"Cluster Furniture & More Moldova",c:"MD",y:"Ungheni"},
+{n:"Cluster Golden Grapes Logistic",c:"MD",e:"agri_food",y:"v. Popeasca, Stefan Voda"},
+{n:"Cluster Honey Trade Group",c:"MD",e:"agri_food",y:"Zaim"},
+{n:"Digital Agro-Cluster Moldova",c:"MD",e:"agri_food",y:"Calarasi"},
+{n:"Drumul Cucuteni Regional Tourism Cluster",c:"MD",e:"agri_food",y:"Mircești Village"},
+{n:"Energy and Biomass Cluster",c:"MD",y:"Chisinau"},
+{n:"Fruit Export HUB",c:"MD",e:"agri_food",y:"Parcani"},
+{n:"Heart of Dniester Tourist Cluster",c:"MD",e:"tourism",y:"Dubasari rayon"},
+{n:"HerbaFruct Cluster",c:"MD",e:"agri_food",y:"Chisinau municipality"},
+{n:"Lower Dniester Vegetable Cluster",c:"MD",e:"agri_food",y:"Stefan Voda district"},
+{n:"Moldova Automotive Cluster",c:"MD",y:"Chisinau"},
+{n:"OviCaprin Shepherding Cluster",c:"MD",e:"agri_food",y:"Cimislia"},
+{n:"SORINTEX",c:"MD",y:"Soroca"},
+{n:"Southern Shepherds Cluster",c:"MD",e:"agri_food",y:"Slobozia Mare"},
+{n:"Tourism cluster Dniester Riviera",c:"MD",e:"tourism",y:"Cocieri village, Dubasari District"},
+{n:"VIA Cahul Tourism Cluster",c:"MD",e:"tourism",y:"Cahul"},
+{n:"ICT Cortex - Cluster for Information Technologies, Innovation, Education, Design and Technology Development in Montenegro",c:"ME",e:"digital",y:"Podgorica"},
+{n:"Wine Cluster Montenegro",c:"ME",y:"Podgorica"},
+{n:"MASIT - ICT chamber of commerce",c:"MK",y:"Skopje"},
+{n:"TTA-Textile Cluster Macedonia",c:"MK",e:"creative_and_cultu",y:"Skopje"},
+{n:"Malta Marittima Agency",c:"MT",y:"Valletta"},
+{n:"3D Makers Zone",c:"NL",y:"Haarlem"},
+{n:"AgriFood Capital",c:"NL",e:"agri_food",y:"s-Hertogenbosch"},
+{n:"B'ROBOTICS",c:"NL",e:"aerospace_and_defe",y:"BREDA"},
+{n:"Biobased Delta",c:"NL",y:"Bergen op Zoom"},
+{n:"Brainport Industries",c:"NL",y:"Eindhoven"},
+{n:"Business Cluster Semiconductors Netherlands",c:"NL",y:"Nijmegen"},
+{n:"Chemical Cluster Delfzijl",c:"NL",y:"Delfzijl"},
+{n:"Chemical Cluster Emmen",c:"NL",y:"Emmen"},
+{n:"Cluster Sports & Technology",c:"NL",e:"health",y:"Eindhoven"},
+{n:"Dutch Greenhouse Delta",c:"NL",e:"agri_food",y:"Naaldwijk"},
+{n:"Dutch Sporting Goods Industry Association, FGHS",c:"NL",y:"Leusden"},
+{n:"East Netherlands Development Agency (Oost NL)",c:"NL",e:"aerospace_and_defe",y:"Apeldoorn"},
+{n:"FoodvalleyNL",c:"NL",e:"agri_food",y:"Nederland"},
+{n:"Gebiedscoöperatie Westerkwartier",c:"NL",y:"Noordhorn"},
+{n:"Greenport West-Holland",c:"NL",y:"Zoetermeer"},
+{n:"Health Valley Netherlands",c:"NL",y:"Nijmegen"},
+{n:"High Tech NL",c:"NL",e:"digital",y:"Eindhoven"},
+{n:"ICT for Brain, Body & Behavior (i3B)",c:"NL",y:"Wageningen"},
+{n:"Impact Noord",c:"NL",y:"Groningen"},
+{n:"LifetecZONe",c:"NL",y:"Tilburg"},
+{n:"NAG",c:"NL",y:"Delft"},
+{n:"NL Robotics",c:"NL",e:"agri_food",y:"Eindhoven"},
+{n:"Netherlands Industries for Defence and Security",c:"NL",y:"The Hague"},
+{n:"North Sea Farmers",c:"NL",y:"The Hague"},
+{n:"Orange Sports Forum",c:"NL",y:"Eindhoven"},
+{n:"Photon Delta",c:"NL",y:"Eindhoven"},
+{n:"Planet B.io",c:"NL",e:"agri_food",y:"Delft"},
+{n:"Polymer Science Park",c:"NL",y:"Zwolle"},
+{n:"Promotie Group Tuinbouw Emmen",c:"NL",y:"Erica"},
+{n:"RAI Automotive Industry NL",c:"NL",y:"Helmond"},
+{n:"Security Delta Cluster",c:"NL",e:"digital",y:"The Hague"},
+{n:"SpaceNed",c:"NL",e:"aerospace_and_defe",y:"Noordwijk"},
+{n:"Stichting New Energy Coalition",c:"NL",y:"Groningen"},
+{n:"Task Force Health Care",c:"NL",y:"The Hague"},
+{n:"Water Alliance",c:"NL",e:"agri_food",y:"Leeuwarden"},
+{n:"WaterCampus Leeuwarden",c:"NL",e:"agri_food",y:"Leeuwarden"},
+{n:"AgroBioCluster - Agri-Food and Bioeconomy Cluster",c:"PL",e:"agri_food",y:"Warsaw"},
+{n:"Aviation Valley / Dolina Lotnicza",c:"PL",e:"aerospace_and_defe",y:"Rzeszow"},
+{n:"BALTIC SEA & SPACE CLUSTER",c:"PL",y:"GDYNIA"},
+{n:"BioTechMed Mazovia Cluster",c:"PL",y:"Warszawa"},
+{n:"Bioenergy for the Region - coordinated by Research and Innovation Centre Pro-Akademia (CENTRUM BADAN I INNOWACJI PRO-AKADEMIA)",c:"PL",y:"Konstantynów Łódzki"},
+{n:"Bydgoszcz IT Cluster",c:"PL",y:"Bydgoszcz"},
+{n:"Bydgoszcz Industrial Cluster Tool Valley (BIC)",c:"PL",e:"energy_intensive_i",y:"Bydgoszcz"},
+{n:"COP Cluster",c:"PL",y:"Warszawa"},
+{n:"Centre for Energy Technologie Cluster - Free Enterprise Association",c:"PL",y:"Świdnica"},
+{n:"Centre for Transport Safety and Vehicle Diagnostics",c:"PL",y:"Warszawa"},
+{n:"Cluster Footwear Circle",c:"PL",y:"Łódź"},
+{n:"Cluster for Photonics and Fiber Optics",c:"PL",e:"aerospace_and_defe",y:"Lublin"},
+{n:"Cluster of Business Environment Institutions/Klaster Instytucji Otoczenia Biznesu",c:"PL",y:"Bialystok"},
+{n:"Cluster of Hydrogen Technologies / Regional Pomeranian Chamber of Commerce /",c:"PL",y:"Gdansk"},
+{n:"Cluster of Innovative Manufacturing Technologies Association CINNOMATECH / Klaster Innowacyjnych Technologii w Wytwarzaniu CINNOMATECH",c:"PL",e:"construction",y:"Wrocław"},
+{n:"Construction Cluster INNOWATOR",c:"PL",y:"Kielce"},
+{n:"Digital Knowledge Cluster",c:"PL",y:"Warszawa"},
+{n:"ECDF mKlaster",c:"PL",y:"Poznań"},
+{n:"East Automotive Alliance",c:"PL",e:"mobility_transport",y:"Tarnobrzeg"},
+{n:"Evoluma Industry Cluster (formerly Metal Processing Cluster)",c:"PL",e:"construction",y:"Bialystok"},
+{n:"Food Cluster of Southern Greater Poland - association",c:"PL",y:"Kalisz"},
+{n:"Innovative Food Cluster FOOD4GOOD",c:"PL",y:"Warsaw"},
+{n:"Instytut Maszyn Przepływowych im Roberta Szewalskiego Polskiej Akademii Nauk - Baltic Eco-Energy Cluster",c:"PL",y:"Gdańsk"},
+{n:"Intelligent Lighting Systems Cluster",c:"PL",y:"Krakow"},
+{n:"Interizon Cluster",c:"PL",e:"digital",y:"Gdańsk"},
+{n:"Klaster B+R&I - Badań i Rozwoju oraz Innowacji (Research and Development and Innovation Cluster)",c:"PL",y:"Wrocław"},
+{n:"Klaster Innowacyjna Medycyna/ Innovative medicine Cluster",c:"PL",y:"Wrocław"},
+{n:"Klaster Inteligentnych Systemów Transportowych",c:"PL",y:"Warszawa"},
+{n:"Klaster LifeScience Krakow",c:"PL",e:"agri_food",y:"Krakow"},
+{n:"Klaster.info",c:"PL",y:"Warszawa"},
+{n:"LODZistics Logistics Business Network of Central Poland",c:"PL",y:"Kutno"},
+{n:"Leszno Printing & Advertising Cluster",c:"PL",y:"Leszno"},
+{n:"Lower Silesian Automotive Cluster DKM",c:"PL",e:"mobility_transport",y:"Legnica"},
+{n:"Lower Silesian Technological Park Cluster",c:"PL",y:"Szczawno-Zdrój"},
+{n:"Lublin Eco-Energy Cluster",c:"PL",y:"Lublin"},
+{n:"Lublin Enterprise Cluster",c:"PL",y:"Lublin"},
+{n:"Lublin Medicine- Medical and Wellness Cluster",c:"PL",y:"Lublin"},
+{n:"METALIKA Cluster for Industry",c:"PL",e:"agri_food",y:"Szczecin"},
+{n:"Maritime Cluster of Western Pomerania",c:"PL",y:"Szczecin"},
+{n:"Mazovia Cluster ICT",c:"PL",y:"Warsaw"},
+{n:"MedSilesia - The Silesian Network of Medical Devices",c:"PL",e:"health",y:"Gliwice"},
+{n:"Media Dizajn",c:"PL",y:"Szczecin"},
+{n:"Metal Cluster of Lubuskie Voivodeship",c:"PL",e:"construction",y:"Gorzow Wielkopolski"},
+{n:"NUTRIBIOMED Cluster",c:"PL",y:"Wrocław"},
+{n:"Nationwide Centre for Research, Education and Monitoring Fertility Problems",c:"PL",y:"Białystok"},
+{n:"Natureef Association",c:"PL",e:"agri_food",y:"Szczecin"},
+{n:"North South Logistics & Transport Cluster",c:"PL",y:"Gdańsk"},
+{n:"POLIGEN Plastic Processing Cluster",c:"PL",y:"Rzeszow"},
+{n:"Polbiom Cluster",c:"PL",e:"agri_food",y:"Polska"},
+{n:"Polish Aluminium Cluster",c:"PL",y:"Dąbrowa Górnicza"},
+{n:"Polish Automotive Group PGM",c:"PL",e:"mobility_transport",y:"Sedziszow Mlp."},
+{n:"Polish Cluster of Composite Technologies",c:"PL",e:"aerospace_and_defe",y:"Zielonki/Krakow"},
+{n:"Polish Cluster of Construction Exporters",c:"PL",y:"Warszawa"},
+{n:"Polish Construction Cluster",c:"PL",e:"construction",y:"Bialystok"},
+{n:"Polish Construction Technology Platform",c:"PL",y:"Kutno"},
+{n:"Polish Cybersecurity Cluster - #CyberMadeInPoland",c:"PL",e:"digital",y:"Krakow"},
+{n:"Polish Innovative Medical Cluster PIKMED",c:"PL",y:"Czeladź"},
+{n:"Polish IoT & AI Cluster SINOTAIC",c:"PL",y:"Rzeszów"},
+{n:"Polish Technological Platform on Photonics - PPTF",c:"PL",e:"aerospace_and_defe",y:"Ożarów Mazowiecki"},
+{n:"Poznan Science and Technology Park | Waste-Klaster",c:"PL",y:"Poznan"},
+{n:"SIlesian Nano Cluster",c:"PL",e:"energy_renewables",y:"Katowice"},
+{n:"Silesia Automotive & Advanced Manufacturing",c:"PL",e:"mobility_transport",y:"Katowice"},
+{n:"Silesia ICT Cluster",c:"PL",y:"Katowice"},
+{n:"Silesian Aviation Cluster",c:"PL",e:"aerospace_and_defe",y:"Kaniów"},
+{n:"Silesian ICT & Multimedia Cluster",c:"PL",y:"Ruda Śląska"},
+{n:"Silesian Water Cluster",c:"PL",y:"Katowice"},
+{n:"Software Development Association Poland",c:"PL",y:"Krakow"},
+{n:"South Poland Cleantech Cluster",c:"PL",y:"Kraków"},
+{n:"Subcarpathian Flavours Cluster",c:"PL",y:"Rzeszów"},
+{n:"Subcarpathian Renewable Energy Cluster",c:"PL",y:"Rzeszów"},
+{n:"Sustainable Infrastructure Cluster",c:"PL",e:"construction",y:"Krakow"},
+{n:"The Association West Pomeranian Chemical Cluster \"Green Chemistry\"",c:"PL",e:"agri_food",y:"Szczecin"},
+{n:"The Cluster of Tourist Brands of Eastern Poland / Klaster Marek Turystycznych Polski Wschodniej",c:"PL",y:"Białystok"},
+{n:"The Eastern Cluster ICT",c:"PL",y:"Lublin"},
+{n:"The Eastern Metalworking Cluster",c:"PL",y:"Lublin"},
+{n:"The Polish Research and Development Cluster of the Internet of Things - Lublin Science and Technology Park",c:"PL",y:"Lublin"},
+{n:"Warsaw Collaboration Cluster Network",c:"PL",y:"Warszawa"},
+{n:"Waste Management and Recycling Cluster",c:"PL",y:"Kielce"},
+{n:"Westpomeranian MARITIME CLUSTER",c:"PL",y:"Szczecin"},
+{n:"Wielkopolska ICT Cluster",c:"PL",y:"Poznan"},
+{n:"ZIELONA KUZNIA Cluster",c:"PL",y:"Warszawa"},
+{n:"sEaNERGIA Baltic Cluster",c:"PL",y:"Kołobrzeg"},
+{n:"AEDCP- Cluster Português para as Indústrias de Aeronáutica, Espaço e Defesa",c:"PT",y:"ÉVORA"},
+{n:"AIPQR - ASSOCIAÇÃO DAS INDÚSTRIAS DA PETROQUÍMICA, QUÍMICA E REFINAÇÃO",c:"PT",y:"Estarreja"},
+{n:"ASSOCIAÇÃO CLUSTER PORTUGAL MINERAL RESOURCES",c:"PT",e:"construction",y:"Estremoz"},
+{n:"Aebb - Associação Empresarial da Beira Baixa",c:"PT",y:"Castelo Branco"},
+{n:"Animaforum - Associação para o Desenvolvimento da Agro-Industria",c:"PT",y:"Santarém"},
+{n:"Associação para o Pólo das Tecnologias de Informação, Comunicação e Electronica TICE.PT",c:"PT",e:"digital",y:"Aveiro"},
+{n:"B2E - Blue Bioeconomy CoLAB",c:"PT",y:"Leça da Palmeira"},
+{n:"BLUEBIO ALLIANCE",c:"PT",e:"agri_food",y:"Portugal"},
+{n:"Battery Cluster Portugal",c:"PT",e:"energy_renewables",y:"Braga"},
+{n:"CATIM",c:"PT",y:"Porto"},
+{n:"CENTIMFE - Technological Center for the Mould Making, Special Tooling and Plastic Industries",c:"PT",e:"mobility_transport",y:"Marinha Grande"},
+{n:"Chemical, Petrochemical and Refining Cluster",c:"PT",y:"Estarreja"},
+{n:"Cluster AEC, Arquitetura, Engenharia e Construção",c:"PT",y:"Porto"},
+{n:"Cluster Habitat Sustentável",c:"PT",e:"construction",y:"Aveiro"},
+{n:"EnergyIN - the Competitiveness and Technology Cluster for Energy | Portugal",c:"PT",y:"Torres Vedras"},
+{n:"Fórum Oceano - Association of Maritime Economy",c:"PT",y:"Matosinhos"},
+{n:"Health Cluster Portugal",c:"PT",e:"health",y:"Leça do Balio"},
+{n:"InovCluster - Associação do Cluster Agro-Industrial do Centro",c:"PT",e:"agri_food",y:"Castelo Branco"},
+{n:"Inova-Ria",c:"PT",e:"digital",y:"Aveiro"},
+{n:"MOBINOV - Portuguese Automotive Cluster",c:"PT",e:"mobility_transport",y:"Matosinhos"},
+{n:"Madan Parque",c:"PT",y:"Caparica"},
+{n:"PFP - Plataforma Ferroviaria Portuguesa",c:"PT",e:"construction",y:"Porto"},
+{n:"POOL-NET - Portuguese Tooling & Plastics Network",c:"PT",e:"aerospace_and_defe",y:"Marinha Grande"},
+{n:"PRODUTECH - Production Technologies Cluster",c:"PT",e:"aerospace_and_defe",y:"Porto"},
+{n:"PortugalFoods",c:"PT",y:"Maia"},
+{n:"Portuguese Shoes Cluster",c:"PT",y:"Porto"},
+{n:"Portuguese Textile Cluster",c:"PT",e:"textiles",y:"Portugal"},
+{n:"Wine and Vine Cluster",c:"PT",y:"Vila Real"},
+{n:"\"Made in Neamt\" Cluster",c:"RO",e:"agri_food",y:"Piatra Neamt"},
+{n:"3D Edaphic BLOOM Danube",c:"RO",e:"agri_food",y:"TULCEA"},
+{n:"3R Green Cluster",c:"RO",e:"digital",y:"Romania"},
+{n:"AGROFOOD REGIONAL INOVATIVE CLUSTER",c:"RO",e:"agri_food",y:"Sfântu Gheorghe"},
+{n:"AGROPRO Oltenia Cluster",c:"RO",y:"Craiova"},
+{n:"ASTRICO NORD-EST TEXTILE CLUSTER",c:"RO",y:"Savinesti"},
+{n:"AUTOMOTIVEST Cluster",c:"RO",y:"Timisoara"},
+{n:"AgroTransilvania Cluster",c:"RO",y:"Dezmir"},
+{n:"Alaturi de Voi Romania Foundation (ADV Romania) / Accelerator of Social Enterprises Cluster",c:"RO",e:"proximity_and_soci",y:"Miroslava"},
+{n:"Asociatia Cluster Pro-nZEB",c:"RO",y:"Bucharest"},
+{n:"Asociatia LifeTech City",c:"RO",y:"Tirgu Mures"},
+{n:"Banat Software Cluster by ARIES-TM",c:"RO",y:"Timisoara"},
+{n:"Bio Danubius Regional Cluster",c:"RO",y:"București"},
+{n:"Bionest Cluster",c:"RO",e:"agri_food",y:"Iasi"},
+{n:"CANEPARO",c:"RO",e:"textiles",y:"Bucharest"},
+{n:"CITI Cluster",c:"RO",e:"digital",y:"Bucuresti"},
+{n:"CONSTRUCT CLUSTER OLTENIA ASSOCIATION",c:"RO",y:"Craiova"},
+{n:"Cloudimpuls",c:"RO",y:"Deva"},
+{n:"Cluj IT Cluster",c:"RO",e:"digital",y:"Cluj Napoca"},
+{n:"Cluster for Distributed Research Infrastructure for Future Materials, Applications and Technology",c:"RO",y:"Bucharest"},
+{n:"Cluster for Innovation and Technology",c:"RO",e:"creative_and_cultu",y:"Brasov"},
+{n:"Control & IT Cluster",c:"RO",y:"Bucharest"},
+{n:"Cyber Security Cluster of Excellence",c:"RO",e:"aerospace_and_defe",y:"Bucharest"},
+{n:"DANUBE FURNITURE CLUSTER",c:"RO",y:"Bucharest"},
+{n:"DISCOVER TRANSYLVANIA'S REACHES CLUSTER",c:"RO",y:"Floresti"},
+{n:"Danube Engineering Hub",c:"RO",y:"Ploiesti"},
+{n:"Different Angle Cluster",c:"RO",y:"Bucharest"},
+{n:"ECO-INNOVATION CLUSTER FOR SUSTAINABLE ENVIRONMENT",c:"RO",e:"energy_renewables",y:"Bistrita"},
+{n:"ETREC Cluster - Electro-Technical Regional Cluster",c:"RO",y:"Sacele"},
+{n:"Electronic Innovation Cluster (ELINCLUS)",c:"RO",y:"Bucharest"},
+{n:"FreshBlood HealthTech",c:"RO",e:"health",y:"Cluj-Napoca"},
+{n:"Green Energy Romanian Innovative Biomass Cluster",c:"RO",e:"energy_renewables",y:"Sfantu Gheorghe"},
+{n:"Green Solutions Low Danube",c:"RO",y:"Galati"},
+{n:"Green Technology CLUSTER",c:"RO",e:"agri_food",y:"Romania"},
+{n:"Health Romania The Medical Cluster",c:"RO",y:"Bucharest"},
+{n:"ICONIC Cluster",c:"RO",y:"Iasi"},
+{n:"ICT Oltenia Cluster",c:"RO",y:"Craiova"},
+{n:"ICT Regional Cluster",c:"RO",e:"digital",y:"Timisoara"},
+{n:"IND-AGRO-POL",c:"RO",y:"Bucharest"},
+{n:"INNOVATIVE CLUSTER FOR HEALTH",c:"RO",y:"Galati"},
+{n:"INOMAR Cluster",c:"RO",y:"Constanta"},
+{n:"IT&C Cluster \"Lower Danube\"",c:"RO",y:"Galati"},
+{n:"North-East Innovative Regional Cluster for Structural and Molecular Imaging (IMAGO-MOL)",c:"RO",e:"health",y:"Iasi"},
+{n:"Oltenia Tourism Competitiveness Pole - Innovation and Tradition in Tourism TurOlt InoTT",c:"RO",y:"Craiova"},
+{n:"Open Hub Creative Cluster",c:"RO",e:"creative_and_cultu",y:"Galati"},
+{n:"PRO WOOD Regional Wood Cluster",c:"RO",e:"construction",y:"Sfântu Gheorghe"},
+{n:"ROHEALTH- The Health and Bioeconomy Cluster",c:"RO",e:"agri_food",y:"Bucuresti"},
+{n:"ROMANIAN RIVER TRANSPORT CLUSTER",c:"RO",y:"Galati"},
+{n:"ROVEST Cluster",c:"RO",e:"digital",y:"Timisoara"},
+{n:"Romanian New Materials Cluster",c:"RO",y:"Cluj-Napoca"},
+{n:"Romanian Textile Concept",c:"RO",y:"Bucharest"},
+{n:"START INOVARE",c:"RO",y:"Voluntari"},
+{n:"Sibiu IT Cluster",c:"RO",e:"digital",y:"Sibiu"},
+{n:"Smart Alliance Cluster",c:"RO",y:"Bucuresti"},
+{n:"South-West Oltenia Automotive Competitiveness Pole",c:"RO",y:"Craiova"},
+{n:"Spacetech Association",c:"RO",e:"aerospace_and_defe",y:"Romania"},
+{n:"Strategic Innovative Cluster for Mechatronics Smart Specialization Domain - «MECHATREC»",c:"RO",y:"Bucuresti"},
+{n:"Technology Enabled Construction Cluster - TEC",c:"RO",e:"construction",y:"Bucharest"},
+{n:"The Danube Delta Cluster (Clusterul Delta Dunarii)",c:"RO",y:"Tulcea"},
+{n:"The Romanian Sustainable Energy Cluster - ROSENC",c:"RO",y:"Timisoara"},
+{n:"Transilvania Creative Industries Cluster",c:"RO",y:"Cluj-Napoca"},
+{n:"Transilvania IT Cluster",c:"RO",e:"digital",y:"Cluj-Napoca"},
+{n:"Transilvania LifeStyle",c:"RO",y:"Cluj Napoca"},
+{n:"Transylvania Energy Cluster",c:"RO",e:"digital",y:"Cluj-Napoca"},
+{n:"Transylvania Lands Cluster",c:"RO",y:"Alba Iulia"},
+{n:"Transylvania Regional Balneological Tourism Cluster",c:"RO",y:"Sfantu Gheorghe"},
+{n:"Transylvania Textile & Fashion Cluster",c:"RO",y:"Sfantu Gheorghe"},
+{n:"Transylvanian Furniture Cluster - legally represented by HYGIA SA",c:"RO",e:"construction",y:"Cluj-Napoca"},
+{n:"Urban Logistic Cluster Association",c:"RO",y:"Craiova"},
+{n:"bioROne",c:"RO",y:"Iasi"},
+{n:"ASSOCIATION CLUSTER AGROINDUSTRY",c:"RS",y:"Subotica"},
+{n:"Association \"Cluster for Energy Efficiency\"",c:"RS",y:"Novi Sad"},
+{n:"CONSTRUCTION CLUSTER DUNDJER",c:"RS",y:"Nis"},
+{n:"Center for organic production Selenča",c:"RS",y:"Selenča"},
+{n:"Cluster AGRO START UP",c:"RS",y:"Niš"},
+{n:"Cluster for Entrepreneurial employment of young people Activator",c:"RS",y:"Leskovac"},
+{n:"Cluster for ecological culture and ecological energy Ecopanonia",c:"RS",y:"Novi Sad"},
+{n:"Cluster of Cultural Routes",c:"RS",y:"Belgrade"},
+{n:"Cluster of medical and health tourism",c:"RS",y:"Vrnjačka Banja"},
+{n:"Fonund tourism microregional cluster Subotica-Palić",c:"RS",y:"Palić"},
+{n:"ICT Cluster of Central Serbia",c:"RS",y:"Kragujevac"},
+{n:"ICT Net",c:"RS",y:"Belgrade"},
+{n:"Klaster FACTS",c:"RS",y:"Belgrade"},
+{n:"Nis Cluster of Advanced Technologies / NiCAT",c:"RS",e:"digital",y:"Niš"},
+{n:"Railway Cluster for South-East Europe",c:"RS",y:"Belgrade"},
+{n:"Serbia Film Commission",c:"RS",y:"Belgrade"},
+{n:"Serbian Automotive and Mobility Cluster / AC Serbia",c:"RS",e:"digital",y:"Beograd"},
+{n:"Serbian Games Association",c:"RS",y:"Belgrade"},
+{n:"Urban Planning Cluster",c:"RS",y:"Nis"},
+{n:"Vojvodina ICT Cluster",c:"RS",e:"agri_food",y:"Novi Sad"},
+{n:"Vojvodina Metal Cluster",c:"RS",y:"Temerin"},
+{n:"Vojvodina organic cluster",c:"RS",y:"Novi Sad"},
+{n:"Wellness Serbia",c:"RS",y:"Belgrade"},
+{n:"eucaap",c:"RS",y:"Novi Sad"},
+{n:"Кластер креативних инудстрија Војводине - Creative Industries Cluster of Vojvodina",c:"RS",y:"Novi Sad"},
+{n:"AI and Big Data Innovations Sweden",c:"SE",y:"Luleå"},
+{n:"Aerospace Cluster Sweden",c:"SE",y:"Älvängen"},
+{n:"Agroväst Livsmedel AB",c:"SE",y:"Skara"},
+{n:"Arctic Game",c:"SE",e:"creative_and_cultu",y:"Skellefteå"},
+{n:"Automation Region",c:"SE",y:"Västerås"},
+{n:"Big Science Sweden",c:"SE",e:"construction",y:"Luleå"},
+{n:"Bron Innovation / Govtech Sweden",c:"SE",e:"digital",y:"Sundsvall"},
+{n:"Cleantech Scandinavia",c:"SE",y:"Lund"},
+{n:"CoDest",c:"SE",y:"Malmö"},
+{n:"Compare",c:"SE",y:"Sweden"},
+{n:"Cyberly Cluster",c:"SE",e:"aerospace_and_defe",y:"Linköping"},
+{n:"Dalarna Science Park",c:"SE",y:"Borlange"},
+{n:"Findec (Findec & Decentralized AB)",c:"SE",y:"Stockholm"},
+{n:"Future Positon X",c:"SE",y:"Gävle"},
+{n:"Game Habitat Southern Sweden AB",c:"SE",y:"Malmö"},
+{n:"Hudiksvalls Hydraulikkluster",c:"SE",y:"Hudiksvall"},
+{n:"IUC Syd",c:"SE",y:"Malmö"},
+{n:"Interior Cluster Sweden",c:"SE",e:"creative_and_cultu",y:"Växjö"},
+{n:"IoT World",c:"SE",e:"aerospace_and_defe",y:"Linköping"},
+{n:"Järnvägsklustret - Railway cluster of Sweden",c:"SE",e:"mobility_transport",y:"Västerås"},
+{n:"MITC - Malardalen Industrial Technology Center",c:"SE",y:"Eskilstuna"},
+{n:"Media Evolution Southern Sweden",c:"SE",y:"Malmö"},
+{n:"NIFA- Nordic Innovation Food Arena",c:"SE",e:"agri_food",y:"Karlstad"},
+{n:"NetPort Energy Cluster",c:"SE",y:"Karlshamn"},
+{n:"OffshoreVäst",c:"SE",y:"BORÅS"},
+{n:"OpenTech",c:"SE",e:"digital",y:"Lund"},
+{n:"Packbridge AB",c:"SE",e:"agri_food",y:"Malmö"},
+{n:"Paper Province Ekonomisk förening",c:"SE",e:"energy_renewables",y:"Karlstad"},
+{n:"Peak Innovation",c:"SE",y:"Östersund"},
+{n:"PhotonicSweden",c:"SE",y:"Kista"},
+{n:"ProcessIT Innovations",c:"SE",y:"Umeå"},
+{n:"Processum Biorefinery Cluster",c:"SE",e:"energy_renewables",y:"Örnsköldsvik"},
+{n:"PropTech Sweden",c:"SE",e:"construction",y:"Stockholm"},
+{n:"Propell",c:"SE",y:"Hudiksvall"},
+{n:"STUNS Life science",c:"SE",y:"Uppsala"},
+{n:"Skane Food Innovation Network",c:"SE",y:"Malmö"},
+{n:"Skelleftea Digital Alliance",c:"SE",y:"Skellefteå"},
+{n:"Smart Housing Småland",c:"SE",y:"Växjö"},
+{n:"Smart Textiles by Science Park Borås",c:"SE",e:"textiles",y:"Borås"},
+{n:"Sustainable Business Hub",c:"SE",e:"construction",y:"Malmö"},
+{n:"Sustainable Steel Region",c:"SE",y:"Borlänge"},
+{n:"SwedenBIO",c:"SE",e:"health",y:"Sweden"},
+{n:"Swedish Maritime Technology Forum",c:"SE",y:"Göteborg"},
+{n:"Swedish Proving Ground Association",c:"SE",e:"mobility_transport",y:"Älvsbyn"},
+{n:"Techtank Advanced Engineering Alliance",c:"SE",y:"Olofström"},
+{n:"Visit Dalarna",c:"SE",e:"tourism",y:"Rättvik"},
+{n:"Visual Sweden",c:"SE",e:"aerospace_and_defe",y:"NORRKÖPING"},
+{n:"AE-ROBO-NET",c:"SI",y:"Portorož-Portorose"},
+{n:"COBIK - Biopharma Global Connect Cluster",c:"SI",e:"health",y:"Ajdovščina"},
+{n:"CONSTRUCTION CLUSTER OF SLOVENIA",c:"SI",e:"construction",y:"Medvode"},
+{n:"GIZ ACS Automotive cluster of Slovenia",c:"SI",y:"Ljubljana"},
+{n:"GIZ-GOIS, g.i.z.",c:"SI",e:"aerospace_and_defe",y:"Slovenija"},
+{n:"HealthDay",c:"SI",e:"health",y:"Ljubljana"},
+{n:"ICT Innovation network, Chamber of Commerce and Industry of Slovenia, ICT association of Slovenia",c:"SI",y:"Ljubljana"},
+{n:"ICT Techology Network Institute",c:"SI",y:"Ljubljana"},
+{n:"ITC - Innovation Technology Cluster Murska Sobota",c:"SI",e:"agri_food",y:"Murska Sobota"},
+{n:"Poligon Creative Centre / Poligon Institute",c:"SI",y:"Ljubljana"},
+{n:"Poly4EmI hosted by Anteja ECG d.o.o.",c:"SI",y:"Ljubljana"},
+{n:"SRIP GoDigital",c:"SI",e:"digital",y:"Slovenia"},
+{n:"SRIP HRANA - Strategic Research and Innovation Partnership for Sustainable Food Production",c:"SI",y:"Ljubljana"},
+{n:"SRIP PMiS",c:"SI",e:"construction",y:"Ljubljana"},
+{n:"SRIP PSIDL, Strategic Research and Innovation Partnership on Smart Buildings and Home with Wood Chain",c:"SI",y:"Maribor"},
+{n:"SRIPToP",c:"SI",y:"Lubljana"},
+{n:"SiEnE, Slovenian Energy and Environment Partnership in Defence",c:"SI",y:"Maribor"},
+{n:"Slovenian innovation hub,European Economic Interest Grouping, SIH EEIG",c:"SI",e:"health",y:"Slovenia"},
+{n:"Strategic Research and Innovation Partnership - Networks for the Transition to the Circular Economy",c:"SI",y:"Maribor"},
+{n:"TCS - Toolmakers Cluster of Slovenia; Zavod C-TCS",c:"SI",y:"Celje"},
+{n:"TECES, Green Tech Cluster Maribor",c:"SI",e:"digital",y:"Maribor"},
+{n:"TECOS - Industrial Association of Slovenian Toolmakers",c:"SI",e:"construction",y:"Celje"},
+{n:"Turisticno gostinska zbornica Slovenije/Tourism and Hospitality Chamber of Slovenia",c:"SI",y:"Ljubljana"},
+{n:"Wood Industry Cluster Slovenia",c:"SI",e:"construction",y:"Ljubljana"},
+{n:"BITERAP",c:"SK",e:"digital",y:"Košice"},
+{n:"Bioeconomy Cluster",c:"SK",e:"agri_food",y:"Nitra"},
+{n:"Cassovia Medi Valley",c:"SK",e:"electronics",y:"Košice- Staré Mesto"},
+{n:"Cassovia New Industry Cluster (CNIC)",c:"SK",e:"proximity_and_soci",y:"Kosice"},
+{n:"Council of Slovak Exporters",c:"SK",y:"Bratislava"},
+{n:"Cybersecurity Cluster",c:"SK",y:"Liptovský Mikuláš"},
+{n:"Energy Cluster of Presov Region",c:"SK",e:"energy_intensive_i",y:"Prešov"},
+{n:"Envirocentrum Banska Stiavnica",c:"SK",e:"digital",y:"Banská Štiavnica"},
+{n:"FINTECH & INSURTECH ASSOCIATION OF SLOVAKIA",c:"SK",y:"Bratislava"},
+{n:"Food Chamber of Slovakia",c:"SK",y:"Bratislava"},
+{n:"HEMP CLUSTER",c:"SK",y:"Badin"},
+{n:"House of events innovation",c:"SK",y:"Bratislava"},
+{n:"INOVATO CLUSTER",c:"SK",e:"creative_and_cultu",y:"Vráble"},
+{n:"Industry Innovation Cluster Slovakia",c:"SK",y:"Bratislava"},
+{n:"Ipel Energy Environmental Cluster",c:"SK",y:"Veľký Krtíš"},
+{n:"Klaster AT+R",c:"SK",y:"Kosice"},
+{n:"Kosice IT Valley",c:"SK",e:"digital",y:"Kosice"},
+{n:"Národný energetický klaster NEK",c:"SK",y:"Bratislava"},
+{n:"REGIONALNY PRIEMYSELNY INOVACNY KLASTER RIMAVSKA KOTLINA REPRIK",c:"SK",y:"Jesenské"},
+{n:"Regional Development Cluster",c:"SK",y:"Trnava"},
+{n:"SAPI - renewable energy cluster",c:"SK",y:"Bratislava"},
+{n:"SME BOOSTER & INNOVATIONS CLUSTER",c:"SK",y:"Banská Bystrica"},
+{n:"Slovak Battery Alliance",c:"SK",e:"electronics",y:"Bratislava"},
+{n:"Slovak Biogas Association",c:"SK",e:"energy_renewables",y:"Bratislava"},
+{n:"Slovak Electric Vehicle Association (SEVA)",c:"SK",y:"Bratislava"},
+{n:"Slovak Game Developers Association",c:"SK",y:"Bratislava"},
+{n:"Slovak National Hydrogen Association",c:"SK",y:"Bratislava"},
+{n:"Slovak Plastic Cluster",c:"SK",y:"Nitra"},
+{n:"Slovak Smart City Cluster",c:"SK",e:"digital",y:"Poprad"},
+{n:"Smart Cluster StartUP HUb",c:"SK",e:"agri_food",y:"Matúškovo"},
+{n:"Smart Industry Association - Industry4UM",c:"SK",y:"Bratislava"},
+{n:"Adana Industrial Park Electromechanical Clustering",c:"TR",y:"Adana"},
+{n:"Aerospace Cluster Association",c:"TR",e:"aerospace_and_defe",y:"Türkiye"},
+{n:"Anatolian Rail Transportation Systems Cluster",c:"TR",e:"mobility_transport",y:"ANKARA"},
+{n:"Ankara Chamber of Industry (ACI) Nuclear Industry Cluster - NÜKSAK Commercial Enterprise",c:"TR",y:"Ankara"},
+{n:"Ankara Technopark",c:"TR",e:"aerospace_and_defe",y:"Ankara"},
+{n:"Ankara Union of Tradesmen and Craftsmen",c:"TR",e:"retail",y:"ANKARA"},
+{n:"Ankara Üniversitesi Teknokent",c:"TR",e:"agri_food",y:"Ankara"},
+{n:"Automotive Suppliers Association of Turkey (TAYSAD)",c:"TR",y:"Kocaeli"},
+{n:"BOIZ Smart Transportation and Mobility Cluster",c:"TR",e:"mobility_transport",y:"Bursa"},
+{n:"BURSA AEROSPACE & DEFENCE CLUSTER",c:"TR",y:"BURSA"},
+{n:"BURSA HOME TEXTILE CLUSTER (BURTEXHOME)",c:"TR",e:"textiles",y:"Bursa"},
+{n:"BUTEXCOMP Cluster",c:"TR",e:"aerospace_and_defe",y:"Bursa"},
+{n:"COMMUNICATION TECHNOLOGIES CLUSTER",c:"TR",y:"ANKARA"},
+{n:"Construction Machinery Cluster",c:"TR",y:"Ankara"},
+{n:"Denizli Chamber of Commerce Technical Textiles Cluster",c:"TR",e:"textiles",y:"Denizli"},
+{n:"ENSIA Clean Energy Cluster",c:"TR",e:"energy_renewables",y:"İZMİR"},
+{n:"Eskisehir Chamber of Industry - Automotive Cluster",c:"TR",y:"Eskişehir"},
+{n:"Eskisehir Chamber of Industry - Aviation Cluster",c:"TR",y:"Eskisehir"},
+{n:"ICI-ICT Industry 4.0 Cluster",c:"TR",e:"digital",y:"Istanbul"},
+{n:"ISKID AIR-CONDITIONING AND REFRIGERATION MANUFACTURERS' ASSOCIATION (ISKID)",c:"TR",y:"ISTANBUL"},
+{n:"ISTANBUL HEALTH INDUSTRY CLUSTER",c:"TR",e:"digital",y:"ISTANBUL"},
+{n:"Inegol Furniture Cluster",c:"TR",e:"construction",y:"Bursa"},
+{n:"Istanbul Chemicals and Chemical Products Exporters' Association / Turkish Cosmetics Cluster",c:"TR",y:"İstanbul"},
+{n:"Jeotermal Elektrik Santral Yatırımcıları Derneği",c:"TR",y:"İZMİR"},
+{n:"MEDIKUM - Medical Industry Innovation Cluster",c:"TR",y:"Samsun"},
+{n:"MIP Automotive Sub-Industry Cluster",c:"TR",y:"Manisa"},
+{n:"Mersin Logistic Cluster",c:"TR",y:"Mersin"},
+{n:"OSTIM DEFENSE AND AVIATION CLUSTER",c:"TR",y:"Ankara"},
+{n:"OSTIM MEDICAL INDUSTRY CLUSTER",c:"TR",y:"Ankara"},
+{n:"OSTIM RENEWABLE ENERGY AND ENVIRONMENTAL TECHNOLOGIES CLUSTER",c:"TR",y:"ANKARA"},
+{n:"OSTIM RUBBER TECHNOLOGIES CLUSTER",c:"TR",y:"ANKARA"},
+{n:"SAHA Istanbul Aerospace Cluster",c:"TR",y:"Istanbul"},
+{n:"Samsun Chamber of Commerce and Industry-Samsun Food Cluster",c:"TR",y:"Samsun"},
+{n:"Solar Cluster-TR",c:"TR",y:"Ankara"},
+{n:"Trabzon Health Tourism",c:"TR",e:"health",y:"Trabzon"},
+{n:"Turkish Association of Ship Industrialists",c:"TR",y:"istanbul"},
+{n:"Turkish Salmon From Black Sea",c:"TR",y:"Ortahisar"},
+{n:"YABISAK Software and IT Industrialists Cluster Association",c:"TR",e:"digital",y:"İzmir"},
+{n:"e-hike",c:"TR",y:"Istanbul"},
+{n:"iztocluster",c:"TR",y:"İzmir"},
+{n:"\"International Medical Cluster\"",c:"UA",e:"digital",y:"Kharkiv"},
+{n:"\"Zaporizhzhia Cluster \"Engineering - Automation - Machinery\"",c:"UA",y:"Zaporizhzhia"},
+{n:"ASSOCIATION «UKRAINIAN LOGISTICS ALLIANCE»",c:"UA",y:"Kyiv"},
+{n:"Agrofoodcluster Kharkiv",c:"UA",y:"Kharkiv"},
+{n:"Association of Industrial Automation of Ukraine",c:"UA",e:"agri_food",y:"Kyiv"},
+{n:"CBIT - Cluster of Bukovina innovation technologies",c:"UA",y:"Chernivtsi"},
+{n:"Cherkasy IT Cluster",c:"UA",y:"Cherkasy"},
+{n:"Chernihiv IT Cluster",c:"UA",e:"digital",y:"Chernihiv"},
+{n:"Circular Economy Cluster",c:"UA",e:"construction",y:"Irpin"},
+{n:"Cluster of Manufacturers of Medical Products",c:"UA",e:"health",y:"Украина"},
+{n:"Cybersecurity Cluster of Ukraine",c:"UA",e:"aerospace_and_defe",y:"Kyiv"},
+{n:"Dnipro Medical Cluster",c:"UA",e:"digital",y:"Dnipro"},
+{n:"IT Association of Vinnytsia",c:"UA",e:"digital",y:"Vinnytsia"},
+{n:"IT Cluster Khmelnytskyi",c:"UA",e:"digital",y:"Khmelnytskyi"},
+{n:"IT Cluster Transcarpathia",c:"UA",e:"digital",y:"Uzhhorod"},
+{n:"IT Dnipro Community",c:"UA",e:"digital",y:"Dnipro"},
+{n:"IT Family Odesa",c:"UA",e:"digital",y:"Odesa"},
+{n:"International Agrocluster \"Dnister\"",c:"UA",e:"agri_food",y:"Vinnytsia"},
+{n:"International Cluster of Innovations and Creative Industries",c:"UA",e:"creative_and_cultu",y:"Польша"},
+{n:"International Interregional Agro Industrial Cluster of Kherson Region \"Eastern Food Technologies Plus\" Ukraine.",c:"UA",y:"Каховка"},
+{n:"Ivano-Frankivsk IT Cluster",c:"UA",e:"digital",y:"Ivano-Frankivsk"},
+{n:"Kharkiv Cluster EAM",c:"UA",e:"construction",y:"Kharkiv"},
+{n:"Kharkiv Fashion Cluster",c:"UA",y:"Kharkiv"},
+{n:"Kharkiv IT Cluster",c:"UA",e:"digital",y:"Kharkiv"},
+{n:"Konotop IT cluster",c:"UA",y:"Konotop"},
+{n:"Kyiv IT Cluster",c:"UA",e:"digital",y:"Kyiv"},
+{n:"Lviv Cluster of Medical Business",c:"UA",e:"health",y:"Lviv"},
+{n:"Lviv Furniture Cluster",c:"UA",e:"creative_and_cultu",y:"Lviv"},
+{n:"Lviv IT Cluster",c:"UA",e:"digital",y:"Lviv"},
+{n:"Lviv Tech Cluster",c:"UA",e:"aerospace_and_defe",y:"Львів"},
+{n:"Printing industry, Publishing houses and digital technologies printing: Logistics, Service, Quality",c:"UA",e:"creative_and_cultu",y:"Dnipro"},
+{n:"Public Union \"Ukrainian Maritime Cluster\"",c:"UA",y:"Mykolaiv"},
+{n:"Publishing and Printing Cluster",c:"UA",y:"Lviv"},
+{n:"Rivne IT Cluster",c:"UA",e:"creative_and_cultu",y:"Rivne"},
+{n:"Rivne Interregional Medical Cluster",c:"UA",e:"digital",y:"Rivne"},
+{n:"Science Cluster \"Science Parks of Ukraine\"",c:"UA",e:"aerospace_and_defe",y:"Kyiv"},
+{n:"Sumy Machine-Building and Energy Equipment Cluster",c:"UA",e:"energy_intensive_i",y:"Sumy"},
+{n:"Ukrainian Association of Furniture Manufacturers",c:"UA",e:"construction",y:"Kyiv"},
+{n:"Ukrainian Association of Startups",c:"UA",e:"creative_and_cultu",y:"Petropavlivska Borshchahivka"},
+{n:"Ukrainian Automotive and Mobility Cluster",c:"UA",e:"electronics",y:"Kyiv"},
+{n:"Ukrainian Interior Design and Furniture Cluster",c:"UA",e:"creative_and_cultu",y:"Kyiv"},
+{n:"Ukrainian Organic Cluster",c:"UA",y:"Khmilnyk"},
+{n:"Ukrainian Wooden Houses Cluster",c:"UA",e:"construction",y:"Kyiv"},
+{n:"Vinnytsia Automation and Instrument Making Cluster",c:"UA",e:"aerospace_and_defe",y:"Vinnytsia"},
+{n:"STIKK - Kosovo ICT Association",c:"XK",y:"Prishtina"}
+];
+
+// A registry profile in the given ecosystem, outside the player's own country and
+// not already on the board. Seeding a rival this way keeps its name, home country
+// and ecosystem consistent with each other, which picking a name alone does not.
+function registrySeed(ecoId, excludeCountry, takenNames) {
+  const used = new Set(takenNames || []);
+  const exISO = NAME_TO_ISO[excludeCountry] || null;
+  const usable = c => !used.has(c.n) && c.c !== exISO && ISO_TO_NAME[c.c];
+  // Only ever return a profile from the right ecosystem. A real name attached to
+  // the wrong sector reads as a bug, so thin ecosystems fall back to an invented
+  // name at the call site instead.
+  const pool = ECCP_CLUSTERS.filter(c => c.e === ecoId && usable(c));
+  if (!pool.length) return null;
+  const pickd = pool[Math.floor(Math.random() * pool.length)];
+  return { name: pickd.n, country: ISO_TO_NAME[pickd.c] };
+}
+
+// Names available for a given country and ecosystem, widening the search when a
+// combination is thin: the registry has only one or two profiles for many pairs.
+function clusterPicks(countryISO, ecoId) {
+  const all = ECCP_CLUSTERS;
+  const inCountry = countryISO ? all.filter(c => c.c === countryISO) : all;
+  const exact = ecoId ? inCountry.filter(c => c.e === ecoId) : [];
+  if (exact.length) return exact;
+  if (inCountry.length) return inCountry;
+  return ecoId ? all.filter(c => c.e === ecoId) : all;
+}
+
+// A registry name for a rival, preferring one that matches its country and
+// ecosystem, and never reusing a name already on the board.
+function rivalRegistryName(countryName, ecoId, taken) {
+  const iso = NAME_TO_ISO[countryName] || null;
+  const used = new Set(taken || []);
+  for (const pool of [clusterPicks(iso, ecoId), clusterPicks(iso, null), ECCP_CLUSTERS]) {
+    const free = pool.filter(c => !used.has(c.n));
+    if (free.length) return free[Math.floor(Math.random() * free.length)].n;
+  }
+  return null;
+}
+
 
 const STAGES = [
   {id:0,name:"Cluster Initiative",        color:"#506880",short:"CI"},
@@ -376,9 +1864,14 @@ function makeRivals(playerCountry, playerSector) {
   const pickArch = () => archPool.splice(Math.floor(Math.random()*archPool.length), 1)[0];
   const namePool = [...RIVAL_PREFIX];
   const pickName = () => namePool.splice(Math.floor(Math.random()*namePool.length), 1)[0];
+  const usedNames = [];
   const mk = (i, sec, pace) => {
-    const c = pick(); const arch = pickArch();
-    return { id:"rv"+i, name:`${pickName()} ${String(sec.name).split(/[ ,]/)[0]}`,
+    const seed = registrySeed(sec.id, playerCountry, usedNames);
+    const c = seed ? seed.country : pick();
+    const arch = pickArch();
+    const name = seed ? seed.name : `${pickName()} ${String(sec.name).split(/[ ,]/)[0]}`;
+    usedNames.push(name);
+    return { id:"rv"+i, name,
       country:c, countries:[c], sectorId:sec.id, sectorName:sec.name, icon:sec.icon,
       color:RIVAL_COLORS[i], pace, stage:0, progress:Math.random()*25,
       arch: arch.id, health: Math.max(30, Math.min(90, arch.health + Math.floor(Math.random()*17) - 8)),
@@ -406,8 +1899,11 @@ function spawnRival(s) {
   const sec = Math.random() < 0.5 ? s.sector : ECOSYSTEMS[Math.floor(Math.random()*ECOSYSTEMS.length)];
   const country = DATA_COUNTRIES[Math.floor(Math.random()*DATA_COUNTRIES.length)];
   const ids = new Set(existing.map(r=>r.id)); let n=0; while(ids.has("rv"+n)) n++;
-  return { id:"rv"+n, name:`${name} ${String(sec?.name||"Cluster").split(/[ ,]/)[0]}`,
-    country, countries:[country], sectorId:sec?.id, sectorName:sec?.name, icon:sec?.icon||"industry",
+  const seed = registrySeed(sec?.id, s.country, existing.map(r=>r.name));
+  const rvName = seed ? seed.name : `${name} ${String(sec?.name||"Cluster").split(/[ ,]/)[0]}`;
+  const rvCountry = seed ? seed.country : country;
+  return { id:"rv"+n, name: rvName,
+    country: rvCountry, countries:[rvCountry], sectorId:sec?.id, sectorName:sec?.name, icon:sec?.icon||"industry",
     color, pace:["aggressive","steady","cautious"][Math.floor(Math.random()*3)],
     stage: Math.max(0, (s.stage||0) - 1), progress: Math.random()*30,
     arch: arch.id, health: Math.max(30, Math.min(90, arch.health + Math.floor(Math.random()*17) - 8)),
@@ -527,11 +2023,9 @@ const PROJECTS = [
   {id:"gold", name:"Gold Label + EEN Integration", cat:"comms",    s:4,dur:4,mem:260,part:0,  base:110000,pb:0,     pres:40,mg:10, sr:4,fund:"eu",       preq:85,s3:1, desc:"Gold Excellence Label and EEN integration"},
   {id:"kic",  name:"Knowledge & Innovation Community", cat:"research", s:4,dur:10,mem:300,part:25,base:10500000,pb:500000,pres:72,mg:40,sr:7,fund:"eu",      ctr:10,reg:14,preq:88,cofin:0.30, desc:"EIT Knowledge and Innovation Community"},
   {id:"unify",name:"EU Cluster Unification Treaty",cat:"network",  s:4,dur:8,mem:400,part:30, base:18000000,pb:750000,pres:90,mg:80,sr:8,fund:"eu",      ctr:15,preq:95,brd:70,cofin:0.30, desc:"Final merger of all EU sector clusters"},
-  /* ── Added calls: fill gaps in the ladder (a cheap stage-0 comms option, two
-        mid-game network plays, a lobbying route, and two late flagships).
-        Fields: s=min stage, dur=quarters, mem=min members, part=max partners,
-        base=budget, pb=per-partner top-up, pres=influence, mg=member gain,
-        sr=min staff, cofin=own contribution, reg/preq/brd=extra gates.     ── */
+  /* Fields: s=min stage, dur=quarters, mem=min members, part=max partners,
+     base=budget, pb=per-partner top-up, pres=influence, mg=member gain,
+     sr=min staff, cofin=own contribution, reg/preq/brd=extra gates. */
   {id:"opendoor",name:"Open Doors Week",              cat:"comms",    s:0,dur:1,mem:8,  part:2,  base:14000,   pb:3000,  pres:3, mg:5,  sr:0, fund:"local",    cofin:0.05, desc:"Member sites open to schools, press and the public for a week"},
   {id:"mentor",  name:"SME Mentoring Exchange",       cat:"training", s:1,dur:3,mem:25, part:3,  base:70000,   pb:11000, pres:6, mg:6,  sr:2, fund:"regional", cofin:0.10, desc:"Experienced member firms coach newcomers through scale-up decisions"},
   {id:"procure", name:"Joint Procurement Framework",  cat:"network",  s:2,dur:3,mem:55, part:5,  base:210000,  pb:26000, pres:9, mg:8,  sr:5, fund:"regional", cofin:0.12, reg:2, desc:"Pooled buying power for energy, logistics and certification services"},
@@ -625,12 +2119,11 @@ const EVENTS = [
     choices:[{label:"Send your lobbyist", fx:{pfx:6,brd:2}},{label:"Decline on transparency grounds", fx:{pfx:2,mfx:1}}]},
   {id:"rstumble",n:"{RIVAL} Stumbles",            t:"choice",p:.05, minS:2, d:"An audit scandal hits {RIVAL}. Their members are looking around.",
     choices:[{label:"Poach openly", fx:{mfx:6,pfx:-2,brd:1,rvProg:-6}},{label:"Stay above it", fx:{pfx:4}}]},
-  /* ── Added content wave: policy-cycle texture, ecosystem-specific news and
-        state-gated dilemmas. Effects follow the existing conventions:
-        bfx <1 = share of treasury, >=1 = euros; mfx members; pfx influence
-        (0-100); brd board confidence; sfx -1 loses a staff member.        ── */
+  /* Effect conventions: bfx below 1 is a share of the treasury and 1 or more is
+     euros; mfx members; pfx influence (0-100); brd board confidence; sfx -1 costs
+     a staff member. Gates: minS/maxS stage window, req predicate, eco ecosystem. */
 
-  // — EU policy cycle —
+  // ── EU policy cycle ──
   {id:"midterm", n:"Cohesion Mid-Term Review",        t:"choice",p:.05, minS:2, d:"The managing authority reopens the {COUNTRY} programme. Reallocating means new money, but a rewritten smart-specialisation strategy may leave {SECTOR} outside the priority list.",
     choices:[{label:"Lobby to keep the current priorities", fx:{bfx:-30000,pfx:5,brd:3}},{label:"Bid for the new thematic envelope", fx:{bfx:180000,pfx:-2,brd:-2}}]},
   {id:"cbam",    n:"Carbon Border Adjustment Kicks In", t:"bad", p:.05, minS:2, eco:["energy_intensive_i","construction","electronics"], bfx:-.06, mfx:-4, pfx:0, d:"CBAM reporting duties land on your members' supply chains. Compliance costs bite before the free-allowance phase-out is even complete."},
@@ -646,7 +2139,7 @@ const EVENTS = [
   {id:"omnibus", n:"Simplification Omnibus",           t:"good",p:.05, minS:2, req:"highBoard", bfx:.04, pfx:3, mfx:2, d:"A reporting-burden reduction package lands. Fewer templates, faster payment claims, and members notice the difference."},
   {id:"audittr", n:"Managing Authority Spot Check",    t:"bad", p:.05, minS:1, req:"manyProjects", bfx:-.05, pfx:-2, d:"An on-the-spot verification arrives mid-delivery. Timesheets and procurement files consume a fortnight of staff time."},
 
-  // — membership and governance —
+  // ── membership and governance ──
   {id:"anchoutx",n:"Anchor Firm Relocates",            t:"bad", p:.05, minS:2, req:"corpHeavy", bfx:-.07, mfx:-11, pfx:-4, d:"Your largest corporate member shifts production out of {REGION}. Fee income and credibility go with it."},
   {id:"smerev",  n:"SME Fee Revolt",                   t:"choice",p:.05, minS:2, req:"smeHeavy", d:"Small members argue the fee schedule favours large firms and threaten a collective exit.",
     choices:[{label:"Introduce a tiered fee (costly but fair)", fx:{bfx:-.05,mfx:5,brd:5}},{label:"Hold the line on pricing", fx:{mfx:-9,brd:-5,pfx:1}}]},
@@ -658,7 +2151,7 @@ const EVENTS = [
   {id:"succplan",n:"Succession Planning Pressure",     t:"choice",p:.04, minS:3, req:"bigTeam", d:"The board wants a documented succession plan for your senior team. It is sensible, and it is a quarter of somebody's life.",
     choices:[{label:"Do it properly", fx:{bfx:-20000,brd:7}},{label:"Promise it for next year", fx:{brd:-4}}]},
 
-  // — ecosystem-specific news —
+  // ── ecosystem-specific news ──
   {id:"gigafab", n:"Battery Gigafactory Announcement", t:"good",p:.05, minS:2, eco:["mobility_transport","energy_renewables","electronics"], bfx:120000, mfx:12, pfx:7, d:"A gigafactory picks a site within your footprint. Suppliers rush to join anything that looks like a local cluster."},
   {id:"chipact", n:"Chips Act Pilot Line",             t:"good",p:.05, minS:3, eco:["electronics","digital"], bfx:260000, mfx:9, pfx:8, d:"A Chips Act pilot line lands in your network. Your members gain access to fabrication capacity they could never finance alone."},
   {id:"farm2f",  n:"Farm to Fork Reformulation Push",  t:"choice",p:.05, minS:1, eco:["agri_food"], d:"Reformulation targets arrive. Members can lead the transition or resist it.",
@@ -673,7 +2166,7 @@ const EVENTS = [
   {id:"bridge",  n:"Bridge Financing Offer",            t:"choice",p:.06, minS:1, req:"thin", d:"With the treasury nearly empty, a regional development bank offers bridge financing against future claims. It costs, and it buys time.",
     choices:[{label:"Take the bridge loan", fx:{bfx:120000,pfx:-2,brd:2}},{label:"Cut costs and ride it out", fx:{sfx:-1,brd:-3,pfx:1}}]},
 
-  // — late game and rivalry —
+  // ── late game and rivalry ──
   {id:"monopoly",n:"Competition Concerns Raised",      t:"bad", p:.05, minS:4, req:"lastRival", pfx:-6, brd:-4, bfx:-.04, d:"With the field nearly cleared, a national authority asks whether one cluster should represent an entire ecosystem. Scrutiny is not the same as praise."},
   {id:"poachwar",n:"Talent War Escalates",             t:"bad", p:.06, minS:2, req:"crowded", sfx:-1, bfx:-.03, pfx:-2, d:"Four clusters chasing the same specialists in {COUNTRY}. Someone leaves for a competitor's offer you could not match."},
   {id:"seatlev", n:"Seat Brings Leverage",             t:"good",p:.06, minS:2, req:"hasSeat", pfx:5, bfx:.05, brd:5, d:"Your committee seat pays off: a programme amendment lands in your members' favour before the call text is even published."},
@@ -802,7 +2295,7 @@ const staffCostQ = (roster, turn) => Array.isArray(roster) ? roster.reduce((s,r)
   return s + (d ? roleCost(d, turn) : 0);
 }, 0) : 0;
 
-// BUG FIX: overhead was ignoring hasFin due to operator precedence
+// Parenthesised so the Finance Director discount applies to the whole overhead.
 const memberFee  = stage => ([500,1500,3000,5500,9000,16000][stage] ?? 500);
 const calcOverhead = (stage, hasFin, regionCount=1) => {
   const base  = [2000,9000,30000,90000,280000,800000][stage] ?? 2000;
@@ -962,14 +2455,44 @@ const MIX_FOCUS = {
   corporate: { label:"Corporate", sme:0.35, corp:0.50, res:0.15 },
   research:  { label:"Research",  sme:0.40, corp:0.15, res:0.45 },
 };
-const FEE_W = { sme:0.78, corp:2.05, res:0.49 }; // weighted so the default 70/20/10 mix ≈ 1.0× fee income
-const defaultMix = m => ({ sme:Math.round(m*0.7), corp:Math.round(m*0.2), res:Math.max(0,m-Math.round(m*0.7)-Math.round(m*0.2)) });
+// Membership composition is calibrated against the European Cluster Collaboration
+// Platform registry: across 1,300 profiles reporting a usable split, the median
+// cluster is 81.5% SME, 9.3% corporate, 9.2% research. Fee weights are scaled so
+// that median mix earns a 1.0x multiplier, which keeps the economy where the
+// balance tests expect it while the relative fee gap between segments is unchanged.
+const FEE_W = { sme:0.90, corp:2.35, res:0.56 };
+const BASE_MIX = { sme:0.815, corp:0.093, res:0.092 };
+
+// Ecosystems recruit differently, so each starts from its own observed median.
+// Mobility runs corporate-heavy (richer fees), textiles almost entirely SME.
+// Ecosystems with too few profiles to be meaningful fall back to BASE_MIX.
+const ECO_MIX = {
+  aerospace_and_defe:{ sme:0.842, corp:0.081, res:0.078 },
+  agri_food:         { sme:0.820, corp:0.097, res:0.084 },
+  construction:      { sme:0.835, corp:0.094, res:0.071 },
+  creative_and_cultu:{ sme:0.872, corp:0.060, res:0.068 },
+  digital:           { sme:0.816, corp:0.082, res:0.102 },
+  electronics:       { sme:0.674, corp:0.139, res:0.187 },
+  energy_intensive_i:{ sme:0.757, corp:0.127, res:0.116 },
+  energy_renewables: { sme:0.786, corp:0.149, res:0.065 },
+  health:            { sme:0.806, corp:0.090, res:0.104 },
+  mobility_transport:{ sme:0.730, corp:0.201, res:0.069 },
+  textiles:          { sme:0.879, corp:0.048, res:0.073 },
+};
+const mixFor = ecoId => ECO_MIX[ecoId] || BASE_MIX;
+// Split m members by a share table, giving research the exact remainder so the
+// ledger always reconciles.
+const splitMix = (m, sh) => {
+  const sme = Math.round(m * sh.sme), corp = Math.round(m * sh.corp);
+  return { sme, corp, res: Math.max(0, m - sme - corp) };
+};
+const defaultMix = (m, ecoId) => splitMix(m, mixFor(ecoId));
 const mixOf = gs => {
   const mx = gs?.mix; const m = gs?.members||0;
-  if (!mx) return defaultMix(m);
+  if (!mx) return defaultMix(m, gs?.sector?.id);
   const tot = (mx.sme||0)+(mx.corp||0)+(mx.res||0);
   if (tot === m) return mx;
-  if (tot <= 0) return defaultMix(m);
+  if (tot <= 0) return defaultMix(m, gs?.sector?.id);
   const f = m/tot; // reconcile drift proportionally; res takes the exact remainder
   let sme = Math.round((mx.sme||0)*f), corp = Math.round((mx.corp||0)*f);
   if (sme + corp > m) { const over = sme + corp - m; const dc = Math.min(corp, over); corp -= dc; sme -= (over - dc); }
@@ -1187,8 +2710,8 @@ function lockedProjects(gs) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   INIT STATE  ·  starting conditions shaped by the region's real
-   Regional Innovation Scoreboard tier and its S3 ecosystem fit.
+   INIT STATE  ·  starting conditions scale with the region's innovation
+   tier and how well its priorities fit the chosen ecosystem.
 ═══════════════════════════════════════════════════════════ */
 function initState(country, region, sector, difficulty="expert") {
   const rec   = getRegion(country, region);
@@ -1215,7 +2738,7 @@ function initState(country, region, sector, difficulty="expert") {
     regions:[region], countries:[country],
     fullCountries: (EU_COUNTRIES[country]||[]).length===1 ? [country] : [],
     difficulty: diff.id, seats: {}, rivalSeats: {}, rivalOps: {}, history: [],
-    mix: defaultMix(Math.max(3, Math.round(baseMembers * mod.members))), focus: "balanced", peak: { budget: 0, members: 0 },
+    mix: defaultMix(Math.max(3, Math.round(baseMembers * mod.members)), sector?.id), focus: "balanced", peak: { budget: 0, members: 0 },
     rivalsGone: 0, acqCount: 0, achv: {}, wasBroke: false, coalitionUntil: 0, scenario: "classic", seedStr: "",
     rivals: makeRivals(country, sector), rivalDefeat: null,
     projCooldown: {},
@@ -1312,7 +2835,6 @@ function advanceTurn(prev) {
   const pregain = byRoleEff(s.roster,"comms")*2 + byRoleEff(s.roster,"lobbyist")*3 + byRoleEff(s.roster,"analyst")*4 + byRoleEff(s.roster,"manager")*0.5 + byRoleEff(s.roster,"director")*2 + (pm>0?1:0) + seatsHeld(s); // seats + skilled staff sustain influence
   s.prestige = Math.min(100, Math.max(0, (s.prestige||0) - decay + pregain));
 
-  // Staff-driven member growth
   // Staff-driven member growth (+ seniority bonus: staff retained 12+ quarters are 30% more effective)
   const seniorBonus = (s.roster||[]).reduce((b,r) => b + ((s.turn - (r.hiredTurn||0)) >= 12 ? 1 : 0), 0) * 0.3;
   const mktFree = Math.max(0.15, 1 - Math.pow(marketShare(s), 1.6)); // crowded markets slow recruitment
@@ -1378,7 +2900,7 @@ function advanceTurn(prev) {
 
   s.mix = mixOf(s); // final reconciliation: all member changes this quarter are now folded into the composition ledger
 
-  // Finances (BUG FIX: calcOverhead now correctly applies Finance Director discount)
+  // Finances
   const qMember   = Math.round(s.members * memberFee(s.stage) * feeMult(s));
   const qStaff    = staffCostQ(s.roster, s.turn);
   const qOverhead = calcOverhead(s.stage, fin > 0, (s.regions||[]).length);
@@ -1765,17 +3287,17 @@ function reducer(state, action) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   EU MAP · Real NUTS-2 basemap (Eurostat-derived) + interactive overlay
-   Coordinate space: 609×600 (matches the baked PNG). Centroids calibrated.
+   EU MAP · NUTS-2 basemap with an interactive overlay.
+   Coordinate space is 609×600; country centroids are calibrated to it.
 ═══════════════════════════════════════════════════════════════ */
 const MAP_W = 609, MAP_H = 600;
 
-// ── Vector basemap: Eurostat NUTS2json (2021, EPSG:3035, 1:20M), © EuroGeographics.
+// ── Administrative boundaries © EuroGeographics.
 // Projected into the 609×600 viewBox at build time. Overseas territories clipped.
 const NUTS2_PATHS = {"ES61":"M97.8 533.8L101.0 537.0L101.2 539.6L99.5 541.6L106.0 546.5L105.8 549.6L106.9 552.5L109.9 555.2L107.1 557.8L105.3 561.7L101.7 564.6L99.0 562.6L93.4 564.0L88.6 562.2L84.3 562.3L71.6 559.8L67.6 562.4L60.6 562.7L57.4 566.5L53.6 567.8L48.4 563.9L46.6 560.0L46.7 557.0L44.9 555.5L44.7 554.0L46.0 553.1L44.0 549.5L38.1 544.4L33.4 543.8L33.1 537.8L38.1 531.5L41.3 530.9L42.9 528.4L47.1 532.4L51.7 534.9L54.8 534.4L57.2 532.2L58.5 532.3L58.6 533.6L60.1 533.4L61.5 528.5L68.8 525.1L77.8 533.3L78.6 532.7L96.0 534.7Z","ES62":"M122.5 549.1L121.1 551.0L122.4 552.2L122.0 553.2L114.5 552.8L109.9 555.2L106.9 552.5L105.8 549.6L106.0 546.5L102.1 543.0L106.5 539.3L113.4 539.4L115.4 534.7L118.9 533.6L120.8 536.4L119.5 539.4L120.5 541.7L119.5 544.6Z","PT15":"M16.2 535.1L20.2 537.1L21.5 536.7L25.1 539.3L33.1 537.8L33.4 543.8L26.3 545.6L22.9 543.0L17.8 541.1L12.5 541.5Z","ES52":"M140.4 503.2L144.3 507.2L133.8 519.3L131.4 524.1L132.3 529.8L134.1 533.3L136.9 535.8L127.0 541.9L122.5 549.1L119.5 544.6L120.5 541.7L119.5 539.4L120.7 535.3L121.9 534.8L122.2 531.0L120.0 530.4L119.1 528.5L119.9 524.7L116.2 521.8L116.7 519.6L119.2 518.0L121.2 513.7L124.2 513.8L126.3 515.5L125.9 514.4L133.4 508.7L133.6 503.5L136.0 502.0ZM118.6 510.0L120.7 509.7L122.2 511.4L121.9 512.7L119.2 511.9Z","PT18":"M41.2 518.8L38.9 523.2L40.5 528.2L42.9 528.4L41.3 530.9L38.1 531.5L33.1 537.8L25.1 539.3L21.5 536.7L20.2 537.1L16.2 535.1L17.2 526.2L20.8 517.9L24.2 515.3L22.6 513.1L21.2 513.9L19.3 513.3L19.0 512.0L20.6 510.1L20.7 503.6L22.2 501.9L24.8 503.4L29.1 503.9L30.6 508.0L33.8 505.9L34.3 503.7L40.0 502.9L42.2 507.0L43.5 513.0L45.2 514.9Z","ES42":"M112.8 492.3L116.0 493.5L118.3 496.5L118.3 502.1L114.6 505.1L119.2 511.9L122.1 513.4L119.2 518.0L116.7 519.6L116.2 521.8L119.9 524.7L119.1 528.5L120.0 530.4L122.2 531.0L121.9 534.8L120.7 535.3L118.9 533.6L115.4 534.7L113.4 539.4L106.5 539.3L102.1 543.0L99.5 541.6L101.2 539.6L101.0 537.0L97.8 533.8L96.0 534.7L78.6 532.7L77.8 533.3L68.8 525.1L71.9 522.7L71.0 520.3L74.4 517.8L75.5 514.2L72.0 514.4L69.6 510.6L70.4 507.8L68.9 507.4L68.2 504.3L69.3 501.6L74.0 502.4L77.4 500.8L80.1 502.2L84.3 501.7L90.9 505.9L89.6 508.3L94.2 507.1L96.7 507.7L98.1 506.4L97.2 500.2L94.5 495.3L96.1 491.5L94.8 488.8L99.3 487.2L105.5 489.0L108.7 492.8ZM87.2 508.7L87.7 509.6L89.0 508.4L88.2 507.6Z","ES43":"M64.8 497.7L66.8 499.6L69.4 499.3L68.2 504.3L68.9 507.4L70.4 507.8L69.6 510.6L72.0 514.4L75.5 514.2L74.4 517.8L71.0 520.3L71.9 522.7L61.5 528.5L60.1 533.4L58.6 533.6L58.5 532.3L57.2 532.2L54.8 534.4L51.7 534.9L47.1 532.4L42.9 528.4L40.5 528.2L38.9 523.2L41.2 518.8L45.2 514.9L43.5 513.0L42.2 507.0L40.0 502.9L46.6 504.0L49.5 499.7L48.5 496.4L49.5 494.9L53.8 495.6L59.6 493.6L61.9 497.0L64.0 496.7Z","PT17":"M24.1 514.4L22.2 517.6L14.8 517.7L14.7 514.2L12.1 511.7L14.2 506.9L17.5 509.7L20.2 509.1L19.3 513.3L21.2 513.9L22.6 513.1Z","ES30":"M96.7 507.7L94.2 507.1L89.6 508.3L90.9 505.9L85.9 502.6L84.3 501.7L82.5 502.4L81.8 501.3L79.1 501.9L89.7 491.5L94.8 488.8L96.1 491.5L94.5 495.3L97.2 500.2L98.1 506.4ZM87.2 508.7L88.2 507.6L89.0 508.4L87.7 509.6Z","PT16":"M50.6 495.0L48.5 496.4L49.5 499.7L46.6 504.0L40.0 502.9L34.3 503.7L33.8 505.9L30.6 508.0L29.1 503.9L24.8 503.4L22.2 501.9L20.7 503.6L20.2 509.1L17.5 509.7L14.2 506.9L16.2 502.4L19.5 500.2L24.5 492.5L30.9 478.3L32.0 481.8L34.9 482.8L38.0 479.7L40.2 479.7L45.1 484.4L47.7 481.5L49.0 481.8L49.3 483.2L52.4 482.4L53.2 485.9L51.7 493.7Z","ES24":"M138.7 467.4L142.1 470.3L150.3 471.5L151.2 473.2L150.7 477.8L147.7 484.9L144.8 487.6L144.2 494.5L141.7 497.7L141.7 501.3L140.4 503.2L136.0 502.0L133.6 503.5L133.4 508.7L130.3 510.3L125.4 515.5L124.2 513.8L122.1 513.4L122.2 511.4L120.7 509.7L118.6 510.0L114.6 505.1L118.3 502.1L118.3 496.5L116.0 493.5L112.8 492.3L112.9 488.7L114.9 487.9L117.6 483.4L118.0 478.5L122.7 480.2L123.9 479.2L124.3 475.0L128.3 469.4L133.8 465.5L135.5 467.5ZM129.0 472.5L128.3 471.4L127.2 472.8Z","ES41":"M92.7 461.3L95.7 461.0L94.9 458.5L99.0 455.8L105.2 456.8L105.9 460.0L103.6 461.6L107.2 466.0L104.7 465.9L103.1 473.0L104.9 476.1L106.8 475.3L108.9 476.9L112.1 475.3L114.2 476.5L115.3 479.1L117.8 479.1L117.6 483.4L114.9 487.9L112.9 488.7L112.8 492.3L108.7 492.8L105.5 489.0L99.3 487.2L89.7 491.5L79.1 501.9L77.4 500.8L74.0 502.4L69.3 501.6L69.4 499.3L66.8 499.6L64.0 496.7L61.9 497.0L59.6 493.6L53.8 495.6L50.6 495.0L51.7 493.7L53.2 485.9L52.4 482.4L59.3 479.3L63.1 475.6L59.7 472.5L59.5 468.6L54.9 466.8L55.7 464.3L59.1 461.4L58.4 459.0L55.7 457.8L60.2 451.9L63.8 452.5L65.9 451.1L70.3 451.6L72.5 453.6L80.9 453.3L84.0 451.8L85.6 455.5L89.4 455.9ZM108.4 465.7L107.9 463.5L110.9 465.0L110.4 466.4Z","ES23":"M112.1 469.4L119.5 474.9L117.8 479.1L115.3 479.1L114.2 476.5L112.1 475.3L108.9 476.9L106.8 475.3L104.9 476.1L103.1 473.0L105.1 465.7L108.8 467.0L109.5 468.9Z","PT11":"M41.5 466.2L45.6 465.8L49.2 468.0L52.0 467.7L52.8 466.3L59.5 468.6L59.7 472.5L63.1 475.6L60.8 478.3L55.9 480.2L54.0 482.3L49.3 483.2L49.0 481.8L47.7 481.5L45.1 484.4L40.2 479.7L38.0 479.7L34.9 482.8L32.0 481.8L30.9 478.3L31.8 462.9L35.6 460.8L40.9 460.4L41.6 462.5L40.1 464.1L40.1 465.9Z","ES22":"M133.8 465.5L125.8 472.0L123.9 479.2L122.7 480.2L118.0 478.5L119.5 474.9L112.1 469.4L112.2 467.5L115.3 463.0L122.5 457.4L126.6 458.7L125.5 462.1L127.1 461.8ZM127.2 472.8L128.3 471.4L129.0 472.5Z","ITG2":"M263.0 515.3L260.6 519.7L261.8 522.4L259.5 537.8L253.5 536.6L252.6 539.8L250.7 541.8L247.5 541.4L246.0 539.1L244.5 540.1L244.5 532.5L246.5 525.6L244.9 524.3L245.8 519.1L244.9 516.5L243.8 513.8L241.9 513.3L242.7 508.9L246.5 509.5L250.2 507.9L255.3 502.8L259.3 504.5ZM244.5 505.9L243.2 504.8L244.1 504.2ZM243.6 536.6L243.0 538.7L242.2 537.6ZM243.4 507.2L242.9 508.6L241.8 507.7L242.5 506.6Z","FRM0":"M247.9 483.8L251.9 479.6L256.7 478.2L258.2 474.1L259.7 486.4L257.7 495.7L255.4 500.2L250.6 497.7L251.0 495.6L248.8 490.9Z","ITC3":"M255.9 446.6L259.4 447.6L259.2 450.1L261.7 450.8L265.7 456.1L263.0 455.7L255.0 450.8L250.6 449.8L244.6 454.5L242.9 457.6L235.4 460.0L235.4 458.2L238.5 454.3L241.5 454.7L244.5 447.8L252.1 447.3L252.8 445.7L255.1 447.3Z","ITC1":"M247.9 434.8L248.2 437.2L249.7 439.3L252.4 439.9L255.9 446.6L255.1 447.3L252.8 445.7L252.1 447.3L244.5 447.8L241.5 454.7L238.5 454.3L237.8 455.5L236.5 454.1L233.9 454.3L229.8 452.3L228.0 450.1L228.0 447.4L230.4 444.3L229.8 442.3L227.1 441.1L225.5 437.5L231.1 435.7L232.0 432.8L231.4 431.7L236.3 430.0L240.7 430.0L240.5 424.6L243.8 420.7L243.5 418.8L246.7 415.8L247.6 419.1L250.5 421.8L249.0 426.2L251.8 433.5L250.0 435.0Z","ITC4":"M275.3 426.3L273.0 430.0L273.1 433.3L277.8 438.1L279.7 438.3L282.4 440.9L271.4 441.5L264.2 438.0L262.2 439.1L260.1 438.0L258.4 439.0L257.0 445.1L255.9 445.4L252.4 439.9L249.7 439.3L248.2 437.2L247.9 434.8L250.0 435.0L251.8 433.5L249.0 426.2L250.5 421.8L251.8 422.3L252.7 426.3L254.2 425.6L254.1 423.1L256.7 419.6L257.5 415.2L258.9 415.5L260.4 418.4L264.4 417.4L266.5 419.5L267.3 419.0L266.0 415.7L266.7 413.8L267.9 413.1L270.7 414.7L272.6 416.0L271.4 417.8L271.5 426.5Z","ITC2":"M240.7 430.0L236.3 430.0L231.4 431.7L228.0 426.4L230.9 424.2L232.2 425.2L237.2 423.6L240.5 424.6Z","ES53":"M191.4 521.3L191.4 523.8L187.4 521.4L185.7 521.4L185.4 519.9L190.3 519.6ZM166.0 525.5L174.4 520.6L177.7 521.6L176.7 523.2L178.1 524.1L179.4 523.2L180.7 524.1L177.3 530.2L174.8 531.5L173.8 529.8L171.6 529.6L171.3 527.2L169.8 526.0L168.2 527.7ZM153.1 537.7L155.2 539.9L154.0 540.2L153.4 539.0L152.1 539.8ZM153.3 535.2L152.7 536.4L150.8 535.8L150.2 534.1L151.7 534.1L152.6 532.5L155.6 532.5L155.8 533.5Z","ES51":"M163.0 476.2L166.6 478.9L169.2 478.1L173.0 479.9L177.2 478.4L180.8 479.1L181.9 481.6L179.9 483.0L180.5 487.7L165.5 496.7L151.1 499.6L147.5 502.7L148.7 505.1L144.3 507.2L140.4 503.2L141.7 501.3L141.7 497.7L144.2 494.5L144.8 487.6L147.7 484.9L150.7 477.8L150.6 469.7L151.3 468.9L158.5 472.2L159.8 476.8Z","FRJ1":"M201.1 450.1L202.6 454.4L200.0 459.5L198.5 459.7L195.1 463.2L193.6 461.5L191.8 461.8L182.7 466.3L180.3 469.7L179.5 476.5L180.8 479.1L177.2 478.4L173.0 479.9L169.2 478.1L166.6 478.9L163.1 476.4L163.9 475.1L168.7 474.1L165.7 471.5L166.9 469.9L167.0 467.1L163.9 463.4L166.1 461.1L174.8 462.0L176.2 458.6L181.1 457.8L181.7 456.0L185.1 454.8L186.1 453.1L185.0 451.1L185.7 450.5L183.4 449.1L181.7 442.2L183.5 438.7L186.7 437.2L187.8 439.4L190.9 440.0L192.3 441.5L194.4 448.5Z","FRJ2":"M171.3 435.6L172.4 441.8L175.9 441.2L179.1 437.3L180.5 438.6L183.4 449.1L185.7 450.5L185.0 451.1L186.1 453.1L185.1 454.8L181.7 456.0L181.1 457.8L176.2 458.6L174.8 462.0L166.1 461.1L163.9 463.4L167.0 467.1L166.9 469.9L165.7 471.5L168.7 474.1L163.9 475.1L160.9 473.6L159.7 474.2L158.5 472.2L151.3 468.9L150.3 471.5L142.1 470.3L138.7 467.4L142.4 461.9L141.7 460.3L143.4 459.6L142.9 455.6L141.2 455.3L142.4 450.2L153.9 448.9L155.9 447.4L156.7 444.6L158.2 444.4L158.1 441.9L163.5 436.5L164.1 434.1L166.1 434.1L168.0 435.9Z","FRL0":"M225.5 437.5L227.1 441.1L229.8 442.3L230.4 444.3L228.0 447.4L228.0 450.1L229.8 452.3L233.9 454.3L236.5 454.1L237.8 455.5L235.4 458.2L235.4 460.0L225.4 466.3L224.2 469.7L214.2 471.1L212.4 469.0L209.1 468.3L208.1 466.2L205.2 466.0L203.1 464.4L200.3 465.2L198.7 463.8L195.1 463.2L198.5 459.7L200.0 459.5L202.6 454.4L201.2 449.1L203.8 450.7L205.3 448.0L205.8 449.8L211.1 453.3L213.4 452.2L213.0 450.3L210.9 449.2L213.3 444.9L217.9 441.9L221.7 441.1L221.1 437.0L223.1 438.2Z","FRK2":"M219.9 415.4L220.5 417.1L218.4 420.1L221.7 419.1L221.6 417.2L225.0 415.1L228.7 415.6L228.4 420.1L230.9 424.2L228.0 426.4L232.0 432.8L231.1 435.7L223.1 438.2L221.1 437.0L221.7 441.1L217.9 441.9L213.3 444.9L212.8 447.3L210.9 447.8L213.4 452.2L211.1 453.3L205.8 449.8L205.3 448.0L203.8 450.7L201.2 449.1L201.1 450.1L194.4 448.5L192.3 441.5L197.4 437.9L200.2 433.9L197.9 431.3L193.5 431.3L194.5 428.8L191.9 424.2L191.9 421.6L193.3 420.5L193.6 416.7L194.7 416.0L195.6 417.7L199.0 418.1L200.9 416.3L203.4 416.5L204.8 418.5L207.1 413.2L211.2 414.4L213.2 417.4L214.9 416.7L217.3 417.7Z","FRK1":"M192.3 407.9L193.3 411.3L196.0 413.0L195.8 415.2L193.6 416.7L193.3 420.5L191.9 421.6L191.9 424.2L194.5 428.8L193.5 431.3L197.9 431.3L200.2 433.9L197.4 437.9L192.3 441.5L190.9 440.0L187.8 439.4L186.7 437.2L183.5 438.7L181.7 442.2L179.1 437.3L175.9 441.2L172.4 441.8L171.3 435.6L173.7 431.3L176.9 429.1L177.1 422.1L179.2 419.6L179.1 416.8L176.3 411.9L179.8 410.0L181.4 407.5L185.5 406.5L187.6 408.4L190.9 408.8Z","FRI2":"M177.6 423.5L176.9 429.1L173.7 431.3L171.3 435.6L168.0 435.9L166.1 434.1L164.1 434.1L162.2 431.1L162.6 426.8L155.9 421.4L159.5 417.7L159.6 412.7L163.5 411.1L166.2 412.0L170.5 410.9L176.3 411.9L179.1 416.8L179.2 419.6L177.1 422.1Z","FRC2":"M229.6 392.5L232.9 397.8L230.7 398.9L231.6 400.6L224.9 407.0L224.2 410.0L219.9 415.4L217.3 417.7L214.9 416.7L213.2 417.4L211.2 414.4L212.7 410.9L212.6 407.4L211.1 405.4L214.5 400.2L213.5 394.1L216.6 393.8L217.2 391.7L221.6 388.7L223.0 390.0L227.3 390.5Z","FRC1":"M206.0 387.6L208.2 390.0L209.1 393.1L214.3 395.5L213.6 397.8L214.5 400.2L211.1 405.4L212.6 407.4L212.2 413.9L207.1 413.2L204.8 418.5L203.4 416.5L200.9 416.3L199.0 418.1L195.6 417.7L194.7 416.0L196.0 413.0L193.3 411.3L192.3 407.9L190.9 408.8L187.6 408.4L185.5 406.5L186.2 403.1L184.8 394.2L186.0 393.5L185.0 390.6L186.7 389.8L188.3 386.5L186.5 383.6L188.4 380.6L192.2 380.3L196.9 388.2L201.3 388.9Z","ES21":"M122.0 456.4L122.5 457.4L115.3 463.0L112.2 467.5L112.1 469.4L109.5 468.9L108.8 467.0L103.6 461.6L105.9 460.0L105.2 456.8L101.8 456.7L102.0 454.9L110.5 453.0L117.2 456.6ZM110.7 465.6L109.1 463.7L107.4 464.3L108.4 465.7L110.4 466.4Z","ES13":"M101.8 456.7L99.0 455.8L95.9 457.3L94.9 458.5L95.7 461.0L92.7 461.3L89.4 455.9L85.6 455.5L84.8 452.6L88.7 451.5L89.4 449.9L100.7 450.2L105.6 453.6L103.9 455.0L102.0 454.9Z","ES11":"M55.7 457.8L58.4 459.0L59.1 461.4L55.7 464.3L54.9 466.8L52.8 466.3L52.0 467.7L49.2 468.0L45.6 465.8L40.1 465.9L40.1 464.1L41.6 462.5L40.9 460.4L35.6 460.8L31.8 462.9L34.4 453.6L36.6 450.1L32.8 451.2L33.8 448.0L32.0 446.9L31.6 443.5L33.6 440.9L37.5 439.5L44.6 440.2L45.7 437.2L50.2 435.3L55.4 437.0L57.3 439.7L59.9 441.0L57.8 443.2L60.6 448.0L59.2 449.5L60.2 451.9Z","ES12":"M84.8 452.6L84.0 451.8L80.9 453.3L72.5 453.6L70.3 451.6L65.9 451.1L63.8 452.5L60.2 451.9L59.2 449.5L60.6 448.0L57.8 443.2L59.9 441.0L74.3 442.6L76.2 444.5L89.4 449.9L88.7 451.5Z","FRI1":"M158.9 440.9L158.2 444.4L156.7 444.6L155.9 447.4L153.9 448.9L142.4 450.2L141.2 455.3L142.9 455.6L143.4 459.6L141.7 460.3L142.4 461.9L138.7 467.4L135.5 467.5L133.8 465.5L127.1 461.8L125.5 462.1L126.6 458.7L122.0 456.4L125.6 454.0L131.9 436.7L133.2 435.6L132.1 433.6L134.8 422.4L135.9 421.9L138.6 426.1L142.4 427.0L142.9 428.9L146.8 430.5L155.9 421.4L157.6 423.5L160.4 424.2L162.6 426.8L162.2 431.1L164.1 434.1L163.5 436.5Z","FRI3":"M150.3 397.9L152.3 396.5L155.4 400.5L158.8 400.7L163.5 411.1L159.6 412.7L159.5 417.7L146.8 430.5L144.3 429.9L142.4 427.0L139.4 425.7L138.3 422.8L134.7 418.7L133.6 414.4L134.1 413.7L135.7 415.7L136.7 413.2L136.0 410.7L137.6 408.6L141.2 409.4L143.6 408.4L142.7 401.0L141.2 398.1L148.7 397.1Z","FRG0":"M162.8 380.5L162.7 384.5L159.7 388.5L156.9 389.8L155.3 389.4L152.3 396.5L150.3 397.9L148.7 397.1L141.2 398.1L142.7 401.0L143.6 408.4L141.2 409.4L135.7 409.1L129.8 404.5L126.7 398.1L129.0 395.3L127.2 393.2L127.3 391.2L124.1 389.9L124.0 388.6L129.3 385.1L137.7 383.1L139.2 384.2L142.1 380.6L142.9 372.4L147.7 373.9L152.5 373.1L153.8 376.1L157.4 375.2ZM126.1 395.8L125.1 394.4L126.2 394.5Z","FRH0":"M129.3 367.6L131.9 369.2L133.8 368.1L137.7 369.6L138.5 372.1L142.9 372.4L142.1 380.6L139.2 384.2L137.7 383.1L129.3 385.1L127.8 386.9L124.8 387.5L124.3 386.3L121.0 386.0L115.2 381.7L114.0 379.4L105.3 377.3L103.3 373.7L106.1 372.3L104.9 370.3L105.6 369.1L102.4 366.7L103.6 364.7L107.8 363.7L115.0 365.1L116.8 362.9L121.0 362.7L125.1 368.8ZM116.8 387.5L117.0 388.7L115.9 388.5L115.8 386.9Z","AT34":"M260.9 405.8L260.1 402.3L261.6 400.1L260.4 397.8L265.1 397.7L267.7 400.7L267.1 409.3Z","DE14":"M266.9 382.5L265.8 382.5L265.4 384.3L266.9 388.3L266.2 395.7L260.4 397.8L256.2 395.8L253.7 388.3L251.5 387.3L250.7 385.3L251.7 381.3L256.2 379.9L260.8 381.1L264.8 379.6L268.0 381.6Z","DE27":"M279.9 382.1L277.0 386.8L275.5 386.1L274.4 388.3L274.3 395.7L276.2 396.4L275.5 397.8L270.6 397.5L270.3 400.2L267.5 402.3L267.7 400.7L265.1 397.7L260.4 397.8L266.2 395.7L266.9 388.3L265.4 384.3L265.8 382.5L268.5 381.5L268.5 378.6L270.8 378.5L269.9 373.8L272.5 373.1L273.3 374.7L275.8 375.6L276.8 379.7Z","DE13":"M251.4 383.7L251.5 387.3L253.7 388.3L256.2 395.8L250.3 395.2L249.8 393.3L247.6 395.5L249.7 395.5L247.6 397.2L239.5 397.4L238.1 396.5L237.4 395.2L238.3 387.6L242.9 377.8L245.7 379.8L246.5 384.1L247.9 384.7L249.5 383.3Z","FRF1":"M239.5 385.4L238.3 387.6L237.4 395.2L238.1 396.5L235.7 399.1L233.9 399.1L229.9 392.3L234.2 384.3L233.0 383.3L233.0 380.5L234.7 379.5L235.3 377.2L232.4 374.2L232.9 372.7L237.7 373.8L239.5 372.1L242.5 372.3L246.0 373.7L241.3 379.6Z","FRF3":"M219.0 362.9L227.8 365.5L230.2 370.0L231.8 369.1L235.2 370.9L237.8 370.3L239.5 372.1L237.7 373.8L232.9 372.7L232.4 374.2L235.3 377.2L234.7 379.5L233.0 380.5L233.0 383.3L234.2 384.3L229.6 392.5L227.3 390.5L223.0 390.0L221.6 388.7L219.2 390.1L215.0 381.5L210.0 376.8L209.3 374.4L210.8 371.1L210.1 367.5L212.2 362.2L215.4 361.5L216.1 363.6Z","FRB0":"M180.8 380.4L181.8 382.9L183.2 383.9L186.5 383.6L188.3 386.5L186.7 389.8L185.0 390.6L186.0 393.5L184.8 394.2L186.2 403.1L185.5 406.5L181.4 407.5L179.8 410.0L176.3 411.9L170.5 410.9L166.2 412.0L163.5 411.1L158.8 400.7L155.4 400.5L152.3 396.5L155.3 389.4L156.9 389.8L159.7 388.5L162.7 384.5L162.8 378.4L165.0 376.6L164.0 372.6L169.9 371.5L172.0 369.0L172.7 373.7L175.7 377.5L176.2 380.5Z","FR10":"M179.2 365.4L184.2 368.0L189.5 367.9L193.6 372.7L192.9 374.5L194.0 376.6L192.2 380.3L188.4 380.6L186.5 383.6L183.2 383.9L180.8 380.4L176.2 380.5L175.7 377.5L172.7 373.7L172.1 367.3L174.7 364.4L175.6 365.4Z","FRF2":"M211.0 358.1L215.4 361.5L212.2 362.2L210.1 367.5L210.8 371.1L209.3 374.4L210.0 376.8L217.2 385.1L217.1 387.3L219.2 390.1L216.6 393.8L213.5 394.1L213.1 395.1L209.1 393.1L208.2 390.0L206.0 387.6L201.3 388.9L196.9 388.2L192.2 380.3L194.0 376.6L192.9 374.5L195.6 370.1L196.6 365.3L200.5 364.0L200.8 360.5L202.9 358.5L203.3 354.9L207.9 354.7L209.6 352.2L210.0 357.9Z","FRD1":"M159.9 359.2L160.1 367.4L163.2 370.6L165.0 376.6L162.8 378.4L162.8 380.5L157.4 375.2L153.8 376.1L152.5 373.1L147.7 373.9L138.5 372.1L137.7 369.6L138.6 368.8L138.6 360.9L137.2 351.8L143.3 352.8L144.3 358.8L146.3 358.0L154.4 360.9Z","FRD2":"M174.7 364.4L169.9 371.5L164.0 372.6L160.1 367.4L159.9 359.2L162.2 358.7L163.4 359.6L162.3 358.6L159.6 358.9L157.8 357.4L159.0 355.0L172.8 350.1L176.6 355.7Z","FRE2":"M184.4 348.9L184.0 350.8L203.3 354.9L202.9 358.5L200.8 360.5L200.5 364.0L196.6 365.3L195.6 370.1L193.6 372.7L189.5 367.9L184.2 368.0L174.7 364.4L176.6 355.7L172.8 350.1L175.5 348.0L175.2 346.0L178.2 346.1L181.0 348.7Z","BE34":"M222.4 350.0L222.7 352.5L219.4 357.8L220.9 361.0L219.9 363.0L216.1 363.6L215.4 361.5L211.0 358.1L212.5 356.1L211.7 354.1L214.5 353.2L216.2 348.8L219.2 349.2L219.6 350.9Z","BE35":"M214.5 353.2L211.7 354.1L212.5 356.1L211.0 358.1L210.0 357.9L209.6 352.2L207.9 354.7L205.4 355.4L204.7 350.1L207.5 349.2L207.7 345.5L212.1 344.1L214.4 348.0L216.2 348.8Z","BE33":"M221.8 342.8L225.1 345.0L224.8 346.9L226.1 347.4L226.9 350.3L223.9 353.4L222.4 350.0L219.6 350.9L219.2 349.2L214.9 348.4L212.1 344.1L212.6 342.3L216.9 343.1L219.7 341.8L221.1 343.5Z","BE32":"M199.9 341.3L207.7 345.5L207.5 349.2L204.7 350.1L205.4 355.4L202.3 354.5L203.1 350.2L201.6 348.1L198.2 348.3L197.4 345.5L194.2 344.7L193.1 340.7Z","DE12":"M261.1 366.2L252.5 370.0L253.6 375.5L252.2 377.0L251.8 383.1L247.9 384.7L246.5 384.1L245.7 379.8L242.9 377.8L248.9 368.4L248.3 363.5L250.0 364.6L250.9 363.4L253.8 365.4L259.0 362.3Z","DE11":"M266.3 364.3L266.9 369.6L269.9 373.8L270.8 378.5L268.5 378.6L268.5 381.5L264.8 379.6L260.8 381.1L256.2 379.9L251.7 381.3L252.2 377.0L253.6 375.5L252.5 370.0L261.1 366.2L258.6 360.6L261.6 360.2L264.8 365.1Z","DEC0":"M235.9 366.1L237.0 366.7L235.9 368.9L236.6 370.2L235.2 370.9L231.8 369.1L230.2 370.0L227.8 365.5L225.8 364.7L225.9 363.4L228.5 363.7L233.1 362.1L235.8 363.7Z","DEB3":"M245.8 355.9L247.6 357.5L249.0 366.4L246.0 373.7L239.5 372.1L236.6 370.2L235.9 368.9L237.0 366.7L235.4 365.6L235.8 363.7L238.5 361.1L240.5 362.1L243.4 359.2L240.5 355.7L241.4 354.9L242.9 356.7Z","LU00":"M227.3 358.8L225.8 364.7L219.9 363.0L220.9 361.0L219.4 357.8L222.7 352.5L223.9 353.4L224.2 356.2Z","DE71":"M259.9 349.3L262.6 350.7L260.2 353.0L260.2 354.6L259.0 355.2L257.6 354.2L254.6 355.5L256.0 360.9L255.4 364.5L253.8 365.4L250.9 363.4L250.0 364.6L248.3 363.5L248.6 361.0L247.0 356.6L245.9 355.8L242.9 356.7L241.5 355.2L251.1 348.7L253.8 349.3L255.2 348.3L258.7 349.9Z","DEB2":"M233.2 350.2L234.0 351.4L232.9 354.4L235.4 358.0L233.1 362.1L228.5 363.7L225.9 363.4L227.3 358.8L224.2 356.2L224.5 351.9L229.1 349.5L232.1 350.7Z","DE26":"M273.3 352.8L274.7 355.1L272.3 358.7L270.9 358.7L270.3 359.6L271.4 360.7L269.3 362.7L266.6 363.0L264.8 365.1L261.6 360.2L258.6 360.6L259.0 362.3L255.6 363.7L254.6 355.5L257.6 354.2L259.0 355.2L260.2 354.6L260.2 353.0L265.9 348.0L267.8 347.8L271.8 351.3L272.0 352.8Z","DEB1":"M245.3 351.8L240.5 355.7L243.4 359.2L242.7 360.5L241.2 360.7L240.5 362.1L238.5 361.1L235.8 363.7L233.1 362.1L235.4 358.0L232.9 354.4L234.0 351.4L230.9 349.3L232.7 346.7L238.3 344.3L242.7 340.9L245.5 345.0L245.7 346.4L243.5 349.7Z","DE72":"M258.7 349.9L255.2 348.3L253.8 349.3L251.1 348.7L247.8 351.6L245.3 351.8L243.5 349.7L245.7 346.4L246.1 342.8L249.4 340.3L254.6 340.9L256.4 342.6L261.3 344.4L259.9 349.3Z","FRE1":"M191.5 340.2L193.8 341.5L194.2 344.7L197.8 346.0L198.2 348.3L201.6 348.1L203.1 350.2L202.3 354.5L184.0 350.8L184.4 348.9L181.0 348.7L178.2 346.1L176.2 345.7L175.7 343.9L176.7 337.5L182.2 335.4L187.0 334.4L187.7 339.0L189.8 341.1Z","BE31":"M207.7 345.5L204.2 344.3L202.8 342.3L209.8 341.3L212.6 342.3L212.1 344.1Z","BE10":"M204.9 340.7L205.0 339.4L206.6 339.4L207.0 341.2L205.9 341.7Z","BE24":"M213.5 343.1L209.8 341.3L204.4 342.6L200.7 341.7L204.7 336.9L207.7 337.9L210.5 337.3L213.8 337.8ZM205.0 339.4L205.9 341.7L207.0 341.2L206.6 339.4Z","BE22":"M214.9 342.9L213.5 343.1L214.3 340.1L213.3 339.3L213.8 337.8L212.5 337.6L215.6 335.9L215.5 333.9L218.2 333.7L221.2 336.0L219.7 341.8L216.9 343.1Z","BE23":"M204.1 335.8L204.7 336.9L202.2 340.9L200.7 341.7L196.1 340.8L196.4 336.8L195.3 335.1L196.1 332.2L201.0 333.7L205.2 331.7L205.5 335.5Z","BE25":"M193.1 340.7L190.9 339.8L189.8 341.1L187.7 339.0L187.0 334.4L196.0 330.6L196.2 334.1L195.3 335.1L196.6 340.1L194.6 341.4Z","NL42":"M221.8 342.8L219.6 342.7L221.2 336.0L218.9 334.9L222.6 332.1L222.1 329.2L223.9 328.9L222.5 326.1L225.7 330.2L225.9 332.8L224.2 334.8L225.2 335.8L222.0 338.2L224.1 340.3L223.2 342.9Z","BE21":"M214.2 331.1L215.6 335.9L212.5 337.6L207.7 337.9L204.7 336.9L205.2 331.3L206.7 331.6L207.9 329.9L209.7 330.8L210.8 329.6L211.8 330.8Z","NL41":"M222.1 329.2L222.6 332.1L218.9 334.9L218.2 333.7L215.5 333.9L213.6 330.4L211.8 330.8L210.8 329.6L209.7 330.8L207.9 329.9L206.7 331.6L205.6 331.3L205.2 327.6L213.6 324.4L214.9 325.9L219.8 324.7L222.5 326.1L223.9 328.9Z","NL34":"M201.5 324.6L205.5 326.8L205.6 331.3L200.4 330.2L198.4 328.6L199.2 327.5L201.5 327.5ZM205.1 331.7L201.0 333.7L196.1 332.2L196.0 330.6Z","NL33":"M211.3 317.7L212.6 318.5L212.5 322.4L215.3 322.7L213.6 324.4L205.5 326.8L201.5 324.6L203.8 323.1L203.5 321.1L204.9 320.8L209.1 315.6L210.2 315.9L209.7 317.3Z","EL43":"M461.9 582.2L470.0 579.7L477.9 580.0L480.6 579.1L482.4 582.0L488.0 578.8L488.8 579.8L487.2 582.9L469.4 587.7L468.1 585.4L452.6 585.9L451.3 584.4L451.5 581.2L453.1 581.0L453.4 578.6L455.0 580.3L459.2 578.9ZM461.1 590.6L460.6 591.8L458.9 590.9Z","EL42":"M508.0 562.1L506.2 563.2L505.2 559.6L506.7 556.1L511.0 553.8L510.0 559.6ZM506.0 551.8L504.8 552.6L503.9 551.2ZM499.9 555.7L498.3 556.4L499.3 555.0ZM495.7 550.6L494.9 551.6L493.6 551.4L496.8 548.4L498.0 549.1ZM497.2 554.1L495.6 554.7L495.5 553.7ZM500.3 572.4L498.9 573.0L498.1 570.5L499.5 566.7ZM493.4 548.5L492.2 549.3L491.6 548.6L492.5 547.5ZM492.0 540.5L491.0 541.2L489.7 540.3L491.0 539.6ZM493.8 552.6L493.4 553.4L492.4 551.8L493.1 551.4ZM497.7 573.9L495.7 575.2L496.6 573.6ZM489.1 544.6L487.9 545.2L488.1 543.4L489.4 543.5ZM487.3 556.1L486.2 557.9L484.2 556.8L486.0 556.5L486.3 555.0ZM480.9 551.9L477.9 555.3L477.1 554.9L480.3 551.2ZM479.4 561.3L478.9 562.4L477.5 562.0L478.2 560.7ZM473.8 552.7L472.7 553.6L471.0 551.5L472.8 548.8L474.0 550.0ZM474.9 562.7L473.7 563.0L474.0 561.2ZM471.0 544.9L469.2 545.6L469.1 544.6ZM472.7 557.1L472.3 558.4L470.7 556.2ZM469.0 546.7L468.1 547.7L468.5 545.2ZM469.8 551.9L468.8 553.4L467.0 553.3L468.3 551.0ZM467.9 544.1L464.5 542.7L467.7 542.7ZM469.8 558.3L469.1 559.4L468.2 558.9L469.5 557.5ZM464.1 541.3L463.6 541.9L460.2 539.6L460.1 538.3L463.1 539.1ZM467.3 560.5L466.3 561.0L465.7 560.0L466.5 558.8ZM464.7 547.3L463.8 547.8L463.5 545.4ZM463.7 555.0L462.9 555.8L461.8 554.7L462.3 553.7ZM462.6 558.0L460.5 558.1L461.0 557.0ZM460.1 552.4L458.5 552.6L458.8 551.4ZM461.2 559.5L458.4 560.8L459.3 558.8ZM458.0 549.5L457.3 549.8L457.3 547.4ZM456.9 544.2L455.7 546.8L455.3 544.5Z","EL65":"M438.9 540.7L439.9 542.4L438.7 543.7L441.3 549.2L444.5 550.7L440.8 552.7L439.9 550.9L435.3 549.6L435.2 551.0L439.6 557.7L441.9 565.5L436.4 563.0L433.7 567.8L428.3 560.9L426.4 561.6L425.2 564.2L423.1 563.3L421.2 559.7L421.6 555.0L424.1 554.3L425.1 552.7L422.7 550.9L422.3 547.5L428.2 546.2L427.7 544.9L428.9 541.0L435.9 543.1L436.9 542.5L436.4 541.1Z","CY00":"M569.5 560.9L571.4 560.8L573.9 557.3L577.2 556.7L576.6 552.9L586.3 550.6L596.5 541.6L590.1 551.2L593.0 554.4L590.9 556.4L588.6 556.5L588.1 559.5L582.6 563.0L581.0 564.6L581.2 565.8L580.4 566.2L579.1 564.9L574.0 565.8Z","EL30":"M451.1 545.1L446.4 541.4L443.7 542.2L445.2 540.4L439.9 542.4L438.9 540.7L439.9 539.4L438.7 538.9L441.4 537.0L444.0 538.5L445.6 534.8L450.5 536.4L452.0 544.2ZM452.1 548.7L450.8 549.2L450.0 548.2L451.3 547.7ZM453.6 559.1L452.4 559.8L451.4 558.9L452.5 558.1ZM445.2 545.9L444.6 546.3L443.5 544.9L445.2 544.5ZM446.8 558.3L447.5 559.9L445.6 558.4ZM445.9 550.9L446.3 552.5L444.5 552.1ZM445.0 549.8L444.5 550.7L441.3 549.2L441.1 548.2L442.7 548.5L443.6 547.1ZM442.0 553.4L440.9 554.7L440.7 553.2ZM442.6 571.1L442.7 572.5L441.3 572.3L440.2 569.8L440.9 568.7Z","EL63":"M428.2 546.2L422.3 547.5L422.7 550.9L425.1 552.7L424.1 554.3L421.6 555.0L413.1 547.4L415.9 542.1L419.0 542.4L421.8 539.0L428.9 541.0L427.7 544.9ZM421.8 531.4L423.1 535.0L421.6 538.3L412.7 540.4L406.2 532.4L407.5 531.0L410.3 531.4L410.7 527.6L413.5 526.1L417.3 532.9L420.1 533.0Z","EL64":"M457.3 525.0L456.6 526.0L453.6 524.2L454.1 522.4ZM435.1 525.5L434.4 526.8L429.9 528.9L439.6 530.8L440.4 533.0L442.6 531.7L436.8 527.4L437.5 525.3L439.1 525.1L443.1 527.6L449.9 529.0L453.3 534.5L457.1 537.5L456.3 538.6L454.2 538.5L449.3 533.7L445.1 534.7L445.2 537.0L444.0 538.5L441.4 537.0L438.7 538.9L434.5 538.6L431.4 537.0L431.1 537.9L429.1 536.2L426.0 538.2L421.6 538.3L423.1 535.0L422.6 531.5L420.1 533.0L417.3 532.9L416.8 531.0L414.2 528.6L413.8 526.2L417.5 524.4L422.3 526.8L424.7 522.7L428.8 525.8ZM435.5 527.7L434.9 528.7L433.5 528.2L434.2 527.1Z","EL41":"M490.2 536.3L488.5 537.8L485.2 537.1L487.2 535.4ZM477.8 512.6L480.9 515.8L480.1 517.1L475.5 517.2L475.1 515.2L473.6 516.4L471.1 515.5L471.3 513.9L474.7 511.5L476.6 510.9ZM479.4 541.5L477.6 542.5L478.5 540.4L482.2 539.1ZM474.7 524.6L477.0 524.9L477.7 529.0L476.3 532.0L474.1 530.9L475.4 528.9L472.7 526.0ZM470.1 525.7L470.1 527.1L469.0 526.9L469.4 525.3ZM459.8 504.1L462.7 503.5L462.6 506.7L460.9 505.6L460.4 507.3L458.6 505.8ZM460.1 511.8L459.1 513.6L459.0 511.2Z","MT00":"M328.0 590.4L325.5 590.6L324.7 588.6ZM324.5 587.2L323.8 588.1L322.4 587.1Z","ITG1":"M333.7 565.0L335.6 566.5L336.8 570.0L334.7 573.3L334.7 576.2L326.7 574.8L324.0 571.5L315.0 568.9L304.2 562.9L301.2 563.0L298.0 559.6L298.8 555.9L302.0 553.5L305.0 555.2L306.5 553.0L309.2 552.2L315.0 555.8L323.6 554.7L328.6 552.1L333.1 552.2L339.1 549.3L338.9 551.6L335.5 557.5ZM330.0 544.5L330.8 547.2L328.5 545.4ZM305.3 590.6L305.6 592.0L304.3 592.0L303.7 591.1ZM293.2 577.0L291.4 575.9L293.2 576.2Z","ITF3":"M328.5 496.7L331.7 500.5L332.1 502.6L335.7 503.4L335.6 505.8L333.3 507.2L339.8 516.3L338.2 520.0L334.4 521.0L329.0 517.6L329.4 514.7L326.5 510.6L322.5 511.5L321.5 509.4L316.7 507.2L313.0 501.9L315.6 497.8L316.6 498.7L317.7 497.1L322.3 498.8ZM316.1 509.7L315.6 510.8L314.3 510.5L314.4 509.4Z","ITF2":"M328.5 496.7L322.3 498.8L317.7 497.1L316.6 498.7L314.9 494.1L317.3 492.9L318.4 490.8L320.3 490.8L321.7 492.5L324.9 487.1L329.7 489.2L329.6 493.0L327.7 494.9Z","ITI4":"M301.3 479.3L304.0 478.6L304.8 477.2L306.9 477.7L307.4 479.4L304.9 479.9L304.4 481.9L307.0 486.5L303.2 487.5L303.8 489.0L308.3 492.2L314.9 494.1L315.6 497.8L313.0 501.9L307.1 501.1L304.2 502.1L298.4 498.5L283.5 483.8L287.0 479.4L287.0 476.9L288.8 476.0L289.9 478.3L292.8 479.3L296.3 483.1ZM295.0 491.7L297.0 491.7L296.6 490.4Z","ITF1":"M318.4 490.8L317.3 492.9L314.9 494.1L308.3 492.2L303.8 489.0L303.2 487.5L307.0 486.5L304.4 481.9L304.9 479.9L307.4 479.4L306.9 477.7L309.2 475.8L313.7 474.1L316.8 480.0L324.9 487.1L321.7 492.5L320.3 490.8Z","ITI2":"M299.2 465.3L301.3 473.5L305.3 474.9L304.0 478.6L301.3 479.3L296.3 483.1L292.8 479.3L289.9 478.3L288.8 476.0L289.5 470.5L291.6 468.7L290.8 466.2L292.4 463.0L297.5 465.8Z","ITI3":"M309.8 464.6L313.7 474.1L306.9 477.7L304.8 477.2L305.3 474.9L301.3 473.5L299.2 465.3L297.5 465.8L292.4 463.0L294.7 458.1L297.6 459.1L298.7 456.8L308.8 462.6Z","ITI1":"M275.3 454.9L279.9 455.1L282.4 453.1L286.1 454.6L286.1 458.7L293.5 461.2L290.8 466.2L291.6 468.7L289.5 470.5L289.3 475.4L287.0 476.9L287.0 479.4L283.5 483.8L279.7 483.4L279.6 481.3L275.2 477.1L274.1 474.5L271.8 474.2L271.6 469.2L269.1 463.8L268.6 460.0L261.7 450.8L264.2 449.2L272.9 454.9ZM277.5 484.1L276.4 485.2L275.9 484.2L276.4 483.5ZM270.9 476.1L270.7 478.2L267.0 478.0L266.6 477.2ZM264.0 472.8L263.2 473.9L262.6 472.9L263.3 471.6Z","ITH5":"M264.2 438.0L271.4 441.5L273.7 440.7L284.8 441.6L289.5 440.2L292.2 440.9L294.0 443.2L292.6 442.8L292.6 446.0L294.1 452.7L298.7 456.8L297.6 459.1L295.6 457.8L295.6 456.7L293.1 460.4L291.0 460.7L286.1 458.7L286.1 454.6L282.4 453.1L279.9 455.1L272.9 454.9L264.2 449.2L261.7 450.8L259.2 450.1L259.4 447.6L255.9 446.6L257.7 443.0L257.2 441.2L260.1 438.0L262.2 439.1Z","EL61":"M448.5 517.0L448.4 518.2L447.0 518.3L447.8 516.4ZM448.0 521.5L447.5 522.2L446.4 521.4L446.4 518.8ZM444.6 521.6L444.1 522.7L442.6 521.6ZM441.2 521.1L440.9 522.8L439.9 522.3L439.9 521.1ZM428.2 510.3L432.3 515.9L438.7 521.6L437.4 522.8L435.5 520.5L432.8 520.9L432.3 522.5L435.1 525.5L428.8 525.8L424.7 522.7L422.3 526.8L417.5 524.4L413.5 526.1L413.3 523.6L410.3 521.1L409.5 518.4L411.0 515.0L418.9 513.9L418.7 511.9L420.7 507.9L422.3 508.7L423.5 507.9L426.7 510.8ZM435.9 522.4L436.5 524.0L435.2 524.1Z","EL53":"M411.0 515.0L408.3 514.8L406.6 510.7L404.7 508.1L403.3 507.9L406.2 502.9L404.8 499.1L414.7 496.3L414.5 498.4L416.8 500.2L417.8 503.3L421.2 505.9L418.7 511.9L418.9 513.9Z","EL52":"M443.7 490.1L443.5 491.7L439.6 496.3L442.0 499.7L444.1 500.4L444.2 501.7L442.2 501.0L440.6 502.9L444.5 505.2L444.5 507.7L439.9 504.1L435.3 504.7L431.5 503.4L429.7 501.8L429.7 499.2L426.2 502.5L426.4 507.8L428.2 510.3L426.7 510.8L423.5 507.9L422.3 508.7L420.7 507.9L421.2 505.9L417.8 503.3L416.8 500.2L414.5 498.4L416.1 493.3L419.5 491.5L421.1 492.1L425.9 490.6L426.2 488.1L427.3 487.3L436.5 485.1L439.3 488.4ZM441.0 508.1L441.1 509.0L437.0 509.0L436.0 505.7Z","ITF6":"M350.1 525.2L358.3 529.3L359.0 536.7L355.7 537.2L351.8 540.4L352.3 545.1L347.8 550.4L346.2 554.4L341.9 555.0L340.5 553.6L340.3 550.4L342.3 548.6L343.5 545.2L342.6 542.8L347.0 539.9L339.7 521.9L341.2 520.5L343.8 521.9L346.7 521.3L348.3 517.8L350.9 517.8L349.5 523.2Z","EL62":"M409.3 536.4L408.7 537.8L408.4 535.6ZM408.3 548.9L410.4 550.6L409.6 552.0L406.7 549.8L407.4 548.1ZM405.6 541.5L408.4 545.5L402.1 544.3L402.7 541.9L404.4 541.4L404.2 539.3ZM407.6 541.5L406.6 541.7L405.3 539.3L406.5 539.4ZM406.6 536.2L404.1 536.7L404.9 533.1L405.7 532.8ZM394.4 523.3L395.0 524.6L390.0 519.6L390.7 518.8L393.6 518.6L393.0 520.3Z","EL54":"M410.3 521.1L413.3 523.6L413.5 526.1L410.4 528.7L405.5 530.3L401.7 526.1L399.4 525.8L396.9 521.0L394.9 520.1L397.7 520.2L398.4 517.5L399.5 517.8L398.7 514.7L401.8 512.6L403.3 507.9L404.7 508.1L406.6 510.7L408.3 514.8L411.0 515.0L409.5 518.4Z","ITF5":"M351.2 507.8L351.4 511.3L353.4 512.9L350.9 517.8L348.3 517.8L346.7 521.3L343.8 521.9L341.2 520.5L339.7 521.9L338.2 520.0L339.8 516.3L333.3 507.2L335.6 505.8L335.7 503.4L339.8 501.6L341.7 502.9L342.3 504.9L344.2 505.0L347.2 508.0Z","ITF4":"M359.3 504.1L367.2 507.2L373.0 512.3L374.6 514.9L373.6 520.6L369.5 519.2L367.7 515.4L365.0 513.5L361.4 513.6L356.4 510.7L353.4 512.9L351.4 511.3L351.2 507.8L347.2 508.0L344.2 505.0L342.3 504.9L341.7 502.9L339.8 501.6L335.7 503.4L332.1 502.6L327.7 494.9L329.6 493.0L329.7 489.2L342.1 488.6L342.8 490.8L339.7 494.2L341.4 496.7L355.0 501.5ZM335.2 485.1L334.2 486.2L333.6 484.8Z","HR03":"M369.7 475.1L371.1 477.2L359.2 470.8L361.8 470.4ZM327.0 430.9L326.2 433.0L324.4 433.5L324.8 436.2L327.4 436.6L330.3 438.9L333.6 438.7L334.4 441.4L336.3 442.3L338.8 445.6L339.7 450.3L350.8 460.0L354.2 461.6L354.4 463.6L359.4 468.4L358.3 471.2L356.2 470.6L356.9 469.3L355.6 467.8L350.5 464.8L345.7 465.1L346.7 463.2L344.7 462.0L338.7 462.3L336.2 458.8L330.6 455.8L327.9 452.2L328.2 450.5L329.7 449.6L324.6 445.6L323.3 437.8L321.8 436.7L321.7 438.5L319.3 437.9L318.7 434.6L317.3 433.5L312.4 442.6L311.3 441.9L308.0 436.3L306.9 431.5L317.0 430.4L319.0 427.3L322.4 430.5L324.0 429.7ZM354.2 469.4L353.4 470.8L347.6 471.4L347.3 470.7L350.8 470.1L352.0 468.9ZM351.0 467.0L351.2 467.7L348.5 467.4ZM346.9 466.3L347.4 467.9L344.0 467.2ZM345.0 481.0L343.0 480.6L344.6 479.8ZM342.0 470.1L339.7 469.7L342.0 469.2ZM329.9 456.4L330.2 458.5L328.8 457.6ZM329.1 456.4L328.4 457.1L327.1 456.0L326.0 454.4L326.6 453.4ZM327.5 448.1L327.7 449.5L325.9 446.9ZM324.9 451.6L325.2 453.6L323.8 452.5ZM322.6 442.1L321.8 442.6L321.1 441.4L322.5 440.7ZM321.1 449.0L320.0 449.2L320.2 447.3ZM318.4 445.1L318.8 446.4L317.2 446.2L316.8 440.2L317.6 438.9L319.2 444.9ZM317.3 436.2L317.1 437.9L316.0 436.8L316.6 435.7Z","EL51":"M471.5 485.1L468.3 489.8L467.0 488.3L456.4 487.8L452.8 490.8L448.5 490.1L444.5 494.5L441.2 494.4L443.7 490.1L439.3 488.4L436.5 485.1L441.3 482.9L441.5 481.7L447.0 480.2L450.9 482.6L452.3 482.0L456.6 483.1L464.9 480.7L467.7 478.0L465.9 473.6L469.2 472.8L472.2 474.0L473.5 477.6L470.5 480.6ZM465.2 495.7L463.5 496.5L461.8 495.5L464.5 494.6ZM452.9 494.7L451.2 496.2L449.7 494.4L450.0 493.0L451.0 492.2Z","BG41":"M428.9 456.3L431.2 458.3L436.0 456.6L439.2 460.5L441.9 460.8L443.2 463.1L437.3 464.9L438.5 467.4L436.1 471.5L437.3 477.0L441.2 479.2L441.3 482.9L427.9 487.3L427.8 480.5L425.4 476.1L420.7 474.7L418.4 472.5L420.2 470.0L418.1 463.8L421.7 462.1L424.0 456.6L426.2 457.5Z","BG42":"M449.4 459.5L450.3 462.7L452.2 463.4L452.1 467.8L455.5 468.9L458.3 467.2L460.7 468.5L462.2 467.4L465.0 468.2L465.5 465.1L469.1 465.3L470.9 470.3L468.9 471.4L469.2 472.8L465.9 473.6L467.4 476.1L467.2 479.3L456.6 483.1L452.3 482.0L450.9 482.6L447.0 480.2L441.5 481.7L441.2 479.2L437.3 477.0L436.1 471.5L438.5 467.4L437.3 464.9L440.4 463.4L442.9 463.9L441.9 460.8L443.5 459.9L446.4 460.5Z","BG34":"M473.8 450.5L475.6 449.7L483.6 450.1L483.8 452.0L480.5 456.9L483.0 457.8L488.6 463.6L482.9 465.6L479.0 464.1L476.4 464.7L475.3 466.5L470.9 468.7L469.1 465.3L465.5 465.1L465.0 468.2L462.2 467.4L460.7 468.5L458.3 467.2L455.5 468.9L452.1 467.8L452.2 463.4L450.3 462.7L449.5 459.3L461.4 455.7L464.3 451.4L467.5 451.4L467.9 452.4Z","BG31":"M429.8 445.4L435.8 445.8L440.0 444.1L450.0 443.7L449.1 444.6L450.2 449.1L448.9 452.1L447.7 452.3L447.1 455.9L449.4 459.5L446.4 460.5L439.2 460.5L436.0 456.6L431.2 458.3L428.9 456.3L426.2 457.5L417.3 452.3L414.8 448.1L414.8 444.7L416.9 442.7L417.3 440.4L421.9 442.6L420.3 445.6L422.2 446.5L427.0 444.9Z","BG32":"M470.1 438.6L467.8 444.0L465.8 445.4L462.8 443.7L459.5 444.5L458.9 446.3L462.7 453.0L461.4 455.7L449.5 459.3L447.1 455.9L447.7 452.3L448.9 452.1L450.2 449.1L449.1 444.6L453.0 443.3L458.7 436.5L467.9 431.5L471.7 430.8L473.5 432.2L477.2 431.9L472.8 436.6L472.7 438.5Z","BG33":"M484.0 441.8L483.0 444.3L483.6 450.1L475.6 449.7L467.9 452.4L467.5 451.4L464.3 451.4L462.7 453.0L458.9 446.3L459.5 444.5L461.1 443.7L465.8 445.4L467.8 444.0L470.1 438.6L472.7 438.5L472.8 436.6L477.2 431.9L479.8 431.2L481.4 433.4L488.5 433.4L489.4 437.1L488.8 439.2L485.2 439.9Z","RO41":"M442.9 432.8L443.1 437.6L440.9 439.8L442.7 442.8L442.2 444.1L435.8 445.8L427.0 444.9L422.2 446.5L420.3 445.6L421.9 442.6L417.3 440.4L414.3 436.9L417.1 435.0L416.6 434.1L413.0 433.0L410.3 437.0L408.5 435.4L409.9 434.9L410.2 431.7L412.6 431.8L414.6 423.2L424.8 419.7L424.6 417.7L434.9 413.9L436.2 426.2L439.4 427.7L441.4 432.6Z","RO31":"M446.0 414.0L453.0 411.4L456.0 415.5L458.4 415.9L461.3 420.7L468.5 420.2L475.5 418.3L480.0 423.2L479.6 425.3L478.8 426.8L471.7 430.8L467.9 431.5L458.7 436.5L453.0 443.3L442.2 444.1L442.7 442.8L440.9 439.8L443.1 437.6L442.9 432.8L441.4 432.6L439.4 427.7L436.2 426.2L434.9 413.9L441.6 412.7L444.7 415.3ZM459.2 430.8L460.3 426.7L458.1 422.9L454.5 424.7L454.2 427.8L455.1 430.9L457.7 431.7Z","RO32":"M454.2 427.8L454.5 424.7L458.1 422.9L460.3 426.7L459.2 430.8L457.7 431.7L455.1 430.9Z","RO42":"M411.4 404.3L414.3 405.2L419.0 409.8L422.3 415.9L424.6 417.7L424.8 419.7L414.6 423.2L412.6 431.8L410.2 431.7L409.9 434.9L404.0 434.9L400.2 432.9L402.3 431.5L400.3 429.9L400.7 426.6L395.0 425.2L392.3 422.8L391.6 418.5L389.8 418.0L384.4 413.2L389.4 411.9L390.0 409.9L393.0 409.8L395.6 406.4L395.4 403.6L396.7 402.5L403.7 401.6L408.6 404.8Z","HR02":"M354.8 421.5L364.1 422.0L366.4 419.3L369.0 418.6L370.1 424.3L371.8 425.0L371.3 427.4L376.7 430.4L373.1 431.4L373.6 434.4L372.6 436.1L370.7 436.4L369.1 433.8L366.3 433.0L360.2 432.9L358.2 434.4L347.4 432.3L342.9 433.1L340.2 437.0L336.6 434.1L334.4 433.8L333.6 438.7L330.3 438.9L327.4 436.6L324.8 436.2L324.4 433.5L326.2 433.0L328.5 429.8L327.8 425.3L330.6 427.7L336.8 429.2L337.5 426.9L341.6 427.1L342.9 425.6L341.7 424.2L343.5 422.5L343.8 419.5L345.0 418.7L348.5 421.5L350.4 419.6Z","HR05":"M335.0 422.4L337.2 421.1L338.1 423.7L334.6 426.9L333.3 425.7Z","HR06":"M345.0 418.7L343.8 419.5L343.5 422.5L341.7 424.2L342.9 425.6L341.6 427.1L337.5 426.9L336.8 429.2L330.6 427.7L327.8 425.3L331.5 423.7L332.0 421.4L330.9 418.0L336.4 414.0L338.3 414.1L337.5 412.3L338.9 411.4L344.7 414.0L350.4 419.6L348.5 421.5ZM337.2 421.1L333.7 423.6L333.3 425.7L334.6 426.9L338.1 423.7Z","HU23":"M367.6 403.1L368.6 405.5L367.7 407.0L368.5 412.4L367.2 416.6L368.3 417.2L368.2 418.9L366.4 419.3L364.1 422.0L354.8 421.5L350.4 419.6L345.0 414.5L346.4 414.4L348.3 412.2L348.7 407.8L359.2 402.1L359.6 405.3L363.6 405.0L364.9 406.0Z","HU33":"M398.2 396.0L396.7 402.5L395.4 403.6L395.6 406.4L393.0 409.8L390.0 409.9L389.4 411.9L384.4 413.2L377.8 413.0L373.6 416.9L371.4 416.8L368.2 418.9L368.3 417.2L367.2 416.6L368.5 412.4L367.7 400.2L370.7 398.3L372.0 399.6L374.2 397.9L377.2 400.2L380.6 398.8L380.7 402.2L382.5 402.2L384.7 401.7L385.1 400.1L387.5 399.2L390.2 393.7L393.7 394.7L394.3 397.0L396.7 397.4Z","HU22":"M354.8 395.5L353.6 396.7L352.7 394.7L346.7 395.7L347.6 401.0L346.2 402.1L350.6 406.7L348.7 407.8L348.3 412.2L346.4 414.4L341.6 412.2L337.8 406.2L335.5 406.1L339.0 403.4L338.5 397.8L340.7 396.0L340.7 393.4L337.9 392.6L339.8 391.1L344.7 391.1L345.7 386.1L352.2 389.6L354.4 389.7Z","HU21":"M363.5 391.4L367.7 400.2L367.6 403.1L364.9 406.0L363.6 405.0L359.6 405.3L359.2 402.1L350.6 406.7L346.2 402.1L347.6 401.0L346.7 395.7L352.7 394.7L353.6 396.7L354.8 395.5L354.4 389.7L364.9 387.2L365.3 389.7Z","ITH3":"M294.3 416.1L292.7 418.5L294.3 420.7L293.4 422.4L296.6 426.4L300.3 425.6L301.8 428.7L296.9 431.1L294.9 430.8L290.6 434.9L294.7 440.6L294.0 443.2L292.2 440.9L289.5 440.2L284.8 441.6L282.4 440.9L274.0 435.0L273.0 430.0L275.3 426.3L276.2 428.4L278.8 428.5L281.6 423.8L285.1 423.6L285.3 421.9L287.8 420.1L286.5 418.1L286.5 414.8L289.4 412.2L296.4 412.0L296.7 413.8Z","SI04":"M318.9 425.4L317.8 424.2L313.7 424.4L312.8 426.2L313.9 430.9L308.4 431.6L307.9 430.6L311.2 428.4L307.5 425.7L307.7 423.1L306.2 421.7L307.8 419.7L304.8 417.4L308.0 415.2L308.3 413.7L316.7 414.6L322.4 418.2L321.0 420.5L323.1 421.9L321.2 425.7Z","ITH2":"M278.8 428.5L276.2 428.4L275.3 426.3L271.5 426.5L271.4 417.8L272.6 416.0L278.9 415.0L278.9 418.6L279.8 419.3L283.5 417.2L284.9 415.0L286.5 414.8L286.5 418.1L287.8 420.1L285.3 421.9L285.1 423.6L281.6 423.8Z","ITH4":"M307.5 425.7L309.7 426.6L311.2 428.4L310.5 429.2L309.2 429.2L309.1 427.6L307.3 426.1L305.3 427.2L302.2 426.7L301.8 428.7L300.3 425.6L296.6 426.4L293.4 422.4L294.3 420.7L292.7 418.5L296.9 412.3L308.3 413.7L308.0 415.2L304.8 417.4L307.8 419.7L306.2 421.7L307.7 423.1Z","SI03":"M337.5 412.3L338.3 414.1L336.4 414.0L330.9 418.0L332.0 421.4L331.5 423.7L327.3 425.9L328.5 429.8L327.0 430.9L324.0 429.7L322.4 430.5L319.0 427.3L317.0 430.4L313.9 430.9L312.8 426.2L313.7 424.4L317.8 424.2L321.2 425.7L323.1 421.9L321.0 420.5L322.4 418.2L318.3 415.8L321.9 411.5L328.7 410.6L330.4 409.3L334.6 409.5L334.2 406.8L337.8 406.2L341.6 412.2L338.9 411.4Z","ITH1":"M294.0 411.7L292.4 412.7L289.4 412.2L288.5 413.9L284.9 415.0L283.5 417.2L279.8 419.3L278.9 418.6L278.9 415.0L272.6 416.0L270.7 414.7L270.0 412.2L270.8 409.2L276.9 410.6L278.8 407.3L285.7 406.9L289.8 405.1L291.1 405.3L290.2 407.9Z","AT21":"M303.7 404.3L307.3 405.1L308.8 406.7L310.6 406.6L313.1 404.5L315.9 405.4L320.8 404.2L322.7 406.0L323.7 410.6L318.3 415.7L316.7 414.6L296.4 412.0L299.2 409.5L295.8 404.6L300.7 405.6Z","AT33":"M294.0 411.7L290.0 406.5L293.6 403.8L295.8 404.6L299.2 409.5L296.4 412.0ZM294.6 395.8L295.7 398.3L293.3 400.8L289.3 402.0L289.8 405.1L285.7 406.9L278.8 407.3L276.9 410.6L270.8 409.2L269.9 407.1L267.1 409.3L267.5 402.3L270.3 400.2L270.6 397.5L275.5 397.8L277.0 400.1L281.5 399.3L283.9 396.7L290.0 396.1L290.3 394.7Z","AT22":"M331.6 394.7L335.4 396.9L334.0 398.0L335.3 404.0L334.2 406.8L334.6 409.5L323.7 410.6L322.7 406.0L320.8 404.2L315.9 405.4L313.1 404.5L310.6 406.6L308.8 406.7L310.1 403.1L309.4 401.5L306.5 401.1L306.1 397.9L307.8 397.5L307.4 394.6L308.6 393.6L314.1 395.2L318.4 392.5L322.8 392.5L325.9 391.1Z","AT32":"M302.5 389.2L302.5 391.8L305.2 393.9L306.5 401.1L309.4 401.5L310.1 403.1L308.8 406.7L307.3 405.1L303.7 404.3L300.7 405.6L293.6 403.8L289.8 405.1L289.3 402.0L293.3 400.8L295.7 398.3L294.8 395.2L295.9 394.9L298.6 397.8L299.9 397.4L300.2 395.0L298.5 393.9L299.0 391.7L297.6 389.5Z","AT11":"M337.9 392.6L340.7 393.4L340.7 396.0L338.5 397.8L339.0 403.4L334.2 406.8L335.3 404.0L334.0 398.0L336.6 396.2L337.2 389.0L339.4 388.3L342.1 385.7L343.7 385.7L344.5 384.3L345.7 386.1L344.7 391.1L339.8 391.1Z","HU11":"M369.1 394.6L367.2 394.2L366.3 392.0L368.1 390.2L371.1 392.4Z","HU12":"M373.1 387.6L378.6 393.6L380.6 398.8L377.2 400.2L374.2 397.9L372.0 399.6L370.7 398.3L367.7 400.2L363.5 391.4L365.6 388.1L363.9 384.9L365.3 383.1L367.0 385.9ZM369.1 394.6L371.1 392.4L368.1 390.2L366.3 392.0L367.2 394.2Z","HU32":"M398.2 396.0L396.7 397.4L394.3 397.0L393.7 394.7L390.2 393.7L387.5 399.2L385.1 400.1L384.7 401.7L380.7 402.2L381.2 400.1L380.0 395.8L374.5 389.8L377.7 388.2L383.2 391.0L389.3 384.7L389.8 380.2L392.7 379.6L393.5 377.2L397.9 375.2L400.1 372.2L406.0 376.3L408.4 376.0L409.5 378.3L407.5 381.3L405.2 381.8L402.0 385.6Z","AT13":"M338.2 382.6L339.0 384.5L334.6 384.3L337.0 381.9Z","SK01":"M344.5 384.3L341.6 379.3L342.5 377.5L346.8 375.6L346.8 377.9L349.2 382.1L346.7 385.9L345.7 386.1Z","HU31":"M399.8 372.7L397.9 375.2L393.5 377.2L392.7 379.6L389.8 380.2L389.3 384.7L383.2 391.0L377.7 388.2L374.5 389.8L373.1 387.6L366.0 385.1L365.3 383.1L371.0 381.7L372.6 379.2L376.1 380.2L377.5 379.7L380.0 377.3L382.1 372.8L384.6 371.8L388.6 372.4L391.7 370.7L395.8 373.8Z","SK02":"M359.4 375.5L360.9 378.5L362.9 377.8L364.1 381.1L366.3 381.1L366.2 382.7L363.9 384.9L364.9 387.2L354.4 389.7L352.2 389.6L346.7 385.9L349.2 382.1L346.8 377.9L346.8 375.6L342.5 377.5L342.3 376.2L344.5 372.0L349.7 371.5L353.9 367.7L354.7 364.0L356.2 363.0L359.1 365.7L359.1 368.6L360.8 368.7L362.8 371.9Z","SK03":"M373.4 362.7L375.1 364.4L375.2 367.5L378.3 367.6L378.2 370.2L380.1 373.8L381.4 374.1L377.5 379.7L376.1 380.2L372.6 379.2L371.0 381.7L366.2 382.7L366.3 381.1L364.1 381.1L362.9 377.8L360.9 378.5L359.4 375.5L362.8 371.9L360.8 368.7L359.1 368.6L359.1 365.7L356.2 363.0L358.6 359.6L361.6 359.0L363.4 360.5L365.1 360.2L368.0 356.5L370.5 359.6L371.9 359.8L372.3 362.6Z","SK04":"M402.7 360.2L399.9 369.5L400.1 372.2L395.8 373.8L391.7 370.7L388.6 372.4L384.6 371.8L381.4 374.1L380.1 373.8L378.2 370.2L378.3 367.6L375.2 367.5L375.1 364.4L373.4 362.7L375.5 362.5L376.2 360.3L378.7 358.6L380.8 358.1L384.6 359.3L386.3 357.2L389.2 356.5L394.5 356.6L397.0 358.9Z","AT31":"M317.4 378.7L319.4 379.8L320.9 384.1L318.7 385.4L315.9 384.6L315.6 386.8L316.3 388.7L318.8 390.3L318.9 392.6L314.1 395.2L308.6 393.6L307.4 394.6L307.8 397.5L306.1 397.9L305.2 393.9L302.5 391.8L302.5 389.2L297.6 389.5L296.2 387.6L303.2 383.0L304.4 379.3L306.8 380.5L307.8 376.1L311.0 378.9Z","DE21":"M284.5 376.8L284.4 379.6L286.6 380.1L287.9 382.6L290.6 384.3L293.1 382.5L298.3 386.0L296.2 387.6L299.0 391.7L298.5 393.9L300.2 395.0L299.9 397.4L298.6 397.8L295.9 394.9L293.7 395.8L290.3 394.7L290.0 396.1L283.9 396.7L281.5 399.3L276.7 400.1L275.5 397.8L276.2 396.4L274.3 395.7L274.4 388.3L275.5 386.1L277.0 386.8L280.0 382.4L276.8 379.7L275.8 375.6L278.6 372.5L280.1 373.1L280.7 371.9L284.3 374.6Z","AT12":"M342.3 376.2L341.6 379.3L344.5 384.3L343.7 385.7L342.1 385.7L339.4 388.3L337.2 389.0L337.4 393.0L336.6 396.2L335.4 396.9L325.9 391.1L319.4 392.9L318.8 390.3L316.3 388.7L315.9 384.6L318.7 385.4L320.9 384.1L319.4 379.8L317.4 378.7L320.0 375.1L320.7 371.5L335.0 374.9L337.8 373.4L341.5 374.7ZM339.0 384.5L337.0 381.9L334.6 384.3Z","DE22":"M306.8 380.5L304.4 379.3L303.2 383.0L298.3 386.0L293.1 382.5L290.6 384.3L287.9 382.6L286.6 380.1L284.4 379.6L284.3 374.6L283.0 374.0L283.7 372.9L287.9 374.0L289.1 377.0L292.0 375.0L292.7 372.4L300.2 369.8L307.8 376.1Z","DE25":"M279.4 363.2L280.3 362.1L281.9 362.4L282.4 361.3L282.4 366.2L279.1 367.8L280.7 371.9L280.1 373.1L278.6 372.5L275.8 375.6L273.3 374.7L272.5 373.1L269.9 373.8L268.3 372.4L266.9 369.6L266.6 363.0L269.3 362.7L270.1 361.1L275.5 360.5L277.3 363.2Z","CZ03":"M306.4 363.8L316.0 363.0L317.2 361.3L319.1 362.4L319.4 366.3L326.2 369.4L326.9 372.0L326.5 372.7L320.7 371.5L320.0 375.1L317.4 378.7L311.0 378.9L304.5 373.0L303.0 372.9L298.1 367.3L295.9 366.8L291.5 360.3L293.0 357.8L297.0 357.2L302.1 354.3L306.5 357.0Z","CZ06":"M339.3 360.0L340.1 363.0L340.9 361.8L343.7 365.0L344.1 367.9L349.7 371.5L344.5 372.0L342.3 376.2L341.5 374.7L337.8 373.4L335.0 374.9L326.5 372.7L326.2 369.4L318.9 365.3L319.1 362.4L322.0 361.2L322.1 359.0L324.8 356.8L334.9 360.7Z","DE23":"M295.8 370.9L292.7 372.4L292.0 375.0L289.1 377.0L287.9 374.0L283.7 372.9L283.0 374.0L280.7 371.9L279.1 367.8L282.4 366.2L282.4 361.3L285.5 359.0L286.0 356.8L289.8 355.3L293.0 357.8L291.5 360.3L294.1 364.9L300.2 369.8Z","DE24":"M286.0 349.3L287.9 351.0L289.8 355.3L286.0 356.8L285.5 359.0L281.9 362.4L277.3 363.2L275.5 360.5L272.5 361.3L270.3 359.6L272.3 358.7L274.7 355.1L273.3 352.8L274.3 352.3L273.4 350.6L275.5 350.1L278.2 352.0L278.9 348.6L280.1 348.0L282.6 349.8Z","CZ02":"M323.9 352.7L324.8 356.8L322.1 359.0L322.0 361.2L319.1 362.4L317.2 361.3L316.0 363.0L306.4 363.8L306.5 357.0L302.1 354.3L304.7 351.9L312.2 348.6L313.3 346.8L315.0 347.0L318.3 344.8L320.3 346.0L320.5 349.0L323.0 350.0ZM314.1 352.2L311.3 353.7L312.4 356.0L315.4 355.2L315.9 353.7Z","RO22":"M473.9 396.1L475.9 404.5L480.4 408.3L484.5 408.3L491.5 403.4L493.9 404.1L495.2 406.1L495.9 412.1L491.2 414.7L489.5 416.8L487.0 423.9L488.5 433.4L481.4 433.4L479.8 431.2L473.5 432.2L471.7 430.8L478.8 426.8L479.6 425.3L480.0 423.2L476.4 418.7L461.3 420.7L458.4 415.9L456.0 415.5L453.0 411.4L455.1 409.0L455.3 401.8L460.7 399.9L464.2 397.1L466.7 397.0L468.1 399.1L468.3 397.0Z","RO12":"M447.7 392.2L449.3 396.4L452.1 397.6L455.3 401.8L455.1 409.0L453.0 411.4L444.7 415.3L441.6 412.7L436.7 413.2L424.6 417.7L422.3 415.9L416.4 407.0L411.4 404.3L411.2 402.5L412.5 401.3L415.6 402.2L419.1 400.8L422.1 401.9L426.2 401.1L427.3 394.6L429.8 394.8L434.0 388.4L436.1 387.1L438.3 387.3L439.7 385.7L442.9 386.4L446.0 392.2Z","RO11":"M432.8 377.6L435.0 380.9L436.1 387.1L434.0 388.4L429.8 394.8L427.3 394.6L426.2 401.1L422.1 401.9L419.1 400.8L415.6 402.2L412.5 401.3L411.2 402.5L411.4 404.3L408.6 404.8L403.7 401.6L396.7 402.5L402.0 385.6L405.2 381.8L407.5 381.3L412.4 375.1L416.1 376.8L416.8 376.0L424.2 376.4L427.9 374.7Z","RO21":"M471.1 384.2L474.1 390.6L473.9 396.1L468.3 397.0L468.1 399.1L466.7 397.0L464.2 397.1L460.7 399.9L455.3 401.8L452.1 397.6L449.3 396.4L447.7 392.2L446.0 392.2L442.9 386.4L439.7 385.7L438.3 387.3L436.1 387.1L435.0 380.9L432.8 377.6L434.3 377.0L436.0 373.9L444.6 370.8L446.6 366.8L451.4 364.7L454.1 366.2L459.2 373.3L470.1 382.1Z","LT01":"M410.0 272.4L410.2 267.7L406.0 268.3L404.7 266.9L404.9 264.0L406.9 260.4L404.8 259.1L401.9 252.7L403.6 250.2L411.6 256.6L415.1 255.6L414.8 252.2L424.0 250.2L423.6 251.9L420.4 253.1L419.7 255.6L417.3 257.3L416.4 259.7L417.1 263.3L416.4 267.4L418.9 270.0L417.0 270.7L415.8 268.6L412.4 271.9Z","CZ07":"M356.2 363.0L354.7 364.0L353.9 367.7L349.7 371.5L344.1 367.9L343.7 365.0L340.9 361.8L340.1 363.0L338.4 356.2L339.0 349.9L340.3 348.6L339.1 345.7L345.0 348.4L343.3 350.5L342.9 355.2L346.0 355.3L351.4 359.8L355.4 360.1L356.9 361.5Z","CZ08":"M357.9 352.8L358.6 355.4L360.8 356.7L361.6 359.0L358.6 359.6L356.9 361.5L355.4 360.1L351.4 359.8L346.0 355.3L342.9 355.2L343.3 350.5L345.0 348.4L348.1 347.5L347.5 350.0L349.8 352.4L351.8 350.8L355.1 352.8Z","PL21":"M379.7 344.9L384.9 341.6L385.4 347.9L387.4 350.4L386.7 351.1L389.2 356.5L386.3 357.2L384.6 359.3L380.8 358.1L378.7 358.6L376.2 360.3L375.5 362.5L372.3 362.6L371.9 359.8L370.5 359.6L367.1 353.9L363.3 351.3L366.8 343.6L371.2 341.0L374.7 341.2L376.9 345.5Z","PL22":"M362.6 333.2L365.5 335.1L368.3 335.3L368.2 337.7L371.2 341.0L366.8 343.6L363.3 351.3L367.1 353.9L368.0 356.5L365.1 360.2L363.4 360.5L360.8 356.7L358.6 355.4L357.9 352.8L355.1 352.8L351.8 350.8L351.8 349.0L355.6 347.3L354.8 343.8L356.9 342.1L355.5 339.9L356.6 333.6Z","PL82":"M407.3 337.1L409.8 339.1L402.7 351.9L405.7 360.0L397.0 358.9L394.5 356.6L389.2 356.5L386.7 351.1L387.4 350.4L385.4 347.9L384.9 341.6L390.2 335.4L390.6 333.1L393.3 332.6L394.9 335.2L398.0 335.5L398.1 338.7L400.1 339.9L404.0 339.4Z","PL52":"M351.1 332.3L356.6 333.6L355.5 339.9L356.9 342.1L354.8 343.8L355.6 347.3L351.8 349.0L351.8 350.8L349.8 352.4L347.5 350.0L348.1 347.5L345.0 348.4L339.1 345.7L342.2 342.3L345.2 333.0L347.2 332.4L348.8 333.6Z","PL72":"M387.4 329.2L389.2 328.7L390.6 333.1L390.2 335.4L384.9 341.6L379.7 344.9L376.9 345.5L374.7 341.2L371.2 341.0L368.2 337.7L369.3 332.5L371.1 332.8L370.6 329.9L374.3 326.5L378.3 328.9L380.2 328.3L385.6 330.1Z","PL81":"M406.7 318.2L408.3 321.8L413.6 328.0L412.6 329.1L414.3 331.5L414.4 334.6L411.3 336.6L409.8 339.1L407.3 337.1L404.0 339.4L400.1 339.9L398.1 338.7L398.0 335.5L394.9 335.2L393.3 332.6L390.6 333.1L388.6 321.7L385.8 320.0L388.3 318.2L388.2 313.3L395.0 311.6L395.4 310.3L397.8 309.7L399.3 306.3L405.4 309.2L405.3 314.8Z","PL71":"M367.0 311.3L370.3 313.9L371.4 316.4L374.6 317.8L375.3 320.0L373.1 321.5L374.6 324.0L374.3 326.5L370.6 329.9L371.1 332.8L369.3 332.5L368.3 335.3L365.5 335.1L363.7 333.3L356.6 333.6L351.1 332.3L350.1 329.5L352.6 327.3L353.0 320.6L355.3 320.5L355.3 317.0L358.3 313.6L357.9 311.9L360.2 310.6L364.2 312.3Z","PL41":"M341.0 307.0L348.8 310.2L350.7 309.3L354.9 312.0L357.9 311.9L358.3 313.6L355.3 317.0L355.3 320.5L353.0 320.6L352.6 327.3L350.1 329.5L351.1 332.3L348.8 333.6L346.0 329.4L344.1 328.4L343.8 326.1L340.8 325.4L339.7 326.6L336.5 327.0L334.0 324.2L329.2 322.3L325.8 319.0L324.3 309.8L325.7 308.1L325.5 303.3L328.1 303.2L331.0 300.2L332.1 298.4L330.1 296.0L333.8 292.2L335.0 294.2L339.1 294.5L338.2 296.5L339.9 298.2L339.3 302.8L341.3 304.4Z","CZ01":"M314.1 352.2L315.9 353.7L315.4 355.2L312.4 356.0L311.3 353.7Z","CZ05":"M324.1 341.4L329.7 343.5L333.4 343.6L332.2 346.2L336.1 351.1L337.6 351.4L339.0 349.9L338.2 353.9L339.3 360.0L334.9 360.7L324.8 356.8L323.0 350.0L320.5 349.0L320.3 346.0L318.3 344.8L315.0 347.0L313.3 346.8L312.0 345.0L311.9 343.6L314.3 340.8L315.9 341.3L318.1 340.2L318.8 337.9L320.8 338.2L322.4 341.2Z","CZ04":"M302.1 354.3L297.0 357.2L293.0 357.8L289.8 355.3L287.9 351.0L290.4 352.8L293.1 349.4L295.5 348.6L296.9 349.3L304.2 343.5L311.6 340.2L310.9 337.7L312.8 337.8L314.3 340.8L311.9 343.6L313.3 346.8L312.2 348.6L304.7 351.9Z","DED4":"M296.9 349.3L295.5 348.6L293.1 349.4L290.4 352.8L286.0 349.3L285.6 347.3L290.1 345.0L289.3 342.6L293.5 340.7L293.1 339.8L296.1 335.7L299.0 335.3L304.2 343.5Z","DEG0":"M280.0 333.8L281.1 338.0L288.9 340.5L289.5 338.0L291.1 338.2L293.5 340.7L289.3 342.6L290.1 345.0L288.1 346.6L286.1 346.5L286.0 349.3L282.6 349.8L280.1 348.0L278.9 348.6L278.2 352.0L275.5 350.1L273.4 350.6L274.3 352.3L272.0 352.8L271.8 351.3L267.8 347.8L265.9 348.0L266.3 346.0L264.4 345.7L265.7 340.1L267.2 339.8L267.6 337.6L264.7 333.7L272.7 329.2L275.0 329.6L275.7 332.7Z","PL51":"M340.8 325.4L343.8 326.1L344.1 328.4L346.0 329.4L347.2 332.4L345.2 333.0L342.2 342.3L339.1 345.7L340.3 348.6L337.6 351.4L336.1 351.1L332.2 346.2L333.4 343.6L322.4 341.2L320.8 338.2L318.8 337.9L318.1 340.2L316.4 340.4L318.0 335.8L317.5 332.1L319.4 330.5L321.0 330.8L321.9 329.1L324.0 329.7L325.0 329.0L327.8 324.5L330.6 325.7L331.9 323.9L334.0 324.2L336.5 327.0L339.7 326.6Z","DED2":"M316.4 340.4L315.9 341.3L314.3 340.8L313.8 338.7L310.9 337.7L311.6 340.2L304.2 343.5L301.5 338.5L300.2 338.3L299.0 332.4L300.9 331.7L305.6 332.6L308.8 329.7L314.7 328.6L316.9 330.4L318.1 333.5Z","DED5":"M289.5 338.0L288.2 335.0L288.4 330.7L297.2 328.4L298.6 329.8L299.0 335.3L296.1 335.7L293.1 339.8Z","DEE0":"M288.3 340.3L281.1 338.0L280.0 333.8L275.7 332.7L275.0 329.6L272.7 329.2L271.2 323.1L275.4 322.2L276.1 320.4L276.2 316.9L275.0 315.3L275.7 314.8L273.1 309.8L280.6 307.3L281.5 305.7L284.8 308.0L287.0 308.0L288.2 309.6L287.6 314.4L289.1 315.2L288.9 321.1L298.1 324.9L297.2 328.4L288.4 330.7L288.2 335.0L289.5 338.0Z","PL43":"M325.7 315.9L325.8 319.0L331.9 323.9L330.6 325.7L327.8 324.5L325.0 329.0L324.0 329.7L321.9 329.1L321.0 330.8L319.4 330.5L317.5 332.1L316.9 330.4L315.2 329.7L313.2 324.6L314.4 320.4L311.8 315.2L312.7 313.0L311.9 311.3L313.9 310.3L315.1 307.0L317.5 307.2L325.4 302.4L325.7 308.1L324.3 309.8Z","PL91":"M383.2 304.5L387.3 309.6L387.2 313.5L384.2 313.3L381.7 316.3L374.8 315.8L371.5 311.4L371.7 309.1L374.6 304.5L381.7 306.1Z","PL92":"M389.0 298.3L389.6 299.6L390.9 299.4L391.1 302.3L393.7 305.4L399.3 306.3L397.8 309.7L395.4 310.3L395.0 311.6L388.2 313.3L388.3 318.2L385.8 320.0L388.6 321.7L389.2 328.7L385.6 330.1L380.2 328.3L378.3 328.9L374.3 326.5L374.6 324.0L373.1 321.5L375.3 320.0L374.6 317.8L371.4 316.4L370.3 313.9L367.0 311.3L364.2 312.3L360.2 310.6L361.5 304.3L360.6 301.3L363.0 300.6L362.5 298.5L364.4 296.4L368.1 296.8L380.8 289.2L382.2 293.7L386.8 298.7ZM381.2 315.9L384.2 313.3L387.2 313.5L387.3 309.6L383.2 304.5L381.7 306.1L374.6 304.5L371.7 309.1L371.5 311.4L374.8 315.8Z","PL61":"M363.3 297.4L363.0 300.6L360.6 301.3L361.5 304.3L360.2 310.6L354.9 312.0L350.7 309.3L348.8 310.2L341.0 307.0L341.3 304.4L339.3 302.8L339.9 298.2L338.2 296.5L339.5 292.7L341.6 292.7L345.3 288.9L347.9 290.1L351.7 289.8L352.4 291.1L356.1 290.9L358.2 293.7L362.0 294.8Z","PL84":"M405.3 294.6L405.8 298.1L401.9 301.5L399.3 306.3L393.7 305.4L391.1 302.3L390.9 299.4L389.6 299.6L389.0 298.3L386.8 298.7L382.2 293.7L380.8 289.2L385.8 287.3L390.7 282.2L390.8 280.0L387.6 275.8L389.8 272.6L391.3 271.9L397.3 275.3Z","PL62":"M389.8 272.6L387.6 275.8L390.8 280.0L390.7 282.2L383.2 289.0L380.2 289.3L368.1 296.8L364.4 296.4L363.3 297.4L362.0 294.8L358.2 293.7L356.1 290.9L359.4 285.0L355.8 282.0L355.9 279.3L357.4 279.1L360.8 275.8L378.0 275.3Z","PL63":"M359.1 275.8L355.8 278.3L355.8 282.0L359.4 285.0L356.1 290.9L352.4 291.1L351.7 289.8L347.9 290.1L345.3 288.9L341.6 292.7L339.5 292.7L339.1 294.5L335.0 294.2L333.8 292.2L333.5 289.0L334.3 288.0L332.3 286.9L331.5 283.3L332.1 279.8L330.5 277.2L335.6 274.0L345.8 271.3L349.3 277.7L356.5 277.7Z","LT02":"M402.5 234.9L405.4 238.3L410.5 238.3L418.7 243.5L421.2 243.5L421.5 248.7L424.0 250.2L414.8 252.2L415.1 255.6L411.6 256.6L403.6 250.2L401.9 252.7L402.1 254.7L404.9 257.8L404.8 259.1L406.9 260.4L404.9 264.0L404.7 266.9L406.0 268.3L410.2 267.7L410.1 275.0L406.8 277.2L404.5 276.7L398.0 278.0L397.3 275.3L395.2 273.5L391.3 271.9L389.8 272.6L388.2 269.4L389.1 265.0L385.7 261.3L381.0 262.6L373.7 259.8L372.8 260.5L368.6 247.2L372.3 242.6L377.3 239.6L382.2 239.8L384.7 238.8L386.3 239.9L392.4 238.0L396.4 239.1L399.8 237.9Z","LV00":"M420.2 211.9L421.7 211.5L422.3 213.0L425.7 214.9L425.8 222.0L427.6 221.6L433.2 230.1L429.5 239.5L424.9 239.8L422.9 242.9L418.7 243.5L410.5 238.3L405.4 238.3L402.5 234.9L399.8 237.9L396.4 239.1L392.4 238.0L386.3 239.9L384.7 238.8L382.2 239.8L377.3 239.6L372.3 242.6L368.6 247.2L367.1 242.8L366.7 234.9L369.0 231.1L368.8 226.1L370.6 221.4L377.6 217.4L378.7 219.8L383.9 223.3L385.9 227.0L389.0 228.2L392.0 227.1L394.9 223.2L392.7 212.0L398.1 208.1L400.8 207.4L407.4 209.4L410.6 212.8L413.0 213.6L416.0 211.2Z","EE00":"M408.9 181.5L416.2 180.4L417.6 178.7L419.2 179.6L417.1 187.7L414.9 191.3L418.9 200.7L422.0 205.2L420.7 206.9L420.2 211.9L416.0 211.2L413.0 213.6L410.6 212.8L407.4 209.4L400.8 207.4L398.1 208.1L392.7 212.0L392.4 204.3L391.0 204.2L388.6 206.0L386.3 205.2L383.2 201.4L383.2 198.7L381.7 199.3L381.1 192.1L385.4 189.2L385.0 187.9L386.4 188.0L387.7 185.7L390.7 185.4L390.8 183.6L393.4 184.3L395.9 183.4L397.9 180.6L399.0 181.7L399.4 180.7ZM381.6 201.5L382.1 203.1L380.1 203.5L381.2 204.7L377.1 209.1L373.8 210.2L373.3 213.9L372.2 215.0L372.9 211.4L369.9 209.5L369.6 205.9L371.1 206.4L374.6 202.8L378.3 202.4L380.5 200.9ZM378.4 194.7L380.4 195.5L378.8 196.1ZM373.8 195.0L378.3 198.3L374.5 201.6L371.9 198.3Z","SE11":"M339.0 201.0L336.7 200.8L333.7 205.0L328.9 202.4L327.9 199.4L329.9 191.4L333.6 189.8L335.9 187.3L336.6 182.6L338.5 181.4L342.5 188.8L340.2 190.4L340.5 195.6L341.5 193.8L341.9 195.2ZM337.6 203.4L336.3 203.1L337.2 202.0Z","DE40":"M309.6 299.6L309.2 304.1L307.3 305.9L307.5 308.0L312.7 313.0L311.8 315.2L314.4 320.4L313.2 324.6L314.7 328.6L308.8 329.7L305.6 332.6L300.9 331.7L299.0 332.4L297.2 328.4L298.1 324.9L288.9 321.1L289.1 315.2L287.6 314.4L288.2 309.6L287.0 308.0L284.8 308.0L278.2 304.3L280.6 304.0L282.0 302.3L286.2 300.5L295.4 303.1L299.9 301.2L303.7 297.0L305.1 298.3L307.4 298.2L307.3 300.8ZM299.3 315.8L303.3 315.9L303.5 314.9L300.0 311.6L297.7 312.5L297.2 315.4Z","DE30":"M303.3 315.9L297.8 315.9L297.7 312.5L300.0 311.6L302.2 313.2Z","PL42":"M333.8 292.2L330.1 296.0L332.1 298.4L328.1 303.2L325.5 303.3L324.6 302.2L323.4 304.2L320.9 304.5L317.5 307.2L315.1 307.0L313.9 310.3L311.9 311.3L307.5 308.0L307.3 305.9L309.2 304.1L309.9 300.8L307.8 293.5L310.2 293.5L310.8 291.3L307.1 291.2L307.2 289.7L311.2 288.3L312.2 289.2L313.2 287.4L325.2 282.5L330.5 277.2L332.1 279.8L331.5 283.3L332.3 286.9L334.3 288.0L333.5 289.0Z","DE80":"M301.2 282.9L298.6 284.2L298.0 285.8L299.6 287.0L302.9 286.1L304.5 288.8L307.2 289.7L307.1 290.8L304.1 291.3L307.8 293.5L309.6 299.6L307.3 300.8L307.4 298.2L305.1 298.3L303.7 297.0L299.9 301.2L295.4 303.1L286.2 300.5L282.0 302.3L280.6 304.0L278.2 304.3L275.1 300.8L271.4 300.4L274.9 295.6L273.0 292.9L274.4 290.4L276.8 289.5L278.5 290.5L281.7 287.4L289.5 284.0L290.2 281.9L292.5 283.1L294.4 282.0L296.5 282.6L297.7 278.1L299.1 280.7L300.8 279.5L300.2 281.2Z","DK02":"M283.1 260.4L285.1 261.1L285.1 259.7L286.7 260.8L286.0 262.1L287.9 262.7L286.5 265.6L288.6 267.3L286.1 269.5L286.1 271.1L287.2 272.7L289.1 273.2L287.0 274.6L284.4 279.4L279.7 279.3L275.3 276.6L275.4 274.9L277.7 273.9L280.3 275.5L284.1 273.4L281.5 270.0L277.6 269.1L275.5 261.0L280.9 257.0L282.4 261.7Z","DK01":"M314.9 269.9L314.3 271.5L310.4 269.9L311.0 266.5ZM291.9 261.3L291.9 263.1L291.0 262.5L291.3 260.9ZM290.6 262.7L286.0 262.1L286.7 260.8L285.1 259.7L283.1 260.4L283.3 256.4L286.8 254.0L289.5 255.1ZM282.0 252.1L282.1 253.6L281.1 253.5Z","SE22":"M315.1 246.4L317.0 246.1L320.1 248.7L321.8 248.4L319.6 253.0L317.8 251.1L315.4 252.3L309.9 252.5L309.3 254.7L308.0 253.9L305.3 257.9L306.4 262.5L305.4 264.9L297.3 266.4L294.2 265.6L293.2 263.4L293.9 260.6L289.2 252.1L291.3 251.7L290.6 248.8L292.3 248.2L295.1 250.0L303.3 246.5L310.8 248.4ZM293.1 266.2L292.0 265.6L292.9 264.5Z","SE21":"M347.1 218.5L344.2 223.8L344.4 226.4L345.7 227.5L340.6 236.6L338.5 226.6L342.9 219.6ZM326.0 249.0L325.3 250.0L324.5 245.0L329.4 230.6ZM314.0 225.9L315.7 223.4L319.2 223.3L319.4 219.1L322.1 218.2L326.0 221.0L326.1 227.9L324.4 233.7L325.1 235.0L321.8 248.4L320.1 248.7L317.0 246.1L310.8 248.4L303.3 246.5L297.6 248.3L295.9 242.0L299.1 239.1L296.8 237.0L294.0 238.1L293.7 236.5L298.3 229.5L299.0 221.7L301.1 221.4L304.5 218.5L306.6 219.8L309.6 219.1L311.6 225.8Z","SE23":"M302.6 204.8L304.7 209.6L305.9 209.2L307.2 210.6L304.5 218.5L301.1 221.4L299.0 221.7L298.3 229.5L293.7 236.5L294.0 238.1L296.8 237.0L299.1 239.1L295.9 242.0L297.6 248.3L295.1 250.0L293.1 249.5L292.2 245.4L287.2 240.4L284.4 232.4L282.9 233.0L282.8 229.9L282.1 229.0L281.3 229.9L281.0 227.2L279.6 227.2L280.2 225.0L276.3 216.1L275.2 206.5L276.5 204.7L278.3 207.8L279.6 207.4L281.1 201.9L283.2 202.5L284.3 201.5L287.3 203.7L288.6 202.9L290.7 208.5L293.7 209.9L294.7 209.6L295.1 206.4L296.5 204.5Z","SE12":"M336.6 182.6L335.9 187.3L329.4 192.3L327.9 199.4L328.9 202.4L331.0 203.4L330.7 206.6L328.3 207.6L328.5 209.1L324.4 209.5L326.0 211.1L327.3 215.8L324.7 220.1L322.1 218.2L319.4 219.1L319.2 223.3L315.7 223.4L314.0 225.9L311.6 225.8L309.6 219.1L306.6 219.8L304.5 218.5L307.2 210.6L305.9 209.2L304.7 209.6L302.6 204.8L303.4 197.6L302.7 187.8L304.9 187.8L306.2 186.6L311.2 190.0L313.3 187.9L314.1 184.6L318.1 185.6L325.0 181.4L326.1 175.3L328.8 176.8L331.1 175.4L334.5 179.3L335.3 177.3L337.0 179.8Z","SE31":"M326.1 175.3L325.0 181.4L318.1 185.6L314.1 184.6L313.3 187.9L311.2 190.0L306.2 186.6L304.9 187.8L302.7 187.8L303.4 197.6L302.6 204.8L296.5 204.5L295.1 206.4L294.7 209.6L290.7 208.5L288.6 202.9L287.3 203.7L284.3 201.5L283.2 202.5L281.1 201.9L280.1 196.3L281.6 194.3L281.0 191.8L284.0 190.5L286.2 187.3L286.9 180.7L284.0 172.5L287.2 171.3L288.4 167.5L286.4 163.3L282.6 160.3L283.5 151.2L287.4 152.0L289.5 154.5L291.3 154.7L291.4 156.9L293.8 161.0L301.1 161.6L302.2 156.9L305.8 157.1L305.8 154.6L308.0 152.3L307.2 149.9L309.3 148.5L324.3 150.5L323.8 155.3L325.1 158.3L323.3 158.2L322.4 160.7Z","SE32":"M315.0 119.8L317.0 121.0L322.3 121.3L327.4 119.3L328.7 121.2L332.3 122.9L335.2 126.8L333.6 131.3L331.6 130.7L327.8 142.1L323.8 146.9L324.3 150.5L309.3 148.5L307.2 149.9L308.0 152.3L305.8 154.6L305.8 157.1L302.2 156.9L301.1 161.6L293.8 161.0L291.4 156.9L291.3 154.7L289.5 154.5L287.4 152.0L283.5 151.2L281.4 145.4L282.2 138.9L280.7 134.3L281.7 129.0L285.3 122.6L289.0 120.5L294.9 121.2L295.8 118.4L295.2 114.5L292.2 111.7L296.1 103.0L305.9 113.0L306.8 112.6Z","SE33":"M362.7 82.4L356.1 85.1L353.5 84.0L353.4 85.5L350.8 84.7L350.4 90.6L349.0 90.8L348.9 94.3L347.4 93.7L345.2 102.8L348.6 109.1L343.9 120.9L340.2 123.1L338.3 126.5L336.8 125.7L336.6 127.1L327.4 119.3L322.3 121.3L317.0 121.0L309.9 116.2L306.8 112.6L305.9 113.0L296.1 103.0L297.4 91.3L296.3 86.1L299.8 85.5L302.7 83.1L301.9 79.8L307.4 69.9L305.1 63.3L307.1 61.2L308.3 55.7L311.4 51.8L315.5 53.4L316.5 50.3L315.8 44.2L317.6 43.4L327.4 45.3L328.4 38.0L327.2 34.5L329.1 33.5L340.1 41.4L346.7 43.3L347.9 45.6L351.3 48.0L351.9 56.2L354.1 56.8L353.9 60.8L357.7 66.0L357.7 75.4ZM354.4 89.8L352.7 89.4L352.9 87.8Z","FI20":"M354.2 182.0L353.6 183.3L352.3 182.7L352.8 180.7ZM350.5 178.5L350.2 180.3L349.1 180.1L350.4 181.8L351.0 180.4L350.6 183.0L345.0 180.5L345.8 177.7L347.2 179.5L347.1 176.8Z","FI1B":"M400.4 165.5L400.4 167.5L397.9 167.6L398.3 169.2L397.3 170.5L391.5 171.7L386.2 177.0L382.9 177.5L381.5 179.4L377.3 180.4L376.0 181.8L373.3 180.6L374.0 177.7L378.5 174.9L379.3 167.3L384.4 167.8L385.2 166.0L388.0 164.7L388.4 162.5L391.3 162.6L392.8 163.9L394.9 162.5L397.0 162.6L397.4 161.5L400.8 164.0Z","FI1C":"M411.9 159.4L411.0 161.8L408.1 164.1L405.5 163.6L402.0 166.2L400.4 165.5L400.8 164.0L397.4 161.5L397.0 162.6L394.9 162.5L392.8 163.9L391.3 162.6L388.4 162.5L388.0 164.7L385.2 166.0L384.4 167.8L379.3 167.3L378.5 174.9L373.1 179.0L369.5 180.1L368.6 176.5L367.0 177.5L365.7 173.8L364.0 176.1L362.1 172.1L358.4 173.2L358.5 170.0L357.1 167.3L358.0 164.4L361.5 164.4L364.5 166.0L369.1 163.3L369.5 162.1L377.2 162.1L380.5 157.0L384.9 154.6L384.4 152.7L388.3 150.9L388.4 147.8L390.9 145.7L394.8 147.5L395.0 150.2L397.7 152.5L400.4 152.0L401.9 153.3L404.6 152.5L406.2 149.3L417.6 142.4L419.2 139.1L423.0 135.7L418.5 147.7ZM365.8 176.8L366.4 178.2L365.3 179.3L364.6 177.0ZM364.2 178.4L363.0 179.1L363.0 177.9L364.0 177.5ZM362.8 177.2L361.5 177.7L361.9 174.1ZM362.8 179.6L361.8 179.9L361.9 178.4ZM358.2 175.2L359.1 177.6L357.9 176.9Z","FI19":"M377.8 119.5L378.8 116.8L384.2 118.4L385.8 117.7L388.8 125.2L388.1 127.0L391.4 128.8L392.9 132.4L394.3 133.0L394.5 136.4L392.1 139.1L396.1 145.9L394.8 147.5L390.9 145.7L388.4 147.8L388.3 150.9L384.4 152.7L384.9 154.6L380.5 157.0L377.2 162.1L369.5 162.1L369.1 163.3L364.5 166.0L361.5 164.4L358.0 164.4L357.4 154.3L354.8 149.5L353.9 143.6L350.6 137.3L350.6 133.1L352.0 133.8L352.3 130.0L353.0 130.5L354.0 127.1L356.0 125.4L358.3 125.9L357.4 123.1L359.2 119.5L359.2 116.6L366.0 117.5L368.1 122.7L374.1 126.2L376.6 124.9L376.4 121.3ZM351.9 128.9L350.9 129.6L349.4 128.0L349.9 126.0L351.2 126.3Z","FI1D":"M378.7 22.9L377.5 25.3L378.6 26.7L378.6 31.9L380.5 35.6L385.9 38.0L391.9 43.4L390.1 56.2L399.7 67.9L403.1 73.9L401.0 75.8L402.0 77.0L402.3 81.9L403.9 83.3L404.2 87.9L407.5 89.9L409.5 94.5L413.7 97.9L413.9 102.8L412.1 105.5L417.0 108.8L423.5 111.3L427.8 115.6L427.5 123.4L423.0 135.7L419.2 139.1L417.6 142.4L406.2 149.3L403.6 153.0L401.9 153.3L400.4 152.0L397.7 152.5L395.0 150.2L394.8 147.5L396.1 145.9L392.1 139.1L394.5 136.4L394.3 133.0L392.9 132.4L391.4 128.8L388.1 127.0L388.8 125.2L385.8 117.7L384.2 118.4L378.8 116.8L376.4 121.3L376.6 124.9L374.1 126.2L368.1 122.7L366.0 117.5L360.5 116.5L363.8 114.4L363.8 112.1L365.3 112.0L369.5 98.1L373.7 95.8L371.7 86.6L369.9 84.7L363.0 83.1L357.7 75.4L357.7 66.0L353.9 60.8L354.1 56.8L351.9 56.2L351.3 48.0L347.9 45.6L346.7 43.3L340.1 41.4L329.1 33.5L330.1 32.6L332.0 33.1L331.6 30.2L332.8 28.8L334.8 28.9L341.3 37.1L346.4 37.6L348.9 36.0L350.1 33.7L356.7 36.5L357.9 35.2L357.9 31.9L360.1 29.9L358.6 17.0L360.5 12.4L363.9 11.9L368.0 8.0L371.6 11.3L376.5 12.4L378.7 15.3L377.4 19.8ZM370.7 94.9L370.3 95.7L368.5 94.3L370.2 93.2Z","DEA2":"M241.4 338.3L242.0 340.6L240.6 342.6L232.7 346.7L231.0 348.2L231.2 349.9L226.9 350.3L226.1 347.4L224.8 346.9L225.1 345.0L223.2 342.9L224.1 340.3L222.0 338.2L225.2 335.8L228.3 338.5L230.4 338.8L236.7 337.0L237.1 335.4Z","DE73":"M262.6 335.0L263.3 333.4L264.7 333.7L267.6 337.6L267.2 339.8L265.7 340.1L264.7 343.9L264.4 345.7L266.3 346.0L265.9 348.0L262.6 350.7L259.9 349.3L261.3 344.4L256.4 342.6L254.6 340.9L249.4 340.3L250.1 338.1L251.7 337.4L251.5 334.6L254.7 331.4L256.7 332.3L259.6 329.1L262.2 330.2L261.1 333.8Z","DEA5":"M248.0 327.6L250.5 329.0L250.2 332.0L254.7 331.4L251.5 334.6L251.7 337.4L250.1 338.1L248.0 342.1L246.1 342.8L245.5 345.0L241.4 338.3L235.7 334.1L235.2 331.3L235.7 330.1L237.4 330.7L239.2 327.5L247.0 328.5Z","DEA1":"M234.1 330.4L237.1 335.4L236.7 337.0L230.4 338.8L228.3 338.5L224.2 334.8L225.9 332.8L225.7 330.2L223.4 326.3L224.0 324.9L225.8 323.9L233.4 326.8L232.4 329.5L233.4 330.9Z","DEA4":"M256.5 316.3L255.0 319.9L259.5 326.2L259.6 329.1L256.7 332.3L254.0 331.0L252.6 332.1L250.2 332.0L250.5 329.0L248.0 327.6L245.8 322.0L249.1 321.1L249.7 318.6L248.0 315.4L252.2 314.7L252.5 316.4L255.9 315.0Z","DEA3":"M244.0 327.9L239.2 327.5L237.4 330.7L235.7 330.1L235.2 331.3L232.4 329.5L233.4 326.8L228.2 325.2L232.1 323.5L232.1 320.5L240.2 316.6L241.0 314.9L244.5 317.5L244.7 320.8L243.6 321.5L245.8 322.0L248.0 327.6L247.0 328.5Z","DE91":"M272.5 329.2L264.7 333.7L263.3 333.4L262.6 335.0L261.1 333.8L262.2 330.2L259.4 329.1L262.2 325.6L267.5 323.1L268.1 320.1L265.8 318.5L268.4 315.7L269.9 309.5L273.1 309.8L276.2 316.9L275.4 322.2L271.2 323.1Z","DE92":"M265.8 318.5L268.1 320.1L267.5 323.1L262.2 325.6L259.4 329.1L259.5 326.2L255.0 319.9L256.5 316.3L255.9 315.0L252.5 316.4L252.2 314.7L248.0 315.4L248.3 311.8L251.8 308.4L252.4 305.6L254.5 306.2L254.8 307.9L256.5 308.1L260.7 312.2L268.2 314.7L268.4 315.7Z","NL21":"M231.2 311.2L231.7 314.3L234.9 315.2L235.3 318.6L232.1 320.5L228.3 318.2L226.1 318.3L225.7 314.8L223.3 313.3L223.1 312.0L224.4 310.9L222.8 308.5L226.1 307.9L226.6 310.7L229.2 312.0Z","DE94":"M246.1 297.7L247.4 299.4L248.4 298.7L248.4 296.3L251.0 297.6L250.2 302.5L252.4 305.6L251.8 308.4L248.3 311.8L248.0 315.4L249.7 318.6L249.1 321.1L245.8 322.0L243.6 321.5L244.7 320.8L244.5 317.5L241.0 314.9L240.2 316.6L235.3 318.6L234.9 315.2L231.7 314.3L231.9 311.9L234.9 311.9L237.1 306.2L238.0 300.5L235.4 299.8L238.3 294.3L245.5 294.4L247.0 297.3ZM234.9 294.4L234.6 296.0L233.7 294.4ZM233.1 295.1L233.4 296.7L232.1 296.4Z","NL22":"M228.3 318.2L232.1 320.5L232.1 323.5L228.2 325.2L225.8 323.9L223.4 326.3L219.8 324.7L214.9 325.9L213.6 324.4L215.3 322.7L220.0 322.8L218.2 317.6L223.3 313.3L225.7 314.8L226.1 318.3Z","NL31":"M220.0 322.8L212.5 322.4L212.0 317.5L214.4 316.4L215.0 318.6L217.6 316.8Z","NL23":"M218.2 317.6L215.1 315.0L216.0 314.4L215.1 311.8L218.5 308.9L222.8 308.5L224.4 310.9L223.1 312.0L223.3 313.3Z","NL32":"M216.7 304.8L218.5 308.9L215.1 311.8L216.0 314.4L215.1 315.0L217.6 316.8L215.0 318.6L214.4 316.4L211.3 317.7L209.7 317.3L210.2 315.9L209.1 315.6L212.3 303.6L213.4 302.0L214.1 302.8L213.2 306.1Z","IE05":"M88.0 285.3L88.1 288.4L93.2 288.0L94.9 289.5L95.7 288.6L99.2 289.5L98.2 291.1L98.8 292.3L101.8 291.7L103.0 292.7L98.6 298.9L98.6 301.3L92.9 299.4L92.0 300.4L88.0 299.8L85.3 301.5L73.1 305.0L66.3 305.1L63.9 303.5L63.8 301.2L60.2 300.7L60.6 298.7L58.3 296.4L61.6 293.5L59.6 291.8L60.0 290.7L63.7 290.9L66.0 287.9L70.7 287.5L68.2 285.4L73.6 279.4L76.6 279.2L77.4 282.2L80.3 282.0L82.2 283.5L85.7 281.1L86.8 282.8L85.2 285.9ZM62.6 304.5L61.3 303.9L62.8 303.4Z","IE06":"M105.2 285.1L104.9 289.4L103.0 292.7L101.8 291.7L98.8 292.3L98.2 291.1L99.2 289.5L95.7 288.6L94.9 289.5L93.2 288.0L88.1 288.4L88.0 285.3L85.2 285.9L86.8 282.8L85.7 281.1L88.0 277.7L88.4 273.8L90.0 270.9L93.4 269.7L94.5 272.4L98.8 273.7L103.3 271.4L103.6 270.3L106.9 270.1L107.3 271.7L105.5 272.4L106.5 279.5L104.9 282.9Z","IE04":"M95.3 258.5L90.6 260.2L92.4 264.4L97.2 267.3L98.9 265.9L99.1 264.2L100.9 263.4L103.6 268.0L103.3 271.4L98.8 273.7L94.5 272.4L93.4 269.7L90.0 270.9L86.5 280.7L82.2 283.5L80.3 282.0L77.4 282.2L76.8 277.2L70.3 275.6L69.5 272.6L67.5 271.7L68.5 269.2L70.2 269.0L70.9 266.9L73.3 266.2L70.3 263.1L72.3 263.1L71.9 258.3L78.6 259.3L80.0 262.3L81.9 260.9L84.9 261.5L89.7 258.3L89.9 257.2L85.9 254.7L89.2 252.8L92.1 248.7L98.1 248.5L98.9 251.4L101.3 247.8L104.0 249.6L96.8 256.4L94.7 256.8ZM89.8 250.5L88.9 251.1L88.8 249.3ZM70.1 261.8L69.4 263.4L68.9 262.3L69.3 261.3Z","NL13":"M231.9 311.9L231.2 311.2L229.2 312.0L226.6 310.7L226.1 307.9L228.7 306.9L228.3 304.0L230.0 302.5L233.3 304.6L236.0 308.6L234.9 311.9Z","DE93":"M258.2 291.9L264.7 299.4L268.5 299.2L275.1 300.8L277.2 303.8L281.5 305.7L280.6 307.3L273.1 309.8L269.9 309.5L268.2 314.7L260.7 312.2L256.5 308.1L254.8 307.9L255.2 304.3L250.2 302.5L250.4 298.4L251.9 297.6L250.7 296.2L250.9 293.1L252.5 291.4L253.6 292.4Z","NL12":"M216.7 304.8L223.7 299.1L227.3 298.6L228.2 300.2L227.0 302.8L229.1 305.8L226.1 307.9L218.5 308.9ZM222.7 297.9L221.7 298.4L221.1 297.6L222.1 296.8ZM217.7 299.3L216.8 298.7L217.7 297.8L218.7 298.5Z","NL11":"M236.3 301.6L237.4 302.6L236.0 308.6L233.3 304.6L230.0 302.5L228.3 304.0L227.0 302.8L228.2 300.2L227.3 298.6L233.0 298.0Z","DE50":"M252.4 305.6L250.2 302.5L255.2 304.3L254.5 306.2ZM251.0 297.6L250.7 296.2L251.9 297.6L250.4 298.4Z","DE60":"M263.1 298.0L262.7 297.1L266.2 294.6L268.5 299.2L264.7 299.4ZM250.9 289.6L250.1 291.1L249.4 290.7Z","DEF0":"M277.9 282.7L276.4 282.8L275.4 281.2L277.2 281.2ZM259.8 275.8L264.7 276.7L265.8 279.1L265.2 281.3L267.1 282.5L267.1 283.9L268.8 282.6L272.4 284.6L274.6 283.4L275.9 284.4L275.9 286.4L273.1 288.6L274.4 290.4L273.2 294.0L274.9 295.6L271.4 300.4L268.5 299.2L267.1 295.1L266.2 294.6L262.7 297.1L258.2 291.9L255.8 291.7L253.9 289.2L255.1 288.5L254.1 285.2L252.6 284.2L254.5 282.3L254.3 280.2L252.3 274.4ZM252.8 280.3L252.6 281.7L251.3 281.2ZM251.6 278.3L249.8 277.6L251.8 277.2ZM249.7 278.7L249.2 279.4L248.6 278.4L249.5 277.2ZM249.7 275.0L248.7 275.0L249.4 273.1ZM245.2 286.0L245.0 287.5L243.9 285.9Z","DK03":"M272.5 277.2L271.8 275.7L274.0 271.3ZM269.3 263.1L270.7 265.3L271.8 263.7L273.1 270.0L271.6 273.8L266.7 272.0L266.6 270.0L264.4 268.8L263.2 264.2ZM269.9 274.9L269.4 276.1L268.3 274.7ZM259.8 275.8L252.3 274.4L252.6 266.7L251.4 265.3L250.4 266.7L249.2 263.3L248.5 264.1L247.4 263.4L248.4 258.9L250.8 259.6L259.7 257.5L262.3 261.1L263.3 263.0L261.7 266.1L262.5 268.7L261.2 270.0L261.2 272.3L263.6 271.9L265.8 274.9L261.4 274.8ZM251.7 271.5L250.6 271.1L250.9 269.5L252.0 269.6Z","DK04":"M280.1 243.7L280.2 245.0L279.4 244.9L278.8 243.9ZM259.2 245.0L263.5 246.9L268.3 244.9L269.7 247.4L273.1 247.6L273.9 250.0L272.1 253.2L270.2 254.0L269.5 251.7L268.1 253.2L267.5 258.2L265.2 258.8L265.3 261.0L262.3 261.1L259.7 257.5L250.8 259.6L248.4 258.9L249.9 257.1L248.0 253.3L248.8 245.1L253.1 248.1L256.3 242.4L257.3 245.9ZM271.4 259.8L270.4 258.9L271.2 257.9ZM271.1 257.1L270.2 257.7L270.8 255.6ZM252.4 246.1L251.1 244.9L252.4 244.5Z","DK05":"M276.5 234.9L276.0 235.5L275.8 233.6ZM275.4 235.1L274.9 236.1L273.4 235.2L275.2 234.1ZM267.2 244.8L263.5 246.9L259.2 245.0L257.3 239.5L255.8 239.9L253.6 244.5L250.5 244.5L249.6 242.3L252.5 237.8L259.9 236.6L265.0 230.0L269.5 228.2L270.2 234.8Z"};
 const NUTS0_PATHS = {"ES":"M191.4 521.3L191.4 523.8L187.4 521.4L185.7 521.4L185.4 519.9L190.3 519.6ZM166.0 525.5L174.4 520.6L177.7 521.6L176.7 523.2L178.1 524.1L179.4 523.2L180.7 524.1L177.3 530.2L174.8 531.5L173.8 529.8L171.6 529.6L171.3 527.2L169.8 526.0L168.2 527.7ZM89.4 449.9L100.7 450.2L105.6 453.6L110.5 453.0L117.2 456.6L122.0 456.4L126.6 458.7L125.5 462.1L127.1 461.8L133.8 465.5L135.5 467.5L138.7 467.4L142.1 470.3L150.3 471.5L151.3 468.9L158.5 472.2L159.8 476.8L163.0 476.2L166.6 478.9L169.2 478.1L173.0 479.9L177.2 478.4L180.8 479.1L181.9 481.6L179.9 483.0L180.5 487.7L165.5 496.7L151.1 499.6L147.5 502.7L148.7 505.1L144.3 507.2L133.8 519.3L131.4 524.1L132.3 529.8L134.1 533.3L136.9 535.8L127.0 541.9L121.1 551.0L122.4 552.2L122.0 553.2L114.5 552.8L109.9 555.2L107.1 557.8L105.3 561.7L101.7 564.6L99.0 562.6L93.4 564.0L88.6 562.2L84.3 562.3L71.6 559.8L67.6 562.4L60.6 562.7L57.4 566.5L53.6 567.8L48.4 563.9L46.6 560.0L46.7 557.0L44.9 555.5L44.7 554.0L46.0 553.1L44.0 549.5L38.1 544.4L33.4 543.8L33.1 537.8L38.1 531.5L41.3 530.9L42.9 528.4L40.5 528.2L38.9 523.2L41.2 518.8L45.2 514.9L43.5 513.0L42.2 507.0L40.0 502.9L46.6 504.0L49.5 499.7L48.5 496.4L51.7 493.7L53.2 485.9L52.4 482.4L59.3 479.3L63.1 475.6L59.7 472.5L59.5 468.6L52.8 466.3L52.0 467.7L49.2 468.0L45.6 465.8L40.1 465.9L40.1 464.1L41.6 462.5L40.9 460.4L35.6 460.8L31.8 462.9L34.4 453.6L36.6 450.1L32.8 451.2L33.8 448.0L32.0 446.9L31.6 443.5L33.6 440.9L37.5 439.5L44.6 440.2L45.7 437.2L50.2 435.3L55.4 437.0L57.3 439.7L59.9 441.0L74.3 442.6L76.2 444.5ZM153.1 537.7L155.2 539.9L154.0 540.2L153.4 539.0L152.1 539.8ZM153.3 535.2L152.7 536.4L150.8 535.8L150.2 534.1L151.7 534.1L152.6 532.5L155.6 532.5L155.8 533.5Z","FR":"M247.9 483.8L251.9 479.6L256.7 478.2L258.2 474.1L259.7 486.4L257.7 495.7L255.4 500.2L250.6 497.7L251.0 495.6L248.8 490.9ZM187.0 334.4L187.7 339.0L189.8 341.1L193.1 340.7L194.2 344.7L197.4 345.5L198.2 348.3L201.6 348.1L203.1 350.2L202.3 354.5L205.4 355.4L207.9 354.7L209.6 352.2L210.0 357.9L215.4 361.5L216.1 363.6L219.9 363.0L225.8 364.7L227.8 365.5L230.2 370.0L231.8 369.1L235.2 370.9L237.8 370.3L239.5 372.1L246.0 373.7L241.3 379.6L238.3 387.6L237.4 395.2L238.1 396.5L235.7 399.1L233.9 399.1L232.9 397.8L230.7 398.9L231.6 400.6L224.9 407.0L224.2 410.0L220.9 413.1L219.9 415.4L220.5 417.1L218.4 420.1L221.7 419.1L221.6 417.2L225.0 415.1L228.7 415.6L228.4 420.1L230.9 424.2L228.0 426.4L232.0 432.8L231.1 435.7L225.5 437.5L227.1 441.1L229.8 442.3L230.4 444.3L228.0 447.4L228.0 450.1L229.8 452.3L233.9 454.3L236.5 454.1L237.8 455.5L235.4 458.2L235.4 460.0L225.4 466.3L224.2 469.7L214.2 471.1L212.4 469.0L209.1 468.3L208.1 466.2L205.2 466.0L203.1 464.4L200.3 465.2L198.7 463.8L195.1 463.2L193.6 461.5L191.8 461.8L182.7 466.3L180.3 469.7L179.5 476.5L180.8 479.1L177.2 478.4L173.0 479.9L169.2 478.1L166.6 478.9L163.1 476.4L163.9 475.1L160.9 473.6L159.7 474.2L158.5 472.2L151.3 468.9L150.3 471.5L142.1 470.3L138.7 467.4L135.5 467.5L133.8 465.5L127.1 461.8L125.5 462.1L126.6 458.7L122.5 457.4L122.0 456.4L125.6 454.0L131.9 436.7L133.2 435.6L132.1 433.6L134.8 422.4L135.9 421.9L138.6 426.1L139.4 425.7L138.3 422.8L134.7 418.7L133.6 414.4L134.1 413.7L135.7 415.7L136.7 413.2L136.0 410.7L137.6 408.6L135.7 409.1L129.8 404.5L126.7 398.1L129.0 395.3L127.2 393.2L127.3 391.2L124.1 389.9L124.3 386.3L121.0 386.0L115.2 381.7L114.0 379.4L105.3 377.3L103.3 373.7L106.1 372.3L104.9 370.3L105.6 369.1L102.4 366.7L103.6 364.7L107.8 363.7L115.0 365.1L116.8 362.9L121.0 362.7L125.1 368.8L129.3 367.6L131.9 369.2L133.8 368.1L137.7 369.6L138.6 368.8L138.6 360.9L137.2 351.8L143.3 352.8L144.3 358.8L146.3 358.0L154.4 360.9L162.2 358.7L163.3 359.7L157.8 357.4L159.0 355.0L172.8 350.1L175.5 348.0L175.2 346.0L176.2 345.7L176.7 337.5ZM126.1 395.8L125.1 394.4L126.2 394.5ZM116.8 387.5L117.0 388.7L115.9 388.5L115.8 386.9Z","PT":"M41.5 466.2L45.6 465.8L49.2 468.0L52.0 467.7L52.8 466.3L59.5 468.6L59.7 472.5L63.1 475.6L59.3 479.3L52.4 482.4L53.2 485.9L51.7 493.7L48.5 496.4L49.5 499.7L46.6 504.0L40.0 502.9L42.2 507.0L43.5 513.0L45.2 514.9L41.2 518.8L38.9 523.2L40.5 528.2L42.9 528.4L41.3 530.9L38.1 531.5L33.1 537.8L33.4 543.8L26.3 545.6L22.9 543.0L17.8 541.1L12.5 541.5L16.2 535.1L17.2 526.2L20.8 517.9L14.8 517.7L14.7 514.2L12.1 511.7L16.2 502.4L19.5 500.2L29.5 482.7L30.9 478.3L31.8 462.9L35.6 460.8L40.9 460.4L41.6 462.5L40.1 464.1L40.1 465.9Z","IT":"M294.0 411.7L308.3 413.7L308.0 415.2L304.8 417.4L307.8 419.7L306.2 421.7L307.7 423.1L307.5 425.7L311.2 428.4L309.2 429.2L309.1 427.6L307.3 426.1L305.3 427.2L302.2 426.7L301.8 428.7L296.9 431.1L294.9 430.8L290.6 434.9L294.7 440.6L294.0 443.2L292.6 442.8L294.1 452.7L298.7 456.8L308.8 462.6L316.8 480.0L324.9 487.1L329.7 489.2L342.1 488.6L342.8 490.8L339.7 494.2L341.4 496.7L367.2 507.2L374.6 514.9L373.6 520.6L369.5 519.2L367.7 515.4L365.0 513.5L361.4 513.6L356.4 510.7L353.4 512.9L349.5 523.2L350.1 525.2L358.3 529.3L359.0 536.7L355.7 537.2L351.8 540.4L352.3 545.1L347.8 550.4L346.2 554.4L341.9 555.0L340.5 553.6L340.3 550.4L342.3 548.6L343.5 545.2L342.6 542.8L347.0 539.9L339.7 521.9L338.2 520.0L334.4 521.0L329.0 517.6L329.4 514.7L326.5 510.6L322.5 511.5L321.5 509.4L316.7 507.2L313.0 501.9L307.1 501.1L304.2 502.1L298.4 498.5L289.9 489.6L288.4 489.2L285.9 485.3L283.5 483.8L279.7 483.4L279.6 481.3L275.2 477.1L274.1 474.5L271.8 474.2L271.6 469.2L267.2 457.3L255.0 450.8L250.6 449.8L244.6 454.5L242.9 457.6L235.4 460.0L235.4 458.2L237.8 455.5L236.5 454.1L233.9 454.3L229.8 452.3L228.0 450.1L228.0 447.4L230.4 444.3L229.8 442.3L227.1 441.1L225.5 437.5L231.1 435.7L232.0 432.8L228.0 426.4L230.9 424.2L232.2 425.2L237.2 423.6L240.5 424.6L243.8 420.7L243.5 418.8L246.7 415.8L247.6 419.1L251.8 422.3L252.7 426.3L254.2 425.6L254.1 423.1L256.7 419.6L257.5 415.2L258.9 415.5L260.4 418.4L264.4 417.4L266.5 419.5L267.3 419.0L266.0 415.7L266.7 413.8L267.9 413.1L270.7 414.7L270.8 409.2L276.9 410.6L278.8 407.3L285.7 406.9L291.1 405.3L290.2 407.9ZM295.0 491.7L297.0 491.7L296.6 490.4ZM335.2 485.1L334.2 486.2L333.6 484.8ZM333.7 565.0L335.6 566.5L336.8 570.0L334.7 573.3L334.7 576.2L326.7 574.8L324.0 571.5L315.0 568.9L304.2 562.9L301.2 563.0L298.0 559.6L298.8 555.9L302.0 553.5L305.0 555.2L306.5 553.0L309.2 552.2L315.0 555.8L323.6 554.7L328.6 552.1L333.1 552.2L339.1 549.3L338.9 551.6L335.5 557.5ZM330.0 544.5L330.8 547.2L328.5 545.4ZM316.1 509.7L315.6 510.8L314.3 510.5L314.4 509.4ZM305.3 590.6L305.6 592.0L304.3 592.0L303.7 591.1ZM293.2 577.0L291.4 575.9L293.2 576.2ZM277.5 484.1L276.4 485.2L275.9 484.2L276.4 483.5ZM270.9 476.1L270.7 478.2L267.0 478.0L266.6 477.2ZM264.0 472.8L263.2 473.9L262.6 472.9L263.3 471.6ZM263.0 515.3L260.6 519.7L261.8 522.4L259.5 537.8L253.5 536.6L252.6 539.8L250.7 541.8L247.5 541.4L246.0 539.1L244.5 540.1L244.5 532.5L246.5 525.6L244.9 524.3L245.8 519.1L244.9 516.5L243.8 513.8L241.9 513.3L242.7 508.9L246.5 509.5L250.2 507.9L255.3 502.8L259.3 504.5ZM244.5 505.9L243.2 504.8L244.1 504.2ZM243.6 536.6L243.0 538.7L242.2 537.6ZM243.4 507.2L242.9 508.6L241.8 507.7L242.5 506.6Z","SI":"M337.5 412.3L338.3 414.1L336.4 414.0L330.9 418.0L332.0 421.4L331.5 423.7L327.3 425.9L328.5 429.8L327.0 430.9L324.0 429.7L322.4 430.5L319.0 427.3L317.0 430.4L308.4 431.6L307.9 430.6L311.2 428.4L307.5 425.7L307.7 423.1L306.2 421.7L307.8 419.7L304.8 417.4L308.0 415.2L308.3 413.7L316.7 414.6L318.3 415.7L323.7 410.6L334.6 409.5L334.2 406.8L335.5 406.1L337.8 406.2L341.6 412.2L338.9 411.4Z","AT":"M342.3 376.2L341.6 379.3L345.7 386.1L344.7 391.1L339.8 391.1L337.9 392.6L340.7 393.4L340.7 396.0L338.5 397.8L339.0 403.4L334.2 406.8L334.6 409.5L323.7 410.6L318.3 415.7L316.7 414.6L294.0 411.7L290.2 407.9L291.1 405.3L285.7 406.9L278.8 407.3L276.9 410.6L270.8 409.2L269.9 407.1L267.1 409.3L260.9 405.8L260.1 402.3L261.6 400.1L260.4 397.8L265.1 397.7L267.7 400.7L267.5 402.3L270.3 400.2L270.6 397.5L275.5 397.8L277.0 400.1L281.5 399.3L283.9 396.7L290.0 396.1L290.3 394.7L293.7 395.8L295.9 394.9L298.6 397.8L299.9 397.4L300.2 395.0L298.5 393.9L299.0 391.7L296.2 387.6L303.2 383.0L304.4 379.3L306.8 380.5L307.8 376.1L311.0 378.9L317.4 378.7L320.0 375.1L320.7 371.5L335.0 374.9L337.8 373.4L341.5 374.7Z","LU":"M227.3 358.8L225.8 364.7L219.9 363.0L220.9 361.0L219.4 357.8L222.7 352.5L223.9 353.4L224.2 356.2Z","CZ":"M316.4 340.4L318.1 340.2L318.8 337.9L320.8 338.2L322.4 341.2L333.4 343.6L332.2 346.2L336.1 351.1L337.6 351.4L340.3 348.6L339.1 345.7L345.0 348.4L348.1 347.5L347.5 350.0L349.8 352.4L351.8 350.8L355.1 352.8L357.9 352.8L358.6 355.4L360.8 356.7L361.6 359.0L358.6 359.6L354.7 364.0L353.9 367.7L349.7 371.5L344.5 372.0L342.3 376.2L341.5 374.7L337.8 373.4L335.0 374.9L320.7 371.5L320.0 375.1L317.4 378.7L311.0 378.9L294.1 364.9L291.5 360.3L293.0 357.8L289.8 355.3L287.9 351.0L290.4 352.8L293.1 349.4L295.5 348.6L296.9 349.3L304.2 343.5L311.6 340.2L310.9 337.7L313.8 338.7L314.3 340.8L315.9 341.3Z","MT":"M328.0 590.4L325.5 590.6L324.7 588.6ZM324.5 587.2L323.8 588.1L322.4 587.1Z","CY":"M569.5 560.9L571.4 560.8L573.9 557.3L577.2 556.7L576.6 552.9L586.3 550.6L596.5 541.6L590.1 551.2L593.0 554.4L590.9 556.4L588.6 556.5L588.1 559.5L582.6 563.0L581.0 564.6L581.2 565.8L580.4 566.2L579.1 564.9L574.0 565.8Z","EL":"M508.0 562.1L506.2 563.2L505.2 559.6L506.7 556.1L511.0 553.8L510.0 559.6ZM506.0 551.8L504.8 552.6L503.9 551.2ZM499.9 555.7L498.3 556.4L499.3 555.0ZM495.7 550.6L494.9 551.6L493.6 551.4L496.8 548.4L498.0 549.1ZM497.2 554.1L495.6 554.7L495.5 553.7ZM500.3 572.4L498.9 573.0L498.1 570.5L499.5 566.7ZM493.4 548.5L492.2 549.3L491.6 548.6L492.5 547.5ZM492.0 540.5L491.0 541.2L489.7 540.3L491.0 539.6ZM493.8 552.6L493.4 553.4L492.4 551.8L493.1 551.4ZM497.7 573.9L495.7 575.2L496.6 573.6ZM490.2 536.3L488.5 537.8L485.2 537.1L487.2 535.4ZM489.1 544.6L487.9 545.2L488.1 543.4L489.4 543.5ZM471.5 485.1L468.3 489.8L467.0 488.3L456.4 487.8L452.8 490.8L448.5 490.1L444.5 494.5L439.9 495.0L439.6 496.3L442.0 499.7L444.1 500.4L444.2 501.7L442.2 501.0L440.6 502.9L444.5 505.2L444.5 507.7L439.9 504.1L435.3 504.7L431.5 503.4L429.7 501.8L429.7 499.2L427.0 501.1L426.4 507.8L432.3 515.9L438.7 521.6L437.4 522.8L435.5 520.5L432.8 520.9L432.3 522.5L435.1 525.5L434.4 526.8L429.9 528.9L439.6 530.8L440.4 533.0L442.6 531.7L436.8 527.4L437.5 525.3L439.1 525.1L443.1 527.6L449.9 529.0L453.3 534.5L457.1 537.5L456.3 538.6L454.2 538.5L449.3 533.7L445.1 534.7L450.5 536.4L452.0 544.2L451.1 545.1L446.4 541.4L443.7 542.2L445.2 540.4L438.7 543.7L441.1 548.2L442.7 548.5L443.6 547.1L445.0 549.8L444.5 550.7L440.8 552.7L439.9 550.9L435.3 549.6L439.6 557.7L441.9 565.5L436.4 563.0L433.7 567.8L428.3 560.9L426.4 561.6L425.2 564.2L423.1 563.3L421.2 559.7L421.6 555.0L413.1 547.4L415.9 542.1L419.0 542.4L421.8 539.0L435.9 543.1L436.9 542.5L436.4 541.1L438.9 540.7L439.9 539.4L431.4 537.0L431.1 537.9L429.1 536.2L426.0 538.2L423.3 537.6L412.7 540.4L406.2 532.4L407.5 531.0L410.3 531.4L410.4 528.7L405.5 530.3L401.7 526.1L399.4 525.8L396.9 521.0L394.9 520.1L397.7 520.2L398.4 517.5L399.5 517.8L398.7 514.7L401.8 512.6L406.2 502.9L404.8 499.1L414.7 496.3L416.1 493.3L419.5 491.5L421.1 492.1L425.9 490.6L426.2 488.1L427.3 487.3L436.5 485.1L441.3 482.9L441.5 481.7L447.0 480.2L450.9 482.6L452.3 482.0L456.6 483.1L464.9 480.7L467.7 478.0L465.9 473.6L469.2 472.8L472.2 474.0L473.5 477.6L470.5 480.6ZM477.8 512.6L480.9 515.8L480.1 517.1L475.5 517.2L475.1 515.2L473.6 516.4L471.1 515.5L471.3 513.9L474.7 511.5L476.6 510.9ZM487.3 556.1L486.2 557.9L484.2 556.8L486.0 556.5L486.3 555.0ZM479.4 541.5L477.6 542.5L478.5 540.4L482.2 539.1ZM461.9 582.2L470.0 579.7L477.9 580.0L480.6 579.1L482.4 582.0L488.0 578.8L488.8 579.8L487.2 582.9L469.4 587.7L468.1 585.4L452.6 585.9L451.3 584.4L451.5 581.2L453.1 581.0L453.4 578.6L455.0 580.3L459.2 578.9ZM474.7 524.6L477.0 524.9L477.7 529.0L476.3 532.0L474.1 530.9L475.4 528.9L472.7 526.0ZM480.9 551.9L477.9 555.3L477.1 554.9L480.3 551.2ZM479.4 561.3L478.9 562.4L477.5 562.0L478.2 560.7ZM465.2 495.7L463.5 496.5L461.8 495.5L464.5 494.6ZM470.1 525.7L470.1 527.1L469.0 526.9L469.4 525.3ZM473.8 552.7L472.7 553.6L471.0 551.5L472.8 548.8L474.0 550.0ZM474.9 562.7L473.7 563.0L474.0 561.2ZM471.0 544.9L469.2 545.6L469.1 544.6ZM459.8 504.1L462.7 503.5L462.6 506.7L460.9 505.6L460.4 507.3L458.6 505.8ZM472.7 557.1L472.3 558.4L470.7 556.2ZM469.0 546.7L468.1 547.7L468.5 545.2ZM469.8 551.9L468.8 553.4L467.0 553.3L468.3 551.0ZM467.9 544.1L464.5 542.7L467.7 542.7ZM469.8 558.3L469.1 559.4L468.2 558.9L469.5 557.5ZM460.1 511.8L459.1 513.6L459.0 511.2ZM464.1 541.3L463.6 541.9L460.2 539.6L460.1 538.3L463.1 539.1ZM467.3 560.5L466.3 561.0L465.7 560.0L466.5 558.8ZM464.7 547.3L463.8 547.8L463.5 545.4ZM463.7 555.0L462.9 555.8L461.8 554.7L462.3 553.7ZM452.9 494.7L451.2 496.2L449.7 494.4L450.0 493.0L451.0 492.2ZM457.3 525.0L456.6 526.0L453.6 524.2L454.1 522.4ZM462.6 558.0L460.5 558.1L461.0 557.0ZM460.1 552.4L458.5 552.6L458.8 551.4ZM461.2 559.5L458.4 560.8L459.3 558.8ZM458.0 549.5L457.3 549.8L457.3 547.4ZM456.9 544.2L455.7 546.8L455.3 544.5ZM461.1 590.6L460.6 591.8L458.9 590.9ZM448.5 517.0L448.4 518.2L447.0 518.3L447.8 516.4ZM448.0 521.5L447.5 522.2L446.4 521.4L446.4 518.8ZM452.1 548.7L450.8 549.2L450.0 548.2L451.3 547.7ZM453.6 559.1L452.4 559.8L451.4 558.9L452.5 558.1ZM444.6 521.6L444.1 522.7L442.6 521.6ZM441.0 508.1L441.1 509.0L437.0 509.0L436.0 505.7ZM445.2 545.9L444.6 546.3L443.5 544.9L445.2 544.5ZM446.8 558.3L447.5 559.9L445.6 558.4ZM445.9 550.9L446.3 552.5L444.5 552.1ZM441.2 521.1L440.9 522.8L439.9 522.3L439.9 521.1ZM442.0 553.4L440.9 554.7L440.7 553.2ZM435.9 522.4L436.5 524.0L435.2 524.1ZM442.6 571.1L442.7 572.5L441.3 572.3L440.2 569.8L440.9 568.7ZM435.5 527.7L434.9 528.7L433.5 528.2L434.2 527.1ZM409.3 536.4L408.7 537.8L408.4 535.6ZM408.3 548.9L410.4 550.6L409.6 552.0L406.7 549.8L407.4 548.1ZM405.6 541.5L408.4 545.5L402.1 544.3L402.7 541.9L404.4 541.4L404.2 539.3ZM407.6 541.5L406.6 541.7L405.3 539.3L406.5 539.4ZM406.6 536.2L404.1 536.7L404.9 533.1L405.7 532.8ZM394.4 523.3L395.0 524.6L390.0 519.6L390.7 518.8L393.6 518.6L393.0 520.3Z","BG":"M429.8 445.4L435.8 445.8L440.0 444.1L453.0 443.3L458.7 436.5L467.9 431.5L471.7 430.8L473.5 432.2L479.8 431.2L481.4 433.4L488.5 433.4L489.4 437.1L488.8 439.2L485.2 439.9L484.0 441.8L483.0 444.3L483.8 452.0L480.5 456.9L483.0 457.8L488.6 463.6L482.9 465.6L479.0 464.1L476.4 464.7L475.3 466.5L470.9 468.7L470.9 470.3L468.9 471.4L469.2 472.8L465.9 473.6L467.7 478.0L464.9 480.7L456.6 483.1L452.3 482.0L450.9 482.6L447.0 480.2L441.5 481.7L441.3 482.9L436.5 485.1L427.9 487.3L427.8 480.5L425.4 476.1L420.7 474.7L418.4 472.5L420.2 470.0L418.1 463.8L421.7 462.1L424.0 456.6L417.3 452.3L414.8 448.1L414.8 444.7L416.9 442.7L417.3 440.4L421.9 442.6L420.3 445.6L422.2 446.5L427.0 444.9Z","HR":"M345.0 414.5L350.4 419.6L357.9 422.1L364.1 422.0L366.4 419.3L369.0 418.6L370.1 424.3L371.8 425.0L371.3 427.4L376.7 430.4L373.1 431.4L373.6 434.4L372.6 436.1L370.7 436.4L369.1 433.8L366.3 433.0L360.2 432.9L358.2 434.4L347.4 432.3L342.9 433.1L340.2 437.0L336.6 434.1L334.4 433.8L333.6 438.7L334.4 441.4L336.3 442.3L338.8 445.6L339.7 450.3L350.8 460.0L354.2 461.6L354.4 463.6L359.4 468.4L358.3 471.2L356.2 470.6L356.9 469.3L355.6 467.8L350.5 464.8L345.7 465.1L346.7 463.2L344.7 462.0L338.7 462.3L336.2 458.8L330.6 455.8L327.9 452.2L328.2 450.5L329.7 449.6L324.6 445.6L323.3 437.8L321.8 436.7L321.7 438.5L319.3 437.9L318.7 434.6L317.3 433.5L312.4 442.6L308.0 436.3L306.9 431.5L317.0 430.4L319.0 427.3L322.4 430.5L324.0 429.7L327.0 430.9L328.5 429.8L327.3 425.9L331.5 423.7L332.0 421.4L330.9 418.0L336.4 414.0L338.3 414.1L337.5 412.3L338.9 411.4ZM369.7 475.1L371.1 477.2L359.2 470.8L361.8 470.4ZM354.2 469.4L353.4 470.8L347.6 471.4L347.3 470.7L350.8 470.1L352.0 468.9ZM351.0 467.0L351.2 467.7L348.5 467.4ZM346.9 466.3L347.4 467.9L344.0 467.2ZM345.0 481.0L343.0 480.6L344.6 479.8ZM342.0 470.1L339.7 469.7L342.0 469.2ZM329.9 456.4L330.2 458.5L328.8 457.6ZM329.1 456.4L328.4 457.1L327.1 456.0L326.0 454.4L326.6 453.4ZM327.5 448.1L327.7 449.5L325.9 446.9ZM324.9 451.6L325.2 453.6L323.8 452.5ZM322.6 442.1L321.8 442.6L321.1 441.4L322.5 440.7ZM321.1 449.0L320.0 449.2L320.2 447.3ZM318.4 445.1L318.8 446.4L317.2 446.2L316.8 440.2L317.6 438.9L319.2 444.9ZM317.3 436.2L317.1 437.9L316.0 436.8L316.6 435.7Z","RO":"M460.2 373.9L470.1 382.1L473.3 387.5L473.9 396.1L475.9 404.5L477.5 406.3L480.4 408.3L484.5 408.3L491.5 403.4L493.9 404.1L495.2 406.1L495.9 412.1L491.2 414.7L489.5 416.8L487.0 423.9L488.5 433.4L481.4 433.4L479.8 431.2L473.5 432.2L471.7 430.8L467.9 431.5L458.7 436.5L453.0 443.3L440.0 444.1L435.8 445.8L427.0 444.9L422.2 446.5L420.3 445.6L421.9 442.6L417.3 440.4L414.3 436.9L417.1 435.0L416.6 434.1L413.0 433.0L410.3 437.0L408.4 435.3L404.0 434.9L400.2 432.9L402.3 431.5L400.3 429.9L400.7 426.6L395.0 425.2L392.3 422.8L391.6 418.5L389.8 418.0L384.4 413.2L389.4 411.9L390.0 409.9L393.0 409.8L394.3 408.6L402.0 385.6L405.2 381.8L407.5 381.3L412.4 375.1L416.1 376.8L416.8 376.0L424.2 376.4L427.9 374.7L432.8 377.6L434.3 377.0L436.0 373.9L444.6 370.8L446.6 366.8L451.4 364.7L454.1 366.2Z","HU":"M399.8 372.7L404.5 374.4L406.0 376.3L408.4 376.0L409.5 378.3L407.5 381.3L405.2 381.8L402.0 385.6L396.7 402.5L395.4 403.6L395.6 406.4L393.0 409.8L390.0 409.9L389.4 411.9L384.4 413.2L377.8 413.0L373.6 416.9L371.4 416.8L370.6 418.2L366.4 419.3L364.1 422.0L357.9 422.1L350.4 419.6L348.5 416.9L341.6 412.2L337.8 406.2L335.5 406.1L339.0 403.4L338.5 397.8L340.7 396.0L340.7 393.4L337.9 392.6L339.8 391.1L344.7 391.1L345.7 386.1L352.2 389.6L359.0 389.2L364.9 387.2L363.9 384.9L365.3 383.1L371.0 381.7L372.6 379.2L376.1 380.2L377.5 379.7L380.0 377.3L382.1 372.8L384.6 371.8L388.6 372.4L391.7 370.7L395.8 373.8Z","SK":"M373.4 362.7L375.5 362.5L376.2 360.3L378.7 358.6L380.8 358.1L384.6 359.3L386.3 357.2L389.2 356.5L394.5 356.6L397.0 358.9L402.7 360.2L399.8 372.7L395.8 373.8L391.7 370.7L388.6 372.4L384.6 371.8L382.1 372.8L380.0 377.3L377.5 379.7L376.1 380.2L372.6 379.2L371.0 381.7L365.3 383.1L363.9 384.9L364.9 387.2L359.0 389.2L352.2 389.6L345.7 386.1L343.4 383.5L341.6 379.3L344.5 372.0L349.7 371.5L353.9 367.7L354.7 364.0L358.6 359.6L361.6 359.0L363.4 360.5L365.1 360.2L368.0 356.5L370.5 359.6L371.9 359.8L372.3 362.6Z","PL":"M359.1 275.8L355.8 278.3L355.9 279.3L357.4 279.1L360.8 275.8L378.0 275.3L391.3 271.9L397.3 275.3L399.5 282.2L403.8 289.8L405.8 298.1L401.9 301.5L399.8 306.3L405.4 309.2L405.3 314.8L408.3 321.8L413.6 328.0L412.6 329.1L414.3 331.5L414.4 334.6L411.3 336.6L402.7 351.9L405.7 360.0L397.0 358.9L394.5 356.6L389.2 356.5L386.3 357.2L384.6 359.3L380.8 358.1L378.7 358.6L376.2 360.3L375.5 362.5L372.3 362.6L371.9 359.8L370.5 359.6L368.0 356.5L365.1 360.2L363.4 360.5L360.8 356.7L358.6 355.4L357.9 352.8L355.1 352.8L351.8 350.8L349.8 352.4L347.5 350.0L348.1 347.5L345.0 348.4L339.1 345.7L340.3 348.6L337.6 351.4L336.1 351.1L332.2 346.2L333.4 343.6L322.4 341.2L320.8 338.2L318.8 337.9L318.1 340.2L316.4 340.4L318.1 333.5L316.9 330.4L315.2 329.7L313.2 324.6L314.4 320.4L311.8 315.2L312.7 313.0L307.5 308.0L307.3 305.9L309.2 304.1L309.9 300.8L307.8 293.5L310.2 293.5L310.8 291.3L307.1 291.2L307.2 289.7L311.2 288.3L312.2 289.2L313.2 287.4L325.2 282.5L328.5 278.2L339.5 272.7L345.8 271.3L349.3 277.7L352.7 278.4L356.5 277.7Z","LT":"M402.5 234.9L405.4 238.3L410.5 238.3L418.7 243.5L421.2 243.5L421.5 248.7L424.0 250.2L423.6 251.9L420.4 253.1L419.7 255.6L417.3 257.3L416.4 259.7L417.1 263.3L416.4 267.4L418.9 270.0L417.0 270.7L415.8 268.6L412.4 271.9L410.0 272.4L410.1 275.0L406.8 277.2L404.5 276.7L398.0 278.0L397.3 275.3L395.2 273.5L391.3 271.9L389.8 272.6L388.2 269.4L389.1 265.0L385.7 261.3L381.0 262.6L373.7 259.8L372.8 260.5L368.6 247.2L372.3 242.6L377.3 239.6L382.2 239.8L384.7 238.8L386.3 239.9L392.4 238.0L396.4 239.1L399.8 237.9Z","LV":"M420.2 211.9L421.7 211.5L422.3 213.0L425.7 214.9L425.8 222.0L427.6 221.6L433.2 230.1L429.5 239.5L424.9 239.8L422.9 242.9L418.7 243.5L410.5 238.3L405.4 238.3L402.5 234.9L399.8 237.9L396.4 239.1L392.4 238.0L386.3 239.9L384.7 238.8L382.2 239.8L377.3 239.6L372.3 242.6L368.6 247.2L367.1 242.8L366.7 234.9L369.0 231.1L368.8 226.1L370.6 221.4L377.6 217.4L378.7 219.8L383.9 223.3L385.9 227.0L389.0 228.2L392.0 227.1L394.9 223.2L392.7 212.0L398.1 208.1L400.8 207.4L407.4 209.4L410.6 212.8L413.0 213.6L416.0 211.2Z","EE":"M408.9 181.5L416.2 180.4L417.6 178.7L419.2 179.6L417.1 187.7L414.9 191.3L418.9 200.7L422.0 205.2L420.7 206.9L420.2 211.9L416.0 211.2L413.0 213.6L410.6 212.8L407.4 209.4L400.8 207.4L398.1 208.1L392.7 212.0L392.4 204.3L391.0 204.2L388.6 206.0L386.3 205.2L383.2 201.4L383.2 198.7L381.7 199.3L381.1 192.1L385.4 189.2L385.0 187.9L386.4 188.0L387.7 185.7L390.7 185.4L390.8 183.6L393.4 184.3L395.9 183.4L397.9 180.6L399.0 181.7L399.4 180.7ZM381.6 201.5L382.1 203.1L380.1 203.5L381.2 204.7L377.1 209.1L373.8 210.2L373.3 213.9L372.2 215.0L372.9 211.4L369.9 209.5L369.6 205.9L371.1 206.4L374.6 202.8L378.3 202.4L380.5 200.9ZM378.4 194.7L380.4 195.5L378.8 196.1ZM373.8 195.0L378.3 198.3L374.5 201.6L371.9 198.3Z","FI":"M378.7 22.9L377.5 25.3L378.6 26.7L378.6 31.9L380.5 35.6L385.9 38.0L391.9 43.4L390.1 56.2L399.7 67.9L403.1 73.9L401.0 75.8L402.0 77.0L402.3 81.9L403.9 83.3L404.2 87.9L407.5 89.9L409.5 94.5L413.7 97.9L413.9 102.8L412.1 105.5L417.0 108.8L423.5 111.3L427.8 115.6L427.5 123.4L418.5 147.7L411.0 161.8L408.1 164.1L405.5 163.6L402.0 166.2L400.4 165.5L400.4 167.5L397.9 167.6L398.3 169.2L397.3 170.5L391.5 171.7L386.2 177.0L382.9 177.5L381.5 179.4L377.3 180.4L376.0 181.8L373.3 180.6L374.0 177.7L373.1 179.0L369.5 180.1L368.6 176.5L367.0 177.5L365.7 173.8L364.0 176.1L362.1 172.1L358.4 173.2L358.5 170.0L357.1 167.3L358.0 164.4L357.4 154.3L354.8 149.5L353.9 143.6L350.6 137.3L350.6 133.1L352.0 133.8L352.9 128.5L356.0 125.4L358.3 125.9L357.4 123.1L359.2 119.5L359.2 116.6L363.8 114.4L363.8 112.1L365.3 112.0L369.5 98.1L373.7 95.8L371.7 86.6L369.9 84.7L363.0 83.1L357.7 75.4L357.7 66.0L353.9 60.8L354.1 56.8L351.9 56.2L351.3 48.0L347.9 45.6L346.7 43.3L340.1 41.4L329.1 33.5L330.1 32.6L332.0 33.1L331.6 30.2L332.8 28.8L334.8 28.9L341.3 37.1L346.4 37.6L348.9 36.0L350.1 33.7L356.7 36.5L357.9 35.2L357.9 31.9L360.1 29.9L358.6 17.0L360.5 12.4L363.9 11.9L368.0 8.0L371.6 11.3L376.5 12.4L378.7 15.3L377.4 19.8ZM370.7 94.9L370.3 95.7L368.5 94.3L370.2 93.2ZM365.8 176.8L366.4 178.2L365.3 179.3L364.6 177.0ZM364.2 178.4L363.0 179.1L363.0 177.9L364.0 177.5ZM362.8 177.2L361.5 177.7L361.9 174.1ZM362.8 179.6L361.8 179.9L361.9 178.4ZM351.9 128.9L350.9 129.6L349.4 128.0L349.9 126.0L351.2 126.3ZM358.2 175.2L359.1 177.6L357.9 176.9ZM354.2 182.0L353.6 183.3L352.3 182.7L352.8 180.7ZM350.5 178.5L350.2 180.3L349.1 180.1L350.4 181.8L351.0 180.4L350.6 183.0L345.0 180.5L345.8 177.7L347.2 179.5L347.1 176.8Z","BE":"M214.2 331.1L215.5 333.9L218.2 333.7L221.2 336.0L219.6 342.7L223.2 342.9L225.1 345.0L224.8 346.9L226.1 347.4L226.9 350.3L223.9 353.4L222.7 352.5L221.3 353.7L219.4 357.8L220.9 361.0L219.9 363.0L216.1 363.6L215.4 361.5L210.0 357.9L210.1 352.6L205.4 355.4L202.3 354.5L203.1 350.2L201.6 348.1L198.2 348.3L197.4 345.5L194.2 344.7L193.1 340.7L189.8 341.1L187.7 339.0L187.0 334.4L196.0 330.6L196.1 332.2L201.0 333.7L205.2 331.3L206.7 331.6L207.9 329.9L209.7 330.8L210.8 329.6L211.8 330.8Z","DE":"M259.8 275.8L264.7 276.7L265.8 279.1L265.2 281.3L267.1 282.5L267.1 283.9L268.8 282.6L272.4 284.6L274.6 283.4L275.9 284.4L275.9 286.4L273.1 288.6L274.4 290.4L276.8 289.5L278.5 290.5L281.7 287.4L289.5 284.0L290.2 281.9L292.5 283.1L294.4 282.0L296.5 282.6L297.7 278.1L299.1 280.7L300.8 279.5L300.2 281.2L301.2 282.9L298.6 284.2L298.0 285.8L299.6 287.0L302.9 286.1L304.5 288.8L307.2 289.7L307.1 290.8L304.1 291.3L307.8 293.5L309.9 300.8L309.2 304.1L307.3 305.9L307.5 308.0L312.7 313.0L311.8 315.2L314.4 320.4L313.2 324.6L315.2 329.7L316.9 330.4L318.0 335.8L315.9 341.3L314.3 340.8L312.8 337.8L310.9 337.7L311.6 340.2L304.2 343.5L296.9 349.3L295.5 348.6L293.1 349.4L290.4 352.8L287.9 351.0L289.8 355.3L293.0 357.8L291.5 360.3L294.1 364.9L307.8 376.1L306.8 380.5L304.4 379.3L303.2 383.0L296.2 387.6L299.0 391.7L298.5 393.9L300.2 395.0L299.9 397.4L298.6 397.8L295.9 394.9L293.7 395.8L290.3 394.7L290.0 396.1L283.9 396.7L281.5 399.3L277.0 400.1L275.5 397.8L270.6 397.5L270.3 400.2L267.5 402.3L267.7 400.7L265.1 397.7L260.4 397.8L258.2 396.3L250.3 395.2L249.8 393.3L247.6 395.5L249.7 395.5L247.6 397.2L239.5 397.4L237.4 395.2L238.3 387.6L241.3 379.6L246.0 373.7L239.5 372.1L237.8 370.3L235.2 370.9L231.8 369.1L230.2 370.0L227.8 365.5L225.8 364.7L227.3 358.8L224.2 356.2L223.9 353.4L226.9 350.3L226.1 347.4L224.8 346.9L225.1 345.0L223.2 342.9L224.1 340.3L222.0 338.2L225.2 335.8L224.2 334.8L225.9 332.8L225.7 330.2L223.4 326.3L225.8 323.9L228.2 325.2L232.1 323.5L232.1 320.5L235.3 318.6L234.9 315.2L231.7 314.3L231.9 311.9L234.9 311.9L237.1 306.2L238.0 300.5L235.4 299.8L238.3 294.3L245.5 294.4L247.4 299.4L248.4 298.7L248.4 296.3L251.0 297.6L250.9 293.1L252.5 291.4L253.6 292.4L258.2 291.9L255.8 291.7L253.9 289.2L255.1 288.5L254.1 285.2L252.6 284.2L254.5 282.3L254.3 280.2L252.3 274.4ZM277.9 282.7L276.4 282.8L275.4 281.2L277.2 281.2ZM252.8 280.3L252.6 281.7L251.3 281.2ZM251.6 278.3L249.8 277.6L251.8 277.2ZM250.9 289.6L250.1 291.1L249.4 290.7ZM249.7 278.7L249.2 279.4L248.6 278.4L249.5 277.2ZM249.7 275.0L248.7 275.0L249.4 273.1ZM245.2 286.0L245.0 287.5L243.9 285.9ZM234.9 294.4L234.6 296.0L233.7 294.4ZM233.1 295.1L233.4 296.7L232.1 296.4Z","NL":"M236.3 301.6L237.4 301.9L237.1 306.2L234.9 311.9L231.9 311.9L231.7 314.3L234.9 315.2L235.3 318.6L232.1 320.5L232.1 323.5L228.2 325.2L225.8 323.9L223.4 326.3L225.7 330.2L225.9 332.8L224.2 334.8L225.2 335.8L222.0 338.2L224.1 340.3L223.2 342.9L219.6 342.7L221.2 336.0L218.2 333.7L215.5 333.9L213.6 330.4L211.8 330.8L210.8 329.6L209.7 330.8L207.9 329.9L206.7 331.6L200.4 330.2L198.4 328.6L199.2 327.5L201.5 327.5L201.5 324.6L203.8 323.1L203.5 321.1L204.9 320.8L209.1 315.6L213.4 302.0L214.1 302.8L213.2 306.1L216.7 304.8L223.7 299.1L233.0 298.0ZM222.7 297.9L221.7 298.4L221.1 297.6L222.1 296.8ZM217.7 299.3L216.8 298.7L217.7 297.8L218.7 298.5ZM205.1 331.7L201.0 333.7L196.1 332.2L196.0 330.6Z","IE":"M95.3 258.5L90.6 260.2L92.4 264.4L97.2 267.3L98.9 265.9L99.1 264.2L100.9 263.4L103.6 268.0L103.6 270.3L106.9 270.1L107.3 271.7L105.5 272.4L106.5 279.5L104.9 282.9L104.9 289.4L98.6 298.9L98.6 301.3L92.9 299.4L92.0 300.4L88.0 299.8L85.3 301.5L73.1 305.0L66.3 305.1L63.9 303.5L63.8 301.2L60.2 300.7L60.6 298.7L58.3 296.4L61.6 293.5L59.6 291.8L60.0 290.7L63.7 290.9L66.0 287.9L70.7 287.5L68.2 285.4L73.6 279.4L76.6 279.2L77.0 278.2L76.8 277.2L70.3 275.6L69.5 272.6L67.5 271.7L68.5 269.2L70.2 269.0L70.9 266.9L73.3 266.2L70.3 263.1L72.3 263.1L71.9 258.3L78.6 259.3L80.0 262.3L81.9 260.9L84.9 261.5L89.7 258.3L89.9 257.2L85.9 254.7L89.2 252.8L92.1 248.7L98.1 248.5L98.9 251.4L101.3 247.8L104.0 249.6L96.8 256.4L94.7 256.8ZM89.8 250.5L88.9 251.1L88.8 249.3ZM62.6 304.5L61.3 303.9L62.8 303.4ZM70.1 261.8L69.4 263.4L68.9 262.3L69.3 261.3Z","DK":"M314.9 269.9L314.3 271.5L310.4 269.9L311.0 266.5ZM291.9 261.3L291.9 263.1L291.0 262.5L291.3 260.9ZM290.6 262.7L289.1 262.0L286.5 264.0L286.5 265.6L288.6 267.3L286.1 269.5L286.1 271.1L287.2 272.7L289.1 273.2L287.0 274.6L284.4 279.4L279.7 279.3L275.3 276.6L276.1 273.9L280.3 275.5L284.1 273.4L281.5 270.0L277.6 269.1L275.5 261.0L280.9 257.0L282.4 261.7L283.7 258.6L283.3 256.4L286.8 254.0L289.5 255.1ZM282.0 252.1L282.1 253.6L281.1 253.5ZM280.1 243.7L280.2 245.0L279.4 244.9L278.8 243.9ZM276.5 234.9L276.0 235.5L275.8 233.6ZM275.4 235.1L274.9 236.1L273.4 235.2L275.2 234.1ZM272.5 277.2L271.8 275.7L274.0 271.3ZM267.2 244.8L268.3 244.9L269.7 247.4L273.1 247.6L273.9 250.0L272.1 253.2L270.2 254.0L269.5 251.7L268.1 253.2L267.5 258.2L265.2 258.8L265.3 261.0L262.3 261.1L263.3 263.0L261.7 266.1L262.5 268.7L261.2 270.0L261.2 272.3L263.6 271.9L265.8 274.9L261.4 274.8L258.6 276.1L252.3 274.4L252.6 266.7L251.4 265.3L250.4 266.7L249.2 263.3L248.5 264.1L247.4 263.4L248.4 258.9L249.9 257.1L248.0 253.3L248.1 247.4L248.8 245.1L253.1 248.1L256.3 242.4L257.3 245.9L259.2 245.0L257.3 239.5L255.8 239.9L253.6 244.5L250.5 244.5L249.6 242.3L252.5 237.8L259.9 236.6L265.0 230.0L269.5 228.2L270.2 234.8ZM269.3 263.1L270.7 265.3L271.8 263.7L273.1 270.0L271.6 273.8L266.7 272.0L266.6 270.0L264.4 268.8L263.2 264.2ZM271.4 259.8L270.4 258.9L271.2 257.9ZM271.1 257.1L270.2 257.7L270.8 255.6ZM269.9 274.9L269.4 276.1L268.3 274.7ZM251.7 271.5L250.6 271.1L250.9 269.5L252.0 269.6ZM252.4 246.1L251.1 244.9L252.4 244.5Z","SE":"M362.7 82.4L356.1 85.1L353.5 84.0L353.4 85.5L350.8 84.7L350.4 90.6L349.0 90.8L348.9 94.3L347.4 93.7L345.2 102.8L348.6 109.1L343.9 120.9L340.2 123.1L338.3 126.5L336.8 125.7L336.6 127.1L335.2 126.8L333.6 131.3L331.6 130.7L327.8 142.1L323.8 146.9L324.8 149.1L323.8 155.3L325.1 158.3L323.3 158.2L322.4 160.7L326.1 175.3L328.8 176.8L331.1 175.4L334.5 179.3L335.3 177.3L337.0 179.8L336.6 182.6L338.5 181.4L342.5 188.8L340.2 190.4L340.5 195.6L341.5 193.8L341.9 195.2L339.0 201.0L336.7 200.8L333.7 205.0L331.0 203.4L330.7 206.6L328.3 207.6L328.5 209.1L324.4 209.5L326.0 211.1L327.3 215.8L324.7 220.1L326.0 221.0L326.1 227.9L324.4 233.7L325.1 235.0L324.0 242.2L321.5 250.1L319.6 253.0L317.8 251.1L315.4 252.3L309.9 252.5L309.3 254.7L308.0 253.9L305.3 257.9L306.4 262.5L305.4 264.9L297.3 266.4L294.2 265.6L293.2 263.4L293.9 260.6L289.2 252.1L291.3 251.7L290.6 248.8L292.3 248.2L292.2 245.4L287.2 240.4L284.4 232.4L282.9 233.0L282.8 229.9L282.1 229.0L281.3 229.9L281.0 227.2L279.6 227.2L280.2 225.0L276.3 216.1L275.2 206.5L276.5 204.7L278.3 207.8L279.6 207.4L281.1 201.9L280.1 196.3L281.6 194.3L281.0 191.8L284.0 190.5L286.2 187.3L286.9 180.7L284.0 172.5L287.2 171.3L288.4 166.1L282.6 160.3L283.5 151.2L281.4 145.4L282.2 138.9L280.7 134.3L281.7 129.0L285.3 122.6L289.0 120.5L294.9 121.2L295.8 118.4L295.2 114.5L292.2 111.7L297.2 99.8L297.4 91.3L296.3 86.1L299.8 85.5L302.7 83.1L301.9 79.8L307.4 69.9L305.1 63.3L307.1 61.2L308.3 55.7L311.4 51.8L315.5 53.4L316.5 50.3L315.8 44.2L317.6 43.4L327.4 45.3L328.4 38.0L327.2 34.5L329.1 33.5L340.1 41.4L346.7 43.3L347.9 45.6L351.3 48.0L351.9 56.2L354.1 56.8L353.9 60.8L357.7 66.0L357.7 75.4ZM354.4 89.8L352.7 89.4L352.9 87.8ZM347.1 218.5L344.2 223.8L344.4 226.4L345.7 227.5L340.6 236.6L338.5 226.6L342.9 219.6ZM337.6 203.4L336.3 203.1L337.2 202.0ZM326.0 249.0L325.3 250.0L324.5 245.0L329.4 230.6ZM293.1 266.2L292.0 265.6L292.9 264.5Z"};
 const MAP_CENT = {"ES":[92.5,501.8],"FR":[178.7,409.5],"PT":[34.6,501.8],"IT":[293.6,465.0],"SI":[321.5,419.6],"AT":[312.1,395.6],"LU":[223.2,359.3],"CZ":[323.2,358.9],"MT":[326.1,589.9],"CY":[582.1,557.3],"EL":[428.7,519.4],"BG":[452.1,458.6],"HR":[341.3,435.0],"RO":[439.5,408.6],"HU":[372.4,397.2],"SK":[370.0,371.5],"PL":[362.2,315.1],"LT":[397.3,254.6],"LV":[401.4,227.6],"EE":[402.5,196.1],"FI":[382.7,105.0],"BE":[208.8,343.9],"DE":[269.4,339.1],"NL":[220.4,317.3],"IE":[85.1,281.0],"DK":[259.5,252.7],"SE":[314.2,146.9]};
-// Land borders derived from shared geometry + maritime links (IE–FR, MT–IT, CY–EL, DK–SE, EE–FI).
+// Expansion adjacency: shared land borders, plus five maritime links (IE-FR, MT-IT, CY-EL, DK-SE, EE-FI).
 const NUTS_BORDERS = {"ES":["FR","PT"],"FR":["BE","DE","ES","IE","IT","LU"],"PT":["ES"],"BE":["DE","FR","LU","NL"],"LU":["BE","DE","FR"],"DE":["AT","BE","CZ","DK","FR","LU","NL","PL"],"IT":["AT","FR","MT","SI"],"AT":["CZ","DE","HU","IT","SI","SK"],"SI":["AT","HR","HU","IT"],"HR":["HU","SI"],"HU":["AT","HR","RO","SI","SK"],"SK":["AT","CZ","HU","PL"],"CZ":["AT","DE","PL","SK"],"PL":["CZ","DE","LT","SK"],"BG":["EL","RO"],"EL":["BG","CY"],"RO":["BG","HU"],"LT":["LV","PL"],"LV":["EE","LT"],"EE":["FI","LV"],"SE":["DK","FI"],"FI":["EE","SE"],"NL":["BE","DE"],"DK":["DE","SE"],"IE":["FR"],"MT":["IT"],"CY":["EL"]};
 
 // Game ISO ⇄ NUTS country code (Greece is GR in the game, EL in NUTS)
@@ -1794,11 +3316,8 @@ function activeNutsCodes(gs) {
 }
 
 /* ── Map pan & zoom ───────────────────────────────────────────
-   The map fits its panel by default. On a phone the smaller countries
-   (Benelux, the Baltics, the Aegean) are too small to inspect, so the
-   view supports drag-to-pan, pinch-to-zoom, wheel-zoom and buttons.
-   Zoom is expressed as a factor on the base viewBox; panning is clamped
-   so you can never lose the map off-screen.
+   Zoom is a factor on the base viewBox; panning is clamped so the
+   visible rectangle always stays inside the map bounds.
 ─────────────────────────────────────────────────────────────── */
 const MAP_ZOOM_MIN = 1;
 const MAP_ZOOM_MAX = 7;
@@ -1908,7 +3427,7 @@ function useMapView() {
   const endPointer = (countAsTap) => (e) => {
     // A pointer we never saw go down on the map is not ours. This happens when
     // an overlay (an event modal, say) closes on pointerdown and the matching
-    // pointerup lands on the map underneath — that must not count as a tap,
+    // pointerup lands on the map underneath. That must not count as a tap,
     // or dismissing two events quickly reads as a double-tap and zooms.
     const ours = pointers.current.has(e.pointerId);
     pointers.current.delete(e.pointerId);
@@ -2786,7 +4305,7 @@ function ProjectsModal({ gs, dispatch, onClose, panel }) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   STAFF MODAL · BUG FIX: action now uses roleId, not r
+   STAFF MODAL
 ═══════════════════════════════════════════════════════════ */
 function StaffModal({ gs, dispatch, onClose, panel }) {
   if (!gs) return null;
@@ -2853,7 +4372,7 @@ function StaffModal({ gs, dispatch, onClose, panel }) {
           const blockReason = hireBlockReason(gs, staffRole.id);
           const afford  = (gs.budget||0) >= price * 3 && !blockReason;
           const count   = byRole(roster, staffRole.id);
-          // BUG FIX: capture roleId in a stable variable, dispatch uses roleId not staffRole
+          // Capture roleId in a stable variable so the handler dispatches the right role.
           const roleId  = staffRole.id;
           return (
             <div key={`hire-${roleId}`} style={{background:P.card,borderRadius:8,padding:12,border:`1px solid ${P.border}`}}>
@@ -3507,6 +5026,28 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
   const [country, setCountry] = useState("");
   const [region,  setRegion]  = useState("");
   const [sector,  setSector]  = useState(null);
+  const [clusterName, setClusterName] = useState("");
+  const [nameQuery, setNameQuery] = useState("");
+  // Choosing a registry profile fixes the country and ecosystem together, which
+  // avoids offering combinations the registry has no profiles for.
+  const registryMatches = useMemo(() => {
+    const q = nameQuery.trim().toLowerCase();
+    if (q.length < 2) return [];
+    return ECCP_CLUSTERS
+      .filter(c => c.e && ISO_TO_NAME[c.c] && EU_COUNTRIES[ISO_TO_NAME[c.c]] &&
+                   (c.n.toLowerCase().includes(q) || (c.y||"").toLowerCase().includes(q)))
+      .slice(0, 40);
+  }, [nameQuery]);
+  const adoptCluster = c => {
+    const cn = ISO_TO_NAME[c.c];
+    setClusterName(c.n);
+    setCountry(cn);
+    const eco = ECOSYSTEMS.find(e => e.id === c.e);
+    if (eco) setSector(eco);
+    setRegion("");
+    setNameQuery("");
+    setStep(1);
+  };
 
   const sel = (active, col=P.accent) => ({
     padding:"6px 11px", borderRadius:5, border:`1px solid ${active?col:P.border}`,
@@ -3571,7 +5112,30 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                 </div>
                 {challengeApplied && <div style={{fontSize:10,color:P.greenText,marginTop:5,fontFamily:"'DM Mono',monospace"}}>✓ Challenge loaded: {DIFFICULTIES[diff]?.label} · {SCENARIOS.find(x=>x.id===scenario)?.name} · pick your country to match</div>}
               </div>
-              <div style={{marginBottom:2,fontSize:14,fontWeight:700}}>Select your country</div>
+              <div style={{marginBottom:10,padding:"11px 13px",borderRadius:8,border:`1px solid ${P.border}`,background:P.card}}>
+                <div style={{fontSize:10,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>Take the helm of a real cluster</div>
+                <input value={nameQuery} onChange={e=>setNameQuery(e.target.value)} placeholder="Search 1,400+ real clusters by name or city…" aria-label="Search real cluster organisations"
+                  style={{width:"100%",boxSizing:"border-box",padding:"7px 10px",borderRadius:6,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:12,outline:"none"}}/>
+                {registryMatches.length > 0 && (
+                  <div style={{maxHeight:168,overflowY:"auto",marginTop:6,border:`1px solid ${P.border}`,borderRadius:6}}>
+                    {registryMatches.map((c,i) => (
+                      <button key={`${c.n}-${i}`} className="btn" onClick={()=>adoptCluster(c)}
+                        style={{display:"block",width:"100%",textAlign:"left",padding:"7px 10px",border:"none",borderBottom:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11.5,lineHeight:1.35}}>
+                        <span style={{fontWeight:600}}>{c.n}</span>
+                        <span style={{color:P.muted,fontFamily:"'DM Mono',monospace",fontSize:10}}>{"  "}{c.y ? c.y+", " : ""}{c.c} · {ECOSYSTEMS.find(e=>e.id===c.e)?.name || c.e}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {nameQuery.trim().length >= 2 && registryMatches.length === 0 && (
+                  <div style={{fontSize:10.5,color:P.muted,marginTop:6}}>No registry match. Keep typing, or just pick a country below and name the cluster yourself.</div>
+                )}
+                <div style={{fontSize:9.5,color:P.muted,marginTop:7,lineHeight:1.45}}>
+                  Names come from the European Cluster Collaboration Platform. Picking one sets its country and ecosystem; everything that happens afterwards is fiction.
+                </div>
+              </div>
+
+              <div style={{marginBottom:2,fontSize:14,fontWeight:700}}>Or select your country</div>
               <div style={{marginBottom:12,fontSize:11,color:P.muted}}>Where your cluster is based. You can expand into other countries later.</div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(128px,1fr))",gap:5,maxHeight:290,overflowY:"auto",paddingRight:4}}>
                 {Object.keys(EU_COUNTRIES).sort().map(c => (
@@ -3630,8 +5194,15 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                     </div>
                     <div style={{fontSize:10,color:P.muted,marginTop:5,minHeight:26,lineHeight:1.4}}>{DIFFICULTIES[diff].desc}</div>
                   </div>
+                  <div style={{marginTop:14}}>
+                    <div style={{fontSize:10,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.6,marginBottom:6}}>Cluster name</div>
+                    <input value={clusterName} onChange={e=>setClusterName(e.target.value)} maxLength={70}
+                      placeholder={`e.g. ${region} ${sector.name} Cluster`} aria-label="Name your cluster organisation"
+                      style={{width:"100%",boxSizing:"border-box",padding:"8px 10px",borderRadius:6,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:12,outline:"none"}}/>
+                    <div style={{fontSize:9.5,color:P.muted,marginTop:4}}>Optional. Leave it blank and the header just shows your ecosystem.</div>
+                  </div>
                   <div style={{fontSize:10,color:P.muted,marginTop:10,lineHeight:1.4}}>Scenario <strong style={{color:P.goldText}}>{SCENARIOS.find(x=>x.id===scenario)?.name}</strong>{seed?` · seed "${seed.trim()}"`:""} — change these on the first step.</div>
-                  <button className="btn" onClick={() => onStart(country, region, sector, diff, scenario, seed.trim())} style={{marginTop:10,width:"100%",padding:13,borderRadius:8,background:`linear-gradient(135deg,${P.accent},${P.blue})`,color:P.bg,fontWeight:700,fontSize:15,fontFamily:"'Montserrat',sans-serif",letterSpacing:.3}}>
+                  <button className="btn" onClick={() => onStart(country, region, sector, diff, scenario, seed.trim(), clusterName.trim())} style={{marginTop:10,width:"100%",padding:13,borderRadius:8,background:`linear-gradient(135deg,${P.accent},${P.blue})`,color:P.bg,fontWeight:700,fontSize:15,fontFamily:"'Montserrat',sans-serif",letterSpacing:.3}}>
                     <Icon name={sector.icon} size={14} color="#fff" style={{marginRight:6}}/> Launch {sector.name} cluster in {region} <Icon name="arrow-right" size={12} color="#fff" style={{marginLeft:6}}/>
                   </button>
                 </>
@@ -3965,8 +5536,8 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
           <div style={{display:"flex",alignItems:"center",gap:8}}>
             <Icon name={gs.sector?.icon||"display"} size={18} color={gs.sector?.color||P.text}/>
             <div style={{flex:1,minWidth:0}}>
-              <div style={{fontSize:12,fontWeight:700,color:gs.sector?.color||P.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.sector?.name}</div>
-              <div style={{fontSize:10,color:P.muted,fontFamily:"'DM Mono',monospace"}}>{stage.name}</div>
+              <div title={gs.clusterName || gs.sector?.name} style={{fontSize:12,fontWeight:700,color:gs.sector?.color||P.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName || gs.sector?.name}</div>
+              <div style={{fontSize:10,color:P.muted,fontFamily:"'DM Mono',monospace",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName ? `${stage.name} · ${gs.sector?.name}` : stage.name}</div>
             </div>
             <button className="btn" onClick={onSnd} title="Toggle sound" style={{padding:"5px 8px",borderRadius:6,border:`1px solid ${P.border}`,background:P.card,display:"inline-flex"}}><Icon name={snd?"volume-high":"volume-xmark"} size={13} color={P.muted}/></button>
             <button className="btn" onClick={onTheme} title="Toggle dark mode" style={{padding:"5px 8px",borderRadius:6,border:`1px solid ${P.border}`,background:P.card,display:"inline-flex"}}><Icon name={dark?"sun":"moon"} size={13} color={P.muted}/></button>
@@ -4280,7 +5851,7 @@ function migrateSave(s) {
   if (!s.rivalSeats || typeof s.rivalSeats !== "object") s = { ...s, rivalSeats: {} };
   if (!s.rivalOps || typeof s.rivalOps !== "object") s = { ...s, rivalOps: {} };
   if (!Array.isArray(s.history)) s = { ...s, history: [] };
-  if (!s.mix) s = { ...s, mix: defaultMix(s.members||0) };
+  if (!s.mix) s = { ...s, mix: defaultMix(s.members||0, s.sector?.id) };
   if (!s.focus) s = { ...s, focus: "balanced" };
   if (!s.peak) s = { ...s, peak: { budget: s.budget||0, members: s.members||0 } };
   if (!s.achv) s = { ...s, achv: {} };
@@ -4392,7 +5963,7 @@ function exportSave(gs) {
   return `${SAVE_CODE_TAG}.${saveChecksum(json)}.${b64encode(json)}`;
 }
 
-/* Returns { ok:true, state } or { ok:false, error } — never throws, so the UI
+/* Returns { ok:true, state } or { ok:false, error }. Never throws, so the UI
    can show a plain-language reason. */
 function importSave(code) {
   const raw = String(code || "").trim().replace(/\s+/g, "");
@@ -4610,7 +6181,7 @@ export default function App() {
   // Stop auto-advance on win/lose
   useEffect(() => { if (gs && (gs.gameOver || gs.gameWon)) setAuto(false); }, [gs?.gameOver, gs?.gameWon]);
 
-  function startNew(c, r, s, d, scenarioId="classic", seedStr="") {
+  function startNew(c, r, s, d, scenarioId="classic", seedStr="", clusterName="") {
     setAuto(false); clearSave(); undoRef.current = null;
     const scen = SCENARIOS.find(x => x.id === scenarioId) || SCENARIOS[0];
     const R = Math.random;
@@ -4618,7 +6189,7 @@ export default function App() {
     let g = initState(c, r, s, d);
     if (scen.apply) g = scen.apply(g);
     Math.random = R;
-    g = { ...g, scenario: scen.id, seedStr };
+    g = { ...g, scenario: scen.id, seedStr, clusterName: (clusterName||"").trim() };
     if (scen.id !== "classic") g.log = [{t:"info",txt:`SCENARIO: ${scen.name} — ${scen.desc}`}, ...(g.log||[])];
     setGs(g); setScreen("game");
   }

@@ -93,10 +93,17 @@ function htmlShell(js, { readable }) {
   const title =
     "Cluster Manager · EU Industrial Strategy Simulation" +
     (readable ? " (readable build)" : "");
-  const header = readable
-    ? `
-<!-- Cluster Manager — readable build. Free software (GNU GPL v3). -->`
-    : "";
+  // Attribution has to survive in the distributed file, and esbuild strips
+  // comments out of the bundle, so it lives in the HTML shell instead.
+  const notices = `
+<!--
+  Cluster Manager${readable ? " (readable build)" : ""}. Free software under the GNU GPL v3.
+  Icons: Font Awesome Free 6, CC BY 4.0 / MIT.
+  Administrative boundaries (c) EuroGeographics.
+  Cluster names: European Cluster Collaboration Platform registry.
+  React (c) Meta Platforms, Inc., MIT licence.
+-->`;
+  const header = notices;
   if (readable) js = stripModuleComments(js);
   // Escape any literal </script> in the bundle so it can't close our tag early.
   const safeJs = js.replace(/<\/script/g, "<\\/script");

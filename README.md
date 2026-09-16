@@ -3,7 +3,6 @@
 An EU industrial strategy simulation in a single HTML file.
 
 You start with a small regional cluster initiative and build it into the Pan-European Cluster Network. Or you outlast your rivals and win by consolidating the market. On the way you hire a named team, finance projects that run on public funding, expand across a real map of Europe, play politics in Brussels, and fend off rival clusters that each have a personality.
-<img width="1920" height="1080" alt="preview" src="https://github.com/user-attachments/assets/56848206-8831-4c62-9d46-f5b786265cf3" />
 
 ## Play
 
@@ -60,6 +59,10 @@ You win by reaching Stage 5 before your rivals, or by clearing the field of them
 ## Grounded in reality
 
 The rules come from public European Commission reports and research on clusters, innovation ecosystems and Smart Specialisation (S3).
+
+Cluster names and membership calibration come from the [European Cluster Collaboration Platform](https://reports.clustercollaboration.eu/) registry. You can take the helm of any of 1,445 real cluster organisations across the EU and candidate countries, and your rivals are drawn from the same list, matched to their real country and industrial ecosystem. Membership composition follows the registry too: across 1,300 profiles reporting a usable split, the median cluster is 81.5 per cent SME, 9.3 per cent corporate and 9.2 per cent research, and each ecosystem starts from its own observed mix. That is why a mobility cluster earns more in membership fees than a textiles one.
+
+Only organisational fields are used: names, countries, cities and ecosystems. No contact details or named individuals appear anywhere in the game. What the rivals then do is invented, and describes no real organisation.
 
 ## Tech notes
 

@@ -115,6 +115,63 @@ const click = (el) => act(() => {
   }
 }
 
+/* ── dismissing an overlay must not zoom the map ─────────── */
+{
+  // Regression: an event modal closes on pointerdown, so its pointerup lands on
+  // the map underneath. Two quick dismissals used to read as a double-tap and
+  // zoom the map to wherever the button was (which is over Scandinavia).
+  render(React.createElement(G.EUMap, { gs, sel: null, setSel: () => {} }));
+  const svg = qsa("svg")[0];
+  const fitted = svg.getAttribute("viewBox");
+
+  const strayUp = (x, y) => act(() => {
+    const ev = new dom.window.Event("pointerup", { bubbles: true });
+    Object.assign(ev, { pointerId: 1, clientX: x, clientY: y, pointerType: "mouse", button: 0 });
+    svg.dispatchEvent(ev);
+  });
+
+  strayUp(300, 200);
+  strayUp(300, 200); // immediately again, as two fast dismissals would
+  ok(qsa("svg")[0].getAttribute("viewBox") === fitted,
+     "pointer-ups with no matching pointer-down on the map never zoom it");
+
+  // a genuine double-tap (down+up twice in the same spot) still zooms
+  const tap = (x, y) => act(() => {
+    for (const type of ["pointerdown", "pointerup"]) {
+      const ev = new dom.window.Event(type, { bubbles: true });
+      Object.assign(ev, { pointerId: 2, clientX: x, clientY: y, pointerType: "mouse", button: 0 });
+      svg.dispatchEvent(ev);
+    }
+  });
+  tap(300, 200);
+  tap(300, 200);
+  const after = qsa("svg")[0].getAttribute("viewBox");
+  ok(after !== fitted, "a real double-tap on the map still zooms in");
+
+  // and double-tapping again returns to the fitted view
+  tap(300, 200);
+  tap(300, 200);
+  ok(qsa("svg")[0].getAttribute("viewBox") === fitted, "double-tapping again restores the whole map");
+}
+
+/* ── two taps far apart are not a double-tap ─────────────── */
+{
+  render(React.createElement(G.EUMap, { gs, sel: null, setSel: () => {} }));
+  const svg = qsa("svg")[0];
+  const fitted = svg.getAttribute("viewBox");
+  const tapAt = (x, y, id) => act(() => {
+    for (const type of ["pointerdown", "pointerup"]) {
+      const ev = new dom.window.Event(type, { bubbles: true });
+      Object.assign(ev, { pointerId: id, clientX: x, clientY: y, pointerType: "mouse", button: 0 });
+      svg.dispatchEvent(ev);
+    }
+  });
+  tapAt(100, 100, 7);
+  tapAt(400, 380, 8); // quick, but a long way away
+  ok(qsa("svg")[0].getAttribute("viewBox") === fitted,
+     "two quick taps in different places are treated as separate clicks, not a zoom");
+}
+
 /* ── the watermark stays out of the zoomable layer ───────── */
 {
   render(React.createElement(G.EUMap, { gs, sel: null, setSel: () => {} }));
@@ -254,6 +311,74 @@ const click = (el) => act(() => {
   ok(G.CSS.includes("html.dark .float-delta"), "the halo has a dark-mode override");
   ok(!/text-shadow:0 1px 4px rgba\(255,255,255,\.8\)\}/.test(G.CSS),
      "the old hardcoded white halo is gone");
+}
+
+/* ── the real-cluster picker on setup ────────────────────── */
+{
+  let threw = null;
+  try { render(React.createElement(G.Setup, { onStart: () => {}, canResume: false, onResume: () => {} })); }
+  catch (e) { threw = e; }
+  ok(!threw, `setup renders with the registry picker${threw ? ` (${threw.message})` : ""}`);
+
+  if (!threw) {
+    const search = qsa("input").find((i) => /real cluster/i.test(i.getAttribute("aria-label") || ""));
+    ok(!!search, "setup offers a search over real cluster organisations");
+    ok(/European Cluster Collaboration Platform/i.test(text()),
+       "the ECCP is credited where the names are offered");
+    ok(/fiction/i.test(text()), "the setup screen makes clear that what follows is fiction");
+
+    if (search) {
+      // typing a real cluster's name should surface it
+      act(() => {
+        const setter = Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value").set;
+        setter.call(search, "Photonics");
+        search.dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+      });
+      const hits = qsa("button").filter((b) => /photonics/i.test(b.textContent));
+      ok(hits.length >= 1, `searching the registry returns matches (${hits.length})`);
+
+      // and picking one should move setup on to region selection
+      if (hits.length) {
+        click(hits[0]);
+        ok(!/Or select your country/i.test(text()) || /region/i.test(text()),
+           "adopting a real cluster advances past the country step");
+      }
+    }
+  }
+}
+
+/* ── the wordmark is never an invisible gradient bar ─────── */
+{
+  // Regression: the title used gradient-filled text with no fallback. When the
+  // gradient couldn't be clipped to the glyphs (unsupported, or a repaint before
+  // the webfont loaded) the gradient filled the whole box and the transparent
+  // text disappeared — a coloured bar where "CLUSTER MANAGER" should be.
+  ok(G.CSS.includes(".brand-title"), "the wordmark is styled by a class, not fragile inline styles");
+  ok(/\.brand-title\{color:#[0-9A-Fa-f]{6}/.test(G.CSS),
+     "the wordmark has a solid colour by default, so it is legible even if the gradient never paints");
+  ok(G.CSS.includes("@supports"), "the transparent-glyph trick is behind a feature query");
+
+  // the transparent fill must only ever apply inside the @supports block AND
+  // once fonts are ready — never unconditionally
+  const transparentRules = G.CSS.split("\n").filter((l) => /text-fill-color:transparent/.test(l));
+  ok(transparentRules.length > 0, "the gradient fill is defined");
+  const supportsBlock = G.CSS.slice(G.CSS.indexOf("@supports ((-webkit-background-clip"));
+  ok(transparentRules.every((l) => supportsBlock.includes(l.trim())),
+     "every transparent-text rule sits inside the feature query");
+  ok(/html\.fonts-ready \.brand-title/.test(G.CSS),
+     "the gradient only switches on once the webfonts have loaded");
+
+  // and the markup actually uses it, with the text present for screen readers
+  let threw = null;
+  try { render(React.createElement(G.Setup, { onStart: () => {}, savedExists: false, onLoad: () => {} })); }
+  catch (e) { threw = e; }
+  if (!threw) {
+    const h1 = qsa("h1")[0];
+    ok(!!h1 && /brand-title/.test(h1.className || ""), "the title element carries the wordmark class");
+    ok(!!h1 && /CLUSTER/i.test(h1.textContent || ""), "the title text is real text, readable by assistive tech");
+    ok(!(h1 && /text-fill-color/i.test(h1.getAttribute("style") || "")),
+       "the title no longer hard-codes a transparent fill inline");
+  } else ok(false, `setup renders for the wordmark check (${threw.message})`);
 }
 
 /* ── the setup screen offers the full choice set ───────── */
