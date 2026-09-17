@@ -74,17 +74,11 @@ html.dark .float-delta{--delta-halo:rgba(5,10,20,.92)}
 .map-new{animation:regionPop 1.6s ease-out both}
 .map-contested{animation:shimmer 2.6s ease-in-out infinite}
 
-/* Gradient-filled wordmark. If the gradient cannot be clipped to the glyphs it
-   fills the whole box instead and the transparent text disappears, so the title
-   stays solid-coloured until both the feature query and the fonts confirm. */
-.brand-title{color:#3860ED;background-image:#003399}
-html.dark .brand-title{color:#5C8AFF;background-image:#6D9BFF}
-@supports ((-webkit-background-clip:text) or (background-clip:text)){
-  html.fonts-ready .brand-title{
-    -webkit-background-clip:text;background-clip:text;
-    -webkit-text-fill-color:transparent;color:transparent;
-  }
-}
+/* The wordmark is solid Reflex Blue. It was gradient-filled text, which depends
+   on clipping a background to the glyphs and leaves the title invisible whenever
+   that clip does not apply. Flat colour cannot fail, and suits the rest. */
+.brand-title{color:#003399}
+html.dark .brand-title{color:#6D9BFF}
 /* The map sea fills its whole panel edge-to-edge; the dot grid is a fixed-size CSS
    layer so it stays crisp no matter how the SVG map scales inside it. */
 .map-sea{background:radial-gradient(circle at 42% 36%, #fbfdff 0%, #eef3fb 70%, #e7edf7 100%)}
@@ -6330,20 +6324,6 @@ function SaveSlots({ gs, onClose, onLoad }) {
 ═══════════════════════════════════════════════════════════ */
 export default function App() {
   const [screen, setScreen] = useState("setup");
-  // Enable gradient-filled text only once the webfonts have actually loaded;
-  // before that the wordmark stays solid-coloured and therefore always legible.
-  useEffect(() => {
-    if (typeof document === "undefined") return;
-    const mark = () => { try { document.documentElement.classList.add("fonts-ready"); } catch(e) {} };
-    let t;
-    if (document.fonts && document.fonts.ready && typeof document.fonts.ready.then === "function") {
-      document.fonts.ready.then(mark, mark);
-      t = setTimeout(mark, 3000); // don't leave it solid forever if the promise stalls
-    } else {
-      t = setTimeout(mark, 400);  // no Font Loading API: give the font a moment
-    }
-    return () => clearTimeout(t);
-  }, []);
   const [dark, setDark] = useState(false);
   useEffect(() => { // restore theme
     try { window.storage?.get?.("cm_theme").then(r => { if (r?.value === "dark") { applyTheme(true); setDark(true); } }).catch(()=>{}); } catch(e) {}

@@ -452,19 +452,17 @@ const click = (el) => act(() => {
   // the webfont loaded) the gradient filled the whole box and the transparent
   // text disappeared — a coloured bar where "CLUSTER MANAGER" should be.
   ok(G.CSS.includes(".brand-title"), "the wordmark is styled by a class, not fragile inline styles");
-  ok(/\.brand-title\{color:#[0-9A-Fa-f]{6}/.test(G.CSS),
-     "the wordmark has a solid colour by default, so it is legible even if the gradient never paints");
-  ok(G.CSS.includes("@supports"), "the transparent-glyph trick is behind a feature query");
+  ok(/\.brand-title\{color:#[0-9A-Fa-f]{6}\}/.test(G.CSS),
+     "the wordmark is a flat colour, which cannot fail to paint");
 
-  // the transparent fill must only ever apply inside the @supports block AND
-  // once fonts are ready — never unconditionally
-  const transparentRules = G.CSS.split("\n").filter((l) => /text-fill-color:transparent/.test(l));
-  ok(transparentRules.length > 0, "the gradient fill is defined");
-  const supportsBlock = G.CSS.slice(G.CSS.indexOf("@supports ((-webkit-background-clip"));
-  ok(transparentRules.every((l) => supportsBlock.includes(l.trim())),
-     "every transparent-text rule sits inside the feature query");
-  ok(/html\.fonts-ready \.brand-title/.test(G.CSS),
-     "the gradient only switches on once the webfonts have loaded");
+  // It was gradient-filled text, which sets the glyphs transparent and relies on
+  // a clipped background showing through. Any failure of that clip left the title
+  // invisible, so nothing may set the wordmark transparent by any route.
+  ok(!/text-fill-color:\s*transparent/.test(G.CSS),
+     "no rule makes glyphs transparent anywhere in the stylesheet");
+  ok(!/background-clip:\s*text/.test(G.CSS), "the wordmark no longer depends on clipping a background to text");
+  ok(!/\.brand-title[^{]*\{[^}]*background-image/.test(G.CSS), "the wordmark carries no background image");
+  ok(!/fonts-ready/.test(G.CSS), "nothing waits on a webfont before becoming visible");
 
   // and the markup actually uses it, with the text present for screen readers
   let threw = null;
