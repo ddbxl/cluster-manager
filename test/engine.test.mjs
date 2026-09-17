@@ -127,6 +127,46 @@ const fresh = (country = "Austria", region = "Steiermark") =>
   t.ok(G.projMargin(proj, "expert") <= G.projMargin(proj, "junior"), "Junior difficulty is no less generous than Expert on margins");
 }
 
+/* ── the economy stays a constraint late on ───────────────── */
+{
+  // Membership income scales with both headcount and stage, so without a
+  // matching cost it compounds and the endgame stops being a game. Servicing
+  // costs rise as a share of the fee to keep the surplus meaningful but bounded.
+  t.ok(Array.isArray(G.SERVICING_SHARE) && G.SERVICING_SHARE.length === 6,
+       "every stage has a servicing share");
+  t.ok(G.SERVICING_SHARE.every((s, i) => i === 0 || s > G.SERVICING_SHARE[i - 1]),
+       "servicing takes a bigger share of the fee at every stage");
+  t.ok(G.SERVICING_SHARE[5] < 0.9, "servicing never swallows the whole fee");
+
+  const fee = st => [500, 1500, 3000, 5500, 9000, 16000][st];
+  const profile = [[10,1,2],[45,2,5],[150,4,10],[350,8,18],[600,14,28],[900,20,40]];
+  const nets = profile.map(([mem, regs, staff], st) => {
+    const roster = [{ role:"manager", hiredTurn:0, skill:3 },
+      ...Array.from({length: staff-1}, (_, i) => ({ role:["comms","pm","analyst","trainer","finance","legal","hr","director"][i%8], hiredTurn:0, skill:3 }))];
+    const turn = st * 14;
+    const income = mem * fee(st);
+    return income - G.servicingCost(mem, st) - G.calcOverhead(st, true, regs, turn) - G.staffCostQ(roster, turn);
+  });
+  t.ok(nets[5] > 0, "a mature cluster still runs a surplus");
+  t.ok(nets[5] < 4_000_000,
+       `the endgame surplus stays bounded (${Math.round(nets[5]).toLocaleString()} a quarter)`);
+  t.ok(nets[5] > nets[2], "growing the cluster is still worth doing");
+  t.ok(nets[5] / Math.max(1, nets[2]) < 40,
+       "late income does not outrun early income by orders of magnitude");
+
+  // costs drift up over a campaign, so an old treasury buys less
+  t.ok(G.costIndex(0) === 1, "the cost index starts at parity");
+  t.ok(G.costIndex(40) > G.costIndex(0), "costs inflate over a long campaign");
+  t.near(G.costIndex(40), Math.pow(1.01, 40), 0.001, "inflation runs at one per cent a quarter");
+  t.ok(G.calcOverhead(3, false, 5, 40) > G.calcOverhead(3, false, 5, 0),
+       "overheads rise as the campaign runs on");
+
+  // servicing must be visible to the player, not a silent deduction
+  const played = playQuarters(G, { ...fresh(), budget: 3_000_000 }, 8);
+  t.ok(typeof played.qServicing === "number" && played.qServicing >= 0,
+       "member servicing is reported as its own line in the quarter's finances");
+}
+
 /* ── difficulty multipliers are ordered sensibly ───────────── */
 {
   const { junior, officer, expert } = G.DIFFICULTIES;
@@ -290,6 +330,57 @@ const fresh = (country = "Austria", region = "Steiermark") =>
     const inside = v.x >= 0 && v.y >= 0 && v.x + W / v.z <= W + 0.01 && v.y + H / v.z <= H + 0.01;
     t.ok(inside, `at ${z}x the visible area stays within the map bounds`);
   }
+}
+
+/* ── explaining why a stat moved ──────────────────────────── */
+{
+  const g = playQuarters(G, { ...fresh(), budget: 2_000_000 }, 10);
+  const trends = G.statTrends(g);
+  for (const key of ["influence", "members", "board", "budget"]) {
+    const tr = trends[key];
+    t.ok(tr && typeof tr.delta === "number" && Array.isArray(tr.factors),
+         `${key} reports a per-quarter change with its causes`);
+  }
+  const text = G.trendTitle(trends.budget);
+  t.ok(/rising|falling|Holding steady/.test(text), "the explanation says which way the stat is moving");
+  t.ok(/Mostly/.test(text), "the explanation names the dominant cause first");
+  t.ok(/per quarter/.test(text), "the explanation gives the rate");
+  t.ok(!/undefined|NaN/.test(text), "the explanation contains no broken values");
+
+  // the biggest driver must actually be listed first
+  const sorted = [...trends.budget.factors].sort((a, b) => Math.abs(b.v) - Math.abs(a.v));
+  if (sorted.length) t.ok(text.includes(sorted[0].l), "the named cause is the largest contributor");
+
+  // servicing must appear in the treasury breakdown now that it is charged
+  const labels = trends.budget.factors.map(f => f.l);
+  t.ok(labels.some(l => /servicing/i.test(l)) || g.qServicing === 0,
+       "member servicing shows up in the treasury breakdown");
+  t.ok(G.trendTitle(null) === "", "a missing trend explains nothing rather than crashing");
+}
+
+/* ── sharing a run ────────────────────────────────────────── */
+{
+  const g = { ...fresh(), seedStr: "brussels", difficulty: "officer", scenario: "rescue",
+    clusterName: "Silicon Alps", stage: 4, members: 612, turn: 52,
+    countries: ["Austria", "Germany", "Italy"], completedProjects: Array(23).fill({ id: "x" }),
+    seats: { regional: true, national: true }, gameWon: true, winType: "network" };
+  const score = G.runScore(g), grade = G.scoreGrade(score);
+  const text = G.shareSummary(g, score, grade);
+  t.ok(text.includes("Silicon Alps"), "the summary names your cluster");
+  t.ok(text.includes(grade), "the summary carries the grade");
+  t.ok(/612/.test(text), "the summary carries the membership reached");
+  t.ok(/Officer/.test(text), "the summary states the difficulty");
+  t.ok(/Rescue/.test(text), "the summary names a non-default scenario");
+  t.ok(text.includes("CM1|brussels|officer|rescue"), "the summary carries the challenge so others can race it");
+  t.ok(!/undefined|NaN|\[object/.test(text), "the summary has no broken values");
+
+  // an unseeded run cannot promise a replayable challenge
+  const noSeed = G.shareSummary({ ...g, seedStr: "" }, score, grade);
+  t.ok(!/Race the same start/.test(noSeed), "an unseeded run does not offer a challenge link");
+
+  // the challenge in a shared link must round-trip
+  const parsed = G.parseChallenge(G.challengeURL(g).split("cm=").pop().replace(/%7C/gi, "|"));
+  t.ok(parsed && parsed.seed === "brussels", "a shared challenge link round-trips its seed");
 }
 
 /* ── save export / import ─────────────────────────────────── */
@@ -542,6 +633,48 @@ const fresh = (country = "Austria", region = "Steiermark") =>
   t.ok(G.STAFF_ROLES.every((r) => G.roleCost(r, 0) > 0), "every role costs something to hire");
   t.ok(G.roleCost(G.STAFF_ROLES[0], 40) > G.roleCost(G.STAFF_ROLES[0], 0), "salaries inflate over a long campaign");
   t.ok(G.STAFF_ROLES.find((r) => r.id === "manager"), "the General Manager role exists");
+}
+
+/* ── regional S3 data ─────────────────────────────────────── */
+{
+  const R = G.REGIONS_BY_COUNTRY;
+  const countries = Object.keys(R);
+  const all = countries.flatMap(c => R[c]);
+  t.eq(countries.length, 27, "every EU member state has regions");
+  t.ok(all.length > 200, `the region table is complete (${all.length} records)`);
+  t.ok(all.every(r => r.name && r.nuts), "every region has a name and a NUTS code");
+  t.ok(all.every(r => Array.isArray(r.ecos) && r.ecos.length > 0),
+       "every region lists at least one smart-specialisation priority");
+
+  // an innovation tier the modifier table cannot read would silently flatten the
+  // region's starting conditions, so every value present must map to an entry
+  const unmapped = [...new Set(all.map(r => r.ris || ""))].filter(v => !(v in G.RIS_MODIFIER));
+  t.eq(unmapped.length, 0, `every innovation tier maps to a modifier${unmapped.length ? `: ${unmapped.join(", ")}` : ""}`);
+
+  // priorities must name ecosystems the game knows, or alignment can never match
+  const ecoNames = new Set(G.ECOSYSTEMS.map(e => e.name).concat(["Cross-ecosystem"]));
+  const strayEcos = [...new Set(all.flatMap(r => r.ecos))].filter(e => !ecoNames.has(e));
+  t.eq(strayEcos.length, 0, `every listed priority names a known ecosystem${strayEcos.length ? `: ${strayEcos.slice(0,3).join(", ")}` : ""}`);
+
+  // regionally planned countries should not all share one identical list
+  const greece = R["Greece"] || [];
+  t.ok(new Set(greece.map(r => r.ecos.join("|"))).size > 1,
+       "regions in a regionally planned country have distinct priorities");
+
+  // cohesion classification arrived with the refresh
+  const withCoh = all.filter(r => r.coh);
+  t.ok(withCoh.length > 100, `most regions carry a cohesion classification (${withCoh.length})`);
+  const cohVals = new Set(withCoh.map(r => r.coh));
+  t.ok([...cohVals].every(v => /Less Developed|Transition|More Developed/.test(v)),
+       "cohesion classifications use the official categories");
+
+  // NUTS codes should be unique per country and resolvable
+  for (const c of countries) {
+    const codes = R[c].map(r => r.nuts);
+    if (new Set(codes).size !== codes.length) { t.ok(false, `${c} has duplicate NUTS codes`); break; }
+  }
+  t.ok(true, "no country repeats a NUTS code");
+  t.ok(G.getRegion("Austria", "Styria")?.ris === "Strong", "a known region resolves with its tier");
 }
 
 /* ── map data integrity ──────────────────────────────────── */

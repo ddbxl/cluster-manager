@@ -27,6 +27,8 @@ You win by reaching Stage 5 before your rivals, or by clearing the field of them
 
 ## Core systems
 
+**Money stays tight as you grow.** Membership income rises with both headcount and maturity, but so does the cost of serving those members: account management, events, brokerage and reporting take a growing share of every fee, and overheads drift upward a percentage point a quarter. A mature cluster is comfortable, never idle. The quarter review names every line, so you can always see which way the treasury is moving and why.
+
 **Projects are investments.** Winning a call commits you to spending before you earn. You pre-finance delivery in instalments each quarter, interim payments reimburse 70 per cent as you go, and success pays the balance plus a margin (about 15 per cent on local calls, rising to 32 per cent on EU ones). Fail, and an audit cuts the reimbursement to 60 per cent of your costs. Each call shows you its cash-flow terms and its enabling conditions before you commit.
 
 **Named team, one boss.** Your cluster cannot advance a quarter without a General Manager, and you can hold only one. The GM supervises seven people, and each Executive Director you hire widens that span by seven more. No single role may exceed a third of the team. Each hire is a named person with a skill level from 1 to 5 that rises with tenure and lifts their output, and about one in eight arrives as a star. Strong performers ask for raises, rivals try to headhunt them, and each new office brings mandatory local staff you cannot dismiss. Salaries rise one per cent a quarter.
@@ -54,11 +56,14 @@ You win by reaching Stage 5 before your rivals, or by clearing the field of them
 - One-step undo on Junior and Officer, sound you can mute, and a CSV export of your run history
 - Drag, pinch, scroll or tap the buttons to pan and zoom the map, so the Baltics and Benelux stay legible on a phone
 - Move a run between devices: export it as a save code or a small file and restore it anywhere, which matters because browser storage disappears when you clear site data
+- Share a finished run as a summary, or as a link that opens the game on the identical starting position so someone can race you
 - A tabbed side panel on desktop, bottom navigation on mobile, and a screen-reader label on the map
 
 ## Grounded in reality
 
 The rules come from public European Commission reports and research on clusters, innovation ecosystems and Smart Specialisation (S3).
+
+Every region carries its real smart-specialisation priorities, its Regional Innovation Scoreboard tier and, where the Commission publishes one, its cohesion classification. Which ecosystems count as priorities in your region is therefore a matter of record rather than invention, and it decides whether your funding is aligned.
 
 Cluster names and membership calibration come from the [European Cluster Collaboration Platform](https://reports.clustercollaboration.eu/) registry. You can take the helm of any of 1,445 real cluster organisations across the EU and candidate countries, and your rivals are drawn from the same list, matched to their real country and industrial ecosystem. Membership composition follows the registry too: across 1,300 profiles reporting a usable split, the median cluster is 81.5 per cent SME, 9.3 per cent corporate and 9.2 per cent research, and each ecosystem starts from its own observed mix. That is why a mobility cluster earns more in membership fees than a textiles one.
 

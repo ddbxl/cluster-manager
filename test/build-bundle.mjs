@@ -40,6 +40,8 @@ const ENGINE_EXPORTS = [
   "exportSave", "importSave", "downloadSave", "slimSave", "saveChecksum",
   "clampMapView", "zoomMapAt", "MAP_ZOOM_MIN", "MAP_ZOOM_MAX", "MAP_W", "MAP_H",
   "pickEvent", "EVENT_REQ", "ECOSYSTEMS", "ECCP_CLUSTERS", "clusterPicks", "registrySeed",
+  "REGIONS_BY_COUNTRY", "RIS_MODIFIER",
+  "memberFee", "evolveCost", "trendTitle", "shareSummary", "challengeURL", "SERVICING_SHARE", "servicingCost", "costIndex",
   "ECO_MIX", "BASE_MIX", "FEE_W", "mixFor", "defaultMix",
 ];
 
@@ -60,11 +62,13 @@ function makeSource(exports) {
   // break the whole suite with an opaque bundler error.
   // Matches `const X =`, `function X(`, `class X`, and comma-separated
   // declarators like `const MAP_W = 609, MAP_H = 600;`
-  const present = exports.filter((n) =>
+  // the lists are hand-maintained, so drop any name added twice
+  const unique = [...new Set(exports)];
+  const present = unique.filter((n) =>
     new RegExp(`(^|\\n)\\s*(const|let|var|function|class)\\s+${n}\\b`).test(src) ||
     new RegExp(`[,(]\\s*${n}\\s*=`).test(src)
   );
-  const missing = exports.filter((n) => !present.includes(n));
+  const missing = unique.filter((n) => !present.includes(n));
   if (missing.length) {
     console.log(`  note: not in source (skipped): ${missing.join(", ")}`);
   }
