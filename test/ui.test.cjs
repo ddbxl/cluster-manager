@@ -313,6 +313,58 @@ const click = (el) => act(() => {
      "the old hardcoded white halo is gone");
 }
 
+/* ── info popovers stay on screen ────────────────────────── */
+{
+  // Regression: the trend explanations were positioned relative to their dot, so
+  // near a screen edge they ran off the page and the text was cut in half.
+  const longText = "Currently falling: -2.5 per quarter\nMostly down to visibility fade.\n" +
+    "Pushing it up\n   +0.5  General Manager\nPulling it down\n   -3  visibility fade";
+  const VW = 390, VH = 760;
+  const setViewport = () => {
+    try {
+      Object.defineProperty(window, "innerWidth", { value: VW, configurable: true });
+      Object.defineProperty(window, "innerHeight", { value: VH, configurable: true });
+    } catch (e) {}
+  };
+
+  const openAt = (rect) => {
+    setViewport();
+    render(React.createElement(G.InfoDot, { text: longText, label: "Trend" }));
+    const btn = qsa("button")[0];
+    btn.getBoundingClientRect = () => rect;
+    click(btn);
+    return qsa('[role="tooltip"]')[0];
+  };
+
+  const M = 8;
+  const near = (x) => ({ left:x, top:400, right:x+14, bottom:414, width:14, height:14 });
+
+  const leftTip = openAt(near(6));
+  ok(!!leftTip, "the explanation opens");
+  if (leftTip) {
+    ok(leftTip.style.position === "fixed",
+       "the explanation is placed in viewport space, so no panel can clip it");
+    const l = parseFloat(leftTip.style.left), w = parseFloat(leftTip.style.width);
+    ok(l >= M - 0.01, `against the left edge it stays on screen (left ${l})`);
+    ok(l + w <= VW - M + 0.01, "and does not spill off the right");
+  }
+
+  const rightTip = openAt(near(VW - 20));
+  if (rightTip) {
+    const l = parseFloat(rightTip.style.left), w = parseFloat(rightTip.style.width);
+    ok(l >= M - 0.01 && l + w <= VW - M + 0.01,
+       `against the right edge it stays on screen (left ${l}, width ${w})`);
+  }
+
+  // no room above: it must drop below the dot rather than off the top
+  const topTip = openAt({ left:180, top:4, right:194, bottom:18, width:14, height:14 });
+  if (topTip) {
+    ok(parseFloat(topTip.style.top) >= M - 0.01,
+       `with no room above it flips below (top ${topTip.style.top})`);
+    ok(topTip.style.maxHeight === "70vh", "a long explanation scrolls rather than overflowing");
+  }
+}
+
 /* ── the real-cluster picker on setup ────────────────────── */
 {
   let threw = null;

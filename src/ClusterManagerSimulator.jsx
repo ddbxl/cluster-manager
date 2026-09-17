@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef, useMemo } from "react";
+import { useState, useCallback, useEffect, useLayoutEffect, useRef, useMemo } from "react";
 
 // ─────────────────────────────────────────────────────────────
 // EU regional reference data
@@ -3927,23 +3927,66 @@ const MiniStat = ({ l, v, c=P.text }) => (
 // Tap-or-hover popover: makes the hover-only tooltips reachable on touch screens
 function InfoDot({ text, label, children, style }) {
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState(null); // viewport coordinates, once measured
   const ref = useRef(null);
+  const btnRef = useRef(null);
+  const tipRef = useRef(null);
+
   useEffect(() => {
     if (!open) return;
     const away = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
     window.addEventListener("pointerdown", away);
     return () => window.removeEventListener("pointerdown", away);
   }, [open]);
+
+  // The panel is placed in viewport coordinates rather than relative to the dot,
+  // so it can neither run off the edge of the screen nor be clipped by a parent
+  // that hides its overflow. It is measured first, then clamped, then shown.
+  useLayoutEffect(() => {
+    if (!open) { setPos(null); return; }
+    const place = () => {
+      const b = btnRef.current && btnRef.current.getBoundingClientRect();
+      const tip = tipRef.current;
+      if (!b || !tip) return;
+      const M = 8;
+      const vw = window.innerWidth, vh = window.innerHeight;
+      const w = Math.min(260, vw - M * 2);
+      const h = tip.offsetHeight || 0;
+      let left = b.left + b.width / 2 - w / 2;
+      left = Math.max(M, Math.min(left, vw - w - M));
+      let top = b.top - h - 6;               // above the dot by preference
+      if (top < M) top = b.bottom + 6;       // not enough room, so drop below
+      if (top + h > vh - M) top = Math.max(M, vh - h - M);
+      setPos({ left, top, w });
+    };
+    place();
+    window.addEventListener("scroll", place, true);
+    window.addEventListener("resize", place);
+    return () => {
+      window.removeEventListener("scroll", place, true);
+      window.removeEventListener("resize", place);
+    };
+  }, [open, text]);
+
   if (!text) return children || null;
   return (
     <span ref={ref} style={{position:"relative",display:"inline-flex",alignItems:"center",...style}}>
       {children}
-      <button className="btn" aria-label={label||"More information"} aria-expanded={open}
+      <button ref={btnRef} className="btn" aria-label={label||"More information"} aria-expanded={open}
         onClick={e => { e.stopPropagation(); setOpen(o=>!o); }}
         onMouseEnter={()=>setOpen(true)} onMouseLeave={()=>setOpen(false)}
         style={{marginLeft:4,width:14,height:14,minWidth:14,borderRadius:"50%",border:`1px solid ${P.border}`,background:P.card,color:P.muted,fontSize:9,fontWeight:700,lineHeight:1,padding:0,display:"inline-flex",alignItems:"center",justifyContent:"center",cursor:"help",flexShrink:0}}>i</button>
       {open && (
-        <span role="tooltip" style={{position:"absolute",bottom:"calc(100% + 6px)",left:"50%",transform:"translateX(-50%)",zIndex:400,width:"max-content",maxWidth:230,padding:"8px 10px",borderRadius:6,background:THEME_DARK?"#0b1220":"#1B2740",color:"#fff",fontSize:10.5,lineHeight:1.5,fontWeight:400,whiteSpace:"pre-wrap",boxShadow:"0 6px 22px rgba(0,0,0,.35)",fontFamily:"'Open Sans',sans-serif",textAlign:"left",pointerEvents:"none"}}>{text}</span>
+        <span ref={tipRef} role="tooltip"
+          style={{position:"fixed",
+            left: pos ? pos.left : 0, top: pos ? pos.top : 0,
+            width: pos ? pos.w : Math.min(260, (typeof window !== "undefined" ? window.innerWidth : 320) - 16),
+            visibility: pos ? "visible" : "hidden",
+            zIndex:2000,maxHeight:"70vh",overflowY:"auto",boxSizing:"border-box",
+            padding:"8px 10px",borderRadius:6,background:THEME_DARK?"#0b1220":"#1B2740",color:"#fff",
+            fontSize:10.5,lineHeight:1.5,fontWeight:400,whiteSpace:"pre-wrap",overflowWrap:"anywhere",
+            boxShadow:"0 6px 22px rgba(0,0,0,.35)",fontFamily:"'Open Sans',sans-serif",textAlign:"left",
+            pointerEvents:"none"}}>{text}</span>
       )}
     </span>
   );
