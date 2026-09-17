@@ -45,6 +45,8 @@ You win by reaching Stage 5 before your rivals, or by clearing the field of them
 
 **A living policy cycle.** You meet the instruments your members would face in real life across ninety-nine events: CBAM reporting, the Net-Zero Industry Act, AI Act conformity, Just Transition allocations, Interreg partner searches, EIT communities, state-aid scrutiny, the cohesion mid-term review. Many belong to a single ecosystem, so a textiles cluster and an aerospace cluster read different news. Others answer the shape of your cluster: whether you hold a seat, how corporate-heavy your membership has become, how thin the treasury is, how crowded the field looks. Thirty-nine funding calls span the ladder from an Open Doors Week to a Pan-European Flagship Alliance.
 
+**Built like an institution, not a dashboard.** The interface is set in Helvetica and coloured in the two shades of the European flag: Reflex Blue for anything you can act on, flag yellow for whatever matters most on screen. Everything else is a true grey. Panels are square, rules are hard, and the only shaped element is the clipped corner on a primary action, which reads like a stamped file.
+
 **Three difficulties.** Junior teaches you the ropes, Officer gives you a fair fight, Expert removes the safety net.
 
 ## Quality of life and accessibility

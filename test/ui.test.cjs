@@ -340,6 +340,23 @@ const click = (el) => act(() => {
   ok(!/\.btn:hover[^}]*translateY/.test(G.CSS), "buttons no longer lift on hover");
   ok(!/\.btn:hover[^}]*box-shadow:0/.test(G.CSS), "buttons no longer cast a shadow on hover");
   ok(/\.btn:focus-visible/.test(G.CSS), "keyboard focus stays visible");
+
+  // Colour: the European flag, and true neutral greys. Blue-tinted greys are a
+  // large part of what made this read as generic software.
+  ok(G.P.accent.toLowerCase() === "#003399" || G.P.accent.toLowerCase() === "#6d9bff",
+     `actions carry Reflex Blue (${G.P.accent})`);
+  ok(G.P.gold.toLowerCase() === "#ffcc00", `emphasis carries flag yellow (${G.P.gold})`);
+  const neutral = hex => {
+    const n = hex.replace("#", "");
+    const r = parseInt(n.slice(0,2),16), g = parseInt(n.slice(2,4),16), b = parseInt(n.slice(4,6),16);
+    return Math.max(r,g,b) - Math.min(r,g,b) <= 6;
+  };
+  for (const key of ["bg", "card", "border", "bright", "text", "muted"]) {
+    ok(neutral(G.P[key]), `${key} is a true grey, not a tinted one (${G.P[key]})`);
+  }
+
+  // No pastel fills and no gloss: the two habits that make buttons read as SaaS.
+  ok(!/sheen/.test(G.CSS), "the gloss sweep across the primary button is gone");
 }
 
 /* ── info popovers stay on screen ────────────────────────── */

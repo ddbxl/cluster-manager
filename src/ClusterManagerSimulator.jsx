@@ -77,8 +77,8 @@ html.dark .float-delta{--delta-halo:rgba(5,10,20,.92)}
 /* Gradient-filled wordmark. If the gradient cannot be clipped to the glyphs it
    fills the whole box instead and the transparent text disappears, so the title
    stays solid-coloured until both the feature query and the fonts confirm. */
-.brand-title{color:#3860ED;background-image:linear-gradient(135deg,#3860ED,#FF9D0A)}
-html.dark .brand-title{color:#5C8AFF;background-image:linear-gradient(135deg,#5C8AFF,#FFB042)}
+.brand-title{color:#3860ED;background-image:#003399}
+html.dark .brand-title{color:#5C8AFF;background-image:#6D9BFF}
 @supports ((-webkit-background-clip:text) or (background-clip:text)){
   html.fonts-ready .brand-title{
     -webkit-background-clip:text;background-clip:text;
@@ -95,9 +95,9 @@ html.dark .map-sea{background:radial-gradient(circle at 42% 36%, #101a30 0%, #0b
 html.dark .map-sea::before{background-image:radial-gradient(#1b2740 1px, transparent 1px);opacity:.6}
 .threat-pulse{animation:threatPulse 2.4s ease-in-out infinite}
 @keyframes threatPulse{0%,100%{box-shadow:0 0 0 0 var(--threat)}50%{box-shadow:0 0 0 3px color-mix(in srgb, var(--threat) 22%, transparent)}}
-.sheen{position:relative;overflow:hidden}
-.sheen::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.35) 50%,transparent 60%);background-size:250% 100%;background-position:120% 0;transition:background-position .01s}
-.sheen:hover::after{animation:sheenSweep .8s ease}
+
+
+
 @keyframes modalIn{from{opacity:0;transform:scale(.955) translateY(6px)}to{opacity:1;transform:scale(1) translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes eventIn{from{opacity:0;transform:translateY(-22px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
@@ -112,7 +112,7 @@ html.dark .map-sea::before{background-image:radial-gradient(#1b2740 1px, transpa
 @keyframes breathe{0%,100%{stroke-width:1;filter:none}50%{stroke-width:2.4;filter:drop-shadow(0 0 5px currentColor)}}
 @keyframes regionPop{0%{fill-opacity:1;filter:drop-shadow(0 0 10px currentColor)}100%{filter:none}}
 @keyframes shimmer{0%,100%{fill-opacity:.85}50%{fill-opacity:.5}}
-@keyframes sheenSweep{from{background-position:120% 0}to{background-position:-30% 0}}
+to{background-position:-30% 0}}
 .stage-pop{animation:stagePop .5s cubic-bezier(.2,1.4,.4,1) both}
 @keyframes stagePop{0%{opacity:0;transform:scale(.6) translateY(14px)}60%{opacity:1}100%{opacity:1;transform:scale(1) translateY(0)}}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
@@ -131,23 +131,29 @@ input[type=range]{width:100%;accent-color:#3860ED;cursor:pointer}
    PALETTE
 ═══════════════════════════════════════════════════════════ */
 // EU Commission colour system (ECL v4); trailing comments name each token.
+/* The two colours of the European flag carry the whole interface: Reflex Blue
+   for anything you can act on, flag yellow reserved for the thing that matters
+   most on screen. Everything else is a true neutral grey. Blue-tinted greys are
+   what make an interface read as generic software rather than an institution. */
 const P = {
-  bg:"#F8F9FD",     panel:"#FFFFFF",   card:"#F3F5FB",   border:"#CDD5EF",    // ecl-neutral-20/white/40/80
-  bright:"#E0E5F5", text:"#26324B",    muted:"#546FA6",                      // ecl-neutral-60, ecl-dark-100, ecl-dark-80
-  accent:"#3860ED", blue:"#004494",   gold:"#FF9D0A",                       // ecl-primary-100, ecl-branding, ecl-secondary-140
-  red:"#DA1E28",    orange:"#F39811", green:"#24A148",                      // ecl-error, ecl-warning, ecl-success
-  purple:"#5B4B8A", teal:"#5577F0",                                         // not ECL tokens: kept only to tell 3 rivals apart on the map
-  // WCAG AA text variants: gold/green/red/sector colours are too light for small text on white
-  goldText:"#8A5800", greenText:"#14713A", redText:"#B01722",
+  bg:"#EDEDED",     panel:"#FFFFFF",   card:"#F7F7F7",   border:"#BFBFBF",
+  bright:"#DEDEDE", text:"#1A1A1A",    muted:"#5C5C5C",
+  accent:"#003399", blue:"#003399",    gold:"#FFCC00",   // EU flag blue and yellow
+  red:"#B7241B",    orange:"#C96A00",  green:"#1B7A3D",
+  purple:"#5B4B8A", teal:"#2C6EC4",                      // only to tell rivals apart on the map
+  // Small text needs darker variants of yellow, green and red to stay legible.
+  goldText:"#6B5200", greenText:"#14612F", redText:"#8F1C15",
 };
 const P_LIGHT = { ...P };
 const P_DARK = {
-  bg:"#111829",     panel:"#161F36",   card:"#1C2742",   border:"#33436E",
-  bright:"#273659", text:"#E8EDF9",    muted:"#97A8D2",
-  accent:"#5C8AFF", blue:"#8AB4FF",   gold:"#FFB042",
-  red:"#FF6C63",    orange:"#FFAE50", green:"#3AC96E",
+  bg:"#121212",     panel:"#1B1B1B",   card:"#242424",   border:"#3D3D3D",
+  bright:"#2E2E2E", text:"#F2F2F2",    muted:"#A3A3A3",
+  // Reflex Blue is too dark to read on black, so the dark theme lifts it and
+  // leans on flag yellow for emphasis instead.
+  accent:"#6D9BFF", blue:"#6D9BFF",    gold:"#FFCC00",
+  red:"#FF7268",    orange:"#FFA633",  green:"#45C26B",
   purple:"#A78BFA", teal:"#7D9BFF",
-  goldText:"#FFC97C", greenText:"#63DB92", redText:"#FF9D96",
+  goldText:"#FFD84D", greenText:"#6FDA92", redText:"#FF968E",
 };
 let THEME_DARK = false;
 function applyTextScale(big) {
@@ -3767,7 +3773,7 @@ function EUMap({ gs, sel, setSel }) {
         style={{width:30,height:30,borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:17,fontWeight:700,lineHeight:1,boxShadow:"none",display:"flex",alignItems:"center",justifyContent:"center"}}>−</button>
       {map.zoomed && (
         <button className="btn" onClick={map.reset} title="Fit the whole map" aria-label="Reset the map to fit the whole of Europe"
-          style={{width:30,height:30,borderRadius:0,border:`1px solid ${P.accent}66`,background:`${P.accent}12`,color:P.accent,boxShadow:"none",display:"flex",alignItems:"center",justifyContent:"center"}}>
+          style={{width:30,height:30,borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent",color:P.accent,boxShadow:"none",display:"flex",alignItems:"center",justifyContent:"center"}}>
           <Icon name="rotate-left" size={12} color={P.accent}/>
         </button>
       )}
@@ -4028,7 +4034,7 @@ function LeftPanel({ gs, dispatch }) {
         <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
           <Icon name={gs.sector?.icon||"display"} size={20} color={gs.sector?.color||P.text}/>
           <div>
-            <div style={{fontSize:11,fontWeight:700,color:gs.sector?.color||P.text,lineHeight:1.1}}>{gs.sector?.name||""}{(gs.stage||0)>=2 && <span title="As a national body your cluster spans every industrial ecosystem" style={{marginLeft:6,fontSize:8,fontWeight:700,padding:"1px 6px",borderRadius:0,border:`1px solid ${P.gold}66`,background:`${P.gold}14`,color:P.goldText,letterSpacing:.4,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',verticalAlign:"middle"}}>CROSS-ECOSYSTEM</span>}</div>
+            <div style={{fontSize:11,fontWeight:700,color:gs.sector?.color||P.text,lineHeight:1.1}}>{gs.sector?.name||""}{(gs.stage||0)>=2 && <span title="As a national body your cluster spans every industrial ecosystem" style={{marginLeft:6,fontSize:8,fontWeight:700,padding:"1px 6px",borderRadius:0,border:`1px solid ${P.gold}`,background:"transparent",color:P.goldText,letterSpacing:.4,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',verticalAlign:"middle"}}>CROSS-ECOSYSTEM</span>}</div>
             <div style={{fontSize:9,color:P.muted}}>{gs.region||""}{gs.regionNuts?` · ${gs.regionNuts}`:""}</div>
             <div style={{fontSize:10,color:P.muted,marginTop:1}}>Regional Innovation Scoreboard: {gs.regionRis||"not rated"} · {gs.s3Aligned?<span style={{color:P.green,display:"inline-flex",alignItems:"center",gap:3}}><Icon name="bullseye" size={9} color={P.green}/> Smart Specialisation aligned</span>:<span style={{color:P.orange}}>outside Smart Specialisation</span>}</div>
           </div>
@@ -4145,7 +4151,7 @@ function LeftPanel({ gs, dispatch }) {
       {/* Evolution requirements */}
       {gs.stage < 5 && (
         <div style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${P.border}`}}>
-          <Lbl t={<><Icon name="arrow-right" size={10} color={P.muted} style={{marginRight:5}}/>{STAGES[Math.min(5,gs.stage+1)]?.name||""}</>}/>
+          <Lbl t={<>{STAGES[Math.min(5,gs.stage+1)]?.name||""}</>}/>
           {reqs.map((r,i) => (
             <div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:9,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',lineHeight:1.9,color:r.ok?P.green:P.muted}}>
               <span style={{display:"inline-flex",alignItems:"center",gap:4}}>{r.ok?<Icon name="check" size={9} color={P.green}/>:<Icon name="circle" size={4} color={P.muted}/>} {r.l}</span>
@@ -4167,8 +4173,8 @@ function LeftPanel({ gs, dispatch }) {
 
       {/* Director governance panel */}
       {byRole(gs.roster,"director") > 0 && (
-        <div style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${P.accent}44`}}>
-          <Lbl t={<><Icon name="award" size={11} color={P.text} style={{marginRight:5}}/>Governance · {byRole(gs.roster,"director")} Director{byRole(gs.roster,"director")>1?"s":""}</>}/>
+        <div style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${P.accent}`}}>
+          <Lbl t={<>Governance · {byRole(gs.roster,"director")} Director{byRole(gs.roster,"director")>1?"s":""}</>}/>
           <div style={{fontSize:10,color:P.text,lineHeight:1.7}}>
             <div>Board +{4+(byRole(gs.roster,"director")-1)*2}/quarter</div>
             <div>Influence +{byRole(gs.roster,"director")*2}/quarter</div>
@@ -4182,7 +4188,7 @@ function LeftPanel({ gs, dispatch }) {
       {/* Rival race */}
       {(gs.rivals||[]).length > 0 && (
         <div style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${P.border}`}}>
-          <Lbl t={<><Icon name="chess-knight" size={11} color={P.text} style={{marginRight:5}}/>Rival Race · first to Pan-European Cluster Network</>}/>
+          <Lbl t={<>Rival Race · first to Pan-European Cluster Network</>}/>
           {(gs.rivals||[]).map(rv => (
             <div key={rv.id} style={{marginBottom:7}}>
               <div style={{display:"flex",justifyContent:"space-between",fontSize:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
@@ -4240,7 +4246,7 @@ function RightPanel({ gs, compact }) {
       <div style={{flex:1,overflowY:"auto",padding:"8px 10px"}}>
         <Lbl t="Event Log"/>
         {log.slice(0,40).map((e, i) => (
-          <div key={`log-${i}-${(e?.txt||"").slice(0,18)}`} className={i===0?"log-in":undefined} style={{fontSize:10,lineHeight:1.5,marginBottom:5,paddingBottom:5,borderBottom:`1px solid ${P.border}11`,color:logColors[e?.t]||P.text,display:"flex",gap:5,alignItems:"flex-start"}}>
+          <div key={`log-${i}-${(e?.txt||"").slice(0,18)}`} className={i===0?"log-in":undefined} style={{fontSize:10,lineHeight:1.5,marginBottom:5,paddingBottom:5,borderBottom:`1px solid ${P.border}`,color:logColors[e?.t]||P.text,display:"flex",gap:5,alignItems:"flex-start"}}>
             <Icon name={LOG_ICON[e?.t]||"circle-info"} size={10} color={logColors[e?.t]||P.muted} style={{marginTop:2}}/>
             <span>{e?.txt||""}</span>
           </div>
@@ -4401,7 +4407,7 @@ function ProjectsModal({ gs, dispatch, onClose, panel }) {
                 </div>
                 <div style={{display:"flex",gap:5,marginTop:5,flexWrap:"wrap"}}>
                   {projectConditions(p, gs).filter(c => !c.ok).map((c,i) => (
-                    <span key={i} style={{display:"inline-flex",alignItems:"center",gap:3,fontSize:10,padding:"2px 7px",borderRadius:0,border:`1px solid ${P.red}55`,background:`${P.red}10`,color:P.redText,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}><Icon name="xmark" size={9} color={P.redText}/>{c.l}</span>
+                    <span key={i} style={{display:"inline-flex",alignItems:"center",gap:3,fontSize:10,padding:"2px 7px",borderRadius:0,border:`1px solid ${P.red}`,background:"transparent",color:P.redText,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}><Icon name="xmark" size={9} color={P.redText}/>{c.l}</span>
                   ))}
                 </div>
               </div>
@@ -4470,7 +4476,7 @@ function StaffModal({ gs, dispatch, onClose, panel }) {
                   </div>
                   {def.hidden
                     ? <span style={{fontSize:9,padding:"3px 8px",borderRadius:0,border:`1px solid ${P.border}`,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>mandatory</span>
-                    : <button className="btn" title={count>1?"Releases the most recent hire (lowest severance)":""} onClick={() => dispatch({type:"fire",idx:newest.i})} style={{padding:"3px 9px",borderRadius:0,border:`1px solid ${P.red}44`,background:"transparent",color:P.red,fontSize:10,whiteSpace:"nowrap"}}>Fire {count>1?"one ":""}-{fmt(sev)}</button>}
+                    : <button className="btn" title={count>1?"Releases the most recent hire (lowest severance)":""} onClick={() => dispatch({type:"fire",idx:newest.i})} style={{padding:"3px 9px",borderRadius:0,border:`1px solid ${P.red}`,background:"transparent",color:P.red,fontSize:10,whiteSpace:"nowrap"}}>Fire {count>1?"one ":""}-{fmt(sev)}</button>}
                 </div>
               );
             })}
@@ -4491,7 +4497,7 @@ function StaffModal({ gs, dispatch, onClose, panel }) {
             <div key={`hire-${roleId}`} style={{background:P.card,borderRadius:0,padding:12,border:`1px solid ${P.border}`}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
                 <div><Icon name={staffRole.icon} size={17} color={P.purple}/></div>
-                {count > 0 && <span style={{fontSize:9,padding:"2px 7px",borderRadius:0,background:`${P.purple}22`,color:P.purple,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{count}×</span>}
+                {count > 0 && <span style={{fontSize:9,padding:"2px 7px",borderRadius:0,background:"transparent",color:P.purple,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{count}×</span>}
               </div>
               <div style={{fontWeight:700,fontSize:13,marginBottom:3,color:P.text}}>{staffRole.name}</div>
               <div style={{fontSize:10,color:P.muted,marginBottom:8,lineHeight:1.5}}>{staffRole.desc}{blockReason && <span style={{display:"block",fontSize:9,color:P.redText,marginTop:4,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{blockReason}</span>}</div>
@@ -4530,7 +4536,7 @@ function RivalsModal({ gs, dispatch, onClose, panel }) {
     <>
       <div style={{fontSize:10,color:P.muted,marginBottom:10,lineHeight:1.5}}>Rival clusters race you to the Pan-European Cluster Network. Contain them, out-politick them, or buy them out: if every rival folds, you win by <strong style={{color:P.text}}>market consolidation</strong> — but collapsed rivals are eventually replaced by new entrants.</div>
       {(gs.coalitionUntil||0) > (gs.turn||0) && (
-        <div style={{background:`${P.red}12`,border:`1.5px solid ${P.red}55`,borderRadius:0,padding:"8px 12px",marginBottom:10,display:"flex",gap:8,alignItems:"center"}}>
+        <div style={{background:"transparent",border:`1.5px solid ${P.red}`,borderRadius:0,padding:"8px 12px",marginBottom:10,display:"flex",gap:8,alignItems:"center"}}>
           <span className="wiggle" style={{display:"inline-flex"}}><Icon name="triangle-exclamation" size={13} color={P.red}/></span>
           <div style={{fontSize:10,color:P.redText,lineHeight:1.5}}><strong>RIVAL COALITION</strong> active for {(gs.coalitionUntil||0)-(gs.turn||0)} more quarters: their progress +10%, poaching +25%. Signing a consortium pact with any rival breaks it.</div>
         </div>
@@ -4566,7 +4572,7 @@ function RivalsModal({ gs, dispatch, onClose, panel }) {
                   <span style={{width:9,height:9,borderRadius:0,background:rv.color,display:"inline-block"}}/>
                   <span style={{fontWeight:700,fontSize:13,color:P.text}}>{rv.name}</span>
                   <span style={{fontSize:9,padding:"2px 7px",borderRadius:0,border:`1px solid ${rv.color}55`,color:rv.color,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{arch.label}</span>
-                  {truce && <span style={{fontSize:9,padding:"2px 7px",borderRadius:0,border:`1px solid ${P.green}55`,background:`${P.green}10`,color:P.greenText,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>TRUCE until Q{rv.truce}</span>}
+                  {truce && <span style={{fontSize:9,padding:"2px 7px",borderRadius:0,border:`1px solid ${P.green}`,background:"transparent",color:P.greenText,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>TRUCE until Q{rv.truce}</span>}
                   {threat && !truce && <span className="wiggle" style={{fontSize:9,padding:"2px 7px",borderRadius:0,border:`1px solid ${ahead?P.red:P.orange}`,background:`${ahead?P.red:P.orange}12`,color:ahead?P.redText:P.orange,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',display:"inline-flex",alignItems:"center",gap:3}}><Icon name="triangle-exclamation" size={8} color={ahead?P.red:P.orange}/>{ahead?"AHEAD OF YOU":"THREAT"}</span>}
                 </div>
                 <span style={{fontSize:9,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{STAGES[rv.stage]?.name} · {rv.members||0} members · {(rv.countries||[]).length} countr{(rv.countries||[]).length===1?"y":"ies"}</span>
@@ -4586,7 +4592,7 @@ function RivalsModal({ gs, dispatch, onClose, panel }) {
                 const owned = new Set(rv.countries||[]);
                 const target = (NUTS_BORDERS[NAME_TO_ISO[rv.country]]||[]).map(iso => ISO_TO_NAME[iso]).find(n => n && !owned.has(n));
                 return (
-                  <div style={{fontSize:9,color:P.tealText||P.blue,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',margin:"4px 0",padding:"4px 8px",background:`${P.blue}0d`,borderRadius:0,border:`1px dashed ${P.blue}44`}}>
+                  <div style={{fontSize:9,color:P.tealText||P.blue,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',margin:"4px 0",padding:"4px 8px",background:"transparent",borderRadius:0,border:`1px dashed ${P.blue}44`}}>
                     <Icon name="magnifying-glass-chart" size={9} color={P.blue}/> INTEL ({(rv.scoutedUntil||0)-(gs.turn||0)}Q): progress {Math.round(rv.progress||0)}% to {STAGES[Math.min(5,(rv.stage||0)+1)]?.name} · next target: {target||"consolidating home market"} · poaching blunted −15%
                   </div>
                 );
@@ -5050,7 +5056,7 @@ function StatsModal({ gs, onClose, dispatch }) {
 
         {(gs.rivals||[]).length > 0 && (
           <Card>
-            <Lbl t={<><Icon name="chess-knight" size={11} color={P.text} style={{marginRight:5}}/>Rival Race · first to a Pan-European Cluster Network</>}/>
+            <Lbl t={<>Rival Race · first to a Pan-European Cluster Network</>}/>
             {(gs.rivals||[]).map(rv => (
               <div key={rv.id} style={{marginBottom:8}}>
                 <div style={{display:"flex",justifyContent:"space-between",fontSize:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
@@ -5221,7 +5227,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
           <div style={{fontSize:12,color:P.muted,marginBottom:14}}>From a local cluster initiative to a Pan-European Cluster Network</div>
           {canResume && (
             <div style={{marginTop:16}}>
-              <button className="btn" onClick={onResume} style={{padding:"12px 28px",borderRadius:0,border:`1px solid ${P.accent}`,background:`${P.accent}1a`,color:P.accent,fontWeight:700,fontSize:15,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
+              <button className="btn" onClick={onResume} style={{padding:"12px 28px",borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent",color:P.accent,fontWeight:700,fontSize:15,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
                 <Icon name="play" size={11} color="currentColor" style={{marginRight:7}}/> Continue Saved Game
               </button>
               <div style={{fontSize:10,color:P.muted,marginTop:8}}>or start a new game below</div>
@@ -5322,7 +5328,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
             <>
               <button className="btn" onClick={() => setStep(1)} style={{background:"none",border:"none",color:P.accent,fontSize:13,marginBottom:12,padding:0,fontFamily:"inherit",cursor:"pointer",display:"inline-flex",alignItems:"center",gap:5}}><Icon name="arrow-left" size={11} color={P.accent}/> Back</button>
               {adopted && (
-                <div style={{marginBottom:10,padding:"9px 12px",borderRadius:0,border:`1px solid ${P.accent}55`,background:`${P.accent}0d`}}>
+                <div style={{marginBottom:10,padding:"9px 12px",borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent"}}>
                   <div style={{fontSize:11.5,fontWeight:700,color:P.accent,marginBottom:3}}>Set up from {adopted.name}</div>
                   <div style={{fontSize:10.5,color:P.text,lineHeight:1.5}}>
                     Country and ecosystem come from the registry{adopted.city ? `, and the region is our best guess from ${adopted.city}` : ""}.
@@ -5385,7 +5391,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                     <div style={{fontSize:9.5,color:P.muted,marginTop:4}}>Optional. Leave it blank and the header just shows your ecosystem.</div>
                   </div>
                   <div style={{fontSize:10,color:P.muted,marginTop:10,lineHeight:1.4}}>Scenario <strong style={{color:P.goldText}}>{SCENARIOS.find(x=>x.id===scenario)?.name}</strong>{seed?` · seed "${seed.trim()}"`:""} — change these on the first step.</div>
-                  <button className="btn cut" onClick={() => onStart(country, region, sector, diff, scenario, seed.trim(), clusterName.trim())} style={{marginTop:10,width:"100%",padding:13,borderRadius:0,background:`linear-gradient(135deg,${P.accent},${P.blue})`,color:P.bg,fontWeight:700,fontSize:15,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',letterSpacing:.3}}>
+                  <button className="btn cut" onClick={() => onStart(country, region, sector, diff, scenario, seed.trim(), clusterName.trim())} style={{marginTop:10,width:"100%",padding:13,borderRadius:0,background:`${P.accent}`,color:P.bg,fontWeight:700,fontSize:15,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',letterSpacing:.3}}>
                     <Icon name={sector.icon} size={14} color="#fff" style={{marginRight:6}}/> Launch {sector.name} cluster in {region} <Icon name="arrow-right" size={12} color="#fff" style={{marginLeft:6}}/>
                   </button>
                 </>
@@ -5663,7 +5669,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
   if (!gs) return null;
 
   const tipCard = showTip && (
-    <div style={{position:"absolute",top:10,left:10,right:10,zIndex:50,maxWidth:380,margin:"0 auto",background:P.panel,borderRadius:0,border:`1px solid ${P.accent}55`,boxShadow:"none",padding:"14px 16px",animation:"fadeUp .2s ease"}}>
+    <div style={{position:"absolute",top:10,left:10,right:10,zIndex:50,maxWidth:380,margin:"0 auto",background:P.panel,borderRadius:0,border:`1px solid ${P.accent}`,boxShadow:"none",padding:"14px 16px",animation:"fadeUp .2s ease"}}>
       <div style={{fontSize:13,fontWeight:700,marginBottom:8,color:P.text}}>Quick orientation</div>
       <div style={{fontSize:11,color:P.muted,lineHeight:1.6,marginBottom:6}}>Watch <b style={{color:P.text}}>Treasury</b>, <b style={{color:P.text}}>Board</b> and the <b style={{color:P.text}}>rival race</b> each quarter. Any one hitting zero, or a rival finishing first, ends the run.</div>
       <div style={{fontSize:11,color:P.muted,lineHeight:1.6,marginBottom:6}}>• The project strip on screen shows each call's status live: green is on track, red is at risk of running out of cash before it finishes.</div>
@@ -5771,8 +5777,8 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
 
         {/* Evolve banner when ready */}
         {ok && (
-          <button className="btn" onClick={()=>setModal("evolve")} style={{flexShrink:0,padding:"10px",border:"none",background:`linear-gradient(135deg,${P.gold},${P.orange})`,color:P.text,fontWeight:700,fontSize:14,letterSpacing:.5}}>
-            <Icon name="rocket" size={15} color={P.bg} style={{marginRight:7}}/> READY TO EVOLVE <Icon name="arrow-right" size={12} color={P.bg} style={{margin:"0 6px"}}/> {STAGES[Math.min(5,gs.stage+1)].name}
+          <button className="btn" onClick={()=>setModal("evolve")} style={{flexShrink:0,padding:"10px",border:"none",background:`${P.gold}`,color:P.text,fontWeight:700,fontSize:14,letterSpacing:.5}}>
+            READY TO EVOLVE <Icon name="arrow-right" size={12} color={P.bg} style={{margin:"0 6px"}}/> {STAGES[Math.min(5,gs.stage+1)].name}
           </button>
         )}
 
@@ -5787,8 +5793,8 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
             </button>
           ) : (
             <>
-              <button className="btn sheen cut" onClick={()=>dispatch({type:"nextTurn"})} style={{flex:1,padding:"13px",borderRadius:0,border:"none",background:`linear-gradient(135deg,${P.accent},${P.blue})`,color:P.bg,fontWeight:700,fontSize:15,letterSpacing:.5}}>
-                {byRole(gs.roster,"manager")<1 ? "No General Manager — hire one" : <><Icon name="forward" size={14} color={P.bg} style={{marginRight:6}}/>Next Quarter</>}
+              <button className="btn cut" onClick={()=>dispatch({type:"nextTurn"})} style={{flex:1,padding:"13px",borderRadius:0,border:"none",background:`${P.accent}`,color:P.bg,fontWeight:700,fontSize:15,letterSpacing:.5}}>
+                {byRole(gs.roster,"manager")<1 ? "No General Manager — hire one" : <>Next Quarter</>}
               </button>
               <button className="btn" onClick={()=>setAuto(a=>!a)} style={{padding:"13px 16px",borderRadius:0,border:`1px solid ${auto?P.accent:P.border}`,background:auto?`${P.accent}22`:P.card,color:auto?P.accent:P.text,fontWeight:700,fontSize:15}}>
                 {auto?<Icon name="pause" size={15}/>:<Icon name="forward" size={15}/>}
@@ -5853,13 +5859,13 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
           <Icon name="floppy-disk" size={12} color={P.muted}/>
         </button>
         {canUndo && (
-          <button className="btn" onClick={onUndo} title="Undo last quarter (U) — once per quarter, Junior & Officer only" style={{padding:"4px 10px",borderRadius:0,border:`1px solid ${P.gold}66`,background:`${P.gold}0d`,color:P.goldText,fontSize:10,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5,flexShrink:0}}>
+          <button className="btn" onClick={onUndo} title="Undo last quarter (U) — once per quarter, Junior & Officer only" style={{padding:"4px 10px",borderRadius:0,border:`1px solid ${P.gold}`,background:"transparent",color:P.goldText,fontSize:10,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5,flexShrink:0}}>
             <Icon name="rotate-left" size={11} color={P.goldText}/> Undo
           </button>
         )}
         {gs.pendingEvent && (
-          <div style={{fontSize:10,padding:"5px 10px",borderRadius:0,background:`${P.orange}22`,border:`1px solid ${P.orange}55`,color:P.orange,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',animation:"pulse 1s infinite"}}>
-            <Icon name="bolt" size={10} color={P.orange} style={{marginRight:4}}/> EVENT PENDING
+          <div style={{fontSize:10,padding:"5px 10px",borderRadius:0,background:"transparent",border:`1px solid ${P.orange}`,color:P.orange,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',animation:"pulse 1s infinite"}}>
+            EVENT PENDING
           </div>
         )}
         <div style={{marginLeft:"auto",display:"flex",gap:16,alignItems:"center",flexWrap:"wrap"}}>
@@ -5872,12 +5878,12 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
             {auto?<><Icon name="pause" size={12} style={{marginRight:5}}/>Pause Auto-advance</>:<><Icon name="forward" size={12} style={{marginRight:5}}/>Auto-advance</>}
           </button>
           <button
-            className="btn sheen cut"
+            className="btn cut"
             onClick={() => dispatch({type:"nextTurn"})}
             disabled={!!gs.pendingEvent}
-            style={{padding:"9px 20px",borderRadius:0,border:"none",background:gs.pendingEvent?P.bright:`linear-gradient(135deg,${P.accent},${P.blue})`,color:gs.pendingEvent?P.muted:P.bg,fontWeight:700,fontSize:14,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',letterSpacing:.5}}
+            style={{padding:"9px 20px",borderRadius:0,border:"none",background:gs.pendingEvent?P.bright:`${P.accent}`,color:gs.pendingEvent?P.muted:P.bg,fontWeight:700,fontSize:14,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',letterSpacing:.5}}
           >
-            {gs.pendingEvent ? "Resolve Event First" : byRole(gs.roster,"manager")<1 ? "No General Manager — hire one" : <><Icon name="forward" size={13} color={P.bg} style={{marginRight:6}}/>Next Quarter</>}
+            {gs.pendingEvent ? "Resolve Event First" : byRole(gs.roster,"manager")<1 ? "No General Manager — hire one" : <>Next Quarter</>}
           </button>
         </div>
       </div>
@@ -6017,22 +6023,22 @@ function GameOver({ gs, onRestart }) {
           </div>
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
             <button className="btn" onClick={shareNative} title="Share your result, with a link that loads this exact starting position"
-              style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.green}66`,background:`${P.green}12`,color:P.greenText,fontSize:11,fontWeight:700}}>
-              <Icon name="bullhorn" size={10} color={P.green} style={{marginRight:5}}/>Share result
+              style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.green}`,background:"transparent",color:P.greenText,fontSize:11,fontWeight:700}}>
+              Share result
             </button>
             <button className="btn" onClick={copyResult} title="Copies a short summary of how the run went"
               style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11,fontWeight:700}}>
-              <Icon name="clipboard-list" size={10} color={P.muted} style={{marginRight:5}}/>Copy summary
+              Copy summary
             </button>
             {gs.seedStr && (
               <button className="btn" onClick={copyLink} title="A link that opens the game with this challenge already loaded"
-                style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.accent}66`,background:`${P.accent}0d`,color:P.accent,fontSize:11,fontWeight:700}}>
-                <Icon name="earth-europe" size={10} color={P.accent} style={{marginRight:5}}/>Copy challenge link
+                style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent",color:P.accent,fontSize:11,fontWeight:700}}>
+                Copy challenge link
               </button>
             )}
             <button className="btn" onClick={copyChallenge} title="Copies a CM1|… code: a friend can paste it on the setup screen and play the identical campaign, then compare report cards"
-              style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.accent}66`,background:`${P.accent}0d`,color:P.accent,fontSize:10,fontWeight:700,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
-              <Icon name="chess-knight" size={10} color={P.accent} style={{marginRight:5}}/>Copy challenge code
+              style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent",color:P.accent,fontSize:10,fontWeight:700,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
+              Copy challenge code
             </button>
             {gs.seedStr ? null : (
               <span style={{fontSize:10,color:P.muted,alignSelf:"center"}}>Start a seeded campaign to share a replayable challenge.</span>
@@ -6042,10 +6048,10 @@ function GameOver({ gs, onRestart }) {
             )}
           </div>
           {shareMsg && (
-            <div role="status" style={{marginTop:9,fontSize:11,color:P.greenText,background:`${P.green}0d`,border:`1px solid ${P.green}44`,borderRadius:0,padding:"6px 10px"}}>{shareMsg}</div>
+            <div role="status" style={{marginTop:9,fontSize:11,color:P.greenText,background:"transparent",border:`1px solid ${P.green}`,borderRadius:0,padding:"6px 10px"}}>{shareMsg}</div>
           )}
         </div>
-        <button className="btn cut" onClick={onRestart} style={{padding:"14px 48px",borderRadius:0,border:"none",background:`linear-gradient(135deg,${P.accent},${P.blue})`,color:P.bg,fontWeight:700,fontSize:18,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
+        <button className="btn cut" onClick={onRestart} style={{padding:"14px 48px",borderRadius:0,border:"none",background:`${P.accent}`,color:P.bg,fontWeight:700,fontSize:18,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
           Play Again
         </button>
       </div>
@@ -6244,7 +6250,7 @@ function SaveSlots({ gs, onClose, onLoad }) {
             <div style={{fontSize:12,fontWeight:700,color:s.empty?P.muted:P.text}}>{s.empty ? `Slot ${s.i+1} — empty` : s.label}</div>
             {!s.empty && <div style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{STAGES[s.stage]?.name} · Q{s.q} {s.year}</div>}
           </div>
-          {gs && <button className="btn" disabled={busy} onClick={()=>doSave(s.i)} style={{padding:"5px 11px",borderRadius:0,border:`1px solid ${P.accent}66`,background:`${P.accent}0d`,color:P.accent,fontSize:11,fontWeight:700}}>Save here</button>}
+          {gs && <button className="btn" disabled={busy} onClick={()=>doSave(s.i)} style={{padding:"5px 11px",borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent",color:P.accent,fontSize:11,fontWeight:700}}>Save here</button>}
           {!s.empty && onLoad && <button className="btn" onClick={()=>doLoad(s.i)} style={{padding:"5px 11px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11,fontWeight:700}}>Load</button>}
         </div>
       ))}
@@ -6259,7 +6265,7 @@ function SaveSlots({ gs, onClose, onLoad }) {
         {gs && (
           <div style={{marginBottom:12}}>
             <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:6}}>
-              <button className="btn" onClick={()=>{ setCode(exportSave(gs)); setMsg(null); }} style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.accent}66`,background:`${P.accent}0d`,color:P.accent,fontSize:11,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5}}>
+              <button className="btn" onClick={()=>{ setCode(exportSave(gs)); setMsg(null); }} style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent",color:P.accent,fontSize:11,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5}}>
                 <Icon name="clipboard-list" size={11} color={P.accent}/> Create save code
               </button>
               <button className="btn" onClick={()=>{ setMsg(downloadSave(gs) ? {t:"good",x:"Save file downloaded."} : {t:"bad",x:"This browser blocked the download."}); }} style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5}}>
@@ -6275,7 +6281,7 @@ function SaveSlots({ gs, onClose, onLoad }) {
                     let done=false;
                     try { if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(code); done=true; } } catch(e) {}
                     setMsg(done ? {t:"good",x:"Save code copied to the clipboard."} : {t:"bad",x:"Couldn't copy automatically — select the text and copy it manually."});
-                  }} style={{padding:"5px 11px",borderRadius:0,border:`1px solid ${P.accent}66`,background:"transparent",color:P.accent,fontSize:11,fontWeight:700}}>Copy</button>
+                  }} style={{padding:"5px 11px",borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent",color:P.accent,fontSize:11,fontWeight:700}}>Copy</button>
                   <span style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{code.length.toLocaleString()} characters — copy all of it</span>
                 </div>
               </div>
