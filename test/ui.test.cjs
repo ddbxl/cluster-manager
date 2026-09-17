@@ -313,6 +313,35 @@ const click = (el) => act(() => {
      "the old hardcoded white halo is gone");
 }
 
+/* ── visual identity: Helvetica, flat rectangles, one cut corner ── */
+{
+  // Typography: one family, no webfonts, so the page needs no network request
+  // and numbers still align without a monospace face.
+  ok(/Helvetica/.test(G.CSS), "the interface is set in Helvetica");
+  ok(!/Montserrat|DM Mono|Open Sans/.test(G.CSS), "the old webfont stack is gone");
+  ok(!/fonts\.googleapis|fonts\.gstatic/.test(G.CSS), "no font is fetched over the network");
+  ok(/tabular-nums/.test(G.CSS), "figures are tabular, so columns of numbers line up");
+
+  // Shape: square by default. Uniform rounded corners on everything were the
+  // main thing making this read as a template.
+  render(React.createElement(G.LeftPanel, { gs, dispatch: () => {} }));
+  const markup = document.getElementById("root").innerHTML;
+  const radii = [...new Set([...markup.matchAll(/border-radius:\s*([^;"]+)/g)].map(m => m[1].trim()))];
+  ok(radii.every(r => r === "0px" || r === "50%"),
+     `corners are square, bar genuine circles (${radii.join(", ") || "none"})`);
+  const shadows = [...new Set([...markup.matchAll(/box-shadow:\s*([^;"]+)/g)].map(m => m[1].trim()))];
+  ok(shadows.every(s => s === "none"), `no soft drop shadows remain (${shadows.join(", ") || "none"})`);
+
+  // The one deliberate shape: primary actions carry a clipped corner.
+  ok(/\.cut\{clip-path/.test(G.CSS), "the clipped-corner treatment is defined");
+  ok(!/\.cut\b[^{]*\{[^}]*border-radius/.test(G.CSS), "the cut corner replaces radius rather than joining it");
+
+  // Buttons should not float on hover: that lift plus shadow is the SaaS tell.
+  ok(!/\.btn:hover[^}]*translateY/.test(G.CSS), "buttons no longer lift on hover");
+  ok(!/\.btn:hover[^}]*box-shadow:0/.test(G.CSS), "buttons no longer cast a shadow on hover");
+  ok(/\.btn:focus-visible/.test(G.CSS), "keyboard focus stays visible");
+}
+
 /* ── info popovers stay on screen ────────────────────────── */
 {
   // Regression: the trend explanations were positioned relative to their dot, so

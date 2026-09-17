@@ -34,18 +34,27 @@ function ecosystemAligns(region, ecosystemName) {
    GLOBAL CSS
 ═══════════════════════════════════════════════════════════ */
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
 html,body,#root{height:100%;background:var(--page-bg,#f0f4fb);overflow:hidden;font-size:13px;line-height:1.5}
 html.dark{--page-bg:#0D1322;--scroll-bg:#1a2338;--scroll-thumb:#3a4a6e}
-body{-webkit-text-size-adjust:100%;text-size-adjust:100%;overscroll-behavior:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+body{-webkit-text-size-adjust:100%;text-size-adjust:100%;font-variant-numeric:tabular-nums;overscroll-behavior:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 ::-webkit-scrollbar{width:5px;height:5px;background:var(--scroll-bg,#e4ecf7)}
-::-webkit-scrollbar-thumb{background:var(--scroll-thumb,#aabdd8);border-radius:3px}
+::-webkit-scrollbar-thumb{background:var(--scroll-thumb,#aabdd8)}
 
 /* ── motion system ─────────────────────────────────────────── */
-.btn{transition:transform .13s ease,box-shadow .13s ease,filter .13s ease,background .13s ease,border-color .13s ease}
-.btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 3px 10px rgba(20,40,90,.14)}
-.btn:active:not(:disabled){transform:translateY(0) scale(.97);box-shadow:none}
+.btn{transition:background .12s ease,border-color .12s ease,color .12s ease}
+.btn:hover:not(:disabled){filter:brightness(.96)}
+.btn:active:not(:disabled){filter:brightness(.90)}
+.btn:focus-visible{outline:2px solid #1B49C4;outline-offset:1px}
+
+/* One shape carries the identity: primary actions have a single clipped corner,
+   like a stamped file rather than a rounded pill. Everything else stays square
+   so the cut corner reads as a signal, not decoration. */
+.cut{clip-path:polygon(0 0, calc(100% - 11px) 0, 100% 11px, 100% 100%, 0 100%)}
+.cut-sm{clip-path:polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%)}
+
+/* Figures line up in columns without a monospace face. */
+.tnum{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
 .bar-fill{transition:width .65s cubic-bezier(.22,1,.36,1)}
 .modal-in{animation:modalIn .2s cubic-bezier(.22,1,.36,1) both}
 .backdrop-in{animation:fadeIn .18s ease both}
@@ -58,7 +67,7 @@ body{-webkit-text-size-adjust:100%;text-size-adjust:100%;overscroll-behavior:non
 @keyframes panelFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .wiggle{animation:wiggle .5s ease-in-out 1}
 .glow-good{animation:glowGood 1.6s ease-in-out infinite}
-.float-delta{position:absolute;font-family:'DM Mono',monospace;font-weight:700;font-size:12px;pointer-events:none;animation:floatUp 1.4s ease-out both;white-space:nowrap;text-shadow:0 1px 3px var(--delta-halo,rgba(255,255,255,.85)),0 0 2px var(--delta-halo,rgba(255,255,255,.85))}
+.float-delta{position:absolute;font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;font-weight:700;font-size:12px;pointer-events:none;animation:floatUp 1.4s ease-out both;white-space:nowrap;text-shadow:0 1px 3px var(--delta-halo,rgba(255,255,255,.85)),0 0 2px var(--delta-halo,rgba(255,255,255,.85))}
 html.dark .float-delta{--delta-halo:rgba(5,10,20,.92)}
 .confetti-bit{position:absolute;top:-14px;width:8px;height:12px;border-radius:2px;animation:confettiFall var(--dur,2.3s) cubic-bezier(.3,.4,.6,1) var(--delay,0s) both;pointer-events:none}
 .map-home{animation:breathe 3.6s ease-in-out infinite}
@@ -107,8 +116,8 @@ html.dark .map-sea::before{background-image:radial-gradient(#1b2740 1px, transpa
 .stage-pop{animation:stagePop .5s cubic-bezier(.2,1.4,.4,1) both}
 @keyframes stagePop{0%{opacity:0;transform:scale(.6) translateY(14px)}60%{opacity:1}100%{opacity:1;transform:scale(1) translateY(0)}}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
-.btn{cursor:pointer;border:none;font-family:'Montserrat',sans-serif;transition:all .12s;font-weight:700;-webkit-tap-highlight-color:transparent;touch-action:manipulation;font-size:inherit}
-.btn:hover:not(:disabled){filter:brightness(0.88);transform:translateY(-1px)}
+.btn{cursor:pointer;border:none;font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;transition:all .12s;font-weight:700;-webkit-tap-highlight-color:transparent;touch-action:manipulation;font-size:inherit}
+.btn:hover:not(:disabled){filter:brightness(0.94)}
 .btn:active:not(:disabled){transform:translateY(0)}
 .btn:disabled{opacity:.28;cursor:not-allowed!important;transform:none!important;filter:none!important}
 @keyframes pulse{0%,100%{opacity:.2}50%{opacity:.6}}
@@ -3596,18 +3605,18 @@ function EUMap({ gs, sel, setSel }) {
     tip = (
       <g pointerEvents="none">
         <rect x={tx} y={ty} width={tw} height={th} rx={4} fill={P.panel} stroke={isH||isF?P.gold:isA?sc:P.border} strokeWidth={1} opacity={0.97}/>
-        <text x={tx+8} y={ty+15} fontSize={11} fill={P.text} fontFamily="Montserrat,sans-serif" fontWeight={700}>{name}</text>
+        <text x={tx+8} y={ty+15} fontSize={11} fill={P.text} fontFamily="Helvetica, Arial, sans-serif" fontWeight={700}>{name}</text>
         <FAGlyph name={isH?"star":isA?"diamond":"circle-outline"} x={tx+8} y={ty+20.5} size={9} color={isH||isF?P.gold:isA?sc:P.muted}/>
-        <text x={tx+21} y={ty+29} fontSize={10} fill={isH||isF?P.goldText:isA?darkHex(sc):P.muted} fontFamily="DM Mono,monospace">{isH?"HOME COUNTRY":isF?"FULL NATIONAL COVERAGE":isA?"ACTIVE":"UNEXPLORED"}</text>
-        {isA && <text x={tx+8} y={ty+42} fontSize={9} fill={P.muted} fontFamily="DM Mono,monospace">{rCnt} region{rCnt!==1?"s":""} active</text>}
-        <text x={tx+8} y={isA?ty+53:ty+41} fontSize={9} fill={P.muted} fontFamily="DM Mono,monospace">{(EU_COUNTRIES[name]||[]).length} regions available</text>
+        <text x={tx+21} y={ty+29} fontSize={10} fill={isH||isF?P.goldText:isA?darkHex(sc):P.muted} fontFamily="Helvetica, Arial, sans-serif">{isH?"HOME COUNTRY":isF?"FULL NATIONAL COVERAGE":isA?"ACTIVE":"UNEXPLORED"}</text>
+        {isA && <text x={tx+8} y={ty+42} fontSize={9} fill={P.muted} fontFamily="Helvetica, Arial, sans-serif">{rCnt} region{rCnt!==1?"s":""} active</text>}
+        <text x={tx+8} y={isA?ty+53:ty+41} fontSize={9} fill={P.muted} fontFamily="Helvetica, Arial, sans-serif">{(EU_COUNTRIES[name]||[]).length} regions available</text>
         {rivHere.map((rv, k) => (
-          <text key={`rt-${rv.id}`} x={tx+20} y={(isA?ty+65:ty+53)+k*11} fontSize={9} fill={rv.color} fontFamily="DM Mono,monospace">{rv.name} · {STAGES[rv.stage]?.name}</text>
+          <text key={`rt-${rv.id}`} x={tx+20} y={(isA?ty+65:ty+53)+k*11} fontSize={9} fill={rv.color} fontFamily="Helvetica, Arial, sans-serif">{rv.name} · {STAGES[rv.stage]?.name}</text>
         ))}
         {sel && (
           <g pointerEvents="auto" style={{cursor:"pointer"}} onClick={(e) => { e.stopPropagation(); setSel && setSel(null); }}>
             <circle cx={tx+tw-11} cy={ty+11} r={8} fill={P.card} stroke={P.border} strokeWidth={1}/>
-            <text x={tx+tw-11} y={ty+14.5} textAnchor="middle" fontSize={11} fill={P.muted} fontFamily="DM Mono,monospace">×</text>
+            <text x={tx+tw-11} y={ty+14.5} textAnchor="middle" fontSize={11} fill={P.muted} fontFamily="Helvetica, Arial, sans-serif">×</text>
           </g>
         )}
       </g>
@@ -3699,7 +3708,7 @@ function EUMap({ gs, sel, setSel }) {
         return pins.map(p => (
           <g key={`seat-${p.key}`} pointerEvents="none" className="map-home">
             <circle cx={p.x} cy={p.y} r={7} fill={P.panel} stroke={p.col} strokeWidth={1.6}/>
-            <text x={p.x} y={p.y+2.6} textAnchor="middle" fontSize={6.5} fontWeight={700} fill={darkHex(p.col,0.7)} fontFamily="DM Mono,monospace">{p.label}</text>
+            <text x={p.x} y={p.y+2.6} textAnchor="middle" fontSize={6.5} fontWeight={700} fill={darkHex(p.col,0.7)} fontFamily="Helvetica, Arial, sans-serif">{p.label}</text>
           </g>
         ));
       })()}
@@ -3712,7 +3721,7 @@ function EUMap({ gs, sel, setSel }) {
       {/* Labels on active countries */}
       {NUTS0_KEYS.filter(k => activeSet.has(nutsToIso(k))).map(k => {
         const iso = nutsToIso(k); const c = MAP_CENT[k]; if (!c) return null;
-        return <text key={`lbl-${k}`} x={c[0]} y={c[1]-10} textAnchor="middle" fontSize={iso===homeISO?9.5:8} fontFamily="DM Mono,monospace" fontWeight="700" fill={iso===homeISO||fullSet.has(iso)?P.goldText:darkHex(sc)} pointerEvents="none" style={{userSelect:"none"}} stroke="#FFFFFF" strokeWidth={2} paintOrder="stroke">{iso}</text>;
+        return <text key={`lbl-${k}`} x={c[0]} y={c[1]-10} textAnchor="middle" fontSize={iso===homeISO?9.5:8} fontFamily="Helvetica, Arial, sans-serif" fontWeight="700" fill={iso===homeISO||fullSet.has(iso)?P.goldText:darkHex(sc)} pointerEvents="none" style={{userSelect:"none"}} stroke="#FFFFFF" strokeWidth={2} paintOrder="stroke">{iso}</text>;
       })}
 
       {/* Hit areas: the country shapes themselves */}
@@ -3738,14 +3747,14 @@ function EUMap({ gs, sel, setSel }) {
       {rivals.map((rv, ri) => (
         <g key={`leg-${rv.id}`} pointerEvents="none">
           <rect x={6} y={7+ri*12} width={5.5} height={5.5} rx={1.2} fill={rv.color}/>
-          <text x={15} y={12.5+ri*12} fontSize={9} fill={rv.stage>(gs?.stage||0)?rv.color:P.muted} fontFamily="DM Mono,monospace">{rv.name} · {STAGES[rv.stage]?.name}</text>
+          <text x={15} y={12.5+ri*12} fontSize={9} fill={rv.stage>(gs?.stage||0)?rv.color:P.muted} fontFamily="Helvetica, Arial, sans-serif">{rv.name} · {STAGES[rv.stage]?.name}</text>
         </g>
       ))}
 
     </svg>
 
     {/* Watermark — HTML, not SVG, so zooming the map doesn't magnify it */}
-    <div style={{position:"absolute",right:8,bottom:6,pointerEvents:"none",fontSize:10,color:P.muted,opacity:0.55,fontFamily:"'DM Mono',monospace",whiteSpace:"nowrap"}}>
+    <div style={{position:"absolute",right:8,bottom:6,pointerEvents:"none",fontSize:10,color:P.muted,opacity:0.55,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',whiteSpace:"nowrap"}}>
       {STAGES[gs?.stage||0]?.name} · Quarter {gs?.quarter||1} {gs?.year||2024} · {diffOf(gs).label}
     </div>
 
@@ -3753,12 +3762,12 @@ function EUMap({ gs, sel, setSel }) {
         assistive input), and give a visible way back to the full view. */}
     <div style={{position:"absolute",right:8,bottom:26,zIndex:36,display:"flex",flexDirection:"column",gap:4}}>
       <button className="btn" onClick={()=>map.zoomBy(1.5)} title="Zoom in" aria-label="Zoom in on the map"
-        style={{width:30,height:30,borderRadius:7,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:15,fontWeight:700,lineHeight:1,boxShadow:"0 2px 8px rgba(10,25,60,.12)",display:"flex",alignItems:"center",justifyContent:"center"}}>+</button>
+        style={{width:30,height:30,borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:15,fontWeight:700,lineHeight:1,boxShadow:"none",display:"flex",alignItems:"center",justifyContent:"center"}}>+</button>
       <button className="btn" onClick={()=>map.zoomBy(1/1.5)} title="Zoom out" aria-label="Zoom out of the map"
-        style={{width:30,height:30,borderRadius:7,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:17,fontWeight:700,lineHeight:1,boxShadow:"0 2px 8px rgba(10,25,60,.12)",display:"flex",alignItems:"center",justifyContent:"center"}}>−</button>
+        style={{width:30,height:30,borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:17,fontWeight:700,lineHeight:1,boxShadow:"none",display:"flex",alignItems:"center",justifyContent:"center"}}>−</button>
       {map.zoomed && (
         <button className="btn" onClick={map.reset} title="Fit the whole map" aria-label="Reset the map to fit the whole of Europe"
-          style={{width:30,height:30,borderRadius:7,border:`1px solid ${P.accent}66`,background:`${P.accent}12`,color:P.accent,boxShadow:"0 2px 8px rgba(10,25,60,.12)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+          style={{width:30,height:30,borderRadius:0,border:`1px solid ${P.accent}66`,background:`${P.accent}12`,color:P.accent,boxShadow:"none",display:"flex",alignItems:"center",justifyContent:"center"}}>
           <Icon name="rotate-left" size={12} color={P.accent}/>
         </button>
       )}
@@ -3766,8 +3775,8 @@ function EUMap({ gs, sel, setSel }) {
 
     {map.zoomed && (
       <div style={{position:"absolute",left:"50%",transform:"translateX(-50%)",top:8,zIndex:36,pointerEvents:"none",
-        fontSize:9.5,fontFamily:"'DM Mono',monospace",color:P.muted,background:P.panel,border:`1px solid ${P.border}`,
-        borderRadius:20,padding:"3px 10px",boxShadow:"0 2px 8px rgba(10,25,60,.10)",whiteSpace:"nowrap"}}>
+        fontSize:9.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.muted,background:P.panel,border:`1px solid ${P.border}`,
+        borderRadius:0,padding:"3px 10px",boxShadow:"none",whiteSpace:"nowrap"}}>
         {map.view.z.toFixed(1)}× · drag to pan
       </div>
     )}
@@ -3779,7 +3788,7 @@ function EUMap({ gs, sel, setSel }) {
    UI PRIMITIVES
 ═══════════════════════════════════════════════════════════ */
 const Lbl = ({ t }) => (
-  <div style={{fontSize:11,color:P.muted,textTransform:"uppercase",letterSpacing:0.6,marginBottom:6,fontFamily:"'DM Mono',monospace",fontWeight:600}}>{t}</div>
+  <div style={{fontSize:11,color:P.muted,textTransform:"uppercase",letterSpacing:0.6,marginBottom:6,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',fontWeight:600}}>{t}</div>
 );
 
 // Animates a displayed number toward its new value (SSR-safe: effects only)
@@ -3829,7 +3838,7 @@ const ProgressRing = ({ pct, color, size=30, stroke=3.5, label }) => {
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{flexShrink:0,transform:"rotate(-90deg)"}} aria-hidden="true">
       <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={P.bright} strokeWidth={stroke}/>
       <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={off} style={{transition:"stroke-dashoffset .65s cubic-bezier(.22,1,.36,1)"}}/>
-      {label != null && <text x={size/2} y={size/2} textAnchor="middle" dominantBaseline="central" fontSize={8.5} fontWeight={700} fill={darkHex(color,0.65)} fontFamily="DM Mono,monospace" transform={`rotate(90 ${size/2} ${size/2})`}>{label}</text>}
+      {label != null && <text x={size/2} y={size/2} textAnchor="middle" dominantBaseline="central" fontSize={8.5} fontWeight={700} fill={darkHex(color,0.65)} fontFamily="Helvetica, Arial, sans-serif" transform={`rotate(90 ${size/2} ${size/2})`}>{label}</text>}
     </svg>
   );
 };
@@ -3902,22 +3911,22 @@ function FloatingDeltas({ gs }) {
   return (
     <div style={{position:"fixed",top:"22%",left:"50%",transform:"translateX(-50%)",zIndex:2500,pointerEvents:"none",display:"flex",flexDirection:"column",alignItems:"center",gap:5}} aria-hidden="true">
       {items.map((it,i) => (
-        <span key={it.id} className="float-delta" style={{position:"relative",color:it.good?P.greenText:P.redText,animationDelay:`${i*0.12}s`,background:THEME_DARK?"rgba(11,18,32,.82)":"rgba(255,255,255,.82)",padding:"2px 10px",borderRadius:20,border:`1px solid ${it.good?P.green:P.red}44`}}>{it.label}</span>
+        <span key={it.id} className="float-delta" style={{position:"relative",color:it.good?P.greenText:P.redText,animationDelay:`${i*0.12}s`,background:THEME_DARK?"rgba(11,18,32,.82)":"rgba(255,255,255,.82)",padding:"2px 10px",borderRadius:0,border:`1px solid ${it.good?P.green:P.red}44`}}>{it.label}</span>
       ))}
     </div>
   );
 }
 
 const Bar = ({ val, max=100, color, h=4 }) => (
-  <div style={{height:h,background:P.bright,borderRadius:h,overflow:"hidden",marginTop:3}}>
-    <div className="bar-fill" style={{width:`${Math.min(100,Math.max(0,(val/max)*100))}%`,height:"100%",background:color,borderRadius:h}}/>
+  <div style={{height:h,background:P.bright,overflow:"hidden",marginTop:3}}>
+    <div className="bar-fill" style={{width:`${Math.min(100,Math.max(0,(val/max)*100))}%`,height:"100%",background:color}}/>
   </div>
 );
 
 const MiniStat = ({ l, v, c=P.text }) => (
-  <div style={{background:P.card,borderRadius:6,padding:"7px 10px",border:`1px solid ${P.border}`}}>
-    <div style={{fontSize:10,color:P.muted,marginBottom:3,fontFamily:"'DM Mono',monospace",textTransform:"uppercase",letterSpacing:0.3}}>{l}</div>
-    <div style={{fontSize:16,fontWeight:700,color:c,fontFamily:"'DM Mono',monospace"}}>{v}</div>
+  <div style={{background:P.card,borderRadius:0,padding:"7px 10px",border:`1px solid ${P.border}`}}>
+    <div style={{fontSize:10,color:P.muted,marginBottom:3,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',textTransform:"uppercase",letterSpacing:0.3}}>{l}</div>
+    <div style={{fontSize:16,fontWeight:700,color:c,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{v}</div>
   </div>
 );
 
@@ -3983,9 +3992,9 @@ function InfoDot({ text, label, children, style }) {
             width: pos ? pos.w : Math.min(260, (typeof window !== "undefined" ? window.innerWidth : 320) - 16),
             visibility: pos ? "visible" : "hidden",
             zIndex:2000,maxHeight:"70vh",overflowY:"auto",boxSizing:"border-box",
-            padding:"8px 10px",borderRadius:6,background:THEME_DARK?"#0b1220":"#1B2740",color:"#fff",
+            padding:"8px 10px",borderRadius:0,background:THEME_DARK?"#0b1220":"#1B2740",color:"#fff",
             fontSize:10.5,lineHeight:1.5,fontWeight:400,whiteSpace:"pre-wrap",overflowWrap:"anywhere",
-            boxShadow:"0 6px 22px rgba(0,0,0,.35)",fontFamily:"'Open Sans',sans-serif",textAlign:"left",
+            boxShadow:"none",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',textAlign:"left",
             pointerEvents:"none"}}>{text}</span>
       )}
     </span>
@@ -3993,7 +4002,7 @@ function InfoDot({ text, label, children, style }) {
 }
 
 const Trend = ({ t }) => !t ? null : (
-  <span style={{fontSize:10,fontWeight:700,fontFamily:"'DM Mono',monospace",color:t.delta>0.05?P.greenText:t.delta<-0.05?P.redText:P.muted}}>
+  <span style={{fontSize:10,fontWeight:700,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:t.delta>0.05?P.greenText:t.delta<-0.05?P.redText:P.muted}}>
     {t.delta>0.05?"▲":t.delta<-0.05?"▼":"■"} {t.delta>=0?"+":""}{Math.round(t.delta*10)/10}/Q
   </span>
 );
@@ -4015,25 +4024,25 @@ function LeftPanel({ gs, dispatch }) {
   return (
     <div style={{width:215,flexShrink:0,display:"flex",flexDirection:"column",gap:7,padding:"10px 8px 10px 10px",overflowY:"auto",background:P.panel,borderRight:`1px solid ${P.border}`}}>
       {/* Sector + Stage */}
-      <div style={{background:P.card,borderRadius:8,padding:"10px 12px",border:`1px solid ${stage.color}44`}}>
+      <div style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${stage.color}44`}}>
         <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
           <Icon name={gs.sector?.icon||"display"} size={20} color={gs.sector?.color||P.text}/>
           <div>
-            <div style={{fontSize:11,fontWeight:700,color:gs.sector?.color||P.text,lineHeight:1.1}}>{gs.sector?.name||""}{(gs.stage||0)>=2 && <span title="As a national body your cluster spans every industrial ecosystem" style={{marginLeft:6,fontSize:8,fontWeight:700,padding:"1px 6px",borderRadius:3,border:`1px solid ${P.gold}66`,background:`${P.gold}14`,color:P.goldText,letterSpacing:.4,fontFamily:"'DM Mono',monospace",verticalAlign:"middle"}}>CROSS-ECOSYSTEM</span>}</div>
+            <div style={{fontSize:11,fontWeight:700,color:gs.sector?.color||P.text,lineHeight:1.1}}>{gs.sector?.name||""}{(gs.stage||0)>=2 && <span title="As a national body your cluster spans every industrial ecosystem" style={{marginLeft:6,fontSize:8,fontWeight:700,padding:"1px 6px",borderRadius:0,border:`1px solid ${P.gold}66`,background:`${P.gold}14`,color:P.goldText,letterSpacing:.4,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',verticalAlign:"middle"}}>CROSS-ECOSYSTEM</span>}</div>
             <div style={{fontSize:9,color:P.muted}}>{gs.region||""}{gs.regionNuts?` · ${gs.regionNuts}`:""}</div>
             <div style={{fontSize:10,color:P.muted,marginTop:1}}>Regional Innovation Scoreboard: {gs.regionRis||"not rated"} · {gs.s3Aligned?<span style={{color:P.green,display:"inline-flex",alignItems:"center",gap:3}}><Icon name="bullseye" size={9} color={P.green}/> Smart Specialisation aligned</span>:<span style={{color:P.orange}}>outside Smart Specialisation</span>}</div>
           </div>
         </div>
-        <div style={{padding:"4px 8px",borderRadius:4,background:`${stage.color}18`,border:`1px solid ${stage.color}33`,display:"inline-flex",alignItems:"center",gap:5}}>
+        <div style={{padding:"4px 8px",borderRadius:0,background:`${stage.color}18`,border:`1px solid ${stage.color}33`,display:"inline-flex",alignItems:"center",gap:5}}>
           <span style={{width:5,height:5,borderRadius:"50%",background:stage.color,display:"inline-block"}}/>
           <span style={{fontSize:9,fontWeight:700,color:stage.color,letterSpacing:.5}}>{stage.name}</span>
         </div>
       </div>
 
       {/* Budget */}
-      <div className={pBudget} style={{background:P.card,borderRadius:8,padding:"10px 12px",border:`1px solid ${P.border}`}}>
+      <div className={pBudget} style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${P.border}`}}>
         <Lbl t="Treasury"/>
-        <div style={{fontSize:22,fontWeight:700,color:(gs.budget||0)<20000?P.red:P.accent,fontFamily:"'DM Mono',monospace"}}>{fmt(Math.round(tBudget))}</div>
+        <div style={{fontSize:22,fontWeight:700,color:(gs.budget||0)<20000?P.red:P.accent,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{fmt(Math.round(tBudget))}</div>
         <div style={{fontSize:9,color:P.muted,marginTop:3}}>
           <span style={{color:(gs.qNet||0)>=0?P.accent:P.red}}>{(gs.qNet||0)>=0?"+":""}{fmt(gs.qNet||0)}/quarter</span>
           {" · "}runway: <span style={{color:runway<3?P.red:runway<6?P.orange:P.green}}>{runway>=99?"∞":`${runway}Q`}</span>
@@ -4041,7 +4050,7 @@ function LeftPanel({ gs, dispatch }) {
             <span style={{color:P.red}}>{" · "}rival pressure -{Math.min(3,(gs.rivals||[]).filter(r=>r.stage>gs.stage).length)*6}% income</span>
           )}
         </div>
-        <div style={{marginTop:6,display:"grid",gridTemplateColumns:"1fr 1fr",gap:4,fontSize:9,fontFamily:"'DM Mono',monospace"}}>
+        <div style={{marginTop:6,display:"grid",gridTemplateColumns:"1fr 1fr",gap:4,fontSize:9,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
           <div style={{color:P.accent}}>+{fmt(gs.qMember||0)}<div style={{color:P.muted}}>members</div></div>
           <div style={{color:(gs.qProj||0)>0?P.blue:P.muted}}>+{fmt(gs.qProj||0)}<div style={{color:P.muted}}>projects</div></div>
           <div style={{color:P.red}}>-{fmt(gs.qStaff||0)}<div style={{color:P.muted}}>staff</div></div>
@@ -4051,26 +4060,26 @@ function LeftPanel({ gs, dispatch }) {
       </div>
 
       {/* Members */}
-      <div className={pMembers} style={{background:P.card,borderRadius:8,padding:"10px 12px",border:`1px solid ${P.border}`}}>
+      <div className={pMembers} style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${P.border}`}}>
         <div style={{display:"flex",alignItems:"center"}}><Lbl t="Members"/><InfoDot label="Members trend" text={trendTitle(trends?.members, "Plus rival poaching, defections and event effects.")}/></div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
-          <span style={{fontSize:22,fontWeight:700,color:P.gold,fontFamily:"'DM Mono',monospace"}}>{Math.round(tMembers)}</span>
+          <span style={{fontSize:22,fontWeight:700,color:P.gold,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.round(tMembers)}</span>
           <Trend t={trends?.members}/>
         </div>
         <div style={{fontSize:9,color:P.muted}}>fee {fmt(memberFee(gs.stage))}/quarter · mix ×{(Math.round(feeMult(gs)*100)/100).toFixed(2)}</div>
         {(() => { const mx = mixOf(gs), m = Math.max(1, gs.members||1); return (
           <div style={{marginTop:6}} title={`Member composition\nSMEs ${mx.sme} (fee ×0.8, volatile)\nCorporates ${mx.corp} (fee ×2.1, board +1 at 35%+)\nResearch ${mx.res} (fee ×0.5, research margins +2pp at 20%+)`}>
-            <div style={{display:"flex",height:5,borderRadius:3,overflow:"hidden",border:`1px solid ${P.border}`}}>
+            <div style={{display:"flex",height:5,borderRadius:0,overflow:"hidden",border:`1px solid ${P.border}`}}>
               <div style={{width:`${Math.round(mx.sme/m*100)}%`,background:P.accent}}/>
               <div style={{width:`${Math.round(mx.corp/m*100)}%`,background:P.gold}}/>
               <div style={{flex:1,background:P.purple}}/>
             </div>
-            <div style={{fontSize:8.5,color:P.muted,marginTop:2,fontFamily:"'DM Mono',monospace"}}>SME {Math.round(mx.sme/m*100)}% · corp {Math.round(mx.corp/m*100)}% · research {Math.round(mx.res/m*100)}%</div>
+            <div style={{fontSize:8.5,color:P.muted,marginTop:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>SME {Math.round(mx.sme/m*100)}% · corp {Math.round(mx.corp/m*100)}% · research {Math.round(mx.res/m*100)}%</div>
             <div style={{display:"flex",gap:3,marginTop:5,flexWrap:"wrap"}}>
               {Object.entries(MIX_FOCUS).map(([fid, fo]) => (
                 <button key={fid} className="btn" title={`Recruitment focus: ${fo.label} — new members join ${Math.round(fo.sme*100)}% SME / ${Math.round(fo.corp*100)}% corporate / ${Math.round(fo.res*100)}% research`}
                   onClick={() => dispatch({type:"setFocus", focus:fid})}
-                  style={{padding:"2px 7px",borderRadius:4,fontSize:8.5,fontFamily:"'DM Mono',monospace",border:`1px solid ${(gs.focus||"balanced")===fid?P.accent:P.border}`,background:(gs.focus||"balanced")===fid?`${P.accent}18`:"transparent",color:(gs.focus||"balanced")===fid?P.accent:P.muted}}>
+                  style={{padding:"2px 7px",borderRadius:0,fontSize:8.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',border:`1px solid ${(gs.focus||"balanced")===fid?P.accent:P.border}`,background:(gs.focus||"balanced")===fid?`${P.accent}18`:"transparent",color:(gs.focus||"balanced")===fid?P.accent:P.muted}}>
                   {fo.label}
                 </button>
               ))}
@@ -4078,20 +4087,20 @@ function LeftPanel({ gs, dispatch }) {
           </div>
         ); })()}
         <div style={{marginTop:6}}>
-          <div style={{display:"flex",height:5,borderRadius:3,overflow:"hidden",border:`1px solid ${P.border}`}}>
+          <div style={{display:"flex",height:5,borderRadius:0,overflow:"hidden",border:`1px solid ${P.border}`}}>
             <div style={{width:`${Math.min(100,Math.round(((gs.members||0)/Math.max(1,marketPool(gs)))*100))}%`,background:gs.sector?.color||P.accent}}/>
             <div style={{width:`${Math.min(100,Math.round((rivalPressure(gs)/Math.max(1,marketPool(gs)))*100))}%`,background:P.red,opacity:.6}}/>
             <div style={{flex:1,background:P.bg}}/>
           </div>
-          <div style={{fontSize:8.5,color:P.muted,marginTop:2,fontFamily:"'DM Mono',monospace"}}>market {Math.round(marketShare(gs)*100)}% claimed (you + rivals)</div>
+          <div style={{fontSize:8.5,color:P.muted,marginTop:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>market {Math.round(marketShare(gs)*100)}% claimed (you + rivals)</div>
         </div>
       </div>
 
       {/* Influence + Political Integration */}
-      <div className={pInfl} style={{background:P.card,borderRadius:8,padding:"10px 12px",border:`1px solid ${P.border}`}}>
+      <div className={pInfl} style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${P.border}`}}>
         <div style={{display:"flex",alignItems:"center"}}><Lbl t="Influence"/><InfoDot label="Influence trend" text={trendTitle(trends?.influence, "Plus one-off effects: project deliveries, events, coups.")}/></div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
-          <span style={{fontSize:20,fontWeight:700,color:P.purple,fontFamily:"'DM Mono',monospace"}}>{Math.round(tInfl)}</span>
+          <span style={{fontSize:20,fontWeight:700,color:P.purple,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.round(tInfl)}</span>
           <span style={{display:"inline-flex",alignItems:"baseline",gap:8}}><Trend t={trends?.influence}/><span style={{fontSize:9,color:P.muted}}>/ 100</span></span>
         </div>
         <Bar val={gs.prestige||0} color={P.purple}/>
@@ -4103,7 +4112,7 @@ function LeftPanel({ gs, dispatch }) {
               const rvColor = st.heldBy ? ((gs.rivals||[]).find(r=>r.id===st.heldBy)?.color || P.red) : null;
               return (
                 <span key={st.id} title={st.held?`${st.label} · ${st.effects}`:st.heldBy?`${st.label} · chaired by ${st.holderName} — needs: ${st.reqs.filter(r=>!r.ok).map(r=>r.l).join(", ")||"displacement next quarter"}`:`${st.label} · needs: ${st.reqs.filter(r=>!r.ok).map(r=>r.l).join(", ")||"granted next quarter"}`}
-                  style={{flex:1,textAlign:"center",fontSize:8.5,fontWeight:700,padding:"3px 0",borderRadius:3,letterSpacing:.4,fontFamily:"'DM Mono',monospace",
+                  style={{flex:1,textAlign:"center",fontSize:8.5,fontWeight:700,padding:"3px 0",borderRadius:0,letterSpacing:.4,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',
                     border:`1px solid ${st.held?P.gold:rvColor||P.border}`,background:st.held?`${P.gold}18`:rvColor?`${rvColor}14`:"transparent",color:st.held?P.goldText:rvColor||P.muted}}>
                   {st.short}
                 </span>
@@ -4115,10 +4124,10 @@ function LeftPanel({ gs, dispatch }) {
       </div>
 
       {/* Board Confidence */}
-      <div className={pBoard} style={{background:P.card,borderRadius:8,padding:"10px 12px",border:`1px solid ${(gs.boardConf||0)<30?`${P.red}55`:P.border}`}}>
+      <div className={pBoard} style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${(gs.boardConf||0)<30?`${P.red}55`:P.border}`}}>
         <div style={{display:"flex",alignItems:"center"}}><Lbl t="Board Confidence"/><InfoDot label="Board confidence trend" text={trendTitle(trends?.board, "Plus one-off effects: project completions +3, failures −8..−15, events.")}/></div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
-          <span style={{fontSize:20,fontWeight:700,color:(gs.boardConf||0)<30?P.red:(gs.boardConf||0)<55?P.orange:P.green,fontFamily:"'DM Mono',monospace"}}>{Math.round(tBoard)}</span>
+          <span style={{fontSize:20,fontWeight:700,color:(gs.boardConf||0)<30?P.red:(gs.boardConf||0)<55?P.orange:P.green,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.round(tBoard)}</span>
           <span style={{display:"inline-flex",alignItems:"baseline",gap:8}}><Trend t={trends?.board}/><span style={{fontSize:9,color:P.muted}}>/ 100</span></span>
         </div>
         <Bar val={gs.boardConf||0} color={(gs.boardConf||0)<30?P.red:(gs.boardConf||0)<55?P.orange:P.green}/>
@@ -4126,19 +4135,19 @@ function LeftPanel({ gs, dispatch }) {
       </div>
 
       {/* Staff summary */}
-      <div style={{background:P.card,borderRadius:8,padding:"10px 12px",border:`1px solid ${P.border}`}}>
+      <div style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${P.border}`}}>
         <Lbl t="Staff"/>
-        <div style={{fontSize:18,fontWeight:700,color:P.text,fontFamily:"'DM Mono',monospace"}}>{staffTotal(gs.roster)}</div>
+        <div style={{fontSize:18,fontWeight:700,color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{staffTotal(gs.roster)}</div>
         <div style={{fontSize:9,color:P.muted}}>cost {fmt(staffCostQ(gs.roster, gs.turn))}/quarter · salaries +1%/Q</div>
         <div style={{fontSize:9,color:P.muted,marginTop:2}}>fail risk: <span style={{color:failRate>25?P.red:failRate>15?P.orange:P.green}}>{failRate}%</span></div>
       </div>
 
       {/* Evolution requirements */}
       {gs.stage < 5 && (
-        <div style={{background:P.card,borderRadius:8,padding:"10px 12px",border:`1px solid ${P.border}`}}>
+        <div style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${P.border}`}}>
           <Lbl t={<><Icon name="arrow-right" size={10} color={P.muted} style={{marginRight:5}}/>{STAGES[Math.min(5,gs.stage+1)]?.name||""}</>}/>
           {reqs.map((r,i) => (
-            <div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:9,fontFamily:"'DM Mono',monospace",lineHeight:1.9,color:r.ok?P.green:P.muted}}>
+            <div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:9,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',lineHeight:1.9,color:r.ok?P.green:P.muted}}>
               <span style={{display:"inline-flex",alignItems:"center",gap:4}}>{r.ok?<Icon name="check" size={9} color={P.green}/>:<Icon name="circle" size={4} color={P.muted}/>} {r.l}</span>
               <span>{r.money?fmt(r.cur):r.cur}/{r.money?fmt(r.req):r.req}</span>
             </div>
@@ -4148,17 +4157,17 @@ function LeftPanel({ gs, dispatch }) {
       )}
 
       {/* Network */}
-      <div style={{background:P.card,borderRadius:8,padding:"10px 12px",border:`1px solid ${P.border}`}}>
+      <div style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${P.border}`}}>
         <Lbl t="Network"/>
-        <div style={{fontSize:9,fontFamily:"'DM Mono',monospace",color:P.blue}}>{(gs.countries||[]).length} countr{(gs.countries||[]).length===1?"y":"ies"}</div>
-        <div style={{fontSize:9,fontFamily:"'DM Mono',monospace",color:P.teal}}>{(gs.regions||[]).length} region{(gs.regions||[]).length!==1?"s":""}</div>
-        <div style={{fontSize:9,fontFamily:"'DM Mono',monospace",color:P.muted,marginTop:2}}>{(gs.completedProjects||[]).length} projects done</div>
-        {(gs.fullCountries||[]).length > 0 && <div style={{fontSize:9,fontFamily:"'DM Mono',monospace",color:P.goldText,marginTop:2}}>{(gs.fullCountries||[]).length} countr{(gs.fullCountries||[]).length===1?"y":"ies"} fully covered</div>}
+        <div style={{fontSize:9,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.blue}}>{(gs.countries||[]).length} countr{(gs.countries||[]).length===1?"y":"ies"}</div>
+        <div style={{fontSize:9,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.teal}}>{(gs.regions||[]).length} region{(gs.regions||[]).length!==1?"s":""}</div>
+        <div style={{fontSize:9,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.muted,marginTop:2}}>{(gs.completedProjects||[]).length} projects done</div>
+        {(gs.fullCountries||[]).length > 0 && <div style={{fontSize:9,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.goldText,marginTop:2}}>{(gs.fullCountries||[]).length} countr{(gs.fullCountries||[]).length===1?"y":"ies"} fully covered</div>}
       </div>
 
       {/* Director governance panel */}
       {byRole(gs.roster,"director") > 0 && (
-        <div style={{background:P.card,borderRadius:8,padding:"10px 12px",border:`1px solid ${P.accent}44`}}>
+        <div style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${P.accent}44`}}>
           <Lbl t={<><Icon name="award" size={11} color={P.text} style={{marginRight:5}}/>Governance · {byRole(gs.roster,"director")} Director{byRole(gs.roster,"director")>1?"s":""}</>}/>
           <div style={{fontSize:10,color:P.text,lineHeight:1.7}}>
             <div>Board +{4+(byRole(gs.roster,"director")-1)*2}/quarter</div>
@@ -4172,11 +4181,11 @@ function LeftPanel({ gs, dispatch }) {
 
       {/* Rival race */}
       {(gs.rivals||[]).length > 0 && (
-        <div style={{background:P.card,borderRadius:8,padding:"10px 12px",border:`1px solid ${P.border}`}}>
+        <div style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${P.border}`}}>
           <Lbl t={<><Icon name="chess-knight" size={11} color={P.text} style={{marginRight:5}}/>Rival Race · first to Pan-European Cluster Network</>}/>
           {(gs.rivals||[]).map(rv => (
             <div key={rv.id} style={{marginBottom:7}}>
-              <div style={{display:"flex",justifyContent:"space-between",fontSize:10,fontFamily:"'DM Mono',monospace"}}>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
                 <span style={{color:rv.color,display:"inline-flex",alignItems:"center",gap:5}}><Icon name="square" size={7} color={rv.color}/> {rv.name} · {NAME_TO_ISO[rv.country]||""}</span>
                 <span style={{color:rv.stage>gs.stage?P.red:P.muted}}>{STAGES[rv.stage]?.name} · {rv.members} members</span>
               </div>
@@ -4204,21 +4213,21 @@ function RightPanel({ gs, compact }) {
       {/* Active projects */}
       <div style={{padding:compact?"8px 10px 6px":"10px 10px 8px",borderBottom:`1px solid ${P.border}`,flexShrink:0,maxHeight:compact?96:"none",overflowY:compact?"auto":"visible"}}>
         <Lbl t={`Active Projects (${active.length})`}/>
-        {active.length===0 && <div style={{fontSize:10,color:P.muted,fontFamily:"'DM Mono',monospace"}}>No active projects</div>}
+        {active.length===0 && <div style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>No active projects</div>}
         {active.map((p, i) => {
           if (!p) return null;
           const prog = Math.min(1, 1 - ((p.endTurn||0)-(gs.turn||0)) / Math.max(1,p.dur||1));
           const st = projectStatus(p, gs);
           return (
-            <div key={`ap-${i}`} style={{marginBottom:8,padding:"7px 8px",background:P.card,borderRadius:6,border:`1px solid ${P.border}`}}>
+            <div key={`ap-${i}`} style={{marginBottom:8,padding:"7px 8px",background:P.card,borderRadius:0,border:`1px solid ${P.border}`}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:6,marginBottom:4}}>
                 <div style={{fontSize:10,fontWeight:700,lineHeight:1.3}}>{p.name||""}</div>
                 <span style={{flexShrink:0,fontSize:9,fontWeight:600,color:st.color,whiteSpace:"nowrap",display:"inline-flex",alignItems:"center",gap:4}}><Icon name="circle" size={7} color={st.color}/> {st.label}</span>
               </div>
-              <div style={{height:2.5,background:P.bright,borderRadius:2}}>
-                <div style={{width:`${prog*100}%`,height:"100%",background:st.color,borderRadius:2,transition:"width .4s"}}/>
+              <div style={{height:2.5,background:P.bright,borderRadius:0}}>
+                <div style={{width:`${prog*100}%`,height:"100%",background:st.color,borderRadius:0,transition:"width .4s"}}/>
               </div>
-              <div style={{display:"flex",justifyContent:"space-between",marginTop:3,fontSize:10,color:P.muted,fontFamily:"'DM Mono',monospace"}}>
+              <div style={{display:"flex",justifyContent:"space-between",marginTop:3,fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
                 <span style={{color:st.color}}>{Math.max(0,(p.endTurn||0)-(gs.turn||0))}Q left</span>
                 <span>{fmt(projBudget(p,p.partners||0))}</span>
               </div>
@@ -4254,13 +4263,13 @@ function Modal({ title, icon, iconColor, onClose, children, width=600 }) {
       style={{position:"fixed",inset:0,background:THEME_DARK?"rgba(2,6,16,.7)":"rgba(15,30,60,.55)",display:"flex",alignItems:phone?"stretch":"center",justifyContent:"center",zIndex:1000,padding:phone?0:20}}
       onClick={e => { if (e.target===e.currentTarget) onClose(); }}
     >
-      <div className="modal-in" style={{background:P.panel,borderRadius:phone?0:12,maxWidth:phone?"100%":width,width:"100%",border:phone?"none":`1px solid ${P.border}`,maxHeight:phone?"100%":"92vh",height:phone?"100%":"auto",display:"flex",flexDirection:"column",boxShadow:phone?"none":"0 18px 50px rgba(8,20,50,.25)"}}>
+      <div className="modal-in" style={{background:P.panel,maxWidth:phone?"100%":width,width:"100%",border:phone?"none":`1px solid ${P.border}`,maxHeight:phone?"100%":"92vh",height:phone?"100%":"auto",display:"flex",flexDirection:"column",boxShadow:phone?"none":"0 18px 50px rgba(8,20,50,.25)"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:phone?"16px 16px":"13px 18px",borderBottom:`1px solid ${P.border}`,flexShrink:0}}>
           <div style={{display:"flex",alignItems:"center",gap:9,fontWeight:700,fontSize:phone?18:15,color:P.text}}>
             {icon && <Icon name={icon} size={phone?17:15} color={iconColor||P.accent}/>}
             {title}
           </div>
-          <button className="btn" onClick={onClose} style={{background:phone?P.card:"none",border:`1px solid ${P.border}`,color:P.text,borderRadius:6,padding:phone?"7px 12px":"5px 9px",display:"flex",alignItems:"center"}}><Icon name="xmark" size={phone?14:12}/></button>
+          <button className="btn" onClick={onClose} style={{background:phone?P.card:"none",border:`1px solid ${P.border}`,color:P.text,borderRadius:0,padding:phone?"7px 12px":"5px 9px",display:"flex",alignItems:"center"}}><Icon name="xmark" size={phone?14:12}/></button>
         </div>
         <div style={{padding:"16px 18px",overflowY:"auto",flex:1}}>{children}</div>
       </div>
@@ -4298,7 +4307,7 @@ function ProjCard({ p, gs, failRate, onStart }) {
   const contest = gs ? projContest(p, gs) : { rivals:[], failPen:0, marginMul:1 };
   const shownFail = Math.min(90, failRate + Math.round(contest.failPen*100));
   return (
-    <div style={{background:P.card,borderRadius:8,padding:14,border:`1px solid ${cc}33`}}>
+    <div style={{background:P.card,borderRadius:0,padding:14,border:`1px solid ${cc}33`}}>
       {/* required specialist for this category */}
       <div style={{display:"flex",gap:5,marginBottom:7,flexWrap:"wrap",alignItems:"center"}}>
         {[
@@ -4310,10 +4319,10 @@ function ProjCard({ p, gs, failRate, onStart }) {
           ...(contest.rivals.length>0 ? [{t:`CONTESTED by ${contest.rivals.map(r=>r.name.split(" ")[0]).join(", ")}`, c:P.red}] : []),
           {t:`MARGIN ≈${Math.round(margin*100)}%`, c:P.green},
         ].map((x,i) => (
-          <span key={i} style={{fontSize:9,padding:"2px 7px",borderRadius:3,border:`1px solid ${x.c}44`,background:`${x.c}14`,color:x.c,fontFamily:"'DM Mono',monospace"}}>{x.t}</span>
+          <span key={i} style={{fontSize:9,padding:"2px 7px",borderRadius:0,border:`1px solid ${x.c}44`,background:`${x.c}14`,color:x.c,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{x.t}</span>
         ))}
         {reqDef && (
-          <span style={{display:"inline-flex",alignItems:"center",gap:4,fontSize:9,padding:"2px 7px",borderRadius:3,border:`1px solid ${cc}44`,background:`${cc}14`,color:cc,fontFamily:"'DM Mono',monospace"}}>
+          <span style={{display:"inline-flex",alignItems:"center",gap:4,fontSize:9,padding:"2px 7px",borderRadius:0,border:`1px solid ${cc}44`,background:`${cc}14`,color:cc,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
             <Icon name={reqDef.icon} size={9} color={cc}/> needs {reqDef.name}
           </span>
         )}
@@ -4323,13 +4332,13 @@ function ProjCard({ p, gs, failRate, onStart }) {
       {conds.length > 0 && (
         <div style={{display:"flex",gap:5,marginBottom:8,flexWrap:"wrap"}}>
           {conds.map((c,i) => (
-            <span key={i} style={{display:"inline-flex",alignItems:"center",gap:3,fontSize:10,padding:"2px 7px",borderRadius:3,border:`1px solid ${(c.ok?P.green:P.red)}55`,background:`${c.ok?P.green:P.red}10`,color:c.ok?P.greenText:P.redText,fontFamily:"'DM Mono',monospace"}}>
+            <span key={i} style={{display:"inline-flex",alignItems:"center",gap:3,fontSize:10,padding:"2px 7px",borderRadius:0,border:`1px solid ${(c.ok?P.green:P.red)}55`,background:`${c.ok?P.green:P.red}10`,color:c.ok?P.greenText:P.redText,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
               <Icon name={c.ok?"check":"xmark"} size={9} color={c.ok?P.greenText:P.redText}/>{c.l}
             </span>
           ))}
         </div>
       )}
-      <div style={{display:"flex",gap:12,fontSize:10,color:P.muted,marginBottom:10,fontFamily:"'DM Mono',monospace"}}>
+      <div style={{display:"flex",gap:12,fontSize:10,color:P.muted,marginBottom:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
         <span>minimum {p.mem} members</span>
         {(p.part||0)>0 && <span>{partners} partners</span>}
         <span>+{p.pres} influence</span>
@@ -4339,14 +4348,14 @@ function ProjCard({ p, gs, failRate, onStart }) {
         <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}>
           <span style={{fontSize:10,color:P.muted,whiteSpace:"nowrap"}}>Partners: {partners}</span>
           <input type="range" min={p.part} max={(p.part||0)+10} value={partners} onChange={e => setPartners(Number(e.target.value))}/>
-          <span style={{fontSize:14,fontWeight:700,color:P.accent,fontFamily:"'DM Mono',monospace",whiteSpace:"nowrap"}}>{fmt(budget)} <span style={{fontSize:9,color:P.muted,fontWeight:400}}>volume</span></span>
+          <span style={{fontSize:14,fontWeight:700,color:P.accent,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',whiteSpace:"nowrap"}}>{fmt(budget)} <span style={{fontSize:9,color:P.muted,fontWeight:400}}>volume</span></span>
         </div>
       )}
-      {(p.part||0)===0 && <div style={{fontSize:14,fontWeight:700,color:P.accent,fontFamily:"'DM Mono',monospace",marginBottom:6}}>{fmt(budget)} <span style={{fontSize:9,color:P.muted,fontWeight:400}}>volume</span></div>}
-      <div style={{fontSize:10,color:P.muted,marginBottom:10,fontFamily:"'DM Mono',monospace",lineHeight:1.6}}>
+      {(p.part||0)===0 && <div style={{fontSize:14,fontWeight:700,color:P.accent,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',marginBottom:6}}>{fmt(budget)} <span style={{fontSize:9,color:P.muted,fontWeight:400}}>volume</span></div>}
+      <div style={{fontSize:10,color:P.muted,marginBottom:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',lineHeight:1.6}}>
         Delivery costs <span style={{color:P.redText}}>{fmt(spendQ)}/Q for {p.dur}Q</span>, of which interim payments reimburse {Math.round(INTERIM_RATE*100)}% as you go · success pays the balance plus <span style={{color:P.greenText}}>≈{fmt(expGain)} margin</span> · failure is audited down to {Math.round(FAIL_RECOVERY*100)}% of costs (clawback)
       </div>
-      <button className="btn" disabled={gs && (gs.budget||0) < need} onClick={() => onStart(p, partners)} style={{padding:"6px 14px",borderRadius:6,border:"none",background:cc,color:"#fff",fontWeight:700,fontSize:12,fontFamily:"'Montserrat',sans-serif"}}>Launch · invest {fmt(spendQ)}/Q <Icon name="arrow-right" size={11} color="#fff" style={{marginLeft:5}}/></button>
+      <button className="btn" disabled={gs && (gs.budget||0) < need} onClick={() => onStart(p, partners)} style={{padding:"6px 14px",borderRadius:0,border:"none",background:cc,color:"#fff",fontWeight:700,fontSize:12,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Launch · invest {fmt(spendQ)}/Q <Icon name="arrow-right" size={11} color="#fff" style={{marginLeft:5}}/></button>
     </div>
   );
 }
@@ -4382,17 +4391,17 @@ function ProjectsModal({ gs, dispatch, onClose, panel }) {
       </div>
       {locked.length > 0 && (
         <>
-          <div style={{margin:"14px 0 8px",fontSize:10,color:P.muted,fontWeight:700,textTransform:"uppercase",letterSpacing:.6,fontFamily:"'DM Mono',monospace"}}>Calls not yet within reach · unmet enabling conditions</div>
+          <div style={{margin:"14px 0 8px",fontSize:10,color:P.muted,fontWeight:700,textTransform:"uppercase",letterSpacing:.6,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Calls not yet within reach · unmet enabling conditions</div>
           <div style={{display:"grid",gap:6}}>
             {locked.map(p => (
-              <div key={p.id} style={{background:P.card,borderRadius:6,padding:"8px 12px",border:`1px solid ${P.border}`,opacity:.78}}>
+              <div key={p.id} style={{background:P.card,borderRadius:0,padding:"8px 12px",border:`1px solid ${P.border}`,opacity:.78}}>
                 <div style={{display:"flex",justifyContent:"space-between",gap:8,alignItems:"center"}}>
                   <span style={{fontSize:11,fontWeight:700,color:P.text}}>{p.name}</span>
-                  <span style={{fontSize:9,color:P.muted,fontFamily:"'DM Mono',monospace"}}>{p.fund.toUpperCase()} · {fmt(projBudget(p, p.part||0))}</span>
+                  <span style={{fontSize:9,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{p.fund.toUpperCase()} · {fmt(projBudget(p, p.part||0))}</span>
                 </div>
                 <div style={{display:"flex",gap:5,marginTop:5,flexWrap:"wrap"}}>
                   {projectConditions(p, gs).filter(c => !c.ok).map((c,i) => (
-                    <span key={i} style={{display:"inline-flex",alignItems:"center",gap:3,fontSize:10,padding:"2px 7px",borderRadius:3,border:`1px solid ${P.red}55`,background:`${P.red}10`,color:P.redText,fontFamily:"'DM Mono',monospace"}}><Icon name="xmark" size={9} color={P.redText}/>{c.l}</span>
+                    <span key={i} style={{display:"inline-flex",alignItems:"center",gap:3,fontSize:10,padding:"2px 7px",borderRadius:0,border:`1px solid ${P.red}55`,background:`${P.red}10`,color:P.redText,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}><Icon name="xmark" size={9} color={P.redText}/>{c.l}</span>
                   ))}
                 </div>
               </div>
@@ -4428,8 +4437,8 @@ function StaffModal({ gs, dispatch, onClose, panel }) {
         <MiniStat l="Churn Rate"     v={`${churnPct}%/quarter`}             c={P.blue}/>
         <MiniStat l="Fail Risk"      v={`${failRate}%`}                 c={P.orange}/>
       </div>
-      <div style={{fontSize:10,color:P.muted,marginBottom:6,fontFamily:"'DM Mono',monospace"}}>Salary inflation: labour costs are up {infl}% since founding and rise +1% every quarter, for new hires and the whole payroll.</div>
-      <div style={{fontSize:10,color:visibleStaff(roster)>=staffSpan(roster)?P.redText:P.muted,marginBottom:14,fontFamily:"'DM Mono',monospace"}}>Management capacity: {visibleStaff(roster)}/{staffSpan(roster)} (the GM manages 7; each Executive Director adds 7) · balance rule: max {roleCap(roster)} per role · exactly one General Manager.</div>
+      <div style={{fontSize:10,color:P.muted,marginBottom:6,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Salary inflation: labour costs are up {infl}% since founding and rise +1% every quarter, for new hires and the whole payroll.</div>
+      <div style={{fontSize:10,color:visibleStaff(roster)>=staffSpan(roster)?P.redText:P.muted,marginBottom:14,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Management capacity: {visibleStaff(roster)}/{staffSpan(roster)} (the GM manages 7; each Executive Director adds 7) · balance rule: max {roleCap(roster)} per role · exactly one General Manager.</div>
 
       {visibleStaff(roster) <= 1 && (
         <div style={{marginBottom:14}}><EmptyState icon="users" title="Just you and your General Manager" hint="Hire specialists below to unlock projects and grow: a Communications Director recruits members, a Project Manager cuts delivery risk, an Analyst runs research bids. The GM can supervise 7 people."/></div>
@@ -4447,21 +4456,21 @@ function StaffModal({ gs, dispatch, onClose, panel }) {
               const sev = Math.round(roleCost(def, gs.turn) * (senior ? 2 : 1));
               const seniors = idxs.filter(x => ((gs.turn||0) - (x.r.hiredTurn||0)) >= 12).length;
               return (
-                <div key={`team-${def.id}`} style={{background:P.card,borderRadius:6,padding:"9px 12px",border:`1px solid ${P.border}`,display:"flex",justifyContent:"space-between",alignItems:"center",gap:8}}>
+                <div key={`team-${def.id}`} style={{background:P.card,borderRadius:0,padding:"9px 12px",border:`1px solid ${P.border}`,display:"flex",justifyContent:"space-between",alignItems:"center",gap:8}}>
                   <div>
                     <div style={{fontSize:12,fontWeight:700,color:P.text,display:"flex",alignItems:"center",gap:6}}>
-                      {def.icon && <Icon name={def.icon} size={13} color={P.purple}/>} {def.name}{count>1 && <span style={{color:P.accent,fontFamily:"'DM Mono',monospace"}}>×{count}</span>}
-                      {seniors>0 && <span style={{display:"inline-flex",alignItems:"center",gap:2,fontSize:9,color:P.goldText,fontFamily:"'DM Mono',monospace"}}><Icon name="star" size={9} color={P.gold}/>{seniors}</span>}
+                      {def.icon && <Icon name={def.icon} size={13} color={P.purple}/>} {def.name}{count>1 && <span style={{color:P.accent,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>×{count}</span>}
+                      {seniors>0 && <span style={{display:"inline-flex",alignItems:"center",gap:2,fontSize:9,color:P.goldText,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}><Icon name="star" size={9} color={P.gold}/>{seniors}</span>}
                     </div>
-                    <div style={{fontSize:10,color:P.muted,fontFamily:"'DM Mono',monospace"}}>-{fmt(roleCost(def, gs.turn)*count)}/quarter{count>1?" total":""}</div>
+                    <div style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>-{fmt(roleCost(def, gs.turn)*count)}/quarter{count>1?" total":""}</div>
                     <div title={idxs.map(x => `${x.r.name||"—"} · level ${skillOf(x.r)}`).join("\n")} style={{fontSize:9,color:P.muted,marginTop:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:210}}>
                       {idxs.slice(0,2).map(x => `${(x.r.name||"—").split(" ")[0]} L${skillOf(x.r)}`).join(" · ")}{count>2?` · +${count-2} more`:""}
                       {idxs.some(x=>skillOf(x.r)>=4) && <Icon name="star" size={8} color={P.gold} style={{marginLeft:4}}/>}
                     </div>
                   </div>
                   {def.hidden
-                    ? <span style={{fontSize:9,padding:"3px 8px",borderRadius:4,border:`1px solid ${P.border}`,color:P.muted,fontFamily:"'DM Mono',monospace"}}>mandatory</span>
-                    : <button className="btn" title={count>1?"Releases the most recent hire (lowest severance)":""} onClick={() => dispatch({type:"fire",idx:newest.i})} style={{padding:"3px 9px",borderRadius:4,border:`1px solid ${P.red}44`,background:"transparent",color:P.red,fontSize:10,whiteSpace:"nowrap"}}>Fire {count>1?"one ":""}-{fmt(sev)}</button>}
+                    ? <span style={{fontSize:9,padding:"3px 8px",borderRadius:0,border:`1px solid ${P.border}`,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>mandatory</span>
+                    : <button className="btn" title={count>1?"Releases the most recent hire (lowest severance)":""} onClick={() => dispatch({type:"fire",idx:newest.i})} style={{padding:"3px 9px",borderRadius:0,border:`1px solid ${P.red}44`,background:"transparent",color:P.red,fontSize:10,whiteSpace:"nowrap"}}>Fire {count>1?"one ":""}-{fmt(sev)}</button>}
                 </div>
               );
             })}
@@ -4479,20 +4488,20 @@ function StaffModal({ gs, dispatch, onClose, panel }) {
           // Capture roleId in a stable variable so the handler dispatches the right role.
           const roleId  = staffRole.id;
           return (
-            <div key={`hire-${roleId}`} style={{background:P.card,borderRadius:8,padding:12,border:`1px solid ${P.border}`}}>
+            <div key={`hire-${roleId}`} style={{background:P.card,borderRadius:0,padding:12,border:`1px solid ${P.border}`}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
                 <div><Icon name={staffRole.icon} size={17} color={P.purple}/></div>
-                {count > 0 && <span style={{fontSize:9,padding:"2px 7px",borderRadius:3,background:`${P.purple}22`,color:P.purple,fontFamily:"'DM Mono',monospace"}}>{count}×</span>}
+                {count > 0 && <span style={{fontSize:9,padding:"2px 7px",borderRadius:0,background:`${P.purple}22`,color:P.purple,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{count}×</span>}
               </div>
               <div style={{fontWeight:700,fontSize:13,marginBottom:3,color:P.text}}>{staffRole.name}</div>
-              <div style={{fontSize:10,color:P.muted,marginBottom:8,lineHeight:1.5}}>{staffRole.desc}{blockReason && <span style={{display:"block",fontSize:9,color:P.redText,marginTop:4,fontFamily:"'DM Mono',monospace"}}>{blockReason}</span>}</div>
+              <div style={{fontSize:10,color:P.muted,marginBottom:8,lineHeight:1.5}}>{staffRole.desc}{blockReason && <span style={{display:"block",fontSize:9,color:P.redText,marginTop:4,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{blockReason}</span>}</div>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                <span style={{fontSize:13,fontWeight:700,color:P.red,fontFamily:"'DM Mono',monospace"}}>-{fmt(price)}/quarter</span>
+                <span style={{fontSize:13,fontWeight:700,color:P.red,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>-{fmt(price)}/quarter</span>
                 <button
                   className="btn"
                   disabled={!afford}
                   onClick={() => dispatch({type:"hire",roleId})}
-                  style={{padding:"5px 12px",borderRadius:5,border:"none",background:afford?P.accent:P.bright,color:afford?P.card:P.muted,fontWeight:700,fontSize:11,fontFamily:"'Montserrat',sans-serif"}}
+                  style={{padding:"5px 12px",borderRadius:0,border:"none",background:afford?P.accent:P.bright,color:afford?P.card:P.muted,fontWeight:700,fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}
                 >
                   Hire
                 </button>
@@ -4521,19 +4530,19 @@ function RivalsModal({ gs, dispatch, onClose, panel }) {
     <>
       <div style={{fontSize:10,color:P.muted,marginBottom:10,lineHeight:1.5}}>Rival clusters race you to the Pan-European Cluster Network. Contain them, out-politick them, or buy them out: if every rival folds, you win by <strong style={{color:P.text}}>market consolidation</strong> — but collapsed rivals are eventually replaced by new entrants.</div>
       {(gs.coalitionUntil||0) > (gs.turn||0) && (
-        <div style={{background:`${P.red}12`,border:`1.5px solid ${P.red}55`,borderRadius:6,padding:"8px 12px",marginBottom:10,display:"flex",gap:8,alignItems:"center"}}>
+        <div style={{background:`${P.red}12`,border:`1.5px solid ${P.red}55`,borderRadius:0,padding:"8px 12px",marginBottom:10,display:"flex",gap:8,alignItems:"center"}}>
           <span className="wiggle" style={{display:"inline-flex"}}><Icon name="triangle-exclamation" size={13} color={P.red}/></span>
           <div style={{fontSize:10,color:P.redText,lineHeight:1.5}}><strong>RIVAL COALITION</strong> active for {(gs.coalitionUntil||0)-(gs.turn||0)} more quarters: their progress +10%, poaching +25%. Signing a consortium pact with any rival breaks it.</div>
         </div>
       )}
-      <div style={{background:P.card,borderRadius:6,padding:"8px 12px",border:`1px solid ${P.border}`,marginBottom:12}}>
+      <div style={{background:P.card,borderRadius:0,padding:"8px 12px",border:`1px solid ${P.border}`,marginBottom:12}}>
         <div style={{fontSize:9,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.5,marginBottom:5}}>Member market in your territory · {Math.round(share*100)}% claimed</div>
-        <div style={{display:"flex",height:8,borderRadius:4,overflow:"hidden",border:`1px solid ${P.border}`}}>
+        <div style={{display:"flex",height:8,borderRadius:0,overflow:"hidden",border:`1px solid ${P.border}`}}>
           <div style={{width:`${youPct}%`,background:gs.sector?.color||P.accent}} title={`You: ${gs.members||0} members`}/>
           <div style={{width:`${rvPct}%`,background:P.red,opacity:.7}} title="Rival pressure"/>
           <div style={{flex:1,background:P.bg}} title="Untapped market"/>
         </div>
-        <div style={{fontSize:9,color:P.muted,marginTop:4,fontFamily:"'DM Mono',monospace"}}>you {youPct}% · rivals {rvPct}% · open {Math.max(0,100-youPct-rvPct)}% — recruitment slows as the pool empties; expansion grows the pool</div>
+        <div style={{fontSize:9,color:P.muted,marginTop:4,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>you {youPct}% · rivals {rvPct}% · open {Math.max(0,100-youPct-rvPct)}% — recruitment slows as the pool empties; expansion grows the pool</div>
       </div>
       {(gs.rivals||[]).length===0 && <div style={{textAlign:"center",padding:24,color:P.goldText,fontWeight:700}}>No rivals remain. The market is yours.</div>}
       <div style={{display:"grid",gap:10}}>
@@ -4551,33 +4560,33 @@ function RivalsModal({ gs, dispatch, onClose, panel }) {
           const threat = !truce && (ahead || closing || shared.length > 0);
           const threatBorder = threat ? (ahead ? P.red : P.orange) : `${rv.color}44`;
           return (
-            <div key={rv.id} className={threat ? "threat-pulse" : undefined} style={{background:P.card,borderRadius:8,padding:"10px 12px",border:`1px solid ${threatBorder}`,"--threat":threat?(ahead?P.red:P.orange):"transparent"}}>
+            <div key={rv.id} className={threat ? "threat-pulse" : undefined} style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${threatBorder}`,"--threat":threat?(ahead?P.red:P.orange):"transparent"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,flexWrap:"wrap"}}>
                 <div style={{display:"flex",alignItems:"center",gap:7}}>
-                  <span style={{width:9,height:9,borderRadius:2,background:rv.color,display:"inline-block"}}/>
+                  <span style={{width:9,height:9,borderRadius:0,background:rv.color,display:"inline-block"}}/>
                   <span style={{fontWeight:700,fontSize:13,color:P.text}}>{rv.name}</span>
-                  <span style={{fontSize:9,padding:"2px 7px",borderRadius:3,border:`1px solid ${rv.color}55`,color:rv.color,fontFamily:"'DM Mono',monospace"}}>{arch.label}</span>
-                  {truce && <span style={{fontSize:9,padding:"2px 7px",borderRadius:3,border:`1px solid ${P.green}55`,background:`${P.green}10`,color:P.greenText,fontFamily:"'DM Mono',monospace"}}>TRUCE until Q{rv.truce}</span>}
-                  {threat && !truce && <span className="wiggle" style={{fontSize:9,padding:"2px 7px",borderRadius:3,border:`1px solid ${ahead?P.red:P.orange}`,background:`${ahead?P.red:P.orange}12`,color:ahead?P.redText:P.orange,fontFamily:"'DM Mono',monospace",display:"inline-flex",alignItems:"center",gap:3}}><Icon name="triangle-exclamation" size={8} color={ahead?P.red:P.orange}/>{ahead?"AHEAD OF YOU":"THREAT"}</span>}
+                  <span style={{fontSize:9,padding:"2px 7px",borderRadius:0,border:`1px solid ${rv.color}55`,color:rv.color,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{arch.label}</span>
+                  {truce && <span style={{fontSize:9,padding:"2px 7px",borderRadius:0,border:`1px solid ${P.green}55`,background:`${P.green}10`,color:P.greenText,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>TRUCE until Q{rv.truce}</span>}
+                  {threat && !truce && <span className="wiggle" style={{fontSize:9,padding:"2px 7px",borderRadius:0,border:`1px solid ${ahead?P.red:P.orange}`,background:`${ahead?P.red:P.orange}12`,color:ahead?P.redText:P.orange,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',display:"inline-flex",alignItems:"center",gap:3}}><Icon name="triangle-exclamation" size={8} color={ahead?P.red:P.orange}/>{ahead?"AHEAD OF YOU":"THREAT"}</span>}
                 </div>
-                <span style={{fontSize:9,color:P.muted,fontFamily:"'DM Mono',monospace"}}>{STAGES[rv.stage]?.name} · {rv.members||0} members · {(rv.countries||[]).length} countr{(rv.countries||[]).length===1?"y":"ies"}</span>
+                <span style={{fontSize:9,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{STAGES[rv.stage]?.name} · {rv.members||0} members · {(rv.countries||[]).length} countr{(rv.countries||[]).length===1?"y":"ies"}</span>
               </div>
               <div style={{fontSize:9.5,color:P.muted,margin:"4px 0 7px"}}>{arch.blurb}{shared.length>0 && <> · <span style={{color:P.redText}}>contests you in {shared.join(", ")}</span></>}{seatsHeldByRv.length>0 && <> · <span style={{color:P.goldText}}>holds: {seatsHeldByRv.map(s=>s.label).join(", ")}</span></>}</div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
                 <div>
-                  <div style={{fontSize:8.5,color:P.muted,marginBottom:2,fontFamily:"'DM Mono',monospace"}}>progress to next stage</div>
-                  <div style={{height:5,background:P.bg,borderRadius:3,overflow:"hidden"}}><div style={{width:`${Math.min(100,rv.progress||0)}%`,height:"100%",background:rv.color}}/></div>
+                  <div style={{fontSize:8.5,color:P.muted,marginBottom:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>progress to next stage</div>
+                  <div style={{height:5,background:P.bg,borderRadius:0,overflow:"hidden"}}><div style={{width:`${Math.min(100,rv.progress||0)}%`,height:"100%",background:rv.color}}/></div>
                 </div>
                 <div>
-                  <div style={{fontSize:8.5,color:P.muted,marginBottom:2,fontFamily:"'DM Mono',monospace"}}>health {Math.round(hp)}{hp<=25 && <span style={{color:P.redText}}> · collapsing — acquirable</span>}</div>
-                  <div style={{height:5,background:P.bg,borderRadius:3,overflow:"hidden"}}><div style={{width:`${hp}%`,height:"100%",background:hp>60?P.green:hp>30?P.orange:P.red}}/></div>
+                  <div style={{fontSize:8.5,color:P.muted,marginBottom:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>health {Math.round(hp)}{hp<=25 && <span style={{color:P.redText}}> · collapsing — acquirable</span>}</div>
+                  <div style={{height:5,background:P.bg,borderRadius:0,overflow:"hidden"}}><div style={{width:`${hp}%`,height:"100%",background:hp>60?P.green:hp>30?P.orange:P.red}}/></div>
                 </div>
               </div>
               {(rv.scoutedUntil||0) > (gs.turn||0) && (() => {
                 const owned = new Set(rv.countries||[]);
                 const target = (NUTS_BORDERS[NAME_TO_ISO[rv.country]]||[]).map(iso => ISO_TO_NAME[iso]).find(n => n && !owned.has(n));
                 return (
-                  <div style={{fontSize:9,color:P.tealText||P.blue,fontFamily:"'DM Mono',monospace",margin:"4px 0",padding:"4px 8px",background:`${P.blue}0d`,borderRadius:4,border:`1px dashed ${P.blue}44`}}>
+                  <div style={{fontSize:9,color:P.tealText||P.blue,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',margin:"4px 0",padding:"4px 8px",background:`${P.blue}0d`,borderRadius:0,border:`1px dashed ${P.blue}44`}}>
                     <Icon name="magnifying-glass-chart" size={9} color={P.blue}/> INTEL ({(rv.scoutedUntil||0)-(gs.turn||0)}Q): progress {Math.round(rv.progress||0)}% to {STAGES[Math.min(5,(rv.stage||0)+1)]?.name} · next target: {target||"consolidating home market"} · poaching blunted −15%
                   </div>
                 );
@@ -4597,7 +4606,7 @@ function RivalsModal({ gs, dispatch, onClose, panel }) {
                   return (
                     <button key={opId} className="btn" disabled={!!blocked} title={blocked || op.desc}
                       onClick={() => dispatch({type, rid:rv.id})}
-                      style={{padding:"5px 10px",borderRadius:5,border:`1px solid ${P.border}`,background:"transparent",color:blocked?P.muted:P.text,fontSize:10,fontFamily:"'Montserrat',sans-serif",display:"inline-flex",alignItems:"center",gap:5}}>
+                      style={{padding:"5px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:blocked?P.muted:P.text,fontSize:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',display:"inline-flex",alignItems:"center",gap:5}}>
                       <Icon name={op.icon} size={10} color={blocked?P.muted:P.text}/>{op.label} · {fmt(cost)}
                     </button>
                   );
@@ -4648,7 +4657,7 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
   const body = (
     <>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:16}}>
-        <div style={{background:P.card,borderRadius:8,padding:12,border:`1px solid ${P.border}`,gridColumn:"1 / -1"}}>
+        <div style={{background:P.card,borderRadius:0,padding:12,border:`1px solid ${P.border}`,gridColumn:"1 / -1"}}>
           <Lbl t={`Your Network · ${(gs.regions||[]).length} regions in ${(gs.countries||[]).length}/${countryCap(gs)} countries`}/>
           <div style={{display:"flex",flexWrap:"wrap",gap:4,maxHeight:120,overflowY:"auto"}}>
             {(gs.countries||[]).map(c => {
@@ -4660,13 +4669,13 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
               const bg     = full ? `${P.gold}20` : home ? `${P.gold}12` : `${sc}14`;
               return (
                 <span key={c} title={`${c}: ${active}/${total} regions active${full?" · fully covered":""}`}
-                  style={{fontSize:10,padding:"2px 8px",borderRadius:3,background:bg,border:`1px solid ${full?P.gold:home?`${P.gold}66`:`${sc}33`}`,color:col,fontFamily:"'DM Mono',monospace"}}>
+                  style={{fontSize:10,padding:"2px 8px",borderRadius:0,background:bg,border:`1px solid ${full?P.gold:home?`${P.gold}66`:`${sc}33`}`,color:col,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
                   {NAME_TO_ISO[c]||c} {active}/{total}{full && " ●"}{home && <Icon name="star" size={8} color={P.goldText} style={{marginLeft:3}}/>}
                 </span>
               );
             })}
           </div>
-          <div style={{fontSize:8.5,color:P.muted,marginTop:5,fontFamily:"'DM Mono',monospace"}}>● fully covered · ★ home country · activate every region of a country for a national coverage bonus</div>
+          <div style={{fontSize:8.5,color:P.muted,marginTop:5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>● fully covered · ★ home country · activate every region of a country for a national coverage bonus</div>
         </div>
       </div>
 
@@ -4685,7 +4694,7 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
                   <div style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:8}}>
                     {cs.map(c => (
                       <button key={c} className="btn" onClick={() => setRegCountry(c)} aria-pressed={selC===c}
-                        style={{padding:"3px 9px",borderRadius:4,fontSize:10,fontFamily:"'DM Mono',monospace",border:`1px solid ${selC===c?P.accent:P.border}`,background:selC===c?`${P.accent}0d`:"transparent",color:selC===c?P.accent:P.muted}}>
+                        style={{padding:"3px 9px",borderRadius:0,fontSize:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',border:`1px solid ${selC===c?P.accent:P.border}`,background:selC===c?`${P.accent}0d`:"transparent",color:selC===c?P.accent:P.muted}}>
                         {NAME_TO_ISO[c]||c} · {byCountry[c].length}
                       </button>
                     ))}
@@ -4693,7 +4702,7 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
                 )}
                 <div style={{display:"flex",flexWrap:"wrap",gap:6,maxHeight:150,overflowY:"auto"}}>
                   {(byCountry[selC]||[]).map(o => (
-                    <button key={`${o.c}-${o.n}`} className="btn" disabled={budget<rCost} onClick={() => dispatch({type:"expandRegion",region:regionLabel(o),cost:rCost})} style={{padding:"5px 12px",borderRadius:5,border:`1px solid ${sc}44`,background:"transparent",color:budget<rCost?P.muted:darkHex(sc),fontSize:11,fontFamily:"'Montserrat',sans-serif"}}>+ {o.n}</button>
+                    <button key={`${o.c}-${o.n}`} className="btn" disabled={budget<rCost} onClick={() => dispatch({type:"expandRegion",region:regionLabel(o),cost:rCost})} style={{padding:"5px 12px",borderRadius:0,border:`1px solid ${sc}44`,background:"transparent",color:budget<rCost?P.muted:darkHex(sc),fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>+ {o.n}</button>
                   ))}
                 </div>
               </>
@@ -4711,7 +4720,7 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
               const contested = occupied.has(c);
               const cost = contested ? Math.round(cCost*1.5) : cCost;
               return (
-                <button key={c} className="btn" disabled={budget<cost} onClick={() => dispatch({type:"expandCountry",country:c,cost})} style={{display:"inline-flex",alignItems:"center",gap:5,padding:"5px 12px",borderRadius:5,border:`1px solid ${contested?P.red:P.gold}44`,background:"transparent",color:budget<cost?P.muted:contested?P.redText:P.goldText,fontSize:11,fontFamily:"'Montserrat',sans-serif"}}>+ {c}{contested && <Icon name="chess-knight" size={10} color={P.orange} title="Rival present: cost ×1.5"/>}</button>
+                <button key={c} className="btn" disabled={budget<cost} onClick={() => dispatch({type:"expandCountry",country:c,cost})} style={{display:"inline-flex",alignItems:"center",gap:5,padding:"5px 12px",borderRadius:0,border:`1px solid ${contested?P.red:P.gold}44`,background:"transparent",color:budget<cost?P.muted:contested?P.redText:P.goldText,fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>+ {c}{contested && <Icon name="chess-knight" size={10} color={P.orange} title="Rival present: cost ×1.5"/>}</button>
               );
             })}
           </div>
@@ -4747,24 +4756,24 @@ function EvolveModal({ gs, dispatch, onClose }) {
     <Modal title="Stage Evolution" icon="rocket" iconColor={P.gold} onClose={onClose} width={520}>
       <div style={{textAlign:"center",marginBottom:20}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:16}}>
-          <div style={{padding:"8px 16px",borderRadius:6,background:`${stage.color}18`,border:`1px solid ${stage.color}44`,color:stage.color,fontSize:14,fontWeight:700}}>{stage.name}</div>
+          <div style={{padding:"8px 16px",borderRadius:0,background:`${stage.color}18`,border:`1px solid ${stage.color}44`,color:stage.color,fontSize:14,fontWeight:700}}>{stage.name}</div>
           <Icon name="arrow-right" size={20} color={P.muted}/>
-          <div style={{padding:"8px 16px",borderRadius:6,background:`${next.color}18`,border:`1px solid ${next.color}44`,color:next.color,fontSize:14,fontWeight:700}}>{next.name}</div>
+          <div style={{padding:"8px 16px",borderRadius:0,background:`${next.color}18`,border:`1px solid ${next.color}44`,color:next.color,fontSize:14,fontWeight:700}}>{next.name}</div>
         </div>
       </div>
       <Lbl t="Requirements"/>
       <div style={{display:"grid",gap:6,marginBottom:16}}>
         {reqs.map((r,i) => (
-          <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 12px",borderRadius:6,background:r.ok?`${P.green}12`:`${P.red}10`,border:`1px solid ${r.ok?P.green:P.red}44`}}>
+          <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 12px",borderRadius:0,background:r.ok?`${P.green}12`:`${P.red}10`,border:`1px solid ${r.ok?P.green:P.red}44`}}>
             <span style={{fontSize:12,color:r.ok?P.green:P.red,display:"inline-flex",alignItems:"center",gap:5}}><Icon name={r.ok?"check":"xmark"} size={11} color={r.ok?P.green:P.red}/> {r.l}</span>
-            <span style={{fontSize:12,fontFamily:"'DM Mono',monospace",color:r.ok?P.green:P.red}}>{r.money?fmt(r.cur):r.cur} / {r.money?fmt(r.req):r.req}</span>
+            <span style={{fontSize:12,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:r.ok?P.green:P.red}}>{r.money?fmt(r.cur):r.cur} / {r.money?fmt(r.req):r.req}</span>
           </div>
         ))}
       </div>
-      <div style={{padding:"10px 14px",borderRadius:8,background:P.card,border:`1px solid ${P.border}`,marginBottom:16,fontSize:11,color:P.muted}}>
+      <div style={{padding:"10px 14px",borderRadius:0,background:P.card,border:`1px solid ${P.border}`,marginBottom:16,fontSize:11,color:P.muted}}>
         Evolution cost: <strong style={{color:P.red}}>{fmt(cost)}</strong>
       </div>
-      <button className="btn" disabled={!ok} onClick={() => { dispatch({type:"evolve"}); onClose(); }} style={{width:"100%",padding:13,borderRadius:8,border:"none",background:ok?`linear-gradient(135deg,${stage.color},${next.color})`:P.bright,color:ok?"#fff":P.muted,fontWeight:700,fontSize:15,fontFamily:"'Montserrat',sans-serif"}}>
+      <button className="btn" disabled={!ok} onClick={() => { dispatch({type:"evolve"}); onClose(); }} style={{width:"100%",padding:13,borderRadius:0,border:"none",background:ok?`linear-gradient(135deg,${stage.color},${next.color})`:P.bright,color:ok?"#fff":P.muted,fontWeight:700,fontSize:15,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
         {ok ? <><Icon name="rocket" size={15} color="#fff" style={{marginRight:7}}/>Evolve Now</> : "Requirements Not Met"}
       </button>
     </Modal>
@@ -4782,7 +4791,7 @@ function LogModal({ gs, onClose }) {
       <div style={{maxHeight:"70vh",overflowY:"auto"}}>
         {(gs.log||[]).length===0 && <div style={{textAlign:"center",padding:24,color:P.muted}}>Advance quarters to see history.</div>}
         {(gs.log||[]).map((e,i) => (
-          <div key={i} style={{padding:"7px 10px",borderRadius:5,marginBottom:4,background:P.card,border:`1px solid ${(cols[e?.t]||P.border)}22`,display:"flex",gap:7,alignItems:"flex-start"}}>
+          <div key={i} style={{padding:"7px 10px",borderRadius:0,marginBottom:4,background:P.card,border:`1px solid ${(cols[e?.t]||P.border)}22`,display:"flex",gap:7,alignItems:"flex-start"}}>
             <Icon name={LOG_ICON[e?.t]||"circle-info"} size={11} color={cols[e?.t]||P.muted} style={{marginTop:2}}/>
             <div style={{fontSize:10,color:cols[e?.t]||P.text,lineHeight:1.5}}>{e?.txt||""}</div>
           </div>
@@ -4826,29 +4835,29 @@ function EventModal({ ev, onDismiss }) {
   };
   return (
     <div className="backdrop-in" style={{position:"fixed",inset:0,background:THEME_DARK?"rgba(2,6,16,.72)":"rgba(15,30,60,.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:2000,padding:20}}>
-      <div className="event-in" style={{background:P.panel,borderRadius:14,padding:28,maxWidth:480,width:"100%",border:`2px solid ${col}`,boxShadow:"0 12px 46px rgba(0,0,0,.28)"}}>
-        <div style={{display:"flex",alignItems:"center",gap:6,fontSize:9,fontWeight:700,color:col,textTransform:"uppercase",letterSpacing:3,marginBottom:10,fontFamily:"'DM Mono',monospace"}}><span className={headAnim} style={{display:"inline-flex"}}><Icon name={headingIcon} size={11} color={col}/></span>{heading}</div>
+      <div className="event-in" style={{background:P.panel,borderRadius:0,padding:28,maxWidth:480,width:"100%",border:`2px solid ${col}`,boxShadow:"none"}}>
+        <div style={{display:"flex",alignItems:"center",gap:6,fontSize:9,fontWeight:700,color:col,textTransform:"uppercase",letterSpacing:3,marginBottom:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}><span className={headAnim} style={{display:"inline-flex"}}><Icon name={headingIcon} size={11} color={col}/></span>{heading}</div>
         <h2 style={{fontSize:20,fontWeight:700,marginBottom:10,color:P.text,lineHeight:1.3}}>{ev.n}</h2>
         <p style={{fontSize:13,color:P.muted,lineHeight:1.75,marginBottom:16}}>{ev.d}</p>
         {!isChoice && lines.length > 0 && (
-          <div style={{background:P.bright,borderRadius:8,padding:"10px 14px",marginBottom:20,display:"flex",gap:14,flexWrap:"wrap"}}>
+          <div style={{background:P.bright,borderRadius:0,padding:"10px 14px",marginBottom:20,display:"flex",gap:14,flexWrap:"wrap"}}>
             {lines.map((l,i) => {
               const neg = l.startsWith("Budget -")||l.startsWith("Members -")||l.startsWith("Influence -")||l.startsWith("Staff");
-              return <span key={i} style={{fontSize:12,fontWeight:700,color:neg?P.red:P.green,fontFamily:"'DM Mono',monospace"}}>{l}</span>;
+              return <span key={i} style={{fontSize:12,fontWeight:700,color:neg?P.red:P.green,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{l}</span>;
             })}
           </div>
         )}
         {isChoice ? (
           <div style={{display:"flex",flexDirection:"column",gap:10}}>
             {(ev.choices||[]).map((ch, i) => (
-              <button key={i} className="btn" onClick={()=>onDismiss(i)} style={{width:"100%",padding:"12px 16px",borderRadius:9,border:`1.5px solid ${i===0?P.blue:P.border}`,background:i===0?P.blue:P.bright,color:i===0?"#fff":P.text,fontWeight:700,fontSize:14,textAlign:"left",display:"flex",flexWrap:"wrap",justifyContent:"space-between",alignItems:"center",columnGap:12,rowGap:4,minWidth:0}}>
+              <button key={i} className="btn" onClick={()=>onDismiss(i)} style={{width:"100%",padding:"12px 16px",borderRadius:0,border:`1.5px solid ${i===0?P.blue:P.border}`,background:i===0?P.blue:P.bright,color:i===0?"#fff":P.text,fontWeight:700,fontSize:14,textAlign:"left",display:"flex",flexWrap:"wrap",justifyContent:"space-between",alignItems:"center",columnGap:12,rowGap:4,minWidth:0}}>
                 <span style={{flexShrink:0}}>{ch.label}</span>
-                <span style={{fontSize:10,opacity:0.75,fontFamily:"'DM Mono',monospace",textAlign:"right",flex:"1 1 auto",minWidth:0,overflowWrap:"anywhere",lineHeight:1.5}}>{fxLine(ch.fx||{})}</span>
+                <span style={{fontSize:10,opacity:0.75,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',textAlign:"right",flex:"1 1 auto",minWidth:0,overflowWrap:"anywhere",lineHeight:1.5}}>{fxLine(ch.fx||{})}</span>
               </button>
             ))}
           </div>
         ) : (
-          <button className="btn" onClick={()=>onDismiss(null)} style={{width:"100%",padding:13,borderRadius:9,border:"none",background:col,color:"#fff",fontWeight:700,fontSize:15}}>
+          <button className="btn" onClick={()=>onDismiss(null)} style={{width:"100%",padding:13,borderRadius:0,border:"none",background:col,color:"#fff",fontWeight:700,fontSize:15}}>
             {isGood ? "Accept" : "Acknowledge"}
           </button>
         )}
@@ -4883,19 +4892,19 @@ function StatsModal({ gs, onClose, dispatch }) {
   const decay    = [2,3,4,5,6,8][gs.stage] ?? 2;
   const next     = STAGES[Math.min(5,gs.stage+1)];
 
-  const Card = ({children, title}) => <div title={title||undefined} style={{background:P.card,borderRadius:8,padding:"11px 13px",border:`1px solid ${P.border}`,cursor:title?"help":"default"}}>{children}</div>;
+  const Card = ({children, title}) => <div title={title||undefined} style={{background:P.card,borderRadius:0,padding:"11px 13px",border:`1px solid ${P.border}`,cursor:title?"help":"default"}}>{children}</div>;
 
   return (
     <Modal title="Cluster Dashboard" icon="gauge-high" iconColor={P.accent} onClose={onClose} width={560}>
       <div style={{display:"flex",flexDirection:"column",gap:10}}>
         <Card>
           <Lbl t="Treasury"/>
-          <div style={{fontSize:26,fontWeight:700,color:(gs.budget||0)<20000?P.red:P.accent,fontFamily:"'DM Mono',monospace"}}>{fmt(gs.budget||0)}</div>
+          <div style={{fontSize:26,fontWeight:700,color:(gs.budget||0)<20000?P.red:P.accent,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{fmt(gs.budget||0)}</div>
           <div style={{fontSize:11,color:P.muted,marginTop:4}}>
             <span style={{color:(gs.qNet||0)>=0?P.accent:P.red}}>{(gs.qNet||0)>=0?"+":""}{fmt(gs.qNet||0)}/quarter</span>
             {" · runway "}<span style={{color:runway<3?P.red:runway<6?P.orange:P.green}}>{runway>=99?"∞":runway+"Q"}</span>
           </div>
-          <div style={{marginTop:8,display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,fontSize:11,fontFamily:"'DM Mono',monospace"}}>
+          <div style={{marginTop:8,display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
             <div style={{color:P.accent}}>+{fmt(gs.qMember||0)} <span style={{color:P.muted}}>members</span></div>
             <div style={{color:(gs.qProj||0)>0?P.blue:P.muted}}>+{fmt(gs.qProj||0)} <span style={{color:P.muted}}>projects</span></div>
             <div style={{color:P.red}}>-{fmt(gs.qStaff||0)} <span style={{color:P.muted}}>staff</span></div>
@@ -4922,7 +4931,7 @@ function StatsModal({ gs, onClose, dispatch }) {
                       <span style={{fontWeight:600,color:P.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.name}</span>
                       <span style={{color:pst.color,fontWeight:600,whiteSpace:"nowrap",display:"inline-flex",alignItems:"center",gap:4}}><Icon name="circle" size={7} color={pst.color}/> {pst.label}</span>
                     </div>
-                    <div style={{fontSize:10,color:P.muted,fontFamily:"'DM Mono',monospace"}}>{Math.max(0,(p.endTurn||0)-(gs.turn||0))}Q left · {fmt(projBudget(p,p.partners||0))}</div>
+                    <div style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.max(0,(p.endTurn||0)-(gs.turn||0))}Q left · {fmt(projBudget(p,p.partners||0))}</div>
                   </div>
                 </div>
               );
@@ -4934,23 +4943,23 @@ function StatsModal({ gs, onClose, dispatch }) {
           <Card title={trendTitle(statTrends(gs)?.members, "Plus rival poaching, defections and events.")}>
             <Lbl t="Members"/>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
-              <span style={{fontSize:22,fontWeight:700,color:P.gold,fontFamily:"'DM Mono',monospace"}}>{gs.members||0}</span>
+              <span style={{fontSize:22,fontWeight:700,color:P.gold,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{gs.members||0}</span>
               <Trend t={statTrends(gs)?.members}/>
             </div>
             <div style={{fontSize:10,color:P.muted}}>fee {fmt(memberFee(gs.stage))}/quarter · mix ×{(Math.round(feeMult(gs)*100)/100).toFixed(2)}</div>
             {(() => { const mx = mixOf(gs), m = Math.max(1, gs.members||1); return (
               <div style={{marginTop:5}}>
-                <div style={{display:"flex",height:5,borderRadius:3,overflow:"hidden",border:`1px solid ${P.border}`}}>
+                <div style={{display:"flex",height:5,borderRadius:0,overflow:"hidden",border:`1px solid ${P.border}`}}>
                   <div style={{width:`${Math.round(mx.sme/m*100)}%`,background:P.accent}} title={`SMEs ${mx.sme}`}/>
                   <div style={{width:`${Math.round(mx.corp/m*100)}%`,background:P.gold}} title={`Corporates ${mx.corp}`}/>
                   <div style={{flex:1,background:P.purple}} title={`Research ${mx.res}`}/>
                 </div>
-                <div style={{fontSize:8.5,color:P.muted,marginTop:2,fontFamily:"'DM Mono',monospace"}}>SME {Math.round(mx.sme/m*100)}% · corp {Math.round(mx.corp/m*100)}% · res {Math.round(mx.res/m*100)}%{cohesionShare(gs)>0?` · cohesion regions ${Math.round(cohesionShare(gs)*100)}%`:""}</div>
+                <div style={{fontSize:8.5,color:P.muted,marginTop:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>SME {Math.round(mx.sme/m*100)}% · corp {Math.round(mx.corp/m*100)}% · res {Math.round(mx.res/m*100)}%{cohesionShare(gs)>0?` · cohesion regions ${Math.round(cohesionShare(gs)*100)}%`:""}</div>
                 {dispatch && (
                   <div style={{display:"flex",gap:3,marginTop:5,flexWrap:"wrap"}}>
                     {Object.entries(MIX_FOCUS).map(([fid, fo]) => (
                       <button key={fid} className="btn" onClick={() => dispatch({type:"setFocus", focus:fid})}
-                        style={{padding:"2px 7px",borderRadius:4,fontSize:8.5,fontFamily:"'DM Mono',monospace",border:`1px solid ${(gs.focus||"balanced")===fid?P.accent:P.border}`,background:(gs.focus||"balanced")===fid?`${P.accent}18`:"transparent",color:(gs.focus||"balanced")===fid?P.accent:P.muted}}>
+                        style={{padding:"2px 7px",borderRadius:0,fontSize:8.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',border:`1px solid ${(gs.focus||"balanced")===fid?P.accent:P.border}`,background:(gs.focus||"balanced")===fid?`${P.accent}18`:"transparent",color:(gs.focus||"balanced")===fid?P.accent:P.muted}}>
                         {fo.label}
                       </button>
                     ))}
@@ -4963,12 +4972,12 @@ function StatsModal({ gs, onClose, dispatch }) {
             <Card>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                 <Lbl t={`History · last ${Math.min(60,(gs.history||[]).length)} quarters`}/>
-                <button className="btn" onClick={() => downloadCSV(gs)} title="Export the full run history as CSV" style={{padding:"2px 8px",borderRadius:4,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:9,fontFamily:"'DM Mono',monospace"}}>CSV ⬇</button>
+                <button className="btn" onClick={() => downloadCSV(gs)} title="Export the full run history as CSV" style={{padding:"2px 8px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:9,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>CSV ⬇</button>
               </div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:"6px 14px",marginTop:2}}>
                 {[["Treasury","b",P.accent],["Members","m",P.gold],["Influence","p",P.purple],["Board","bc",P.green]].map(([lbl,k,col]) => (
                   <div key={k}>
-                    <div style={{fontSize:9,color:P.muted,fontFamily:"'DM Mono',monospace"}}>{lbl}</div>
+                    <div style={{fontSize:9,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{lbl}</div>
                     <Sparkline data={(gs.history||[]).slice(-60).map(x=>x[k]||0)} color={col}/>
                   </div>
                 ))}
@@ -4977,7 +4986,7 @@ function StatsModal({ gs, onClose, dispatch }) {
           )}
           <Card>
             <Lbl t="Staff"/>
-            <div style={{fontSize:22,fontWeight:700,color:P.text,fontFamily:"'DM Mono',monospace"}}>{staffTotal(gs.roster)}</div>
+            <div style={{fontSize:22,fontWeight:700,color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{staffTotal(gs.roster)}</div>
             <div style={{fontSize:10,color:P.muted}}>fail risk <span style={{color:failRate>25?P.red:failRate>15?P.orange:P.green}}>{failRate}%</span></div>
           </Card>
         </div>
@@ -4985,7 +4994,7 @@ function StatsModal({ gs, onClose, dispatch }) {
         <Card>
           <Lbl t="Influence"/>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
-            <span style={{fontSize:22,fontWeight:700,color:P.purple,fontFamily:"'DM Mono',monospace"}}>{Math.round(gs.prestige||0)}</span>
+            <span style={{fontSize:22,fontWeight:700,color:P.purple,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.round(gs.prestige||0)}</span>
             <span style={{fontSize:10,color:P.muted}}>fades -{decay}/quarter</span>
           </div>
           <Bar val={gs.prestige||0} color={P.purple}/>
@@ -4993,17 +5002,17 @@ function StatsModal({ gs, onClose, dispatch }) {
           <div style={{marginTop:10,paddingTop:10,borderTop:`1px solid ${P.border}`}}>
             <div style={{fontSize:10,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.6,marginBottom:8}}>Political Integration · seats in policy bodies</div>
             {seatStatus(gs).map(st => (
-              <div key={st.id} style={{marginBottom:9,padding:"8px 10px",borderRadius:6,border:`1px solid ${st.held?`${P.gold}66`:P.border}`,background:st.held?`${P.gold}0d`:"transparent"}}>
+              <div key={st.id} style={{marginBottom:9,padding:"8px 10px",borderRadius:0,border:`1px solid ${st.held?`${P.gold}66`:P.border}`,background:st.held?`${P.gold}0d`:"transparent"}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8}}>
                   <span style={{fontSize:11,fontWeight:700,color:st.held?P.goldText:P.text}}>{st.label}</span>
-                  {st.held && <span style={{fontSize:8.5,fontWeight:700,color:P.goldText,letterSpacing:.5,fontFamily:"'DM Mono',monospace"}}>SEAT HELD</span>}
-                  {!st.held && st.heldBy && <span style={{fontSize:8.5,fontWeight:700,color:P.redText,letterSpacing:.5,fontFamily:"'DM Mono',monospace"}}>CHAIRED BY {String(st.holderName||"").toUpperCase()}</span>}
+                  {st.held && <span style={{fontSize:8.5,fontWeight:700,color:P.goldText,letterSpacing:.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>SEAT HELD</span>}
+                  {!st.held && st.heldBy && <span style={{fontSize:8.5,fontWeight:700,color:P.redText,letterSpacing:.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>CHAIRED BY {String(st.holderName||"").toUpperCase()}</span>}
                 </div>
                 <div style={{fontSize:9,color:P.muted,margin:"3px 0 6px"}}>{st.effects}</div>
                 {!st.held && (
                   <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
                     {st.reqs.map((c,i) => (
-                      <span key={i} style={{display:"inline-flex",alignItems:"center",gap:3,fontSize:9.5,padding:"2px 7px",borderRadius:3,border:`1px solid ${(c.ok?P.green:P.red)}55`,background:`${c.ok?P.green:P.red}10`,color:c.ok?P.greenText:P.redText,fontFamily:"'DM Mono',monospace"}}>
+                      <span key={i} style={{display:"inline-flex",alignItems:"center",gap:3,fontSize:9.5,padding:"2px 7px",borderRadius:0,border:`1px solid ${(c.ok?P.green:P.red)}55`,background:`${c.ok?P.green:P.red}10`,color:c.ok?P.greenText:P.redText,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
                         <Icon name={c.ok?"check":"xmark"} size={8} color={c.ok?P.greenText:P.redText}/>{c.l}
                       </span>
                     ))}
@@ -5017,7 +5026,7 @@ function StatsModal({ gs, onClose, dispatch }) {
         <Card>
           <Lbl t="Board Confidence"/>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
-            <span style={{fontSize:22,fontWeight:700,color:(gs.boardConf||0)<30?P.red:(gs.boardConf||0)<55?P.orange:P.green,fontFamily:"'DM Mono',monospace"}}>{Math.round(gs.boardConf||0)}</span>
+            <span style={{fontSize:22,fontWeight:700,color:(gs.boardConf||0)<30?P.red:(gs.boardConf||0)<55?P.orange:P.green,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.round(gs.boardConf||0)}</span>
             <span style={{fontSize:10,color:P.muted}}>/ 100</span>
           </div>
           <Bar val={gs.boardConf||0} color={(gs.boardConf||0)<30?P.red:(gs.boardConf||0)<55?P.orange:P.green}/>
@@ -5029,7 +5038,7 @@ function StatsModal({ gs, onClose, dispatch }) {
             <Lbl t={<>Evolve <Icon name="arrow-right" size={10} color={P.muted} style={{margin:"0 4px"}}/>{next?.name||""}</>}/>
             <div style={{display:"grid",gap:4,marginTop:2}}>
               {reqs.map((r,i)=>(
-                <div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:11,fontFamily:"'DM Mono',monospace",color:r.ok?P.green:P.muted}}>
+                <div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:r.ok?P.green:P.muted}}>
                   <span style={{display:"inline-flex",alignItems:"center",gap:4}}>{r.ok?<Icon name="check" size={9} color={P.green}/>:<Icon name="circle" size={4} color={P.muted}/>} {r.l}</span>
                   <span>{r.money?fmt(r.cur):r.cur} / {r.money?fmt(r.req):r.req}</span>
                 </div>
@@ -5044,7 +5053,7 @@ function StatsModal({ gs, onClose, dispatch }) {
             <Lbl t={<><Icon name="chess-knight" size={11} color={P.text} style={{marginRight:5}}/>Rival Race · first to a Pan-European Cluster Network</>}/>
             {(gs.rivals||[]).map(rv => (
               <div key={rv.id} style={{marginBottom:8}}>
-                <div style={{display:"flex",justifyContent:"space-between",fontSize:10,fontFamily:"'DM Mono',monospace"}}>
+                <div style={{display:"flex",justifyContent:"space-between",fontSize:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
                   <span style={{color:rv.color,display:"inline-flex",alignItems:"center",gap:5}}><Icon name="square" size={7} color={rv.color}/> {rv.name} · {NAME_TO_ISO[rv.country]||""}</span>
                   <span style={{color:rv.stage>gs.stage?P.red:P.muted}}>{STAGES[rv.stage]?.name} · {rv.members} members</span>
                 </div>
@@ -5056,7 +5065,7 @@ function StatsModal({ gs, onClose, dispatch }) {
 
         <Card>
           <Lbl t="Network"/>
-          <div style={{display:"flex",gap:16,fontSize:12,fontFamily:"'DM Mono',monospace"}}>
+          <div style={{display:"flex",gap:16,fontSize:12,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
             <span style={{color:P.blue}}>{(gs.countries||[]).length} countries</span>
             <span style={{color:P.teal}}>{(gs.regions||[]).length} regions</span>
             <span style={{color:P.muted}}>{(gs.completedProjects||[]).length} projects done</span>
@@ -5072,7 +5081,7 @@ function StatsModal({ gs, onClose, dispatch }) {
    SETUP SCREEN
 ═══════════════════════════════════════════════════════════ */
 function RulesModal({ onClose }) {
-  const H = ({t}) => <div style={{fontSize:12,fontWeight:700,color:P.blue,textTransform:"uppercase",letterSpacing:.8,margin:"16px 0 6px",fontFamily:"'Montserrat',sans-serif"}}>{t}</div>;
+  const H = ({t}) => <div style={{fontSize:12,fontWeight:700,color:P.blue,textTransform:"uppercase",letterSpacing:.8,margin:"16px 0 6px",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{t}</div>;
   const T = ({children}) => <div style={{fontSize:11.5,color:P.text,lineHeight:1.65,marginBottom:6}}>{children}</div>;
   const B = ({children}) => <strong style={{color:P.blue}}>{children}</strong>;
   return (
@@ -5197,14 +5206,14 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
   };
 
   const sel = (active, col=P.accent) => ({
-    padding:"6px 11px", borderRadius:5, border:`1px solid ${active?col:P.border}`,
+    padding:"6px 11px", borderRadius:0, border:`1px solid ${active?col:P.border}`,
     background:active?`${col}14`:P.card, color:active?col:P.text,
-    cursor:"pointer", fontSize:13, fontFamily:"'Montserrat',sans-serif",
+    cursor:"pointer", fontSize:13, fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',
     fontWeight:500, textAlign:"left", transition:"all .1s", width:"100%", display:"block",
   });
 
   return (
-    <div style={{height:"100dvh",background:P.bg,display:"flex",padding:mobile?16:24,fontFamily:"'Open Sans',sans-serif",color:P.text,overflowY:"auto",overflowX:"hidden"}}>
+    <div style={{height:"100dvh",background:P.bg,display:"flex",padding:mobile?16:24,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.text,overflowY:"auto",overflowX:"hidden"}}>
       <div style={{maxWidth:740,width:"100%",margin:"auto",paddingBottom:8}}>
         <div style={{textAlign:"center",marginBottom:mobile?22:"clamp(14px,3vh,32px)"}}>
           <div style={{fontSize:9,letterSpacing:5,color:P.muted,textTransform:"uppercase",marginBottom:"clamp(6px,1.2vh,12px)"}}>EU Industrial Strategy Simulation</div>
@@ -5212,7 +5221,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
           <div style={{fontSize:12,color:P.muted,marginBottom:14}}>From a local cluster initiative to a Pan-European Cluster Network</div>
           {canResume && (
             <div style={{marginTop:16}}>
-              <button className="btn" onClick={onResume} style={{padding:"12px 28px",borderRadius:9,border:`1px solid ${P.accent}`,background:`${P.accent}1a`,color:P.accent,fontWeight:700,fontSize:15,fontFamily:"'Montserrat',sans-serif"}}>
+              <button className="btn" onClick={onResume} style={{padding:"12px 28px",borderRadius:0,border:`1px solid ${P.accent}`,background:`${P.accent}1a`,color:P.accent,fontWeight:700,fontSize:15,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
                 <Icon name="play" size={11} color="currentColor" style={{marginRight:7}}/> Continue Saved Game
               </button>
               <div style={{fontSize:10,color:P.muted,marginTop:8}}>or start a new game below</div>
@@ -5220,7 +5229,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
           )}
           {onOpenSlots && (
             <div style={{marginTop:canResume?4:16}}>
-              <button className="btn" onClick={onOpenSlots} style={{padding:"8px 18px",borderRadius:8,border:`1px solid ${P.border}`,background:P.panel,color:P.muted,fontWeight:700,fontSize:12,fontFamily:"'Montserrat',sans-serif",display:"inline-flex",alignItems:"center",gap:6}}>
+              <button className="btn" onClick={onOpenSlots} style={{padding:"8px 18px",borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.muted,fontWeight:700,fontSize:12,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',display:"inline-flex",alignItems:"center",gap:6}}>
                 <Icon name="floppy-disk" size={11} color={P.muted}/> Load from a save slot
               </button>
             </div>
@@ -5237,15 +5246,15 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
           ))}
         </div>
 
-        <div style={{background:P.panel,borderRadius:12,padding:24,border:`1px solid ${P.border}`}}>
+        <div style={{background:P.panel,borderRadius:0,padding:24,border:`1px solid ${P.border}`}}>
           {step===0 && (
             <>
-              <div style={{marginBottom:8,padding:"11px 13px",borderRadius:8,border:`1px solid ${P.border}`,background:P.card}}>
+              <div style={{marginBottom:8,padding:"11px 13px",borderRadius:0,border:`1px solid ${P.border}`,background:P.card}}>
                 <div style={{fontSize:10,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>Scenario</div>
                 <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                   {SCENARIOS.map(sc => (
                     <button key={sc.id} className="btn" onClick={() => setScenario(sc.id)} aria-pressed={scenario===sc.id} title={sc.desc}
-                      style={{padding:"6px 11px",borderRadius:6,border:`1.5px solid ${scenario===sc.id?P.gold:P.border}`,background:scenario===sc.id?`${P.gold}0f`:P.panel,color:scenario===sc.id?P.goldText:P.text,fontWeight:700,fontSize:11,fontFamily:"'Montserrat',sans-serif"}}>
+                      style={{padding:"6px 11px",borderRadius:0,border:`1.5px solid ${scenario===sc.id?P.gold:P.border}`,background:scenario===sc.id?`${P.gold}0f`:P.panel,color:scenario===sc.id?P.goldText:P.text,fontWeight:700,fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
                       {sc.name}
                     </button>
                   ))}
@@ -5253,23 +5262,23 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                 <div style={{fontSize:10,color:P.muted,marginTop:5,minHeight:24,lineHeight:1.4}}>{SCENARIOS.find(x=>x.id===scenario)?.desc}</div>
                 <div style={{display:"flex",gap:6,marginTop:8,alignItems:"center",flexWrap:"wrap"}}>
                   <input value={seed} onChange={e=>setSeed(e.target.value)} placeholder="Seed (optional)" aria-label="Optional seed for a reproducible campaign" title="Any text: two players with the same seed, scenario and difficulty get an identical campaign start"
-                    style={{flex:"1 1 120px",minWidth:0,padding:"6px 9px",borderRadius:5,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:11,fontFamily:"'DM Mono',monospace",outline:"none"}}/>
+                    style={{flex:"1 1 120px",minWidth:0,padding:"6px 9px",borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',outline:"none"}}/>
                   <input value={challengeIn} onChange={e=>{ setChallengeIn(e.target.value); applyChallenge(e.target.value); }} placeholder="Paste challenge code…" aria-label="Paste a friend's challenge code" title="A friend's CM1 code sets seed, difficulty and scenario automatically"
-                    style={{flex:"1 1 150px",minWidth:0,padding:"6px 9px",borderRadius:5,border:`1px dashed ${P.border}`,background:P.panel,color:P.text,fontSize:11,fontFamily:"'DM Mono',monospace",outline:"none"}}/>
+                    style={{flex:"1 1 150px",minWidth:0,padding:"6px 9px",borderRadius:0,border:`1px dashed ${P.border}`,background:P.panel,color:P.text,fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',outline:"none"}}/>
                 </div>
-                {challengeApplied && <div style={{fontSize:10,color:P.greenText,marginTop:5,fontFamily:"'DM Mono',monospace"}}>✓ Challenge loaded: {DIFFICULTIES[diff]?.label} · {SCENARIOS.find(x=>x.id===scenario)?.name} · pick your country to match</div>}
+                {challengeApplied && <div style={{fontSize:10,color:P.greenText,marginTop:5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>✓ Challenge loaded: {DIFFICULTIES[diff]?.label} · {SCENARIOS.find(x=>x.id===scenario)?.name} · pick your country to match</div>}
               </div>
-              <div style={{marginBottom:10,padding:"11px 13px",borderRadius:8,border:`1px solid ${P.border}`,background:P.card}}>
+              <div style={{marginBottom:10,padding:"11px 13px",borderRadius:0,border:`1px solid ${P.border}`,background:P.card}}>
                 <div style={{fontSize:10,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>Take the helm of a real cluster</div>
                 <input value={nameQuery} onChange={e=>setNameQuery(e.target.value)} placeholder="Search 1,400+ real clusters by name or city…" aria-label="Search real cluster organisations"
-                  style={{width:"100%",boxSizing:"border-box",padding:"7px 10px",borderRadius:6,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:12,outline:"none"}}/>
+                  style={{width:"100%",boxSizing:"border-box",padding:"7px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:12,outline:"none"}}/>
                 {registryMatches.length > 0 && (
-                  <div style={{maxHeight:168,overflowY:"auto",marginTop:6,border:`1px solid ${P.border}`,borderRadius:6}}>
+                  <div style={{maxHeight:168,overflowY:"auto",marginTop:6,border:`1px solid ${P.border}`,borderRadius:0}}>
                     {registryMatches.map((c,i) => (
                       <button key={`${c.n}-${i}`} className="btn" onClick={()=>adoptCluster(c)}
                         style={{display:"block",width:"100%",textAlign:"left",padding:"7px 10px",border:"none",borderBottom:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11.5,lineHeight:1.35}}>
                         <span style={{fontWeight:600}}>{c.n}</span>
-                        <span style={{color:P.muted,fontFamily:"'DM Mono',monospace",fontSize:10}}>{"  "}{c.y ? c.y+", " : ""}{c.c} · {ECOSYSTEMS.find(e=>e.id===c.e)?.name || c.e}</span>
+                        <span style={{color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',fontSize:10}}>{"  "}{c.y ? c.y+", " : ""}{c.c} · {ECOSYSTEMS.find(e=>e.id===c.e)?.name || c.e}</span>
                       </button>
                     ))}
                   </div>
@@ -5302,7 +5311,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                   return (
                     <button key={rec.name} className="btn" style={{...sel(region===rec.name), display:"flex", flexDirection:"column", alignItems:"flex-start", gap:2, padding:"7px 11px"}} onClick={() => { setRegion(rec.name); setStep(2); }}>
                       <span style={{fontWeight:600,display:"inline-flex",alignItems:"center",gap:4}}>{strong && <Icon name="star" size={10} color={P.gold}/>}{rec.name}</span>
-                      <span style={{fontSize:10,color:P.muted,fontFamily:"'DM Mono',monospace"}}>{rec.nuts} · Innovation tier: {rec.ris||"not rated"}{rec.coh ? ` · ${rec.coh}` : ""} · {(rec.ecos||[]).filter(e=>e!=="Cross-ecosystem").length} ecosystems</span>
+                      <span style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{rec.nuts} · Innovation tier: {rec.ris||"not rated"}{rec.coh ? ` · ${rec.coh}` : ""} · {(rec.ecos||[]).filter(e=>e!=="Cross-ecosystem").length} ecosystems</span>
                     </button>
                   );
                 })}
@@ -5313,14 +5322,14 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
             <>
               <button className="btn" onClick={() => setStep(1)} style={{background:"none",border:"none",color:P.accent,fontSize:13,marginBottom:12,padding:0,fontFamily:"inherit",cursor:"pointer",display:"inline-flex",alignItems:"center",gap:5}}><Icon name="arrow-left" size={11} color={P.accent}/> Back</button>
               {adopted && (
-                <div style={{marginBottom:10,padding:"9px 12px",borderRadius:8,border:`1px solid ${P.accent}55`,background:`${P.accent}0d`}}>
+                <div style={{marginBottom:10,padding:"9px 12px",borderRadius:0,border:`1px solid ${P.accent}55`,background:`${P.accent}0d`}}>
                   <div style={{fontSize:11.5,fontWeight:700,color:P.accent,marginBottom:3}}>Set up from {adopted.name}</div>
                   <div style={{fontSize:10.5,color:P.text,lineHeight:1.5}}>
                     Country and ecosystem come from the registry{adopted.city ? `, and the region is our best guess from ${adopted.city}` : ""}.
                     Change any of it below, or use Back to pick a different region.
                   </div>
                   <button className="btn" onClick={()=>{ setAdopted(null); setClusterName(""); setSector(null); setRegion(""); setStep(0); }}
-                    style={{marginTop:6,padding:"4px 9px",borderRadius:5,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:10,fontWeight:700}}>Start over instead</button>
+                    style={{marginTop:6,padding:"4px 9px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:10,fontWeight:700}}>Start over instead</button>
                 </div>
               )}
               <div style={{marginBottom:2,fontSize:14,fontWeight:700}}>Industrial Ecosystem</div>
@@ -5345,7 +5354,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                     <div style={{display:"flex",gap:6}}>
                       {Object.values(DIFFICULTIES).map(d => (
                         <button key={d.id} className="btn" onClick={() => setDiff(d.id)} aria-pressed={diff===d.id}
-                          style={{flex:1,padding:"8px 6px",borderRadius:6,border:`1.5px solid ${diff===d.id?P.accent:P.border}`,background:diff===d.id?`${P.accent}0d`:P.card,color:diff===d.id?P.accent:P.text,fontWeight:700,fontSize:12,fontFamily:"'Montserrat',sans-serif"}}>
+                          style={{flex:1,padding:"8px 6px",borderRadius:0,border:`1.5px solid ${diff===d.id?P.accent:P.border}`,background:diff===d.id?`${P.accent}0d`:P.card,color:diff===d.id?P.accent:P.text,fontWeight:700,fontSize:12,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
                           {d.label}
                         </button>
                       ))}
@@ -5355,7 +5364,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                   <div style={{marginTop:14}}>
                     <div style={{fontSize:10,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.6,marginBottom:6}}>Home region</div>
                     <select value={region} onChange={e=>setRegion(e.target.value)} aria-label="Change your home region"
-                      style={{width:"100%",boxSizing:"border-box",padding:"8px 10px",borderRadius:6,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:12,outline:"none"}}>
+                      style={{width:"100%",boxSizing:"border-box",padding:"8px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:12,outline:"none"}}>
                       {(REGIONS_BY_COUNTRY[country]||[]).map(r => (
                         <option key={r.nuts+r.name} value={r.name}>
                           {r.name}{ecosystemAligns(r, sector.name) ? "  (aligned)" : ""}{r.ris ? `  · ${r.ris}` : ""}
@@ -5372,11 +5381,11 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                     <div style={{fontSize:10,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.6,marginBottom:6}}>Cluster name</div>
                     <input value={clusterName} onChange={e=>setClusterName(e.target.value)} maxLength={70}
                       placeholder={`e.g. ${region} ${sector.name} Cluster`} aria-label="Name your cluster organisation"
-                      style={{width:"100%",boxSizing:"border-box",padding:"8px 10px",borderRadius:6,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:12,outline:"none"}}/>
+                      style={{width:"100%",boxSizing:"border-box",padding:"8px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:12,outline:"none"}}/>
                     <div style={{fontSize:9.5,color:P.muted,marginTop:4}}>Optional. Leave it blank and the header just shows your ecosystem.</div>
                   </div>
                   <div style={{fontSize:10,color:P.muted,marginTop:10,lineHeight:1.4}}>Scenario <strong style={{color:P.goldText}}>{SCENARIOS.find(x=>x.id===scenario)?.name}</strong>{seed?` · seed "${seed.trim()}"`:""} — change these on the first step.</div>
-                  <button className="btn" onClick={() => onStart(country, region, sector, diff, scenario, seed.trim(), clusterName.trim())} style={{marginTop:10,width:"100%",padding:13,borderRadius:8,background:`linear-gradient(135deg,${P.accent},${P.blue})`,color:P.bg,fontWeight:700,fontSize:15,fontFamily:"'Montserrat',sans-serif",letterSpacing:.3}}>
+                  <button className="btn cut" onClick={() => onStart(country, region, sector, diff, scenario, seed.trim(), clusterName.trim())} style={{marginTop:10,width:"100%",padding:13,borderRadius:0,background:`linear-gradient(135deg,${P.accent},${P.blue})`,color:P.bg,fontWeight:700,fontSize:15,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',letterSpacing:.3}}>
                     <Icon name={sector.icon} size={14} color="#fff" style={{marginRight:6}}/> Launch {sector.name} cluster in {region} <Icon name="arrow-right" size={12} color="#fff" style={{marginLeft:6}}/>
                   </button>
                 </>
@@ -5385,14 +5394,14 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
           )}
         </div>
         <div style={{textAlign:"center",marginTop:12,display:"flex",justifyContent:"center",gap:8}}>
-          <button className="btn" onClick={onTheme} title="Toggle dark mode" style={{padding:"6px 12px",borderRadius:6,border:`1px solid ${P.border}`,background:P.panel,display:"inline-flex",alignItems:"center"}}>
+          <button className="btn" onClick={onTheme} title="Toggle dark mode" style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,display:"inline-flex",alignItems:"center"}}>
             <Icon name={dark?"sun":"moon"} size={12} color={P.muted}/>
           </button>
-          <button className="btn" onClick={() => setShowRules(true)} style={{padding:"6px 16px",borderRadius:6,border:`1px solid ${P.border}`,background:P.panel,color:P.blue,fontSize:11,fontWeight:700,fontFamily:"'Montserrat',sans-serif",display:"inline-flex",alignItems:"center",gap:6}}>
+          <button className="btn" onClick={() => setShowRules(true)} style={{padding:"6px 16px",borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.blue,fontSize:11,fontWeight:700,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',display:"inline-flex",alignItems:"center",gap:6}}>
             <Icon name="circle-question" size={12} color={P.blue}/> How to Play · Game Rules
           </button>
         </div>
-        <div style={{textAlign:"center",marginTop:10,fontSize:9,color:P.muted,opacity:.65,fontFamily:"'DM Mono',monospace",letterSpacing:.5}}>vibecoded by DDE</div>
+        <div style={{textAlign:"center",marginTop:10,fontSize:9,color:P.muted,opacity:.65,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',letterSpacing:.5}}>vibecoded by DDE</div>
         {showRules && <RulesModal onClose={() => setShowRules(false)}/>}
       </div>
     </div>
@@ -5412,13 +5421,13 @@ function MapLegend({ gs }) {
       <span style={{flexShrink:0}}>{swatch}</span><span>{label}</span>
     </div>
   );
-  const box = (fill, stroke, extra) => <span style={{display:"inline-block",width:14,height:10,borderRadius:2,background:fill,border:`1px solid ${stroke||"transparent"}`,...extra}}/>;
+  const box = (fill, stroke, extra) => <span style={{display:"inline-block",width:14,height:10,borderRadius:0,background:fill,border:`1px solid ${stroke||"transparent"}`,...extra}}/>;
   return (
-    <div style={{position:"absolute",left:8,bottom:8,zIndex:35,fontFamily:"'Open Sans',sans-serif"}}>
+    <div style={{position:"absolute",left:8,bottom:8,zIndex:35,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
       {open ? (
-        <div className="event-in" style={{background:P.panel,border:`1px solid ${P.border}`,borderRadius:9,padding:"9px 11px",boxShadow:"0 6px 22px rgba(10,25,60,.16)",minWidth:172}}>
+        <div className="event-in" style={{background:P.panel,border:`1px solid ${P.border}`,borderRadius:0,padding:"9px 11px",boxShadow:"none",minWidth:172}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
-            <span style={{fontSize:9,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.8,fontFamily:"'DM Mono',monospace"}}>Map key</span>
+            <span style={{fontSize:9,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.8,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Map key</span>
             <button className="btn" onClick={()=>setOpen(false)} aria-label="Close map key" style={{border:"none",background:"none",color:P.muted,fontSize:13,lineHeight:1,cursor:"pointer",padding:0,width:16,height:16}}>×</button>
           </div>
           <Item swatch={box(`${P.gold}B0`, P.gold)} label="Home region"/>
@@ -5426,13 +5435,13 @@ function MapLegend({ gs }) {
           <Item swatch={box(`${sc}66`, sc)} label="Active region"/>
           <Item swatch={box(THEME_DARK?"#22304F":"#E9EEF8", "#B9C6E2")} label="Unexplored"/>
           {rivals.length > 0 && (
-            <Item swatch={<span style={{display:"inline-block",width:14,height:10,borderRadius:2,border:`1px solid ${rivals[0].color}`,background:`repeating-linear-gradient(45deg, ${rivals[0].color}44 0 2px, transparent 2px 4px)`}}/>} label="Rival territory"/>
+            <Item swatch={<span style={{display:"inline-block",width:14,height:10,borderRadius:0,border:`1px solid ${rivals[0].color}`,background:`repeating-linear-gradient(45deg, ${rivals[0].color}44 0 2px, transparent 2px 4px)`}}/>} label="Rival territory"/>
           )}
           <Item swatch={<span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:14,height:10}}><span style={{width:8,height:8,borderRadius:"50%",border:`1.5px solid ${P.purple}`,background:P.panel}}/></span>} label="Political seat"/>
           <div style={{fontSize:8.5,color:P.muted,marginTop:5,lineHeight:1.4,fontStyle:"italic"}}>Dashed lines link your territories; a shimmer marks contested countries.</div>
         </div>
       ) : (
-        <button className="btn" onClick={()=>setOpen(true)} title="Show map key" style={{display:"inline-flex",alignItems:"center",gap:5,background:P.panel,border:`1px solid ${P.border}`,borderRadius:7,padding:"5px 9px",fontSize:10,fontWeight:700,color:P.muted,boxShadow:"0 3px 12px rgba(10,25,60,.12)"}}>
+        <button className="btn" onClick={()=>setOpen(true)} title="Show map key" style={{display:"inline-flex",alignItems:"center",gap:5,background:P.panel,border:`1px solid ${P.border}`,borderRadius:0,padding:"5px 9px",fontSize:10,fontWeight:700,color:P.muted,boxShadow:"none"}}>
           <Icon name="circle-info" size={11} color={P.muted}/> Key
         </button>
       )}
@@ -5461,7 +5470,7 @@ function DigestCard({ gs, digestOn, reopenTick, onDigestToggle }) {
   const d = shown;
   const chip = (val, label, fmtFn=(v=>v)) => {
     if (Math.round(val) === 0) return null;
-    return <span key={label} style={{fontFamily:"'DM Mono',monospace",fontWeight:700,fontSize:11,color:val>0?P.greenText:P.redText,whiteSpace:"nowrap"}}>{val>0?"+":""}{fmtFn(val)} {label}</span>;
+    return <span key={label} style={{fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',fontWeight:700,fontSize:11,color:val>0?P.greenText:P.redText,whiteSpace:"nowrap"}}>{val>0?"+":""}{fmtFn(val)} {label}</span>;
   };
   const Row = ({ label, val, fmtFn=(v=>v), good }) => {
     if (Math.round(val) === 0) return null;
@@ -5469,16 +5478,16 @@ function DigestCard({ gs, digestOn, reopenTick, onDigestToggle }) {
     return (
       <div style={{display:"flex",justifyContent:"space-between",fontSize:11,padding:"2px 0"}}>
         <span style={{color:P.muted}}>{label}</span>
-        <span style={{fontFamily:"'DM Mono',monospace",fontWeight:700,color:positive?P.greenText:P.redText}}>{val>0?"+":""}{fmtFn(val)}</span>
+        <span style={{fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',fontWeight:700,color:positive?P.greenText:P.redText}}>{val>0?"+":""}{fmtFn(val)}</span>
       </div>
     );
   };
   return (
-    <div className="event-in" style={{position:"absolute",top:8,right:8,zIndex:40,width:expanded?250:210,maxWidth:"calc(100% - 16px)",background:P.panel,border:`1px solid ${d.evolved?P.gold:P.border}`,borderRadius:9,boxShadow:"0 6px 22px rgba(10,25,60,.18)",overflow:"hidden"}}>
+    <div className="event-in" style={{position:"absolute",top:8,right:8,zIndex:40,width:expanded?250:210,maxWidth:"calc(100% - 16px)",background:P.panel,border:`1px solid ${d.evolved?P.gold:P.border}`,borderRadius:0,boxShadow:"none",overflow:"hidden"}}>
       <button className="btn" onClick={() => setExpanded(e=>!e)} aria-expanded={expanded} style={{width:"100%",textAlign:"left",background:"none",border:"none",padding:"8px 26px 8px 10px",cursor:"pointer",display:"block"}}>
         <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:5,paddingRight:18}}>
           <Icon name="clipboard-check" size={11} color={P.accent}/>
-          <span style={{fontSize:9,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.8,fontFamily:"'DM Mono',monospace"}}>Q{((d.turn-1)%4)+1} {2024+Math.floor((d.turn-1)/4)} review</span>
+          <span style={{fontSize:9,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.8,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Q{((d.turn-1)%4)+1} {2024+Math.floor((d.turn-1)/4)} review</span>
           <span style={{marginLeft:"auto",fontSize:9,color:P.muted}}>{expanded?"▲":"▼"}</span>
         </div>
         {d.evolved && <div style={{fontSize:11,fontWeight:700,color:P.goldText,marginBottom:4}}>⭐ Evolved to {d.evolved}!</div>}
@@ -5491,7 +5500,7 @@ function DigestCard({ gs, digestOn, reopenTick, onDigestToggle }) {
       </button>
       {expanded && (
         <div style={{padding:"0 10px 10px",borderTop:`1px solid ${P.border}`}}>
-          <div style={{fontSize:8.5,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.8,margin:"7px 0 3px",fontFamily:"'DM Mono',monospace"}}>Cashflow</div>
+          <div style={{fontSize:8.5,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.8,margin:"7px 0 3px",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Cashflow</div>
           <Row label="Membership fees" val={d.qMember} fmtFn={v=>fmt(v)} good={true}/>
           <Row label="Project income" val={d.qProj} fmtFn={v=>fmt(v)} good={true}/>
           <Row label="Salaries" val={-d.qStaff} fmtFn={v=>fmt(Math.abs(v))} good={false}/>
@@ -5500,7 +5509,7 @@ function DigestCard({ gs, digestOn, reopenTick, onDigestToggle }) {
           <Row label="Delivery costs" val={-d.qDelivery} fmtFn={v=>fmt(Math.abs(v))} good={false}/>
           {d.events.length > 0 && (
             <>
-              <div style={{fontSize:8.5,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.8,margin:"7px 0 3px",fontFamily:"'DM Mono',monospace"}}>This quarter</div>
+              <div style={{fontSize:8.5,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.8,margin:"7px 0 3px",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>This quarter</div>
               {d.events.map((e,i) => (
                 <div key={i} style={{fontSize:10,lineHeight:1.4,color:P.text,display:"flex",gap:5,alignItems:"flex-start",marginBottom:2}}>
                   <Icon name={e.t==="good"?"circle-check":"circle-exclamation"} size={9} color={e.t==="good"?P.green:P.red} style={{marginTop:2,flexShrink:0}}/>
@@ -5531,13 +5540,13 @@ function StageBanner({ banner, sector }) {
     <div key={banner.key} style={{position:"fixed",inset:0,zIndex:2900,display:"flex",alignItems:"center",justifyContent:"center",pointerEvents:"none"}} aria-hidden="true">
       <div style={{position:"absolute",inset:0,background:`radial-gradient(circle at 50% 45%, ${sc}22, transparent 60%)`,animation:"fadeIn .4s ease both, floatUp 3.2s ease-in forwards"}}/>
       <div className="stage-pop" style={{textAlign:"center"}}>
-        <div style={{fontSize:11,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:sc,fontFamily:"'DM Mono',monospace",marginBottom:8}}>Cluster evolved</div>
+        <div style={{fontSize:11,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:sc,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',marginBottom:8}}>Cluster evolved</div>
         <div style={{display:"flex",alignItems:"center",gap:14,justifyContent:"center"}}>
-          <span style={{fontSize:14,color:"#94a3b8",fontFamily:"'Montserrat',sans-serif",fontWeight:700,textDecoration:"line-through",opacity:.6}}>{STAGES[banner.from]?.name}</span>
+          <span style={{fontSize:14,color:"#94a3b8",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',fontWeight:700,textDecoration:"line-through",opacity:.6}}>{STAGES[banner.from]?.name}</span>
           <Icon name="arrow-up-right-dots" size={22} color={sc}/>
         </div>
-        <div style={{fontSize:30,fontWeight:800,color:sc,fontFamily:"'Montserrat',sans-serif",marginTop:6,textShadow:`0 4px 24px ${sc}66`}}>{STAGES[banner.to]?.name}</div>
-        <div style={{fontSize:11,color:"#64748b",marginTop:6,fontFamily:"'DM Mono',monospace"}}>Stage {banner.to} of 5</div>
+        <div style={{fontSize:30,fontWeight:800,color:sc,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',marginTop:6,textShadow:`0 4px 24px ${sc}66`}}>{STAGES[banner.to]?.name}</div>
+        <div style={{fontSize:11,color:"#64748b",marginTop:6,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Stage {banner.to} of 5</div>
       </div>
     </div>
   );
@@ -5569,14 +5578,14 @@ function Tutorial({ gs }) {
   if (step === null || step < 0 || step >= TUT_STEPS.length) return null;
   const st = TUT_STEPS[step];
   return (
-    <div className="event-in" style={{position:"fixed",left:14,bottom:76,zIndex:2600,maxWidth:300,background:P.panel,border:`2px solid ${P.accent}`,borderRadius:10,padding:"12px 14px",boxShadow:"0 8px 30px rgba(10,25,60,.25)"}}>
-      <div style={{fontSize:9,fontWeight:700,color:P.accent,textTransform:"uppercase",letterSpacing:1.5,marginBottom:4,fontFamily:"'DM Mono',monospace"}}>Tutorial {step>0?`· ${step}/${TUT_STEPS.length-2}`:""}</div>
+    <div className="event-in" style={{position:"fixed",left:14,bottom:76,zIndex:2600,maxWidth:300,background:P.panel,border:`2px solid ${P.accent}`,borderRadius:0,padding:"12px 14px",boxShadow:"none"}}>
+      <div style={{fontSize:9,fontWeight:700,color:P.accent,textTransform:"uppercase",letterSpacing:1.5,marginBottom:4,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Tutorial {step>0?`· ${step}/${TUT_STEPS.length-2}`:""}</div>
       <div style={{fontSize:12,fontWeight:700,color:P.text,marginBottom:4}}>{st.t}</div>
       <div style={{fontSize:10.5,color:P.muted,lineHeight:1.55,marginBottom:8}}>{st.d}</div>
       <div style={{display:"flex",gap:6,justifyContent:"flex-end"}}>
-        <button className="btn" onClick={() => setStep(finish())} style={{padding:"4px 10px",borderRadius:5,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:10}}>Skip tutorial</button>
+        <button className="btn" onClick={() => setStep(finish())} style={{padding:"4px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:10}}>Skip tutorial</button>
         {(step === 0 || step === TUT_STEPS.length-1) && (
-          <button className="btn" onClick={() => step === 0 ? setStep(1) : setStep(finish())} style={{padding:"4px 12px",borderRadius:5,border:"none",background:P.accent,color:"#fff",fontSize:10,fontWeight:700}}>{step===0?"Start":"Got it"}</button>
+          <button className="btn" onClick={() => step === 0 ? setStep(1) : setStep(finish())} style={{padding:"4px 12px",borderRadius:0,border:"none",background:P.accent,color:"#fff",fontSize:10,fontWeight:700}}>{step===0?"Start":"Got it"}</button>
         )}
       </div>
     </div>
@@ -5654,22 +5663,22 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
   if (!gs) return null;
 
   const tipCard = showTip && (
-    <div style={{position:"absolute",top:10,left:10,right:10,zIndex:50,maxWidth:380,margin:"0 auto",background:P.panel,borderRadius:10,border:`1px solid ${P.accent}55`,boxShadow:"0 6px 24px rgba(20,40,80,.18)",padding:"14px 16px",animation:"fadeUp .2s ease"}}>
+    <div style={{position:"absolute",top:10,left:10,right:10,zIndex:50,maxWidth:380,margin:"0 auto",background:P.panel,borderRadius:0,border:`1px solid ${P.accent}55`,boxShadow:"none",padding:"14px 16px",animation:"fadeUp .2s ease"}}>
       <div style={{fontSize:13,fontWeight:700,marginBottom:8,color:P.text}}>Quick orientation</div>
       <div style={{fontSize:11,color:P.muted,lineHeight:1.6,marginBottom:6}}>Watch <b style={{color:P.text}}>Treasury</b>, <b style={{color:P.text}}>Board</b> and the <b style={{color:P.text}}>rival race</b> each quarter. Any one hitting zero, or a rival finishing first, ends the run.</div>
       <div style={{fontSize:11,color:P.muted,lineHeight:1.6,marginBottom:6}}>• The project strip on screen shows each call's status live: green is on track, red is at risk of running out of cash before it finishes.</div>
       <div style={{fontSize:11,color:P.muted,lineHeight:1.6,marginBottom:10}}>• Hire the specialist a project needs before launching it, and tap any country on the map for details.</div>
-      <button className="btn" onClick={()=>setShowTip(false)} style={{width:"100%",padding:"9px",borderRadius:7,border:"none",background:P.accent,color:"#fff",fontWeight:700,fontSize:12}}>Got it, let's go <Icon name="arrow-right" size={11} color="#fff" style={{marginLeft:5}}/></button>
+      <button className="btn" onClick={()=>setShowTip(false)} style={{width:"100%",padding:"9px",borderRadius:0,border:"none",background:P.accent,color:"#fff",fontWeight:700,fontSize:12}}>Got it, let's go <Icon name="arrow-right" size={11} color="#fff" style={{marginLeft:5}}/></button>
     </div>
   );
 
   const trends = statTrends(gs);
   const TopStat = ({ l, v, c=P.text, icon, tip, trend }) => (
     <div title={tip||undefined} style={{display:"flex",flexDirection:"column",alignItems:"flex-end",cursor:tip?"help":"default"}}>
-      <span style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:P.muted,textTransform:"uppercase",letterSpacing:.5,fontFamily:"'DM Mono',monospace"}}>
+      <span style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:P.muted,textTransform:"uppercase",letterSpacing:.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
         {icon && <Icon name={icon} size={9} color={P.muted}/>}{l}
       </span>
-      <span style={{fontSize:15,fontWeight:700,color:c,fontFamily:"'DM Mono',monospace"}}>{v}{trend!=null && <span style={{fontSize:9,marginLeft:4,color:trend>0.05?P.greenText:trend<-0.05?P.redText:P.muted}}>{trend>0.05?"▲":trend<-0.05?"▼":"■"}{trend>=0?"+":""}{Math.round(trend*10)/10}</span>}</span>
+      <span style={{fontSize:15,fontWeight:700,color:c,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{v}{trend!=null && <span style={{fontSize:9,marginLeft:4,color:trend>0.05?P.greenText:trend<-0.05?P.redText:P.muted}}>{trend>0.05?"▲":trend<-0.05?"▼":"■"}{trend>=0?"+":""}{Math.round(trend*10)/10}</span>}</span>
     </div>
   );
 
@@ -5703,7 +5712,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
     );
 
     return (
-      <div style={{height:"100dvh",background:P.bg,color:P.text,fontFamily:"'Open Sans',sans-serif",display:"flex",flexDirection:"column",overflow:"hidden"}}>
+      <div style={{height:"100dvh",background:P.bg,color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',display:"flex",flexDirection:"column",overflow:"hidden"}}>
         {sharedModals}
 
         {/* Compact header */}
@@ -5712,12 +5721,12 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
             <Icon name={gs.sector?.icon||"display"} size={18} color={gs.sector?.color||P.text}/>
             <div style={{flex:1,minWidth:0}}>
               <div title={gs.clusterName || gs.sector?.name} style={{fontSize:12,fontWeight:700,color:gs.sector?.color||P.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName || gs.sector?.name}</div>
-              <div style={{fontSize:10,color:P.muted,fontFamily:"'DM Mono',monospace",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName ? `${stage.name} · ${gs.sector?.name}` : stage.name}</div>
+              <div style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName ? `${stage.name} · ${gs.sector?.name}` : stage.name}</div>
             </div>
-            <button className="btn" onClick={onSnd} title="Toggle sound" style={{padding:"5px 8px",borderRadius:6,border:`1px solid ${P.border}`,background:P.card,display:"inline-flex"}}><Icon name={snd?"volume-high":"volume-xmark"} size={13} color={P.muted}/></button>
-            <button className="btn" onClick={onTheme} title="Toggle dark mode" style={{padding:"5px 8px",borderRadius:6,border:`1px solid ${P.border}`,background:P.card,display:"inline-flex"}}><Icon name={dark?"sun":"moon"} size={13} color={P.muted}/></button>
-            <button className="btn" onClick={()=>setModal("rules")} title="Game rules" style={{padding:"5px 8px",borderRadius:6,border:`1px solid ${P.border}`,background:P.card,color:P.text,display:"inline-flex"}}><Icon name="circle-question" size={13} color={P.muted}/></button>
-            <button className="btn" onClick={()=>setModal("stats")} style={{padding:"5px 10px",borderRadius:6,border:`1px solid ${P.border}`,background:P.card,color:P.text,fontSize:11,fontWeight:700}}>Stats ▾</button>
+            <button className="btn" onClick={onSnd} title="Toggle sound" style={{padding:"5px 8px",borderRadius:0,border:`1px solid ${P.border}`,background:P.card,display:"inline-flex"}}><Icon name={snd?"volume-high":"volume-xmark"} size={13} color={P.muted}/></button>
+            <button className="btn" onClick={onTheme} title="Toggle dark mode" style={{padding:"5px 8px",borderRadius:0,border:`1px solid ${P.border}`,background:P.card,display:"inline-flex"}}><Icon name={dark?"sun":"moon"} size={13} color={P.muted}/></button>
+            <button className="btn" onClick={()=>setModal("rules")} title="Game rules" style={{padding:"5px 8px",borderRadius:0,border:`1px solid ${P.border}`,background:P.card,color:P.text,display:"inline-flex"}}><Icon name="circle-question" size={13} color={P.muted}/></button>
+            <button className="btn" onClick={()=>setModal("stats")} style={{padding:"5px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:P.card,color:P.text,fontSize:11,fontWeight:700}}>Stats ▾</button>
           </div>
           {/* Stat strip */}
           <div style={{display:"flex",gap:10,marginTop:8,overflowX:"auto",paddingBottom:2}}>
@@ -5735,7 +5744,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
           <EUMap gs={gs} sel={sel} setSel={setSel}/>
           <DigestCard gs={gs} digestOn={digestOn} reopenTick={digestReopen} onDigestToggle={onDigestToggle}/>
           <MapLegend gs={gs}/>
-          {sel && <div style={{position:"absolute",bottom:8,left:8,fontSize:10,color:P.muted,fontFamily:"'DM Mono',monospace"}}>tap country again to close</div>}
+          {sel && <div style={{position:"absolute",bottom:8,left:8,fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>tap country again to close</div>}
           {tipCard}
         </div>
 
@@ -5748,12 +5757,12 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
               const st = projectStatus(p, gs);
               const left = Math.max(0,(p.endTurn||0)-(gs.turn||0));
               return (
-                <button key={`hud-${i}`} className="btn" onClick={()=>setModal("projects")} style={{flexShrink:0,minWidth:128,textAlign:"left",padding:"6px 9px",borderRadius:7,border:`1px solid ${st.color}55`,background:P.card}}>
+                <button key={`hud-${i}`} className="btn" onClick={()=>setModal("projects")} style={{flexShrink:0,minWidth:128,textAlign:"left",padding:"6px 9px",borderRadius:0,border:`1px solid ${st.color}55`,background:P.card}}>
                   <div style={{fontSize:9,fontWeight:700,color:P.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:128}}>{p.name}</div>
-                  <div style={{height:2.5,background:P.bright,borderRadius:2,marginTop:3}}>
-                    <div style={{width:`${prog*100}%`,height:"100%",background:st.color,borderRadius:2}}/>
+                  <div style={{height:2.5,background:P.bright,borderRadius:0,marginTop:3}}>
+                    <div style={{width:`${prog*100}%`,height:"100%",background:st.color,borderRadius:0}}/>
                   </div>
-                  <div style={{fontSize:8,color:st.color,marginTop:2,fontFamily:"'DM Mono',monospace"}}>{left}Q · {st.label}</div>
+                  <div style={{fontSize:8,color:st.color,marginTop:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{left}Q · {st.label}</div>
                 </button>
               );
             })}
@@ -5773,15 +5782,15 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
             <button className="btn" onClick={()=>{
                 if(gs.pendingEvent?.choices) return; // choices use EventModal buttons
                 dispatch({type:"dismissEvent",choiceIdx:null});
-              }} style={{flex:1,padding:"13px",borderRadius:9,border:"none",background:`linear-gradient(135deg,${P.orange},${P.red})`,color:"#fff",fontWeight:700,fontSize:15}}>
+              }} style={{flex:1,padding:"13px",borderRadius:0,border:"none",background:`linear-gradient(135deg,${P.orange},${P.red})`,color:"#fff",fontWeight:700,fontSize:15}}>
               <Icon name="bolt" size={14} color="#fff" style={{marginRight:6}}/> {gs.pendingEvent?.choices ? "Decide below ↑" : "Resolve Event"}
             </button>
           ) : (
             <>
-              <button className="btn sheen" onClick={()=>dispatch({type:"nextTurn"})} style={{flex:1,padding:"13px",borderRadius:9,border:"none",background:`linear-gradient(135deg,${P.accent},${P.blue})`,color:P.bg,fontWeight:700,fontSize:15,letterSpacing:.5}}>
+              <button className="btn sheen cut" onClick={()=>dispatch({type:"nextTurn"})} style={{flex:1,padding:"13px",borderRadius:0,border:"none",background:`linear-gradient(135deg,${P.accent},${P.blue})`,color:P.bg,fontWeight:700,fontSize:15,letterSpacing:.5}}>
                 {byRole(gs.roster,"manager")<1 ? "No General Manager — hire one" : <><Icon name="forward" size={14} color={P.bg} style={{marginRight:6}}/>Next Quarter</>}
               </button>
-              <button className="btn" onClick={()=>setAuto(a=>!a)} style={{padding:"13px 16px",borderRadius:9,border:`1px solid ${auto?P.accent:P.border}`,background:auto?`${P.accent}22`:P.card,color:auto?P.accent:P.text,fontWeight:700,fontSize:15}}>
+              <button className="btn" onClick={()=>setAuto(a=>!a)} style={{padding:"13px 16px",borderRadius:0,border:`1px solid ${auto?P.accent:P.border}`,background:auto?`${P.accent}22`:P.card,color:auto?P.accent:P.text,fontWeight:700,fontSize:15}}>
                 {auto?<Icon name="pause" size={15}/>:<Icon name="forward" size={15}/>}
               </button>
             </>
@@ -5803,13 +5812,13 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
 
   /* ───────── DESKTOP LAYOUT ───────── */
   const BotBtn = ({ id, label, color, highlight }) => (
-    <button className="btn" onClick={() => setModal(id)} style={{padding:"8px 15px",borderRadius:7,border:`1px solid ${highlight?`${color}99`:P.border}`,background:highlight?`${color}18`:P.card,color:highlight?darkHex(color,0.6):P.text,fontWeight:700,fontSize:13,fontFamily:"'Montserrat',sans-serif",letterSpacing:.3,display:"flex",alignItems:"center",gap:5}}>
+    <button className="btn" onClick={() => setModal(id)} style={{padding:"8px 15px",borderRadius:0,border:`1px solid ${highlight?`${color}99`:P.border}`,background:highlight?`${color}18`:P.card,color:highlight?darkHex(color,0.6):P.text,fontWeight:700,fontSize:13,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',letterSpacing:.3,display:"flex",alignItems:"center",gap:5}}>
       {label}
     </button>
   );
 
   return (
-    <div style={{height:"100vh",background:P.bg,color:P.text,fontFamily:"'Open Sans',sans-serif",display:"flex",flexDirection:"column",overflow:"hidden"}}>
+    <div style={{height:"100vh",background:P.bg,color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',display:"flex",flexDirection:"column",overflow:"hidden"}}>
       {sharedModals}
 
       {/* TOP BAR */}
@@ -5818,38 +5827,38 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
           <Icon name={gs.sector?.icon||"display"} size={18} color={gs.sector?.color||P.text}/>
           <div>
             <div style={{fontSize:12,fontWeight:700,color:gs.sector?.color||P.text}}>{gs.sector?.name||""}</div>
-            <div style={{fontSize:10,color:P.muted,fontFamily:"'DM Mono',monospace"}}>{gs.region||""} · {gs.country||""}</div>
+            <div style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{gs.region||""} · {gs.country||""}</div>
           </div>
         </div>
-        <div style={{padding:"3px 10px",borderRadius:20,background:`${stage.color}18`,border:`1px solid ${stage.color}44`,display:"flex",alignItems:"center",gap:5,flexShrink:0}}>
+        <div style={{padding:"3px 10px",borderRadius:0,background:`${stage.color}18`,border:`1px solid ${stage.color}44`,display:"flex",alignItems:"center",gap:5,flexShrink:0}}>
           <span style={{width:5,height:5,borderRadius:"50%",background:stage.color,display:"inline-block"}}/>
-          <span style={{fontSize:9,fontWeight:700,color:stage.color,letterSpacing:.5,fontFamily:"'DM Mono',monospace"}}>{stage.name}</span>
+          <span style={{fontSize:9,fontWeight:700,color:stage.color,letterSpacing:.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{stage.name}</span>
         </div>
-        <button className="btn" onClick={()=>setModal("rules")} title="Game rules" style={{padding:"4px 10px",borderRadius:6,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:10,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5,flexShrink:0}}>
+        <button className="btn" onClick={()=>setModal("rules")} title="Game rules" style={{padding:"4px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:10,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5,flexShrink:0}}>
           <Icon name="circle-question" size={12} color={P.muted}/> Rules
         </button>
-        <button className="btn" onClick={onTheme} title={dark?"Switch to light mode":"Switch to dark mode"} style={{padding:"4px 9px",borderRadius:6,border:`1px solid ${P.border}`,background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
+        <button className="btn" onClick={onTheme} title={dark?"Switch to light mode":"Switch to dark mode"} style={{padding:"4px 9px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
           <Icon name={dark?"sun":"moon"} size={12} color={P.muted}/>
         </button>
-        <button className="btn" onClick={onSnd} title={snd?"Mute sound":"Enable sound"} style={{padding:"4px 9px",borderRadius:6,border:`1px solid ${P.border}`,background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
+        <button className="btn" onClick={onSnd} title={snd?"Mute sound":"Enable sound"} style={{padding:"4px 9px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
           <Icon name={snd?"volume-high":"volume-xmark"} size={12} color={P.muted}/>
         </button>
-        <button className="btn" onClick={onTextScale} aria-pressed={textBig} title={textBig?"Normal text size":"Larger text size"} style={{padding:"4px 9px",borderRadius:6,border:`1px solid ${textBig?P.accent:P.border}`,background:textBig?`${P.accent}0d`:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
+        <button className="btn" onClick={onTextScale} aria-pressed={textBig} title={textBig?"Normal text size":"Larger text size"} style={{padding:"4px 9px",borderRadius:0,border:`1px solid ${textBig?P.accent:P.border}`,background:textBig?`${P.accent}0d`:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
           <Icon name="text-height" size={12} color={textBig?P.accent:P.muted}/>
         </button>
-        <button className="btn" onClick={() => gs.digest ? setDigestReopen(t=>t+1) : null} title="Show the latest quarter review" style={{padding:"4px 9px",borderRadius:6,border:`1px solid ${P.border}`,background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
+        <button className="btn" onClick={() => gs.digest ? setDigestReopen(t=>t+1) : null} title="Show the latest quarter review" style={{padding:"4px 9px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
           <Icon name="clipboard-check" size={12} color={P.muted}/>
         </button>
-        <button className="btn" onClick={()=>setModal("slots")} title="Save slots" style={{padding:"4px 9px",borderRadius:6,border:`1px solid ${P.border}`,background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
+        <button className="btn" onClick={()=>setModal("slots")} title="Save slots" style={{padding:"4px 9px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
           <Icon name="floppy-disk" size={12} color={P.muted}/>
         </button>
         {canUndo && (
-          <button className="btn" onClick={onUndo} title="Undo last quarter (U) — once per quarter, Junior & Officer only" style={{padding:"4px 10px",borderRadius:6,border:`1px solid ${P.gold}66`,background:`${P.gold}0d`,color:P.goldText,fontSize:10,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5,flexShrink:0}}>
+          <button className="btn" onClick={onUndo} title="Undo last quarter (U) — once per quarter, Junior & Officer only" style={{padding:"4px 10px",borderRadius:0,border:`1px solid ${P.gold}66`,background:`${P.gold}0d`,color:P.goldText,fontSize:10,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5,flexShrink:0}}>
             <Icon name="rotate-left" size={11} color={P.goldText}/> Undo
           </button>
         )}
         {gs.pendingEvent && (
-          <div style={{fontSize:10,padding:"5px 10px",borderRadius:5,background:`${P.orange}22`,border:`1px solid ${P.orange}55`,color:P.orange,fontFamily:"'DM Mono',monospace",animation:"pulse 1s infinite"}}>
+          <div style={{fontSize:10,padding:"5px 10px",borderRadius:0,background:`${P.orange}22`,border:`1px solid ${P.orange}55`,color:P.orange,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',animation:"pulse 1s infinite"}}>
             <Icon name="bolt" size={10} color={P.orange} style={{marginRight:4}}/> EVENT PENDING
           </div>
         )}
@@ -5859,14 +5868,14 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
           <TopStat l="Members"  v={gs.members||0}                       c={P.gold} icon="users" trend={trends?.members?.delta} tip={trendTitle(trends?.members,"Plus rival poaching, defections and events.")}/>
           <TopStat l="Influence" v={Math.round(gs.prestige||0)}          c={P.purple} icon="star" trend={trends?.influence?.delta} tip={trendTitle(trends?.influence,"Plus project deliveries, events, coups.")}/>
           <TopStat l="Board Confidence" v={`${Math.round(gs.boardConf||0)}%`} c={(gs.boardConf||0)<30?P.red:(gs.boardConf||0)<55?P.orange:P.green} icon="shield-halved" trend={trends?.board?.delta} tip={trendTitle(trends?.board,"Plus completions +3, failures −8..−15, events.")}/>
-          <button className="btn" onClick={()=>setAuto(a=>!a)} disabled={!!gs.pendingEvent} style={{padding:"9px 14px",borderRadius:8,border:`1px solid ${auto?P.accent:P.border}`,background:auto?`${P.accent}22`:P.card,color:auto?P.accent:P.text,fontWeight:700,fontSize:13}}>
+          <button className="btn" onClick={()=>setAuto(a=>!a)} disabled={!!gs.pendingEvent} style={{padding:"9px 14px",borderRadius:0,border:`1px solid ${auto?P.accent:P.border}`,background:auto?`${P.accent}22`:P.card,color:auto?P.accent:P.text,fontWeight:700,fontSize:13}}>
             {auto?<><Icon name="pause" size={12} style={{marginRight:5}}/>Pause Auto-advance</>:<><Icon name="forward" size={12} style={{marginRight:5}}/>Auto-advance</>}
           </button>
           <button
-            className="btn sheen"
+            className="btn sheen cut"
             onClick={() => dispatch({type:"nextTurn"})}
             disabled={!!gs.pendingEvent}
-            style={{padding:"9px 20px",borderRadius:8,border:"none",background:gs.pendingEvent?P.bright:`linear-gradient(135deg,${P.accent},${P.blue})`,color:gs.pendingEvent?P.muted:P.bg,fontWeight:700,fontSize:14,fontFamily:"'Montserrat',sans-serif",letterSpacing:.5}}
+            style={{padding:"9px 20px",borderRadius:0,border:"none",background:gs.pendingEvent?P.bright:`linear-gradient(135deg,${P.accent},${P.blue})`,color:gs.pendingEvent?P.muted:P.bg,fontWeight:700,fontSize:14,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',letterSpacing:.5}}
           >
             {gs.pendingEvent ? "Resolve Event First" : byRole(gs.roster,"manager")<1 ? "No General Manager — hire one" : <><Icon name="forward" size={13} color={P.bg} style={{marginRight:6}}/>Next Quarter</>}
           </button>
@@ -5884,7 +5893,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
             {tipCard}
           </div>
           <div style={{background:P.panel,borderTop:`1px solid ${P.border}`,padding:"8px 12px",display:"flex",gap:8,alignItems:"center",flexWrap:"wrap",flexShrink:0}}>
-            <div style={{fontSize:10,color:P.muted,fontFamily:"'DM Mono',monospace"}}>
+            <div style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
               {(gs.completedProjects||[]).length} done · {(gs.activeProjects||[]).length} running · manage projects, staff and network in the panel on the right
             </div>
             <div style={{flex:1}}/>
@@ -5948,7 +5957,7 @@ function GameOver({ gs, onRestart }) {
   };
   const hist = gs.history||[];
   return (
-    <div style={{height:"100vh",background:P.bg,display:"flex",alignItems:"center",justifyContent:"center",color:P.text,fontFamily:"'Open Sans',sans-serif",padding:20,overflowY:"auto"}}>
+    <div style={{height:"100vh",background:P.bg,display:"flex",alignItems:"center",justifyContent:"center",color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',padding:20,overflowY:"auto"}}>
       <div style={{textAlign:"center",maxWidth:620,maxHeight:"100%",overflowY:"auto",padding:"20px 4px"}}>
         <div style={{marginBottom:16,display:"flex",justifyContent:"center"}}><Icon name={won?"trophy":rival?"flag":"money-bill-wave"} size={64} color={won?P.gold:rival?P.red:P.muted}/></div>
         <h1 style={{fontSize:44,fontWeight:700,color:won?P.accent:P.red,marginBottom:12,letterSpacing:-1}}>
@@ -5973,19 +5982,19 @@ function GameOver({ gs, onRestart }) {
             [(gs.rivalsGone||0)+"",       "Rivals Eliminated", P.red],
             [seatsHeld(gs)+" / 3",        "Seats Held",       P.purple],
           ].map(([v,l,c]) => (
-            <div key={l} style={{background:P.panel,borderRadius:10,padding:"14px 12px",border:`1px solid ${P.border}`}}>
-              <div style={{fontSize:18,fontWeight:700,color:c,fontFamily:"'DM Mono',monospace"}}>{v}</div>
+            <div key={l} style={{background:P.panel,borderRadius:0,padding:"14px 12px",border:`1px solid ${P.border}`}}>
+              <div style={{fontSize:18,fontWeight:700,color:c,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{v}</div>
               <div style={{fontSize:9,color:P.muted,marginTop:4,textTransform:"uppercase",letterSpacing:.5}}>{l}</div>
             </div>
           ))}
         </div>
         {/* ── REPORT CARD ── */}
-        <div className="modal-in" style={{background:P.panel,border:`2px solid ${gradeCol}`,borderRadius:12,padding:"14px 18px",marginBottom:18,textAlign:"left"}}>
+        <div className="modal-in" style={{background:P.panel,border:`2px solid ${gradeCol}`,borderRadius:0,padding:"14px 18px",marginBottom:18,textAlign:"left"}}>
           <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:10}}>
-            <div style={{fontSize:44,fontWeight:800,color:gradeCol,fontFamily:"'Montserrat',sans-serif",lineHeight:1}}>{grade}</div>
+            <div style={{fontSize:44,fontWeight:800,color:gradeCol,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',lineHeight:1}}>{grade}</div>
             <div>
-              <div style={{fontSize:9,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:1.5,fontFamily:"'DM Mono',monospace"}}>Campaign Report Card</div>
-              <div style={{fontSize:16,fontWeight:700,color:P.text,fontFamily:"'DM Mono',monospace"}}>{fmtN(score)} points</div>
+              <div style={{fontSize:9,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:1.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Campaign Report Card</div>
+              <div style={{fontSize:16,fontWeight:700,color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{fmtN(score)} points</div>
               <div style={{fontSize:9.5,color:P.muted}}>{scen.name} · {DIFFICULTIES[gs.difficulty]?.label||gs.difficulty}{gs.seedStr?` · seed "${gs.seedStr}"`:""}</div>
             </div>
           </div>
@@ -5993,50 +6002,50 @@ function GameOver({ gs, onRestart }) {
             <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(120px,1fr))",gap:"4px 12px",marginBottom:10}}>
               {[["Treasury","b",P.accent],["Members","m",P.gold],["Influence","p",P.purple],["Board","bc",P.green]].map(([lbl,k,col]) => (
                 <div key={k}>
-                  <div style={{fontSize:8.5,color:P.muted,fontFamily:"'DM Mono',monospace"}}>{lbl}</div>
+                  <div style={{fontSize:8.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{lbl}</div>
                   <Sparkline data={hist.map(x=>x[k]||0)} color={col} w={120} h={24}/>
                 </div>
               ))}
             </div>
           )}
-          <div style={{fontSize:9,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:5,fontFamily:"'DM Mono',monospace"}}>Achievements · {Object.keys(achvAll).length}/{ACHIEVEMENTS.length}</div>
+          <div style={{fontSize:9,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Achievements · {Object.keys(achvAll).length}/{ACHIEVEMENTS.length}</div>
           <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:12}}>
             {ACHIEVEMENTS.map(a => {
               const got = !!achvAll[a.id];
-              return <span key={a.id} title={`${a.name}: ${a.desc}`} style={{fontSize:9,padding:"3px 8px",borderRadius:4,fontFamily:"'DM Mono',monospace",border:`1px solid ${got?P.gold+"88":P.border}`,background:got?`${P.gold}14`:"transparent",color:got?P.goldText:P.muted,opacity:got?1:0.55}}>{got?"★ ":""}{a.name}</span>;
+              return <span key={a.id} title={`${a.name}: ${a.desc}`} style={{fontSize:9,padding:"3px 8px",borderRadius:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',border:`1px solid ${got?P.gold+"88":P.border}`,background:got?`${P.gold}14`:"transparent",color:got?P.goldText:P.muted,opacity:got?1:0.55}}>{got?"★ ":""}{a.name}</span>;
             })}
           </div>
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
             <button className="btn" onClick={shareNative} title="Share your result, with a link that loads this exact starting position"
-              style={{padding:"6px 12px",borderRadius:6,border:`1px solid ${P.green}66`,background:`${P.green}12`,color:P.greenText,fontSize:11,fontWeight:700}}>
+              style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.green}66`,background:`${P.green}12`,color:P.greenText,fontSize:11,fontWeight:700}}>
               <Icon name="bullhorn" size={10} color={P.green} style={{marginRight:5}}/>Share result
             </button>
             <button className="btn" onClick={copyResult} title="Copies a short summary of how the run went"
-              style={{padding:"6px 12px",borderRadius:6,border:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11,fontWeight:700}}>
+              style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11,fontWeight:700}}>
               <Icon name="clipboard-list" size={10} color={P.muted} style={{marginRight:5}}/>Copy summary
             </button>
             {gs.seedStr && (
               <button className="btn" onClick={copyLink} title="A link that opens the game with this challenge already loaded"
-                style={{padding:"6px 12px",borderRadius:6,border:`1px solid ${P.accent}66`,background:`${P.accent}0d`,color:P.accent,fontSize:11,fontWeight:700}}>
+                style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.accent}66`,background:`${P.accent}0d`,color:P.accent,fontSize:11,fontWeight:700}}>
                 <Icon name="earth-europe" size={10} color={P.accent} style={{marginRight:5}}/>Copy challenge link
               </button>
             )}
             <button className="btn" onClick={copyChallenge} title="Copies a CM1|… code: a friend can paste it on the setup screen and play the identical campaign, then compare report cards"
-              style={{padding:"6px 12px",borderRadius:6,border:`1px solid ${P.accent}66`,background:`${P.accent}0d`,color:P.accent,fontSize:10,fontWeight:700,fontFamily:"'DM Mono',monospace"}}>
+              style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.accent}66`,background:`${P.accent}0d`,color:P.accent,fontSize:10,fontWeight:700,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
               <Icon name="chess-knight" size={10} color={P.accent} style={{marginRight:5}}/>Copy challenge code
             </button>
             {gs.seedStr ? null : (
               <span style={{fontSize:10,color:P.muted,alignSelf:"center"}}>Start a seeded campaign to share a replayable challenge.</span>
             )}
             {hist.length >= 2 && (
-              <button className="btn" onClick={() => downloadCSV(gs)} style={{padding:"6px 12px",borderRadius:6,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:10,fontWeight:700,fontFamily:"'DM Mono',monospace"}}>Export run as CSV ⬇</button>
+              <button className="btn" onClick={() => downloadCSV(gs)} style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:10,fontWeight:700,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Export run as CSV ⬇</button>
             )}
           </div>
           {shareMsg && (
-            <div role="status" style={{marginTop:9,fontSize:11,color:P.greenText,background:`${P.green}0d`,border:`1px solid ${P.green}44`,borderRadius:6,padding:"6px 10px"}}>{shareMsg}</div>
+            <div role="status" style={{marginTop:9,fontSize:11,color:P.greenText,background:`${P.green}0d`,border:`1px solid ${P.green}44`,borderRadius:0,padding:"6px 10px"}}>{shareMsg}</div>
           )}
         </div>
-        <button className="btn" onClick={onRestart} style={{padding:"14px 48px",borderRadius:10,border:"none",background:`linear-gradient(135deg,${P.accent},${P.blue})`,color:P.bg,fontWeight:700,fontSize:18,fontFamily:"'Montserrat',sans-serif"}}>
+        <button className="btn cut" onClick={onRestart} style={{padding:"14px 48px",borderRadius:0,border:"none",background:`linear-gradient(135deg,${P.accent},${P.blue})`,color:P.bg,fontWeight:700,fontSize:18,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
           Play Again
         </button>
       </div>
@@ -6230,13 +6239,13 @@ function SaveSlots({ gs, onClose, onLoad }) {
     <Modal title="Save Slots" icon="floppy-disk" iconColor={P.accent} onClose={onClose} width={440}>
       <div style={{fontSize:11,color:P.muted,marginBottom:10,lineHeight:1.5}}>Your game autosaves continuously. These three slots are manual checkpoints you can return to — handy before a risky expansion or a new scenario.</div>
       {!slots ? <div style={{color:P.muted,fontSize:12}}>Loading…</div> : slots.map(s => (
-        <div key={s.i} style={{display:"flex",alignItems:"center",gap:8,padding:"9px 11px",marginBottom:6,borderRadius:8,border:`1px solid ${P.border}`,background:P.card}}>
+        <div key={s.i} style={{display:"flex",alignItems:"center",gap:8,padding:"9px 11px",marginBottom:6,borderRadius:0,border:`1px solid ${P.border}`,background:P.card}}>
           <div style={{flex:1,minWidth:0}}>
             <div style={{fontSize:12,fontWeight:700,color:s.empty?P.muted:P.text}}>{s.empty ? `Slot ${s.i+1} — empty` : s.label}</div>
-            {!s.empty && <div style={{fontSize:10,color:P.muted,fontFamily:"'DM Mono',monospace"}}>{STAGES[s.stage]?.name} · Q{s.q} {s.year}</div>}
+            {!s.empty && <div style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{STAGES[s.stage]?.name} · Q{s.q} {s.year}</div>}
           </div>
-          {gs && <button className="btn" disabled={busy} onClick={()=>doSave(s.i)} style={{padding:"5px 11px",borderRadius:5,border:`1px solid ${P.accent}66`,background:`${P.accent}0d`,color:P.accent,fontSize:11,fontWeight:700}}>Save here</button>}
-          {!s.empty && onLoad && <button className="btn" onClick={()=>doLoad(s.i)} style={{padding:"5px 11px",borderRadius:5,border:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11,fontWeight:700}}>Load</button>}
+          {gs && <button className="btn" disabled={busy} onClick={()=>doSave(s.i)} style={{padding:"5px 11px",borderRadius:0,border:`1px solid ${P.accent}66`,background:`${P.accent}0d`,color:P.accent,fontSize:11,fontWeight:700}}>Save here</button>}
+          {!s.empty && onLoad && <button className="btn" onClick={()=>doLoad(s.i)} style={{padding:"5px 11px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11,fontWeight:700}}>Load</button>}
         </div>
       ))}
 
@@ -6250,24 +6259,24 @@ function SaveSlots({ gs, onClose, onLoad }) {
         {gs && (
           <div style={{marginBottom:12}}>
             <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:6}}>
-              <button className="btn" onClick={()=>{ setCode(exportSave(gs)); setMsg(null); }} style={{padding:"6px 12px",borderRadius:6,border:`1px solid ${P.accent}66`,background:`${P.accent}0d`,color:P.accent,fontSize:11,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5}}>
+              <button className="btn" onClick={()=>{ setCode(exportSave(gs)); setMsg(null); }} style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.accent}66`,background:`${P.accent}0d`,color:P.accent,fontSize:11,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5}}>
                 <Icon name="clipboard-list" size={11} color={P.accent}/> Create save code
               </button>
-              <button className="btn" onClick={()=>{ setMsg(downloadSave(gs) ? {t:"good",x:"Save file downloaded."} : {t:"bad",x:"This browser blocked the download."}); }} style={{padding:"6px 12px",borderRadius:6,border:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5}}>
+              <button className="btn" onClick={()=>{ setMsg(downloadSave(gs) ? {t:"good",x:"Save file downloaded."} : {t:"bad",x:"This browser blocked the download."}); }} style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5}}>
                 <Icon name="floppy-disk" size={11} color={P.muted}/> Download file
               </button>
             </div>
             {code && (
               <div>
                 <textarea readOnly value={code} onFocus={e=>e.target.select()} rows={3} aria-label="Your save code — copy all of it"
-                  style={{width:"100%",boxSizing:"border-box",fontFamily:"'DM Mono',monospace",fontSize:9.5,padding:8,borderRadius:6,border:`1px solid ${P.border}`,background:P.bright,color:P.text,resize:"vertical",lineHeight:1.35}}/>
+                  style={{width:"100%",boxSizing:"border-box",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',fontSize:9.5,padding:8,borderRadius:0,border:`1px solid ${P.border}`,background:P.bright,color:P.text,resize:"vertical",lineHeight:1.35}}/>
                 <div style={{display:"flex",alignItems:"center",gap:8,marginTop:5}}>
                   <button className="btn" onClick={async()=>{
                     let done=false;
                     try { if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(code); done=true; } } catch(e) {}
                     setMsg(done ? {t:"good",x:"Save code copied to the clipboard."} : {t:"bad",x:"Couldn't copy automatically — select the text and copy it manually."});
-                  }} style={{padding:"5px 11px",borderRadius:5,border:`1px solid ${P.accent}66`,background:"transparent",color:P.accent,fontSize:11,fontWeight:700}}>Copy</button>
-                  <span style={{fontSize:10,color:P.muted,fontFamily:"'DM Mono',monospace"}}>{code.length.toLocaleString()} characters — copy all of it</span>
+                  }} style={{padding:"5px 11px",borderRadius:0,border:`1px solid ${P.accent}66`,background:"transparent",color:P.accent,fontSize:11,fontWeight:700}}>Copy</button>
+                  <span style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{code.length.toLocaleString()} characters — copy all of it</span>
                 </div>
               </div>
             )}
@@ -6277,14 +6286,14 @@ function SaveSlots({ gs, onClose, onLoad }) {
         <div>
           <div style={{fontSize:11,fontWeight:700,color:P.text,marginBottom:5}}>Restore from a code or file</div>
           <textarea value={paste} onChange={e=>{ setPaste(e.target.value); setMsg(null); }} rows={2} placeholder="Paste a save code here…" aria-label="Paste a save code to restore a run"
-            style={{width:"100%",boxSizing:"border-box",fontFamily:"'DM Mono',monospace",fontSize:9.5,padding:8,borderRadius:6,border:`1px solid ${P.border}`,background:P.card,color:P.text,resize:"vertical"}}/>
+            style={{width:"100%",boxSizing:"border-box",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',fontSize:9.5,padding:8,borderRadius:0,border:`1px solid ${P.border}`,background:P.card,color:P.text,resize:"vertical"}}/>
           <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:6}}>
             <button className="btn" disabled={!paste.trim()} onClick={()=>{
               const r = importSave(paste);
               if (r.ok && onLoad) { onLoad(r.state); }
               else setMsg({t:"bad",x:r.error||"That code could not be read."});
-            }} style={{padding:"6px 12px",borderRadius:6,border:`1px solid ${paste.trim()?P.green:P.border}66`,background:paste.trim()?`${P.green}0d`:"transparent",color:paste.trim()?P.greenText:P.muted,fontSize:11,fontWeight:700}}>Restore this run</button>
-            <label className="btn" style={{padding:"6px 12px",borderRadius:6,border:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11,fontWeight:700,cursor:"pointer",display:"inline-flex",alignItems:"center",gap:5}}>
+            }} style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${paste.trim()?P.green:P.border}66`,background:paste.trim()?`${P.green}0d`:"transparent",color:paste.trim()?P.greenText:P.muted,fontSize:11,fontWeight:700}}>Restore this run</button>
+            <label className="btn" style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11,fontWeight:700,cursor:"pointer",display:"inline-flex",alignItems:"center",gap:5}}>
               <Icon name="folder-open" size={11} color={P.muted}/> Choose a file
               <input type="file" accept=".cmsave,.txt,text/plain" style={{display:"none"}} onChange={e=>{
                 const f = e.target.files && e.target.files[0];
@@ -6300,7 +6309,7 @@ function SaveSlots({ gs, onClose, onLoad }) {
         </div>
 
         {msg && (
-          <div role="status" style={{marginTop:9,fontSize:11,padding:"7px 10px",borderRadius:6,lineHeight:1.45,
+          <div role="status" style={{marginTop:9,fontSize:11,padding:"7px 10px",borderRadius:0,lineHeight:1.45,
             border:`1px solid ${msg.t==="good"?P.green:P.red}55`,
             background:`${msg.t==="good"?P.green:P.red}0d`,
             color:msg.t==="good"?P.greenText:P.redText}}>{msg.x}</div>

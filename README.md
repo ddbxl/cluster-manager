@@ -13,7 +13,7 @@ Or run it on your own machine, with no install, no server and no dependencies:
 1. Download `index.html`, or clone the repository: `git clone https://github.com/ddbxl/cluster-manager.git`
 2. Open the file in any modern browser. Double-clicking works.
 
-React, the game engine, the map data and the styling all sit inside that one file (about 560 KB). The game saves to your browser storage as you play, and you get three manual save slots as well, so you can close the tab and pick the run up later. Your browser fetches fonts from the web; everything else runs offline, and you can install the game to a phone home screen as a Progressive Web App.
+React, the game engine, the map data, the cluster registry and the styling all sit inside that one file (about 680 KB). It is set in Helvetica, which your machine already has, so the game fetches nothing at all and runs the same offline as online. Your progress saves to browser storage as you play, there are three manual save slots, and you can install it to a phone home screen as a Progressive Web App.
 
 The in-game **How to Play** button, on the setup screen and in the header, holds the full manual.
 
@@ -71,7 +71,7 @@ Only organisational fields are used: names, countries, cities and ecosystems. No
 
 ## Tech notes
 
-- One self-contained HTML file: React 18 and the game engine, compiled and minified with esbuild, with no CDN calls
+- One self-contained HTML file: React 18 and the game engine, compiled and minified with esbuild, with no CDN calls and no webfonts
 - Saves to `localStorage`, with an in-memory fallback for strict privacy modes, plus three manual slots and portable export to a code or a `.cmsave` file
 - One command builds it (`npm run build`), and a suite of about 250 checks covers it: engine rules, a fuzz harness that plays hundreds of games checking invariants, a bot that plays well enough to reach the late game, and jsdom component tests. See [CONTRIBUTING.md](CONTRIBUTING.md)
 - Installs as a Progressive Web App through the bundled `manifest.json`
