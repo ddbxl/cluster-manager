@@ -5723,6 +5723,12 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
               <div title={gs.clusterName || gs.sector?.name} style={{fontSize:12,fontWeight:700,color:gs.sector?.color||P.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName || gs.sector?.name}</div>
               <div style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName ? `${stage.name} · ${gs.sector?.name}` : stage.name}</div>
             </div>
+            {/* Re-opening the quarter review existed only in the desktop header,
+                which left no way back to it on a phone once it faded. */}
+            <button className="btn" onClick={() => gs.digest ? setDigestReopen(t=>t+1) : null} disabled={!gs.digest}
+              title="Show the latest quarter review" aria-label="Show the latest quarter review"
+              style={{padding:"5px 8px",borderRadius:0,border:`1px solid ${P.border}`,background:P.card,display:"inline-flex",opacity:gs.digest?1:0.4}}>
+              <Icon name="clipboard-check" size={13} color={P.muted}/></button>
             <button className="btn" onClick={onSnd} title="Toggle sound" style={{padding:"5px 8px",borderRadius:0,border:`1px solid ${P.border}`,background:P.card,display:"inline-flex"}}><Icon name={snd?"volume-high":"volume-xmark"} size={13} color={P.muted}/></button>
             <button className="btn" onClick={onTheme} title="Toggle dark mode" style={{padding:"5px 8px",borderRadius:0,border:`1px solid ${P.border}`,background:P.card,display:"inline-flex"}}><Icon name={dark?"sun":"moon"} size={13} color={P.muted}/></button>
             <button className="btn" onClick={()=>setModal("rules")} title="Game rules" style={{padding:"5px 8px",borderRadius:0,border:`1px solid ${P.border}`,background:P.card,color:P.text,display:"inline-flex"}}><Icon name="circle-question" size={13} color={P.muted}/></button>

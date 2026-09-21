@@ -359,6 +359,39 @@ const click = (el) => act(() => {
   ok(!/sheen/.test(G.CSS), "the gloss sweep across the primary button is gone");
 }
 
+/* ── the quarter review can always be re-opened ──────────── */
+{
+  // Regression: the control existed only in the desktop header, so on a phone
+  // there was no way back to the review once it had faded.
+  const sector = { id:"digital", name:"Digital", color:"#38bdf8", icon:"display" };
+  const digest = { turn:5, dBudget:84000, dMembers:-3, dInfluence:2, dBoard:-1, evolved:null,
+    qMember:50000, qProj:120000, qStaff:40000, qOverhead:8000, qServicing:12000,
+    qDelivery:0, qInterim:0, events:[{ t:"good", txt:"Project delivered" }] };
+  const gs5 = { ...G.initState("Austria", "Steiermark", sector), turn:5, digest };
+  const reviewShowing = () => /Member servicing|Overheads/i.test(text());
+
+  for (const vw of [1200, 500]) {
+    const where = vw >= 820 ? "desktop" : "mobile";
+    render(null);
+    // digestOn false is the case that matters: auto-show is off, so the only
+    // route back to the review is the button
+    render(React.createElement(G.Game, { gs: gs5, dispatch: () => {}, vw, digestOn: false, onRestart: () => {} }));
+    const btn = qsa("button").find((b) => /latest quarter review/i.test(b.getAttribute("title") || ""));
+    ok(!!btn, `the quarter review can be re-opened on ${where}`);
+    if (btn) {
+      ok(!reviewShowing(), `the review starts hidden on ${where} when auto-show is off`);
+      click(btn);
+      ok(reviewShowing(), `pressing it brings the review back on ${where}`);
+    }
+  }
+
+  // With no quarter played yet there is nothing to show, so the control says so
+  render(null);
+  render(React.createElement(G.Game, { gs: { ...gs5, digest: null }, dispatch: () => {}, vw: 500, digestOn: false, onRestart: () => {} }));
+  const idle = qsa("button").find((b) => /latest quarter review/i.test(b.getAttribute("title") || ""));
+  ok(!idle || idle.disabled, "before any quarter has run, the control is disabled rather than silently doing nothing");
+}
+
 /* ── your cluster is called by its name ──────────────────── */
 {
   // Regression: the name was captured at setup and stored correctly, but only
