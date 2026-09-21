@@ -359,6 +359,38 @@ const click = (el) => act(() => {
   ok(!/sheen/.test(G.CSS), "the gloss sweep across the primary button is gone");
 }
 
+/* ── your cluster is called by its name ──────────────────── */
+{
+  // Regression: the name was captured at setup and stored correctly, but only
+  // the mobile header displayed it. On a desktop width, and on the end screen,
+  // the cluster you had just named was still labelled by its ecosystem.
+  const sector = { id:"aerospace_and_defe", name:"Aerospace and Defence", color:"#94a3b8", icon:"rocket" };
+  const named = { ...G.initState("France", "Brittany", sector), clusterName: "Photonics Bretagne" };
+
+  for (const vw of [1200, 500]) {
+    render(null);
+    render(React.createElement(G.Game, { gs: named, dispatch: () => {}, vw, onRestart: () => {} }));
+    ok(/Photonics Bretagne/.test(text()),
+       `the cluster is named in the header at ${vw >= 820 ? "desktop" : "mobile"} width`);
+    ok(/Aerospace and Defence/.test(text()),
+       `the ecosystem is still shown alongside it at ${vw}px`);
+  }
+
+  // An unnamed cluster must fall back to its ecosystem rather than showing a gap
+  render(null);
+  render(React.createElement(G.Game, { gs: { ...named, clusterName: "" }, dispatch: () => {}, vw: 1200, onRestart: () => {} }));
+  ok(/Aerospace and Defence/.test(text()), "an unnamed cluster falls back to its ecosystem");
+
+  // The end screen and the shared summary must agree with the header
+  render(null);
+  const finished = { ...named, gameWon: true, winType: "network", stage: 5, turn: 60, members: 400, seedStr: "x" };
+  render(React.createElement(G.GameOver, { gs: finished, onRestart: () => {} }));
+  ok(/Photonics Bretagne/.test(text()), "the end screen names the cluster");
+  const score = G.runScore(finished);
+  ok(G.shareSummary(finished, score, G.scoreGrade(score)).includes("Photonics Bretagne"),
+     "the shared summary names the cluster");
+}
+
 /* ── info popovers stay on screen ────────────────────────── */
 {
   // Regression: the trend explanations were positioned relative to their dot, so

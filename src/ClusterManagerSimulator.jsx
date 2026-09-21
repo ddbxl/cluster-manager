@@ -5826,8 +5826,8 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
         <div style={{display:"flex",alignItems:"center",gap:8}}>
           <Icon name={gs.sector?.icon||"display"} size={18} color={gs.sector?.color||P.text}/>
           <div>
-            <div style={{fontSize:12,fontWeight:700,color:gs.sector?.color||P.text}}>{gs.sector?.name||""}</div>
-            <div style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{gs.region||""} · {gs.country||""}</div>
+            <div title={gs.clusterName || gs.sector?.name || ""} style={{fontSize:12,fontWeight:700,color:gs.sector?.color||P.text,maxWidth:280,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName || gs.sector?.name || ""}</div>
+            <div style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{gs.clusterName ? `${gs.sector?.name||""} · ` : ""}{gs.region||""} · {gs.country||""}</div>
           </div>
         </div>
         <div style={{padding:"3px 10px",borderRadius:0,background:`${stage.color}18`,border:`1px solid ${stage.color}44`,display:"flex",alignItems:"center",gap:5,flexShrink:0}}>
@@ -5960,6 +5960,7 @@ function GameOver({ gs, onRestart }) {
     <div style={{height:"100vh",background:P.bg,display:"flex",alignItems:"center",justifyContent:"center",color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',padding:20,overflowY:"auto"}}>
       <div style={{textAlign:"center",maxWidth:620,maxHeight:"100%",overflowY:"auto",padding:"20px 4px"}}>
         <div style={{marginBottom:16,display:"flex",justifyContent:"center"}}><Icon name={won?"trophy":rival?"flag":"money-bill-wave"} size={64} color={won?P.gold:rival?P.red:P.muted}/></div>
+        {gs.clusterName ? <div style={{fontSize:13,fontWeight:700,color:P.muted,marginBottom:6}}>{gs.clusterName}</div> : null}
         <h1 style={{fontSize:44,fontWeight:700,color:won?P.accent:P.red,marginBottom:12,letterSpacing:-1}}>
           {won ? (gs.winType==="consolidation" ? "Market Consolidation!" : "Pan-European Cluster Network!") : rival ? `Outpaced by ${rival}` : "Cluster Dissolved"}
         </h1>
