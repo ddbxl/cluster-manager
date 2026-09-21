@@ -102,8 +102,13 @@ What each suite is for:
    panel (desktop) to bottom navigation (mobile) around 820 px. If you touched
    `EUMap`, check drag-to-pan and pinch-to-zoom still behave.
 5. Commit **both** `src/ClusterManagerSimulator.jsx` **and** the regenerated
-   `index.html`. The committed `index.html` is what the live site serves, so it
-   must stay in step with the source.
+   `index.html`, so the file in the repository matches the source.
+
+Pushing to `main` triggers `.github/workflows/deploy.yml`, which installs the
+dependencies, runs the test suite, rebuilds `index.html` from source and deploys
+the result to GitHub Pages. A failing test stops the deploy, so a broken build
+cannot reach the live site. The workflow also carries a manual trigger: the
+**Run workflow** button on the Actions tab redeploys without a new commit.
 
 ### Conventions worth knowing
 

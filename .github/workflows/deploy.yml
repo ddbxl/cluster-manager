@@ -1,0 +1,68 @@
+name: Deploy to GitHub Pages
+
+# Runs on every push to main, and can be started by hand from the Actions tab.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Pages needs these to publish; contents:read lets the job check the code out.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a running deploy finish rather than cancelling it: two overlapping Pages
+# deployments are what leaves a run stuck reporting "updating_pages".
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # The suite is fast and catches the things that break the game silently,
+      # so a failure here stops the deploy instead of publishing a broken build.
+      - name: Run the tests
+        run: npm test
+
+      # Building here rather than trusting the committed index.html means the
+      # live site always matches src/ClusterManagerSimulator.jsx.
+      - name: Build the game
+        run: npm run build
+
+      - name: Collect the files Pages will serve
+        run: |
+          mkdir -p _site
+          cp index.html manifest.json _site/
+          cp preview.png _site/ 2>/dev/null || true
+          ls -la _site
+
+      - name: Upload the site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
