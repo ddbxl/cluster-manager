@@ -51,6 +51,7 @@ You win by reaching Stage 5 before your rivals, or by clearing the field of them
 
 ## Quality of life and accessibility
 
+- A painted map: the Union's neighbours are drawn around it, candidate countries are tinted in flag yellow, and banners on the map show how much of each country you hold and where each rival is based
 - The map owns the screen: the side panels float over it and fold away, and the turn controls sit on the map itself
 - An attention queue lists what could still use a decision before you end the quarter, such as an idle project slot, spare staff capacity or a stage you can now reach, and each entry opens the panel that deals with it
 - Trend indicators on each stat, with tap or hover breakdowns that name each contributing factor

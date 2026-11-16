@@ -82,7 +82,7 @@ const click = (el) => act(() => {
 /* ── the map background fills its panel, not a letterboxed square ── */
 {
   ok(G.CSS.includes(".map-sea"), "the sea background is a panel-level style");
-  ok(G.CSS.includes(".map-sea::before"), "the dot texture is a separate fixed-size layer");
+  ok(!G.CSS.includes(".map-sea::before"), "the sea is flat now that painted land carries the detail");
   ok(G.CSS.includes("html.dark .map-sea"), "the sea has a dark-mode variant");
   render(React.createElement(G.EUMap, { gs, sel: null, setSel: () => {} }));
   const svgHtml = document.body.innerHTML;
@@ -359,6 +359,39 @@ const click = (el) => act(() => {
   ok(!/sheen/.test(G.CSS), "the gloss sweep across the primary button is gone");
 }
 
+/* ── the painted map: neighbours, candidates and banners ──── */
+{
+  const sector = { id:"mobility_transport", name:"Mobility, Transport, Automotive", color:"#2C6EC4", icon:"car" };
+  let g = G.initState("Germany", "Bavaria", sector);
+  g = { ...g, stage: 2, countries: ["Germany", "Austria"], regions: ["Bavaria", "Hesse", "Styria (AT)"] };
+  render(null);
+  render(React.createElement(G.EUMap, { gs: g, sel: null, setSel: () => {} }));
+  const svg = qsa("svg")[0];
+  const html = svg.innerHTML;
+
+  // land beyond the Union is drawn, and beyond the frame, so wide screens show neighbours
+  ok(G.NEIGHBOUR_LAND.length > 10000 && G.CANDIDATE_LAND.length > 2000, "neighbouring and candidate land is embedded");
+  const xs = [...G.NEIGHBOUR_LAND.matchAll(/[ML](-?\d+\.?\d*),/g)].map(m => parseFloat(m[1]));
+  ok(Math.min(...xs) < -100 && Math.max(...xs) > 700, "neighbouring land extends past the map frame on both sides");
+  ok(/^M[-\d.]+,[-\d.]+L/.test(G.CANDIDATE_LAND), "land outlines are valid path data");
+  const paths = qsa("svg path");
+  ok(paths.some(p => p.getAttribute("d") === G.NEIGHBOUR_LAND), "neighbouring land is drawn on the map");
+  ok(paths.some(p => p.getAttribute("d") === G.CANDIDATE_LAND), "candidate countries are drawn on the map");
+  const idx = d => paths.findIndex(p => p.getAttribute("d") === d);
+  ok(idx(G.NEIGHBOUR_LAND) < 3 && idx(G.CANDIDATE_LAND) < 3, "surrounding land sits beneath the Union's regions");
+
+  // banners
+  const banners = qsa(".map-banner");
+  ok(banners.length >= 2 + g.rivals.length - 1, `countries and rivals carry banners (${banners.length})`);
+  const labels = banners.map(b => b.textContent);
+  ok(labels.some(t => /^DE 2\/\d+$/.test(t)), `your home banner counts the regions you hold (${labels.filter(t=>/^DE/.test(t))[0]})`);
+  ok(labels.some(t => /^AT 1\/\d+$/.test(t)), "a second country gets its own banner");
+  ok(g.rivals.every(rv => labels.some(t => t.replace("…","") && rv.name.startsWith(t.replace("…","").trim()))),
+     "each rival is named on its home ground");
+  ok(labels.every(t => t.length <= 18), "banner text is kept short enough to fit its plate");
+  ok(banners.every(b => b.getAttribute("pointer-events") === "none"), "banners never block a click on the country beneath");
+}
+
 /* ── map-first layout: ribbon, folding panels, attention queue ── */
 {
   const sector = { id:"digital", name:"Digital", color:"#38bdf8", icon:"display" };
@@ -379,6 +412,8 @@ const click = (el) => act(() => {
   // the turn control carries the count
   const next = qsa("button").find((b) => /Next Quarter/.test(b.textContent));
   ok(!!next, "Next Quarter sits on the map");
+  ok(!!qsa("button").find((b) => /Stage goals \d+\/\d+|Evolve now|Final stage/.test(b.textContent)),
+     "the evolve control shows progress toward the next stage");
   ok(next && /could use you first|all clear/.test(next.textContent), "it reports how much is still open");
 
   // a plate takes you to the panel that deals with it
