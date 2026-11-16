@@ -332,6 +332,35 @@ const fresh = (country = "Austria", region = "Steiermark") =>
   }
 }
 
+/* ── the attention queue ──────────────────────────────────── */
+{
+  const ids = g => G.attentionItems(g).map(i => i.id);
+  const base = fresh();
+  t.ok(G.attentionItems(base).every(i => i.id && i.text && i.go && typeof i.urgent === "boolean"),
+       "every queue entry has an id, a sentence, a destination and an urgency");
+  t.ok(ids({ ...base, roster: [] }).includes("gm"), "a cluster with no General Manager is told so");
+  t.ok(G.attentionItems({ ...base, roster: [] })[0].urgent, "a missing General Manager is urgent");
+  t.ok(ids({ ...base, pendingEvent: { id: "x" } })[0] === "event", "a pending event heads the queue");
+  t.ok(ids({ ...base, boardConf: 20 }).includes("board"), "a collapsing board is flagged");
+  t.eq(G.attentionItems({ ...base, gameOver: true }).length, 0, "a finished game asks for nothing");
+  t.eq(G.attentionItems(null).length, 0, "a missing game asks for nothing");
+
+  let staffed = { ...base, budget: 3_000_000 };
+  staffed = G.reducer(staffed, { type: "hire", roleId: "comms" });
+  staffed = G.reducer(staffed, { type: "hire", roleId: "pm" });
+  t.ok(ids(staffed).includes("projects"), "an idle project slot with open calls is flagged");
+  t.ok(G.attentionItems(staffed).find(i => i.id === "projects").urgent, "running no project at all is urgent");
+
+  const poor = { ...base, budget: 2000 };
+  t.ok(!ids(poor).includes("staff"), "spare staff capacity is not flagged when a hire is unaffordable");
+
+  const mixed = G.attentionItems({ ...staffed, boardConf: 20 });
+  const firstCalm = mixed.findIndex(i => !i.urgent);
+  t.ok(firstCalm === -1 || mixed.slice(firstCalm).every(i => !i.urgent), "urgent entries come before openings");
+  const dest = new Set(["event","staff","stats","evolve","projects","network","rivals"]);
+  t.ok(mixed.every(i => dest.has(i.go)), "every entry points at a panel that exists");
+}
+
 /* ── explaining why a stat moved ──────────────────────────── */
 {
   const g = playQuarters(G, { ...fresh(), budget: 2_000_000 }, 10);

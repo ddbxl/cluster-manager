@@ -41,7 +41,8 @@ const ENGINE_EXPORTS = [
   "clampMapView", "zoomMapAt", "MAP_ZOOM_MIN", "MAP_ZOOM_MAX", "MAP_W", "MAP_H",
   "pickEvent", "EVENT_REQ", "ECOSYSTEMS", "ECCP_CLUSTERS", "clusterPicks", "registrySeed",
   "REGIONS_BY_COUNTRY", "RIS_MODIFIER",
-  "memberFee", "evolveCost", "trendTitle", "shareSummary", "challengeURL", "SERVICING_SHARE", "servicingCost", "costIndex",
+  "memberFee", "evolveCost", "trendTitle", "shareSummary", "challengeURL",
+  "attentionItems", "SERVICING_SHARE", "servicingCost", "costIndex",
   "ECO_MIX", "BASE_MIX", "FEE_W", "mixFor", "defaultMix",
 ];
 
@@ -52,7 +53,7 @@ const UI_EXPORTS = [
   "ProjectsModal", "StaffModal", "NetworkModal", "RivalsModal", "RulesModal",
   "EvolveModal", "LogModal", "EventModal", "StatsModal", "ProjCard",
   "DigestCard", "SaveSlots", "Tutorial", "MapLegend", "StageBanner",
-  "ProgressRing", "EmptyState", "FloatingDeltas", "InfoDot",
+  "ProgressRing", "EmptyState", "FloatingDeltas", "InfoDot", "AttentionQueue",
   "CSS", "P", "applyTheme", "applyTextScale", "fmt",
 ];
 

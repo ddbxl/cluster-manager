@@ -359,6 +359,61 @@ const click = (el) => act(() => {
   ok(!/sheen/.test(G.CSS), "the gloss sweep across the primary button is gone");
 }
 
+/* ── map-first layout: ribbon, folding panels, attention queue ── */
+{
+  const sector = { id:"digital", name:"Digital", color:"#38bdf8", icon:"display" };
+  let g = { ...G.initState("Austria", "Steiermark", sector), budget: 3_000_000 };
+  g = G.reducer(g, { type: "hire", roleId: "comms" });
+  g = G.reducer(g, { type: "hire", roleId: "pm" });
+  const btnBy = (re) => qsa("button").find((b) => re.test(b.getAttribute("aria-label") || b.textContent || ""));
+
+  render(null);
+  render(React.createElement(G.Game, { gs: g, dispatch: () => {}, vw: 1280, onRestart: () => {} }));
+
+  // the queue
+  const list = qsa('[role="list"]')[0];
+  ok(!!list, "the attention queue is laid over the map on desktop");
+  ok(qsa('[role="listitem"]').length >= 1, "it lists what could use a decision");
+  ok(/Before you end the quarter/.test(text()), "the queue says what it is for");
+
+  // the turn control carries the count
+  const next = qsa("button").find((b) => /Next Quarter/.test(b.textContent));
+  ok(!!next, "Next Quarter sits on the map");
+  ok(next && /could use you first|all clear/.test(next.textContent), "it reports how much is still open");
+
+  // a plate takes you to the panel that deals with it
+  const plate = qsa('[role="listitem"]').find((b) => /project/i.test(b.textContent));
+  if (plate) { let threw = null; try { click(plate); } catch (e) { threw = e; } ok(!threw, "following a plate opens its panel"); }
+
+  // panels fold away to give the map the screen
+  const hideDock = btnBy(/Hide the management panel/);
+  const hideLeft = btnBy(/Hide the cluster summary/);
+  ok(!!hideDock && !!hideLeft, "both side panels can be folded away");
+  if (hideDock) {
+    click(hideDock);
+    ok(!!btnBy(/Show the management panel/), "the management panel folds and can be brought back");
+  }
+  if (hideLeft) {
+    click(hideLeft);
+    ok(!!btnBy(/Show the cluster summary/), "the summary panel folds and can be brought back");
+  }
+  ok(qsa("svg path").length > 200, "the map is still drawn with both panels folded");
+
+  // the ribbon shows where the treasury is heading
+  ok(/Treasury/i.test(text()) && /Members/i.test(text()) && /Influence/i.test(text()), "the yield ribbon carries the core figures");
+
+  // mobile gets the same queue as a strip
+  render(null);
+  render(React.createElement(G.Game, { gs: g, dispatch: () => {}, vw: 420, onRestart: () => {} }));
+  ok(qsa('[role="listitem"]').length >= 1, "the attention queue is present on mobile too");
+  ok(!!qsa("button").find((b) => /Next Quarter/.test(b.textContent)), "Next Quarter is present on mobile");
+
+  // nothing to flag means no empty box
+  render(null);
+  render(React.createElement(G.AttentionQueue, { items: [], onGo: () => {} }));
+  ok(qsa('[role="list"]').length === 0, "an empty queue draws nothing");
+}
+
 /* ── the quarter review can always be re-opened ──────────── */
 {
   // Regression: the control existed only in the desktop header, so on a phone

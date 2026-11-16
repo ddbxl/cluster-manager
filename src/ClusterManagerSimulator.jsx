@@ -2645,6 +2645,53 @@ const shareSummary = (gs, score, grade) => {
   return lines.join("\n");
 };
 
+/* ── Attention queue ──────────────────────────────────────────
+   What still wants a decision before the quarter is closed. Each entry names
+   the panel that deals with it, so the interface can take the player there.
+   Urgent entries are things that will cost the cluster if ignored; the others
+   are opportunities currently left on the table. ─────────────────────── */
+function attentionItems(gs) {
+  if (!gs || gs.gameOver || gs.gameWon) return [];
+  const items = [];
+  const add = (id, urgent, text, go) => items.push({ id, urgent, text, go });
+  const roster = gs.roster || [];
+
+  if (gs.pendingEvent) add("event", true, "An event is waiting for your decision", "event");
+  if (byRole(roster, "manager") < 1) add("gm", true, "No General Manager: the cluster cannot advance", "staff");
+
+  const burn = (gs.qStaff||0) + (gs.qOverhead||0) + (gs.qServicing||0) + Math.max(0, (gs.qDelivery||0) - (gs.qInterim||0));
+  if ((gs.turn||0) > 0 && burn > 0 && (gs.budget||0) / burn < 3 && (gs.qNet||0) < 0)
+    add("runway", true, `Treasury covers under ${Math.max(1, Math.ceil((gs.budget||0) / burn))} quarters at this burn`, "stats");
+  if ((gs.boardConf||0) < 35) add("board", true, `Board confidence is down to ${Math.round(gs.boardConf||0)}%`, "stats");
+
+  if (canEvolve(gs)) add("evolve", false, `Ready to evolve into ${STAGES[(gs.stage||0)+1]?.name || "the next stage"}`, "evolve");
+
+  const calls = availableProjects(gs);
+  if (calls.length) {
+    const running = (gs.activeProjects||[]).length;
+    add("projects", running === 0, running === 0
+      ? `No project running, and ${calls.length} call${calls.length===1?" is":"s are"} open to you`
+      : `A project slot is free: ${calls.length} call${calls.length===1?"":"s"} open`, "projects");
+  }
+
+  // Unused management capacity only counts when a hire is comfortably affordable.
+  const room = staffSpan(roster) - visibleStaff(roster);
+  if (room > 0 && byRole(roster, "manager") >= 1) {
+    const cheapest = Math.min(...STAFF_ROLES.filter(r => !r.hidden && r.id !== "manager" && !hireBlockReason(gs, r.id)).map(r => roleCost(r, gs.turn||0)).concat([Infinity]));
+    if (Number.isFinite(cheapest) && (gs.budget||0) - cheapest > staffCostQ(roster, gs.turn||0) * 3 + 40000)
+      add("staff", false, `Room for ${room} more staff, and the treasury can carry a hire`, "staff");
+  }
+
+  // A region gate is the usual thing holding back the next stage.
+  const needRegion = evolveReqs(gs).find(r => /region/i.test(r.l) && !r.ok);
+  if (needRegion) {
+    const cost = Math.round((gs.prestige||0) * 1400 + 30000);
+    if ((gs.budget||0) - cost > staffCostQ(roster, gs.turn||0) * 3)
+      add("region", false, `The next stage needs more regions, and you can afford one`, "network");
+  }
+  return items.sort((a, b) => (b.urgent?1:0) - (a.urgent?1:0));
+}
+
 const trendTitle = (t, extra) => {
   if (!t) return "";
   const round1 = v => Math.round(v*10)/10;
@@ -3557,7 +3604,7 @@ function useMapView() {
   };
 }
 
-function EUMap({ gs, sel, setSel }) {
+function EUMap({ gs, sel, setSel, lift=0 }) {
   const [hov, setHov] = useState(null);
   const map = useMapView();
   const sc      = gs?.sector?.color || P.accent;
@@ -3754,13 +3801,13 @@ function EUMap({ gs, sel, setSel }) {
     </svg>
 
     {/* Watermark — HTML, not SVG, so zooming the map doesn't magnify it */}
-    <div style={{position:"absolute",right:8,bottom:6,pointerEvents:"none",fontSize:10,color:P.muted,opacity:0.55,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',whiteSpace:"nowrap"}}>
+    <div style={{position:"absolute",...(lift ? {left:"50%",transform:"translateX(-50%)"} : {right:8}),bottom:6,pointerEvents:"none",fontSize:10,color:P.muted,opacity:0.55,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',whiteSpace:"nowrap"}}>
       {STAGES[gs?.stage||0]?.name} · Quarter {gs?.quarter||1} {gs?.year||2024} · {diffOf(gs).label}
     </div>
 
     {/* Zoom controls: buttons matter for anyone who can't pinch (desktop, or
         assistive input), and give a visible way back to the full view. */}
-    <div style={{position:"absolute",right:8,bottom:26,zIndex:36,display:"flex",flexDirection:"column",gap:4}}>
+    <div style={{position:"absolute",right:lift?12:8,bottom:26+lift,zIndex:36,display:"flex",flexDirection:"column",gap:4}}>
       <button className="btn" onClick={()=>map.zoomBy(1.5)} title="Zoom in" aria-label="Zoom in on the map"
         style={{width:30,height:30,borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:15,fontWeight:700,lineHeight:1,boxShadow:"none",display:"flex",alignItems:"center",justifyContent:"center"}}>+</button>
       <button className="btn" onClick={()=>map.zoomBy(1/1.5)} title="Zoom out" aria-label="Zoom out of the map"
@@ -5592,8 +5639,42 @@ function Tutorial({ gs }) {
   );
 }
 
+// What still wants a decision this quarter, as plates laid over the map. Flag
+// yellow marks what will cost you if ignored; blue marks an opening. Each plate
+// goes straight to the panel that deals with it.
+function AttentionQueue({ items, onGo, compact }) {
+  if (!items || !items.length) return null;
+  const shown = items.slice(0, compact ? 6 : 5);
+  if (compact) {
+    return (
+      <div role="list" aria-label="Things that could use your attention" style={{flexShrink:0,display:"flex",gap:6,padding:"6px 10px",overflowX:"auto",background:P.panel,borderTop:`1px solid ${P.border}`}}>
+        {shown.map(it => (
+          <button key={it.id} role="listitem" className="btn" onClick={()=>onGo(it.go)}
+            style={{flexShrink:0,maxWidth:240,textAlign:"left",padding:"6px 9px 6px 8px",border:`1px solid ${P.border}`,borderLeft:`4px solid ${it.urgent?P.gold:P.accent}`,background:P.card,color:P.text,fontSize:10.5,fontWeight:it.urgent?700:400,lineHeight:1.3,whiteSpace:"normal"}}>
+            {it.text}
+          </button>
+        ))}
+      </div>
+    );
+  }
+  return (
+    <div role="list" aria-label="Things that could use your attention" style={{position:"absolute",top:10,left:10,zIndex:44,width:268,display:"flex",flexDirection:"column",gap:4}}>
+      <div style={{fontSize:10,fontWeight:700,color:P.muted,padding:"0 2px 1px"}}>Before you end the quarter</div>
+      {shown.map(it => (
+        <button key={it.id} role="listitem" className="btn" onClick={()=>onGo(it.go)}
+          style={{textAlign:"left",padding:"7px 10px 7px 9px",border:`1px solid ${P.border}`,borderLeft:`4px solid ${it.urgent?P.gold:P.accent}`,background:P.panel,color:P.text,fontSize:11,fontWeight:it.urgent?700:400,lineHeight:1.35}}>
+          {it.text}
+        </button>
+      ))}
+      {items.length > shown.length && <div style={{fontSize:10,color:P.muted,padding:"0 2px"}}>and {items.length - shown.length} more</div>}
+    </div>
+  );
+}
+
 function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo, snd, onSnd, textBig, onTextScale, digestOn, onDigestToggle }) {
   const [digestReopen, setDigestReopen] = useState(0);
+  const [leftOpen, setLeftOpen] = useState(true);   // desktop: cluster summary panel
+  const [dockOpen, setDockOpen] = useState(true);   // desktop: projects / staff / network / rivals
   // sound cues
   const sndRef = useRef({ turn: gs.turn, stage: gs.stage, won: !!gs.gameWon, ev: !!gs.pendingEvent, seats: seatsHeld(gs) });
   useEffect(() => {
@@ -5673,6 +5754,9 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
   );
 
   const trends = statTrends(gs);
+  const attention = attentionItems(gs);
+  const dockW = vw>=1440?420:vw>=1150?372:320;
+  const goTo = id => { if (id==="event") return; if (!phone && ["projects","staff","network","rivals"].includes(id)) { setDockOpen(true); setRightTab(id); } else setModal(id); };
   const TopStat = ({ l, v, c=P.text, icon, tip, trend }) => (
     <div title={tip||undefined} style={{display:"flex",flexDirection:"column",alignItems:"flex-end",cursor:tip?"help":"default"}}>
       <span style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:P.muted,textTransform:"uppercase",letterSpacing:.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
@@ -5737,7 +5821,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
           {/* Stat strip */}
           <div style={{display:"flex",gap:10,marginTop:8,overflowX:"auto",paddingBottom:2}}>
             <TopStat l="Period" v={<span key={gs.turn} className="flip-in">{`Q${gs.quarter} ${gs.year}`}</span>} c={P.blue} icon="map"/>
-            <TopStat l="Treasury" v={fmt(gs.budget||0)} c={(gs.budget||0)<20000?P.red:P.accent} icon="sack-dollar"/>
+            <TopStat l="Treasury" v={fmt(gs.budget||0)} c={(gs.budget||0)<20000?P.red:P.accent} icon="sack-dollar" trend={trends?.budget?.delta} tip={trendTitle(trends?.budget)}/>
             <TopStat l="Members" v={gs.members||0} c={P.gold} icon="users" trend={trends?.members?.delta} tip={trendTitle(trends?.members,"Plus rival poaching, defections and events.")}/>
             <TopStat l="Influence" v={Math.round(gs.prestige||0)} c={P.purple} icon="star" trend={trends?.influence?.delta} tip={trendTitle(trends?.influence,"Plus project deliveries, events, coups.")}/>
             <TopStat l="Board Confidence" v={`${Math.round(gs.boardConf||0)}`} c={(gs.boardConf||0)<30?P.red:(gs.boardConf||0)<55?P.orange:P.green} icon="shield-halved" trend={trends?.board?.delta} tip={trendTitle(trends?.board,"Plus completions +3, failures −8..−15, events.")}/>
@@ -5782,6 +5866,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
           </button>
         )}
 
+        <AttentionQueue items={attention} onGo={goTo} compact/>
         {/* Primary action row */}
         <div style={{flexShrink:0,display:"flex",gap:8,padding:"8px 10px",background:P.panel,borderTop:`1px solid ${P.border}`}}>
           {gs.pendingEvent ? (
@@ -5874,40 +5959,46 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
           <TopStat l="Members"  v={gs.members||0}                       c={P.gold} icon="users" trend={trends?.members?.delta} tip={trendTitle(trends?.members,"Plus rival poaching, defections and events.")}/>
           <TopStat l="Influence" v={Math.round(gs.prestige||0)}          c={P.purple} icon="star" trend={trends?.influence?.delta} tip={trendTitle(trends?.influence,"Plus project deliveries, events, coups.")}/>
           <TopStat l="Board Confidence" v={`${Math.round(gs.boardConf||0)}%`} c={(gs.boardConf||0)<30?P.red:(gs.boardConf||0)<55?P.orange:P.green} icon="shield-halved" trend={trends?.board?.delta} tip={trendTitle(trends?.board,"Plus completions +3, failures −8..−15, events.")}/>
-          <button className="btn" onClick={()=>setAuto(a=>!a)} disabled={!!gs.pendingEvent} style={{padding:"9px 14px",borderRadius:0,border:`1px solid ${auto?P.accent:P.border}`,background:auto?`${P.accent}22`:P.card,color:auto?P.accent:P.text,fontWeight:700,fontSize:13}}>
-            {auto?<><Icon name="pause" size={12} style={{marginRight:5}}/>Pause Auto-advance</>:<><Icon name="forward" size={12} style={{marginRight:5}}/>Auto-advance</>}
-          </button>
-          <button
-            className="btn cut"
-            onClick={() => dispatch({type:"nextTurn"})}
-            disabled={!!gs.pendingEvent}
-            style={{padding:"9px 20px",borderRadius:0,border:"none",background:gs.pendingEvent?P.bright:`${P.accent}`,color:gs.pendingEvent?P.muted:P.bg,fontWeight:700,fontSize:14,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',letterSpacing:.5}}
-          >
-            {gs.pendingEvent ? "Resolve Event First" : byRole(gs.roster,"manager")<1 ? "No General Manager — hire one" : <>Next Quarter</>}
-          </button>
         </div>
       </div>
 
-      {/* MAIN: Left | Map | Right */}
-      <div style={{flex:1,display:"flex",overflow:"hidden"}}>
-        <LeftPanel gs={gs} dispatch={dispatch}/>
-        <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
-          <div className="map-sea" style={{flex:1,overflow:"hidden",position:"relative"}}>
-            <EUMap gs={gs} sel={sel} setSel={setSel}/>
-            <DigestCard gs={gs} digestOn={digestOn} reopenTick={digestReopen} onDigestToggle={onDigestToggle}/>
-            <MapLegend gs={gs}/>
-            {tipCard}
-          </div>
-          <div style={{background:P.panel,borderTop:`1px solid ${P.border}`,padding:"8px 12px",display:"flex",gap:8,alignItems:"center",flexWrap:"wrap",flexShrink:0}}>
-            <div style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
-              {(gs.completedProjects||[]).length} done · {(gs.activeProjects||[]).length} running · manage projects, staff and network in the panel on the right
-            </div>
-            <div style={{flex:1}}/>
+      {/* MAIN: the map owns the whole area; panels float over the sea and fold away */}
+      <div className="map-sea" style={{flex:1,position:"relative",overflow:"hidden"}}>
+        {/* The map and its overlays live in the space the open panels leave free,
+            so nothing of Europe is hidden and the map recentres as panels fold. */}
+        <div style={{position:"absolute",top:0,bottom:0,left:leftOpen?215:0,right:dockOpen?dockW:0,transition:"left .18s ease,right .18s ease"}}>
+          <EUMap gs={gs} sel={sel} setSel={setSel} lift={62}/>
+          <DigestCard gs={gs} digestOn={digestOn} reopenTick={digestReopen} onDigestToggle={onDigestToggle}/>
+          <MapLegend gs={gs}/>
+          {tipCard}
+          <AttentionQueue items={attention} onGo={goTo}/>
+          {/* Turn controls sit on the map, bottom right, where the eye ends up */}
+          <div style={{position:"absolute",right:12,bottom:12,zIndex:45,display:"flex",alignItems:"stretch",gap:8}}>
             <BotBtn id="evolve" label={ok ? <><Icon name="rocket" size={13} color={P.gold}/> EVOLVE NOW</> : <><Icon name="lock" size={13} color={P.muted}/> Evolve</>} color={ok?P.gold:P.muted} highlight={ok}/>
+            <button className="btn" onClick={()=>setAuto(a=>!a)} disabled={!!gs.pendingEvent} title="Advance quarters automatically until something needs you"
+              style={{padding:"0 13px",border:`1px solid ${auto?P.accent:P.border}`,background:P.panel,color:auto?P.accent:P.muted,fontSize:11,fontWeight:700,opacity:gs.pendingEvent?0.5:1}}>
+              {auto ? "Pause" : "Auto"}
+            </button>
+            <button className="btn cut" onClick={() => dispatch({type:"nextTurn"})} disabled={!!gs.pendingEvent}
+              style={{padding:"11px 26px 11px 20px",border:"none",background:gs.pendingEvent?P.bright:P.accent,color:gs.pendingEvent?P.muted:"#fff",fontWeight:700,fontSize:14,textAlign:"left",minWidth:168}}>
+              <div>{gs.pendingEvent ? "Resolve event first" : byRole(gs.roster,"manager")<1 ? "Hire a General Manager" : "Next Quarter"}</div>
+              <div style={{fontSize:10,fontWeight:400,opacity:.85,marginTop:2}}>
+                {attention.length ? `${attention.length} thing${attention.length===1?"":"s"} could use you first` : `Q${gs.quarter} ${gs.year} · all clear`}
+              </div>
+            </button>
           </div>
         </div>
+
+        <div style={{position:"absolute",left:0,top:0,bottom:0,zIndex:60,display:leftOpen?"flex":"none"}}>
+          <LeftPanel gs={gs} dispatch={dispatch}/>
+        </div>
+        <button className="btn" onClick={()=>setLeftOpen(o=>!o)} aria-expanded={leftOpen} aria-label={leftOpen?"Hide the cluster summary":"Show the cluster summary"} title={leftOpen?"Hide the cluster summary":"Show the cluster summary"}
+          style={{position:"absolute",left:leftOpen?215:0,top:"50%",transform:"translateY(-50%)",zIndex:61,width:16,height:54,padding:0,border:`1px solid ${P.border}`,borderLeft:"none",background:P.panel,color:P.muted,fontSize:12,transition:"left .18s ease"}}>{leftOpen?"‹":"›"}</button>
+        <button className="btn" onClick={()=>setDockOpen(o=>!o)} aria-expanded={dockOpen} aria-label={dockOpen?"Hide the management panel":"Show the management panel"} title={dockOpen?"Hide the management panel":"Show the management panel"}
+          style={{position:"absolute",right:dockOpen?dockW:0,top:"50%",transform:"translateY(-50%)",zIndex:61,width:16,height:54,padding:0,border:`1px solid ${P.border}`,borderRight:"none",background:P.panel,color:P.muted,fontSize:12,transition:"right .18s ease"}}>{dockOpen?"›":"‹"}</button>
+
         {/* RIGHT DOCK: Projects / Staff / Network tabs + compact activity & log */}
-        <div style={{width:vw>=1440?420:vw>=1150?372:320,flexShrink:0,display:"flex",flexDirection:"column",background:P.panel,borderLeft:`1px solid ${P.border}`,overflow:"hidden"}}>
+        <div style={{position:"absolute",right:0,top:0,bottom:0,zIndex:60,width:dockW,display:dockOpen?"flex":"none",flexDirection:"column",background:P.panel,borderLeft:`1px solid ${P.border}`,overflow:"hidden"}}>
           <div style={{display:"flex",flexShrink:0,borderBottom:`1px solid ${P.border}`}}>
             {[["projects","folder-open","Projects",P.blue],["staff","users","Staff",P.purple],["network","earth-europe","Network",P.teal],["rivals","chess-knight","Rivals",P.red]].map(([id,icon,lbl,col]) => (
               <button key={id} className="btn" onClick={()=>setRightTab(id)} aria-pressed={rightTab===id}

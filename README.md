@@ -51,6 +51,8 @@ You win by reaching Stage 5 before your rivals, or by clearing the field of them
 
 ## Quality of life and accessibility
 
+- The map owns the screen: the side panels float over it and fold away, and the turn controls sit on the map itself
+- An attention queue lists what could still use a decision before you end the quarter, such as an idle project slot, spare staff capacity or a stage you can now reach, and each entry opens the panel that deals with it
 - Trend indicators on each stat, with tap or hover breakdowns that name each contributing factor
 - A compact quarter-review card covering headline deltas, cash flow and events, which stays out of your way instead of blocking the screen
 - Dark mode, a larger-text toggle, colour-blind-friendly rival patterns on the map, and full `prefers-reduced-motion` support
