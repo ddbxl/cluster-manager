@@ -390,13 +390,48 @@ const click = (el) => act(() => {
   const tabs = qsa('[role="tablist"] button');
   ok(tabs.length === 4, "the dock offers its four menus as tabs");
   const active = tabs.filter(b => b.getAttribute("aria-pressed") === "true");
-  ok(active.length === 1 && (active[0].style.background === rgb || active[0].style.backgroundColor === rgb), "the open tab is a solid blue block");
+  ok(active.length === 1 && active[0].style.fontWeight === "700" && /3px solid/.test(active[0].style.borderBottom),
+     "the open tab is bold text on a yellow rule");
+  ok(tabs.every(b => !b.style.background || b.style.background === "transparent"), "tabs are text, with no filled blocks");
   const idle = tabs.find(b => b.getAttribute("aria-pressed") !== "true");
   if (idle) {
     click(idle);
     const now = qsa('[role="tablist"] button').filter(b => b.getAttribute("aria-pressed") === "true");
-    ok(now.length === 1 && now[0].textContent === idle.textContent, "choosing another tab moves the block to it");
+    ok(now.length === 1 && now[0].textContent === idle.textContent, "choosing another tab moves the rule to it");
   }
+}
+
+/* ── inside a menu, a button is text that underlines on hover ── */
+{
+  const css = G.CSS;
+  ok(/\.menu-scope \.btn:not\(\.dot\)\{[^}]*background:transparent !important/.test(css), "menu buttons carry no fill");
+  ok(/\.menu-scope \.btn:not\(\.dot\)\{[^}]*border-color:transparent !important/.test(css), "menu buttons carry no box");
+  ok(/\.menu-scope \.btn:not\(\.dot\):hover:not\(:disabled\)[^{]*\{[^}]*text-decoration:underline/.test(css), "hovering a menu button underlines it");
+  ok(/\.menu-scope \.btn:not\(\.dot\):focus-visible/.test(css), "keyboard focus underlines it too");
+  ok(/\.menu-scope \.btn:disabled\{[^}]*text-decoration:none/.test(css), "a disabled button does not underline");
+  ok(/\.menu-scope \.btn\[style\*="255, 255, 255"\]\{color:#003399 !important\}/.test(css),
+     "text that was white on a fill takes the action colour, so it cannot vanish");
+
+  // every kind of menu is inside the scope
+  const sector = { id:"digital", name:"Digital", color:"#38bdf8", icon:"display" };
+  const g0 = G.initState("Austria", "Steiermark", sector);
+  render(null);
+  render(React.createElement(G.StatsModal, { gs: g0, onClose: () => {}, dispatch: () => {} }));
+  ok(qsa(".menu-scope").length >= 1, "a window menu applies the text-button rule");
+  render(null);
+  render(React.createElement(G.Game, { gs: g0, dispatch: () => {}, vw: 1280, onRestart: () => {} }));
+  ok(qsa(".menu-scope").length >= 1, "the management dock is inside the text-button rule");
+  const staffTab = qsa('[role="tablist"] button').find(b => /Staff/.test(b.textContent));
+  if (staffTab) { click(staffTab); ok(qsa(".menu-scope button").length >= 1, "its hire and fire controls are text"); }
+  render(null);
+  const ev = G.EVENTS.find(e => e.t === "choice");
+  render(React.createElement(G.EventModal, { ev, onDismiss: () => {} }));
+  ok(qsa(".menu-scope button").length >= 2, "event choices are text options too");
+
+  // the information dot is a control with its own shape and keeps it
+  render(null);
+  render(React.createElement("div", { className: "menu-scope" }, React.createElement(G.InfoDot, { text: "why", label: "Trend" })));
+  ok(qsa("button.dot").length === 1, "the information dot is exempt and keeps its circle");
 }
 
 /* ── the painted map: neighbours, candidates and banners ──── */

@@ -53,6 +53,23 @@ body{-webkit-text-size-adjust:100%;text-size-adjust:100%;font-variant-numeric:ta
 .cut{clip-path:polygon(0 0, calc(100% - 11px) 0, 100% 11px, 100% 100%, 0 100%)}
 .cut-sm{clip-path:polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%)}
 
+/* Inside a menu a button is plain text: no box, no fill. Hovering, focusing or
+   pressing it draws an underline. The rules are forced because each button
+   still carries its old box styling inline; this strips it in one place. */
+.menu-scope .btn:not(.dot){background:transparent !important;border-color:transparent !important;box-shadow:none !important;clip-path:none !important;padding-left:2px !important;padding-right:2px !important;text-underline-offset:3px;text-decoration-thickness:1.5px}
+.menu-scope .btn:not(.dot):hover:not(:disabled),.menu-scope .btn:not(.dot):focus-visible,.menu-scope .btn:not(.dot):active:not(:disabled){text-decoration:underline;filter:none}
+.menu-scope .btn:disabled{cursor:not-allowed;text-decoration:none}
+.menu-scope .btn:focus-visible{outline:none}
+/* a chosen option stays underlined, in flag yellow */
+.menu-scope .btn[aria-pressed="true"]{text-decoration:underline;text-decoration-color:#FFCC00;text-decoration-thickness:3px}
+/* buttons that were white on a solid fill would vanish without the fill */
+.menu-scope .btn[style*="255, 255, 255"]{color:#003399 !important}
+html.dark .menu-scope .btn[style*="255, 255, 255"]{color:#6D9BFF !important}
+/* a button in the ordinary text colour would read as a label, so it takes the action colour */
+.menu-scope .btn[style*="color: rgb(26, 26, 26)"]{color:#003399 !important}
+html.dark .menu-scope .btn[style*="color: rgb(242, 242, 242)"]{color:#6D9BFF !important}
+.menu-tabs .btn:hover{text-decoration:underline;text-underline-offset:3px;filter:none}
+
 /* Figures line up in columns without a monospace face. */
 .tnum{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
 .bar-fill{transition:width .65s cubic-bezier(.22,1,.36,1)}
@@ -4067,7 +4084,7 @@ function InfoDot({ text, label, children, style }) {
   return (
     <span ref={ref} style={{position:"relative",display:"inline-flex",alignItems:"center",...style}}>
       {children}
-      <button ref={btnRef} className="btn" aria-label={label||"More information"} aria-expanded={open}
+      <button ref={btnRef} className="btn dot" aria-label={label||"More information"} aria-expanded={open}
         onClick={e => { e.stopPropagation(); setOpen(o=>!o); }}
         onMouseEnter={()=>setOpen(true)} onMouseLeave={()=>setOpen(false)}
         style={{marginLeft:4,width:14,height:14,minWidth:14,borderRadius:"50%",border:`1px solid ${P.border}`,background:P.card,color:P.muted,fontSize:9,fontWeight:700,lineHeight:1,padding:0,display:"inline-flex",alignItems:"center",justifyContent:"center",cursor:"help",flexShrink:0}}>i</button>
@@ -4362,7 +4379,7 @@ function Modal({ title, icon, iconColor, onClose, children, width=600 }) {
           </div>
           <button className="btn" onClick={onClose} aria-label="Close" style={{background:"transparent",border:"1px solid rgba(255,255,255,.55)",color:"#FFFFFF",padding:phone?"7px 11px":"5px 9px",display:"flex",alignItems:"center",flexShrink:0}}><Icon name="xmark" size={phone?14:12} color="#FFFFFF"/></button>
         </div>
-        <div style={{padding:"16px 18px",overflowY:"auto",flex:1}}>{children}</div>
+        <div className="menu-scope" style={{padding:"16px 18px",overflowY:"auto",flex:1}}>{children}</div>
       </div>
     </div>
   );
@@ -4926,7 +4943,7 @@ function EventModal({ ev, onDismiss }) {
   };
   return (
     <div className="backdrop-in" style={{position:"fixed",inset:0,background:THEME_DARK?"rgba(2,6,16,.72)":"rgba(15,30,60,.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:2000,padding:20}}>
-      <div className="event-in" style={{background:P.panel,borderRadius:0,padding:"0 28px 28px",maxWidth:480,width:"100%",border:`1px solid ${P.border}`,boxShadow:"none"}}>
+      <div className="event-in menu-scope" style={{background:P.panel,borderRadius:0,padding:"0 28px 28px",maxWidth:480,width:"100%",border:`1px solid ${P.border}`,boxShadow:"none"}}>
         <div className="menu-band" aria-hidden="true" style={{margin:"0 -28px 22px",height:10,background:BAND,borderBottom:`3px solid ${col}`}}/>
         <div style={{display:"flex",alignItems:"center",gap:6,fontSize:9,fontWeight:700,color:col,textTransform:"uppercase",letterSpacing:3,marginBottom:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}><span className={headAnim} style={{display:"inline-flex"}}><Icon name={headingIcon} size={11} color={col}/></span>{heading}</div>
         <h2 style={{fontSize:20,fontWeight:700,marginBottom:10,color:P.text,lineHeight:1.3}}>{ev.n}</h2>
@@ -6050,16 +6067,16 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
 
         {/* RIGHT DOCK: Projects / Staff / Network tabs + compact activity & log */}
         <div style={{position:"absolute",right:0,top:0,bottom:0,zIndex:60,width:dockW,display:dockOpen?"flex":"none",flexDirection:"column",background:P.panel,borderLeft:`1px solid ${P.border}`,overflow:"hidden"}}>
-          <div className="menu-tabs" role="tablist" style={{display:"flex",flexShrink:0,background:P.card,borderBottom:`1px solid ${BAND}`}}>
+          <div className="menu-tabs" role="tablist" style={{display:"flex",flexShrink:0,background:P.panel,borderBottom:`1px solid ${P.border}`}}>
             {[["projects","folder-open","Projects",P.blue],["staff","users","Staff",P.purple],["network","earth-europe","Network",P.teal],["rivals","chess-knight","Rivals",P.red]].map(([id,icon,lbl,col]) => (
               <button key={id} className="btn" onClick={()=>setRightTab(id)} aria-pressed={rightTab===id}
-                style={{flex:1,padding:"10px 4px 8px",border:"none",borderRight:`1px solid ${rightTab===id?BAND:P.border}`,borderBottom:`3px solid ${rightTab===id?P.gold:"transparent"}`,background:rightTab===id?BAND:P.card,color:rightTab===id?"#FFFFFF":P.muted,fontSize:11.5,fontWeight:rightTab===id?700:400,letterSpacing:rightTab===id?0.6:0.2,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
-                <Icon name={icon} size={12} color={rightTab===id?"#FFCC00":P.muted}/>{lbl}
+                style={{flex:1,padding:"11px 4px 8px",border:"none",borderBottom:`3px solid ${rightTab===id?P.gold:"transparent"}`,background:"transparent",color:rightTab===id?P.accent:P.muted,fontSize:12.5,fontWeight:rightTab===id?700:400}}>
+                {lbl}
               </button>
             ))}
           </div>
           <div style={{flex:1,overflowY:"auto"}}>
-            <div key={rightTab} className="panel-fade">
+            <div key={rightTab} className="panel-fade menu-scope">
               {rightTab==="projects" && <ProjectsModal gs={gs} dispatch={dispatch} onClose={()=>{}} panel/>}
               {rightTab==="staff"    && <StaffModal    gs={gs} dispatch={dispatch} onClose={()=>{}} panel/>}
               {rightTab==="network"  && <NetworkModal  gs={gs} dispatch={dispatch} onClose={()=>{}} panel/>}
