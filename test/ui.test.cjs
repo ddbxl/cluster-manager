@@ -359,6 +359,46 @@ const click = (el) => act(() => {
   ok(!/sheen/.test(G.CSS), "the gloss sweep across the primary button is gone");
 }
 
+/* ── menus share one language: blue band, yellow rule, diamond ── */
+{
+  const rgb = "rgb(0, 51, 153)";
+  let closed = false;
+  render(null);
+  render(React.createElement(G.Modal, { title: "Cluster Dashboard", icon: "gauge-high", onClose: () => { closed = true; } },
+    React.createElement(G.Lbl, { t: "Treasury" })));
+  const band = qsa(".menu-band")[0];
+  ok(!!band, "a menu opens under a title band");
+  if (band) {
+    ok(band.style.background === rgb || band.style.backgroundColor === rgb, `the band is flag blue (${band.style.background})`);
+    ok(/3px solid/.test(band.style.borderBottom), "the band is closed by a rule");
+    ok(/Cluster Dashboard/.test(band.textContent), "the band carries the menu title");
+    const title = [...band.querySelectorAll("span")].find(s => /Cluster Dashboard/.test(s.textContent) && s.style.textTransform === "uppercase");
+    ok(!!title && title.style.color === "rgb(255, 255, 255)", "the title is white on blue, so it stays readable in both themes");
+  }
+  const close = qsa("button").find(b => b.getAttribute("aria-label") === "Close");
+  ok(!!close, "the close control is labelled for assistive technology");
+  if (close) { click(close); ok(closed, "the close control closes the menu"); }
+
+  const heading = qsa(".menu-heading")[0];
+  ok(!!heading && /Treasury/.test(heading.textContent), "section headings sit on a rule with the diamond mark");
+  ok(G.BAND === "#003399", "the band colour is fixed, so light and dark menus match");
+
+  // the management dock uses the same language for its tabs
+  const sector = { id:"digital", name:"Digital", color:"#38bdf8", icon:"display" };
+  render(null);
+  render(React.createElement(G.Game, { gs: G.initState("Austria", "Steiermark", sector), dispatch: () => {}, vw: 1280, onRestart: () => {} }));
+  const tabs = qsa('[role="tablist"] button');
+  ok(tabs.length === 4, "the dock offers its four menus as tabs");
+  const active = tabs.filter(b => b.getAttribute("aria-pressed") === "true");
+  ok(active.length === 1 && (active[0].style.background === rgb || active[0].style.backgroundColor === rgb), "the open tab is a solid blue block");
+  const idle = tabs.find(b => b.getAttribute("aria-pressed") !== "true");
+  if (idle) {
+    click(idle);
+    const now = qsa('[role="tablist"] button').filter(b => b.getAttribute("aria-pressed") === "true");
+    ok(now.length === 1 && now[0].textContent === idle.textContent, "choosing another tab moves the block to it");
+  }
+}
+
 /* ── the painted map: neighbours, candidates and banners ──── */
 {
   const sector = { id:"mobility_transport", name:"Mobility, Transport, Automotive", color:"#2C6EC4", icon:"car" };

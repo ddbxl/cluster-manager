@@ -3862,8 +3862,19 @@ function EUMap({ gs, sel, setSel, lift=0 }) {
 /* ═══════════════════════════════════════════════════════════
    UI PRIMITIVES
 ═══════════════════════════════════════════════════════════ */
+/* Menu language: a deep-blue title band closed by a yellow rule, a diamond as
+   the recurring mark, tabs as solid blocks, and section headings that sit on a
+   hairline. The band stays flag blue in both themes so menus read as one family. */
+const BAND = "#003399";
+const Diamond = ({ size=7, color }) => (
+  <span aria-hidden="true" style={{display:"inline-block",width:size,height:size,background:color||P.gold,transform:"rotate(45deg)",flexShrink:0}}/>
+);
 const Lbl = ({ t }) => (
-  <div style={{fontSize:11,color:P.muted,textTransform:"uppercase",letterSpacing:0.6,marginBottom:6,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',fontWeight:600}}>{t}</div>
+  <div className="menu-heading" style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+    <Diamond size={6}/>
+    <span style={{fontSize:11.5,fontWeight:700,color:P.text,whiteSpace:"nowrap"}}>{t}</span>
+    <span aria-hidden="true" style={{flex:1,height:1,background:P.border}}/>
+  </div>
 );
 
 // Animates a displayed number toward its new value (SSR-safe: effects only)
@@ -4339,12 +4350,17 @@ function Modal({ title, icon, iconColor, onClose, children, width=600 }) {
       onClick={e => { if (e.target===e.currentTarget) onClose(); }}
     >
       <div className="modal-in" style={{background:P.panel,maxWidth:phone?"100%":width,width:"100%",border:phone?"none":`1px solid ${P.border}`,maxHeight:phone?"100%":"92vh",height:phone?"100%":"auto",display:"flex",flexDirection:"column",boxShadow:phone?"none":"0 18px 50px rgba(8,20,50,.25)"}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:phone?"16px 16px":"13px 18px",borderBottom:`1px solid ${P.border}`,flexShrink:0}}>
-          <div style={{display:"flex",alignItems:"center",gap:9,fontWeight:700,fontSize:phone?18:15,color:P.text}}>
-            {icon && <Icon name={icon} size={phone?17:15} color={iconColor||P.accent}/>}
-            {title}
+        {/* Title band: flag blue, wide-set title, the icon framed in a diamond */}
+        <div className="menu-band" style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,padding:phone?"13px 14px 13px 18px":"12px 14px 12px 20px",background:BAND,borderBottom:`3px solid ${P.gold}`,flexShrink:0}}>
+          <div style={{display:"flex",alignItems:"center",gap:15,minWidth:0}}>
+            {icon && (
+              <span aria-hidden="true" style={{width:24,height:24,border:"1.5px solid #FFCC00",transform:"rotate(45deg)",display:"inline-flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                <span style={{transform:"rotate(-45deg)",display:"inline-flex"}}><Icon name={icon} size={12} color="#FFFFFF"/></span>
+              </span>
+            )}
+            <span style={{fontSize:phone?16:15,fontWeight:400,letterSpacing:2.2,textTransform:"uppercase",color:"#FFFFFF",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{title}</span>
           </div>
-          <button className="btn" onClick={onClose} style={{background:phone?P.card:"none",border:`1px solid ${P.border}`,color:P.text,borderRadius:0,padding:phone?"7px 12px":"5px 9px",display:"flex",alignItems:"center"}}><Icon name="xmark" size={phone?14:12}/></button>
+          <button className="btn" onClick={onClose} aria-label="Close" style={{background:"transparent",border:"1px solid rgba(255,255,255,.55)",color:"#FFFFFF",padding:phone?"7px 11px":"5px 9px",display:"flex",alignItems:"center",flexShrink:0}}><Icon name="xmark" size={phone?14:12} color="#FFFFFF"/></button>
         </div>
         <div style={{padding:"16px 18px",overflowY:"auto",flex:1}}>{children}</div>
       </div>
@@ -4910,7 +4926,8 @@ function EventModal({ ev, onDismiss }) {
   };
   return (
     <div className="backdrop-in" style={{position:"fixed",inset:0,background:THEME_DARK?"rgba(2,6,16,.72)":"rgba(15,30,60,.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:2000,padding:20}}>
-      <div className="event-in" style={{background:P.panel,borderRadius:0,padding:28,maxWidth:480,width:"100%",border:`2px solid ${col}`,boxShadow:"none"}}>
+      <div className="event-in" style={{background:P.panel,borderRadius:0,padding:"0 28px 28px",maxWidth:480,width:"100%",border:`1px solid ${P.border}`,boxShadow:"none"}}>
+        <div className="menu-band" aria-hidden="true" style={{margin:"0 -28px 22px",height:10,background:BAND,borderBottom:`3px solid ${col}`}}/>
         <div style={{display:"flex",alignItems:"center",gap:6,fontSize:9,fontWeight:700,color:col,textTransform:"uppercase",letterSpacing:3,marginBottom:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}><span className={headAnim} style={{display:"inline-flex"}}><Icon name={headingIcon} size={11} color={col}/></span>{heading}</div>
         <h2 style={{fontSize:20,fontWeight:700,marginBottom:10,color:P.text,lineHeight:1.3}}>{ev.n}</h2>
         <p style={{fontSize:13,color:P.muted,lineHeight:1.75,marginBottom:16}}>{ev.d}</p>
@@ -4967,7 +4984,7 @@ function StatsModal({ gs, onClose, dispatch }) {
   const decay    = [2,3,4,5,6,8][gs.stage] ?? 2;
   const next     = STAGES[Math.min(5,gs.stage+1)];
 
-  const Card = ({children, title}) => <div title={title||undefined} style={{background:P.card,borderRadius:0,padding:"11px 13px",border:`1px solid ${P.border}`,cursor:title?"help":"default"}}>{children}</div>;
+  const Card = ({children, title}) => <div title={title||undefined} style={{background:P.card,borderRadius:0,padding:"12px 14px",border:`1px solid ${P.border}`,borderTop:`2px solid ${BAND}`,cursor:title?"help":"default"}}>{children}</div>;
 
   return (
     <Modal title="Cluster Dashboard" icon="gauge-high" iconColor={P.accent} onClose={onClose} width={560}>
@@ -6033,11 +6050,11 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
 
         {/* RIGHT DOCK: Projects / Staff / Network tabs + compact activity & log */}
         <div style={{position:"absolute",right:0,top:0,bottom:0,zIndex:60,width:dockW,display:dockOpen?"flex":"none",flexDirection:"column",background:P.panel,borderLeft:`1px solid ${P.border}`,overflow:"hidden"}}>
-          <div style={{display:"flex",flexShrink:0,borderBottom:`1px solid ${P.border}`}}>
+          <div className="menu-tabs" role="tablist" style={{display:"flex",flexShrink:0,background:P.card,borderBottom:`1px solid ${BAND}`}}>
             {[["projects","folder-open","Projects",P.blue],["staff","users","Staff",P.purple],["network","earth-europe","Network",P.teal],["rivals","chess-knight","Rivals",P.red]].map(([id,icon,lbl,col]) => (
               <button key={id} className="btn" onClick={()=>setRightTab(id)} aria-pressed={rightTab===id}
-                style={{flex:1,padding:"9px 4px",border:"none",borderBottom:`2px solid ${rightTab===id?col:"transparent"}`,background:rightTab===id?`${col}0d`:"transparent",color:rightTab===id?darkHex(col,0.6):P.muted,fontSize:12,display:"flex",alignItems:"center",justifyContent:"center",gap:5}}>
-                <Icon name={icon} size={12} color={rightTab===id?col:P.muted}/>{lbl}
+                style={{flex:1,padding:"10px 4px 8px",border:"none",borderRight:`1px solid ${rightTab===id?BAND:P.border}`,borderBottom:`3px solid ${rightTab===id?P.gold:"transparent"}`,background:rightTab===id?BAND:P.card,color:rightTab===id?"#FFFFFF":P.muted,fontSize:11.5,fontWeight:rightTab===id?700:400,letterSpacing:rightTab===id?0.6:0.2,display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                <Icon name={icon} size={12} color={rightTab===id?"#FFCC00":P.muted}/>{lbl}
               </button>
             ))}
           </div>

@@ -53,7 +53,7 @@ const UI_EXPORTS = [
   "ProjectsModal", "StaffModal", "NetworkModal", "RivalsModal", "RulesModal",
   "EvolveModal", "LogModal", "EventModal", "StatsModal", "ProjCard",
   "DigestCard", "SaveSlots", "Tutorial", "MapLegend", "StageBanner",
-  "ProgressRing", "EmptyState", "FloatingDeltas", "InfoDot", "AttentionQueue",
+  "ProgressRing", "EmptyState", "FloatingDeltas", "InfoDot", "AttentionQueue", "Lbl", "BAND", "Diamond",
   "CSS", "P", "applyTheme", "applyTextScale", "fmt",
 ];
 
