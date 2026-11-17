@@ -35,8 +35,8 @@ function ecosystemAligns(region, ecosystemName) {
 ═══════════════════════════════════════════════════════════ */
 const CSS = `
 *{box-sizing:border-box;margin:0;padding:0}
-html,body,#root{height:100%;background:var(--page-bg,#f0f4fb);overflow:hidden;font-size:13px;line-height:1.5}
-html.dark{--page-bg:#0D1322;--scroll-bg:#1a2338;--scroll-thumb:#3a4a6e}
+html,body,#root{height:100%;background:var(--page-bg,#0C1A3D);overflow:hidden;font-size:13px;line-height:1.5}
+html.dark{--page-bg:#060D21;--scroll-bg:#0E1A3C;--scroll-thumb:#2A3D72}
 body{-webkit-text-size-adjust:100%;text-size-adjust:100%;font-variant-numeric:tabular-nums;overscroll-behavior:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 ::-webkit-scrollbar{width:5px;height:5px;background:var(--scroll-bg,#e4ecf7)}
 ::-webkit-scrollbar-thumb{background:var(--scroll-thumb,#aabdd8)}
@@ -53,21 +53,42 @@ body{-webkit-text-size-adjust:100%;text-size-adjust:100%;font-variant-numeric:ta
 .cut{clip-path:polygon(0 0, calc(100% - 11px) 0, 100% 11px, 100% 100%, 0 100%)}
 .cut-sm{clip-path:polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%)}
 
+/* Glass: every panel is translucent flag-blue laid over the map, softly
+   rounded, with a faint light edge. The map stays visible through it, which is
+   what makes the interface feel like one surface. Forced because panels still
+   carry opaque fills inline. */
+.glass{background:rgba(18,36,84,.84) !important;-webkit-backdrop-filter:blur(14px) saturate(1.15);backdrop-filter:blur(14px) saturate(1.15);border:1px solid rgba(255,255,255,.16) !important;border-radius:10px !important;box-shadow:0 10px 34px rgba(4,10,30,.38) !important}
+html.dark .glass{background:rgba(9,18,46,.88) !important}
+.glass-flat{background:rgba(18,36,84,.90) !important;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-color:rgba(255,255,255,.14) !important}
+html.dark .glass-flat{background:rgba(9,18,46,.92) !important}
+.glass-left > div{background:transparent !important;border:none !important}
+/* Titles: yellow small capitals in a classical serif, set wide. */
+.title-caps{font-family:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;font-variant:small-caps;letter-spacing:2.4px;color:#FFCC00;font-weight:400}
+/* Option cards: a hairline frame that turns yellow under the pointer. */
+.card-btn{background:rgba(255,255,255,.04) !important;border:1px solid rgba(255,255,255,.34) !important;border-radius:6px !important;transition:border-color .12s ease,background .12s ease}
+.card-btn:hover:not(:disabled),.card-btn:focus-visible{border-color:#FFCC00 !important;background:rgba(255,204,0,.10) !important;filter:none;outline:none}
+/* The end-of-quarter control: a medallion with a yellow ring. */
+.orb{width:104px;height:104px;border-radius:50% !important;background:radial-gradient(circle at 50% 35%, #2A4690 0%, #132659 72%) !important;border:2px solid #FFCC00 !important;box-shadow:0 0 0 6px rgba(255,204,0,.16),0 0 0 7px rgba(255,255,255,.14),0 10px 28px rgba(4,10,30,.5) !important;color:#F2F5FB !important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0 !important;text-align:center}
+.orb:hover:not(:disabled){filter:brightness(1.12)}
+.orb:disabled{border-color:#5A6EA8 !important;box-shadow:0 0 0 6px rgba(255,255,255,.06) !important;color:#A8B7DA !important}
+.orb-sm{width:46px;height:46px;border-radius:50% !important;background:rgba(18,36,84,.9) !important;border:1.5px solid rgba(255,255,255,.4) !important;padding:0 !important;display:flex;align-items:center;justify-content:center}
+.orb-sm:hover:not(:disabled){border-color:#FFCC00 !important;filter:none}
+
 /* Inside a menu a button is plain text: no box, no fill. Hovering, focusing or
    pressing it draws an underline. The rules are forced because each button
    still carries its old box styling inline; this strips it in one place. */
-.menu-scope .btn:not(.dot){background:transparent !important;border-color:transparent !important;box-shadow:none !important;clip-path:none !important;padding-left:2px !important;padding-right:2px !important;text-underline-offset:3px;text-decoration-thickness:1.5px}
-.menu-scope .btn:not(.dot):hover:not(:disabled),.menu-scope .btn:not(.dot):focus-visible,.menu-scope .btn:not(.dot):active:not(:disabled){text-decoration:underline;filter:none}
+.menu-scope .btn:not(.dot):not(.card-btn){background:transparent !important;border-color:transparent !important;box-shadow:none !important;clip-path:none !important;padding-left:2px !important;padding-right:2px !important;text-underline-offset:3px;text-decoration-thickness:1.5px}
+.menu-scope .btn:not(.dot):not(.card-btn):hover:not(:disabled),.menu-scope .btn:not(.dot):not(.card-btn):focus-visible,.menu-scope .btn:not(.dot):not(.card-btn):active:not(:disabled){text-decoration:underline;filter:none}
 .menu-scope .btn:disabled{cursor:not-allowed;text-decoration:none}
 .menu-scope .btn:focus-visible{outline:none}
 /* a chosen option stays underlined, in flag yellow */
 .menu-scope .btn[aria-pressed="true"]{text-decoration:underline;text-decoration-color:#FFCC00;text-decoration-thickness:3px}
 /* buttons that were white on a solid fill would vanish without the fill */
-.menu-scope .btn[style*="255, 255, 255"]{color:#003399 !important}
-html.dark .menu-scope .btn[style*="255, 255, 255"]{color:#6D9BFF !important}
+.menu-scope .btn[style*="color: rgb(12, 26, 61)"],.menu-scope .btn[style*="color:#0C1A3D"]{color:#FFCC00 !important}
+html.dark .menu-scope .btn[style*="color: rgb(6, 13, 33)"]{color:#FFCC00 !important}
 /* a button in the ordinary text colour would read as a label, so it takes the action colour */
-.menu-scope .btn[style*="color: rgb(26, 26, 26)"]{color:#003399 !important}
-html.dark .menu-scope .btn[style*="color: rgb(242, 242, 242)"]{color:#6D9BFF !important}
+.menu-scope .btn[style*="color: rgb(242, 245, 251)"]{color:#FFCC00 !important}
+html.dark .menu-scope .btn[style*="color: rgb(238, 242, 250)"]{color:#FFCC00 !important}
 .menu-tabs .btn:hover{text-decoration:underline;text-underline-offset:3px;filter:none}
 
 /* Figures line up in columns without a monospace face. */
@@ -94,12 +115,11 @@ html.dark .float-delta{--delta-halo:rgba(5,10,20,.92)}
 /* The wordmark is solid Reflex Blue. It was gradient-filled text, which depends
    on clipping a background to the glyphs and leaves the title invisible whenever
    that clip does not apply. Flat colour cannot fail, and suits the rest. */
-.brand-title{color:#003399}
-html.dark .brand-title{color:#6D9BFF}
+.brand-title{color:#FFCC00;font-family:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;font-variant:small-caps;letter-spacing:3px !important;font-weight:400 !important}
 /* The map sea fills its whole panel edge-to-edge; the dot grid is a fixed-size CSS
    layer so it stays crisp no matter how the SVG map scales inside it. */
-.map-sea{background:#D3DEE9}
-html.dark .map-sea{background:#0E1820}
+.map-sea{background:#A9C6E2}
+html.dark .map-sea{background:#0B1830}
 .threat-pulse{animation:threatPulse 2.4s ease-in-out infinite}
 @keyframes threatPulse{0%,100%{box-shadow:0 0 0 0 var(--threat)}50%{box-shadow:0 0 0 3px color-mix(in srgb, var(--threat) 22%, transparent)}}
 
@@ -138,29 +158,27 @@ input[type=range]{width:100%;accent-color:#3860ED;cursor:pointer}
    PALETTE
 ═══════════════════════════════════════════════════════════ */
 // EU Commission colour system (ECL v4); trailing comments name each token.
-/* The two colours of the European flag carry the whole interface: Reflex Blue
-   for anything you can act on, flag yellow reserved for the thing that matters
-   most on screen. Everything else is a true neutral grey. Blue-tinted greys are
-   what make an interface read as generic software rather than an institution. */
+/* The interface is deep flag-blue glass laid over a bright map, with flag
+   yellow for titles and for anything you can act on, and near-white for
+   reading text. Semantic colours are lifted so they stay legible on navy. */
 const P = {
-  bg:"#EDEDED",     panel:"#FFFFFF",   card:"#F7F7F7",   border:"#BFBFBF",
-  bright:"#DEDEDE", text:"#1A1A1A",    muted:"#5C5C5C",
-  accent:"#003399", blue:"#003399",    gold:"#FFCC00",   // EU flag blue and yellow
-  red:"#B7241B",    orange:"#C96A00",  green:"#1B7A3D",
-  purple:"#5B4B8A", teal:"#2C6EC4",                      // only to tell rivals apart on the map
-  // Small text needs darker variants of yellow, green and red to stay legible.
-  goldText:"#6B5200", greenText:"#14612F", redText:"#8F1C15",
+  bg:"#0C1A3D",     panel:"#16295C",   card:"#1D3470",   border:"#3A5196",
+  bright:"#28427F", text:"#F2F5FB",    muted:"#A8B7DA",
+  accent:"#FFCC00", blue:"#7FA6FF",    gold:"#FFCC00",
+  red:"#FF6F61",    orange:"#FFA84A",  green:"#52D18C",
+  purple:"#B9A0FF", teal:"#73C5FF",
+  goldText:"#FFD84D", greenText:"#7EE2AA", redText:"#FF9389",
+  onAccent:"#0C1A3D",                  // text and icons sitting on a yellow or bright fill
 };
-const P_LIGHT = { ...P };
+// The darker variant deepens the glass and dims the map with it.
 const P_DARK = {
-  bg:"#121212",     panel:"#1B1B1B",   card:"#242424",   border:"#3D3D3D",
-  bright:"#2E2E2E", text:"#F2F2F2",    muted:"#A3A3A3",
-  // Reflex Blue is too dark to read on black, so the dark theme lifts it and
-  // leans on flag yellow for emphasis instead.
-  accent:"#6D9BFF", blue:"#6D9BFF",    gold:"#FFCC00",
-  red:"#FF7268",    orange:"#FFA633",  green:"#45C26B",
-  purple:"#A78BFA", teal:"#7D9BFF",
-  goldText:"#FFD84D", greenText:"#6FDA92", redText:"#FF968E",
+  bg:"#060D21",     panel:"#0E1A3C",   card:"#14234C",   border:"#2A3D72",
+  bright:"#1B2E5E", text:"#EEF2FA",    muted:"#97A7CC",
+  accent:"#FFCC00", blue:"#7FA6FF",    gold:"#FFCC00",
+  red:"#FF6F61",    orange:"#FFA84A",  green:"#52D18C",
+  purple:"#B9A0FF", teal:"#73C5FF",
+  goldText:"#FFD84D", greenText:"#7EE2AA", redText:"#FF9389",
+  onAccent:"#060D21",
 };
 let THEME_DARK = false;
 function applyTextScale(big) {
@@ -3702,17 +3720,17 @@ function EUMap({ gs, sel, setSel, lift=0 }) {
       <rect x={0} y={0} width={MAP_W} height={MAP_H} fill="transparent" onClick={() => setSel && setSel(null)}/>
 
       {/* Neighbouring land, then candidate countries, then the Union on top */}
-      <path d={NEIGHBOUR_LAND} fill={THEME_DARK ? "#242424" : "#E4E4E1"} stroke={THEME_DARK ? "#333333" : "#CFCFCA"} strokeWidth={0.5} strokeLinejoin="round" pointerEvents="none"/>
-      <path d={CANDIDATE_LAND} fill={THEME_DARK ? "#353016" : "#F2E9BF"} stroke={THEME_DARK ? "#5A5020" : "#D6C678"} strokeWidth={0.5} strokeLinejoin="round" pointerEvents="none"/>
+      <path d={NEIGHBOUR_LAND} fill={THEME_DARK ? "#1C2A3F" : "#D7D3C2"} stroke={THEME_DARK ? "#2B3B55" : "#BDB8A4"} strokeWidth={0.5} strokeLinejoin="round" pointerEvents="none"/>
+      <path d={CANDIDATE_LAND} fill={THEME_DARK ? "#3F3A1E" : "#F3E4A3"} stroke={THEME_DARK ? "#6B6128" : "#CDB95E"} strokeWidth={0.5} strokeLinejoin="round" pointerEvents="none"/>
 
       {/* NUTS-2 basemap: every region is a real border polygon. Active regions fill with the sector colour. */}
-      <g stroke={THEME_DARK ? "#4A4A4A" : "#B5B5B5"} strokeWidth={0.4} strokeLinejoin="round" pointerEvents="none">
+      <g stroke={THEME_DARK ? "#4B5E80" : "#A9A48F"} strokeWidth={0.4} strokeLinejoin="round" pointerEvents="none">
         {Object.entries(NUTS2_PATHS).map(([k, d]) => {
           const isHome = homeNuts && nutsMatch(k, homeNuts);
           const active = isHome || codes.some(c => nutsMatch(k, c));
           const iso    = nutsToIso(k.slice(0,2));
           const full   = fullSet.has(iso);
-          const fill   = isHome ? `${P.gold}B0` : active ? (full ? `${sc}A8` : `${sc}66`) : (THEME_DARK ? "#303030" : "#FCFCFC");
+          const fill   = isHome ? `${P.gold}B0` : active ? (full ? `${sc}A8` : `${sc}66`) : (THEME_DARK ? "#2A3B58" : "#F6F2E3");
           const pop    = popCode && nutsMatch(k, popCode);
           return <path key={k} d={d} fill={fill}
             className={pop ? "map-new" : isHome ? "map-home" : undefined}
@@ -3887,10 +3905,9 @@ const Diamond = ({ size=7, color }) => (
   <span aria-hidden="true" style={{display:"inline-block",width:size,height:size,background:color||P.gold,transform:"rotate(45deg)",flexShrink:0}}/>
 );
 const Lbl = ({ t }) => (
-  <div className="menu-heading" style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
-    <Diamond size={6}/>
-    <span style={{fontSize:11.5,fontWeight:700,color:P.text,whiteSpace:"nowrap"}}>{t}</span>
-    <span aria-hidden="true" style={{flex:1,height:1,background:P.border}}/>
+  <div className="menu-heading" style={{display:"flex",alignItems:"center",gap:9,marginBottom:8}}>
+    <span className="title-caps" style={{fontSize:13.5,letterSpacing:1.6,whiteSpace:"nowrap"}}>{t}</span>
+    <span aria-hidden="true" style={{flex:1,height:1,background:"rgba(255,255,255,.22)"}}/>
   </div>
 );
 
@@ -4366,18 +4383,16 @@ function Modal({ title, icon, iconColor, onClose, children, width=600 }) {
       style={{position:"fixed",inset:0,background:THEME_DARK?"rgba(2,6,16,.7)":"rgba(15,30,60,.55)",display:"flex",alignItems:phone?"stretch":"center",justifyContent:"center",zIndex:1000,padding:phone?0:20}}
       onClick={e => { if (e.target===e.currentTarget) onClose(); }}
     >
-      <div className="modal-in" style={{background:P.panel,maxWidth:phone?"100%":width,width:"100%",border:phone?"none":`1px solid ${P.border}`,maxHeight:phone?"100%":"92vh",height:phone?"100%":"auto",display:"flex",flexDirection:"column",boxShadow:phone?"none":"0 18px 50px rgba(8,20,50,.25)"}}>
-        {/* Title band: flag blue, wide-set title, the icon framed in a diamond */}
-        <div className="menu-band" style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,padding:phone?"13px 14px 13px 18px":"12px 14px 12px 20px",background:BAND,borderBottom:`3px solid ${P.gold}`,flexShrink:0}}>
-          <div style={{display:"flex",alignItems:"center",gap:15,minWidth:0}}>
-            {icon && (
-              <span aria-hidden="true" style={{width:24,height:24,border:"1.5px solid #FFCC00",transform:"rotate(45deg)",display:"inline-flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                <span style={{transform:"rotate(-45deg)",display:"inline-flex"}}><Icon name={icon} size={12} color="#FFFFFF"/></span>
-              </span>
-            )}
-            <span style={{fontSize:phone?16:15,fontWeight:400,letterSpacing:2.2,textTransform:"uppercase",color:"#FFFFFF",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{title}</span>
+      <div className="modal-in glass" style={{background:P.panel,maxWidth:phone?"100%":width,width:"100%",border:phone?"none":`1px solid ${P.border}`,maxHeight:phone?"100%":"92vh",height:phone?"100%":"auto",display:"flex",flexDirection:"column",boxShadow:phone?"none":"0 18px 50px rgba(8,20,50,.25)"}}>
+        {/* Title: centred small capitals over a hairline with the diamond at its middle */}
+        <div className="menu-band" style={{position:"relative",padding:phone?"18px 52px 12px":"20px 56px 12px",textAlign:"center",flexShrink:0}}>
+          <div className="title-caps" style={{fontSize:phone?21:23,lineHeight:1.15,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{title}</div>
+          <div aria-hidden="true" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10,marginTop:9}}>
+            <span style={{width:"22%",maxWidth:120,height:1,background:"rgba(255,255,255,.45)"}}/>
+            <Diamond size={7}/>
+            <span style={{width:"22%",maxWidth:120,height:1,background:"rgba(255,255,255,.45)"}}/>
           </div>
-          <button className="btn" onClick={onClose} aria-label="Close" style={{background:"transparent",border:"1px solid rgba(255,255,255,.55)",color:"#FFFFFF",padding:phone?"7px 11px":"5px 9px",display:"flex",alignItems:"center",flexShrink:0}}><Icon name="xmark" size={phone?14:12} color="#FFFFFF"/></button>
+          <button className="btn" onClick={onClose} aria-label="Close" style={{position:"absolute",top:phone?12:14,right:phone?12:14,background:"transparent",border:"1px solid rgba(255,255,255,.5)",borderRadius:4,color:"#FFFFFF",padding:"6px 8px",display:"flex",alignItems:"center"}}><Icon name="xmark" size={12} color="#FFFFFF"/></button>
         </div>
         <div className="menu-scope" style={{padding:"16px 18px",overflowY:"auto",flex:1}}>{children}</div>
       </div>
@@ -4463,7 +4478,7 @@ function ProjCard({ p, gs, failRate, onStart }) {
       <div style={{fontSize:10,color:P.muted,marginBottom:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',lineHeight:1.6}}>
         Delivery costs <span style={{color:P.redText}}>{fmt(spendQ)}/Q for {p.dur}Q</span>, of which interim payments reimburse {Math.round(INTERIM_RATE*100)}% as you go · success pays the balance plus <span style={{color:P.greenText}}>≈{fmt(expGain)} margin</span> · failure is audited down to {Math.round(FAIL_RECOVERY*100)}% of costs (clawback)
       </div>
-      <button className="btn" disabled={gs && (gs.budget||0) < need} onClick={() => onStart(p, partners)} style={{padding:"6px 14px",borderRadius:0,border:"none",background:cc,color:"#fff",fontWeight:700,fontSize:12,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Launch · invest {fmt(spendQ)}/Q <Icon name="arrow-right" size={11} color="#fff" style={{marginLeft:5}}/></button>
+      <button className="btn" disabled={gs && (gs.budget||0) < need} onClick={() => onStart(p, partners)} style={{padding:"6px 14px",borderRadius:0,border:"none",background:cc,color:P.onAccent,fontWeight:700,fontSize:12,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Launch · invest {fmt(spendQ)}/Q <Icon name="arrow-right" size={11} color={P.onAccent} style={{marginLeft:5}}/></button>
     </div>
   );
 }
@@ -4882,7 +4897,7 @@ function EvolveModal({ gs, dispatch, onClose }) {
         Evolution cost: <strong style={{color:P.red}}>{fmt(cost)}</strong>
       </div>
       <button className="btn" disabled={!ok} onClick={() => { dispatch({type:"evolve"}); onClose(); }} style={{width:"100%",padding:13,borderRadius:0,border:"none",background:ok?`linear-gradient(135deg,${stage.color},${next.color})`:P.bright,color:ok?"#fff":P.muted,fontWeight:700,fontSize:15,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
-        {ok ? <><Icon name="rocket" size={15} color="#fff" style={{marginRight:7}}/>Evolve Now</> : "Requirements Not Met"}
+        {ok ? <><Icon name="rocket" size={15} color={P.onAccent} style={{marginRight:7}}/>Evolve Now</> : "Requirements Not Met"}
       </button>
     </Modal>
   );
@@ -4943,10 +4958,12 @@ function EventModal({ ev, onDismiss }) {
   };
   return (
     <div className="backdrop-in" style={{position:"fixed",inset:0,background:THEME_DARK?"rgba(2,6,16,.72)":"rgba(15,30,60,.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:2000,padding:20}}>
-      <div className="event-in menu-scope" style={{background:P.panel,borderRadius:0,padding:"0 28px 28px",maxWidth:480,width:"100%",border:`1px solid ${P.border}`,boxShadow:"none"}}>
-        <div className="menu-band" aria-hidden="true" style={{margin:"0 -28px 22px",height:10,background:BAND,borderBottom:`3px solid ${col}`}}/>
+      <div className="event-in menu-scope glass" style={{padding:"26px 30px 28px",maxWidth:520,width:"100%"}}>
         <div style={{display:"flex",alignItems:"center",gap:6,fontSize:9,fontWeight:700,color:col,textTransform:"uppercase",letterSpacing:3,marginBottom:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}><span className={headAnim} style={{display:"inline-flex"}}><Icon name={headingIcon} size={11} color={col}/></span>{heading}</div>
-        <h2 style={{fontSize:20,fontWeight:700,marginBottom:10,color:P.text,lineHeight:1.3}}>{ev.n}</h2>
+        <h2 className="title-caps" style={{fontSize:24,marginBottom:6,lineHeight:1.2,textAlign:"center"}}>{ev.n}</h2>
+        <div aria-hidden="true" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10,marginBottom:14}}>
+          <span style={{width:90,height:1,background:"rgba(255,255,255,.45)"}}/><Diamond size={7} color={col}/><span style={{width:90,height:1,background:"rgba(255,255,255,.45)"}}/>
+        </div>
         <p style={{fontSize:13,color:P.muted,lineHeight:1.75,marginBottom:16}}>{ev.d}</p>
         {!isChoice && lines.length > 0 && (
           <div style={{background:P.bright,borderRadius:0,padding:"10px 14px",marginBottom:20,display:"flex",gap:14,flexWrap:"wrap"}}>
@@ -4959,14 +4976,14 @@ function EventModal({ ev, onDismiss }) {
         {isChoice ? (
           <div style={{display:"flex",flexDirection:"column",gap:10}}>
             {(ev.choices||[]).map((ch, i) => (
-              <button key={i} className="btn" onClick={()=>onDismiss(i)} style={{width:"100%",padding:"12px 16px",borderRadius:0,border:`1.5px solid ${i===0?P.blue:P.border}`,background:i===0?P.blue:P.bright,color:i===0?"#fff":P.text,fontWeight:700,fontSize:14,textAlign:"left",display:"flex",flexWrap:"wrap",justifyContent:"space-between",alignItems:"center",columnGap:12,rowGap:4,minWidth:0}}>
+              <button key={i} className="btn card-btn" onClick={()=>onDismiss(i)} style={{width:"100%",padding:"13px 16px",color:P.text,fontWeight:400,letterSpacing:.4,fontSize:14,textAlign:"left",display:"flex",flexWrap:"wrap",justifyContent:"space-between",alignItems:"center",columnGap:12,rowGap:4,minWidth:0}}>
                 <span style={{flexShrink:0}}>{ch.label}</span>
                 <span style={{fontSize:10,opacity:0.75,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',textAlign:"right",flex:"1 1 auto",minWidth:0,overflowWrap:"anywhere",lineHeight:1.5}}>{fxLine(ch.fx||{})}</span>
               </button>
             ))}
           </div>
         ) : (
-          <button className="btn" onClick={()=>onDismiss(null)} style={{width:"100%",padding:13,borderRadius:0,border:"none",background:col,color:"#fff",fontWeight:700,fontSize:15}}>
+          <button className="btn card-btn" onClick={()=>onDismiss(null)} style={{display:"block",margin:"0 auto",minWidth:210,padding:"10px 26px",color:P.text,fontWeight:400,fontSize:12,letterSpacing:2,textTransform:"uppercase"}}>
             {isGood ? "Accept" : "Acknowledge"}
           </button>
         )}
@@ -5001,7 +5018,7 @@ function StatsModal({ gs, onClose, dispatch }) {
   const decay    = [2,3,4,5,6,8][gs.stage] ?? 2;
   const next     = STAGES[Math.min(5,gs.stage+1)];
 
-  const Card = ({children, title}) => <div title={title||undefined} style={{background:P.card,borderRadius:0,padding:"12px 14px",border:`1px solid ${P.border}`,borderTop:`2px solid ${BAND}`,cursor:title?"help":"default"}}>{children}</div>;
+  const Card = ({children, title}) => <div title={title||undefined} style={{background:P.card,borderRadius:0,padding:"12px 14px",border:"1px solid rgba(255,255,255,.12)",borderRadius:6,cursor:title?"help":"default"}}>{children}</div>;
 
   return (
     <Modal title="Cluster Dashboard" icon="gauge-high" iconColor={P.accent} onClose={onClose} width={560}>
@@ -5495,7 +5512,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                   </div>
                   <div style={{fontSize:10,color:P.muted,marginTop:10,lineHeight:1.4}}>Scenario <strong style={{color:P.goldText}}>{SCENARIOS.find(x=>x.id===scenario)?.name}</strong>{seed?` · seed "${seed.trim()}"`:""} — change these on the first step.</div>
                   <button className="btn cut" onClick={() => onStart(country, region, sector, diff, scenario, seed.trim(), clusterName.trim())} style={{marginTop:10,width:"100%",padding:13,borderRadius:0,background:`${P.accent}`,color:P.bg,fontWeight:700,fontSize:15,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',letterSpacing:.3}}>
-                    <Icon name={sector.icon} size={14} color="#fff" style={{marginRight:6}}/> Launch {sector.name} cluster in {region} <Icon name="arrow-right" size={12} color="#fff" style={{marginLeft:6}}/>
+                    <Icon name={sector.icon} size={14} color={P.onAccent} style={{marginRight:6}}/> Launch {sector.name} cluster in {region} <Icon name="arrow-right" size={12} color={P.onAccent} style={{marginLeft:6}}/>
                   </button>
                 </>
               )}
@@ -5534,7 +5551,7 @@ function MapLegend({ gs }) {
   return (
     <div style={{position:"absolute",left:8,bottom:8,zIndex:35,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
       {open ? (
-        <div className="event-in" style={{background:P.panel,border:`1px solid ${P.border}`,borderRadius:0,padding:"9px 11px",boxShadow:"none",minWidth:172}}>
+        <div className="event-in glass" style={{padding:"9px 11px",minWidth:172}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
             <span style={{fontSize:9,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.8,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Map key</span>
             <button className="btn" onClick={()=>setOpen(false)} aria-label="Close map key" style={{border:"none",background:"none",color:P.muted,fontSize:13,lineHeight:1,cursor:"pointer",padding:0,width:16,height:16}}>×</button>
@@ -5542,9 +5559,9 @@ function MapLegend({ gs }) {
           <Item swatch={box(`${P.gold}B0`, P.gold)} label="Home region"/>
           <Item swatch={box(`${sc}A8`, sc)} label="Full national coverage"/>
           <Item swatch={box(`${sc}66`, sc)} label="Active region"/>
-          <Item swatch={box(THEME_DARK?"#303030":"#FCFCFC", "#B5B5B5")} label="Unexplored"/>
-          <Item swatch={box(THEME_DARK?"#353016":"#F2E9BF", THEME_DARK?"#5A5020":"#D6C678")} label="Candidate country"/>
-          <Item swatch={box(THEME_DARK?"#242424":"#E4E4E1", THEME_DARK?"#333333":"#CFCFCA")} label="Outside the Union"/>
+          <Item swatch={box(THEME_DARK?"#2A3B58":"#F6F2E3", "#A9A48F")} label="Unexplored"/>
+          <Item swatch={box(THEME_DARK?"#3F3A1E":"#F3E4A3", THEME_DARK?"#6B6128":"#CDB95E")} label="Candidate country"/>
+          <Item swatch={box(THEME_DARK?"#1C2A3F":"#D7D3C2", THEME_DARK?"#2B3B55":"#BDB8A4")} label="Outside the Union"/>
           {rivals.length > 0 && (
             <Item swatch={<span style={{display:"inline-block",width:14,height:10,borderRadius:0,border:`1px solid ${rivals[0].color}`,background:`repeating-linear-gradient(45deg, ${rivals[0].color}44 0 2px, transparent 2px 4px)`}}/>} label="Rival territory"/>
           )}
@@ -5594,7 +5611,7 @@ function DigestCard({ gs, digestOn, reopenTick, onDigestToggle }) {
     );
   };
   return (
-    <div className="event-in" style={{position:"absolute",top:8,right:8,zIndex:40,width:expanded?250:210,maxWidth:"calc(100% - 16px)",background:P.panel,border:`1px solid ${d.evolved?P.gold:P.border}`,borderRadius:0,boxShadow:"none",overflow:"hidden"}}>
+    <div className="event-in glass" style={{position:"absolute",top:8,right:8,zIndex:40,width:expanded?250:210,maxWidth:"calc(100% - 16px)",background:P.panel,border:`1px solid ${d.evolved?P.gold:P.border}`,borderRadius:0,boxShadow:"none",overflow:"hidden"}}>
       <button className="btn" onClick={() => setExpanded(e=>!e)} aria-expanded={expanded} style={{width:"100%",textAlign:"left",background:"none",border:"none",padding:"8px 26px 8px 10px",cursor:"pointer",display:"block"}}>
         <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:5,paddingRight:18}}>
           <Icon name="clipboard-check" size={11} color={P.accent}/>
@@ -5696,7 +5713,7 @@ function Tutorial({ gs }) {
       <div style={{display:"flex",gap:6,justifyContent:"flex-end"}}>
         <button className="btn" onClick={() => setStep(finish())} style={{padding:"4px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:10}}>Skip tutorial</button>
         {(step === 0 || step === TUT_STEPS.length-1) && (
-          <button className="btn" onClick={() => step === 0 ? setStep(1) : setStep(finish())} style={{padding:"4px 12px",borderRadius:0,border:"none",background:P.accent,color:"#fff",fontSize:10,fontWeight:700}}>{step===0?"Start":"Got it"}</button>
+          <button className="btn" onClick={() => step === 0 ? setStep(1) : setStep(finish())} style={{padding:"4px 12px",borderRadius:0,border:"none",background:P.accent,color:P.onAccent,fontSize:10,fontWeight:700}}>{step===0?"Start":"Got it"}</button>
         )}
       </div>
     </div>
@@ -5714,7 +5731,7 @@ function AttentionQueue({ items, onGo, compact }) {
       <div role="list" aria-label="Things that could use your attention" style={{flexShrink:0,display:"flex",gap:6,padding:"6px 10px",overflowX:"auto",background:P.panel,borderTop:`1px solid ${P.border}`}}>
         {shown.map(it => (
           <button key={it.id} role="listitem" className="btn" onClick={()=>onGo(it.go)}
-            style={{flexShrink:0,maxWidth:240,textAlign:"left",padding:"6px 9px 6px 8px",border:`1px solid ${P.border}`,borderLeft:`4px solid ${it.urgent?P.gold:P.accent}`,background:P.card,color:P.text,fontSize:10.5,fontWeight:it.urgent?700:400,lineHeight:1.3,whiteSpace:"normal"}}>
+            style={{flexShrink:0,maxWidth:240,textAlign:"left",padding:"6px 9px 6px 8px",border:`1px solid ${P.border}`,borderLeft:`4px solid ${it.urgent?P.gold:P.blue}`,borderRadius:5,background:P.card,color:P.text,fontSize:10.5,fontWeight:it.urgent?700:400,lineHeight:1.3,whiteSpace:"normal"}}>
             {it.text}
           </button>
         ))}
@@ -5723,10 +5740,10 @@ function AttentionQueue({ items, onGo, compact }) {
   }
   return (
     <div role="list" aria-label="Things that could use your attention" style={{position:"absolute",top:10,left:10,zIndex:44,width:268,display:"flex",flexDirection:"column",gap:4}}>
-      <div style={{fontSize:10,fontWeight:700,color:P.muted,padding:"0 2px 1px"}}>Before you end the quarter</div>
+      <div className="title-caps" style={{fontSize:12.5,color:"#16295C",textShadow:"0 0 6px rgba(255,255,255,.9)",padding:"0 2px 1px",fontWeight:700}}>Before you end the quarter</div>
       {shown.map(it => (
         <button key={it.id} role="listitem" className="btn" onClick={()=>onGo(it.go)}
-          style={{textAlign:"left",padding:"7px 10px 7px 9px",border:`1px solid ${P.border}`,borderLeft:`4px solid ${it.urgent?P.gold:P.accent}`,background:P.panel,color:P.text,fontSize:11,fontWeight:it.urgent?700:400,lineHeight:1.35}}>
+          style={{textAlign:"left",padding:"7px 10px 7px 9px",border:"1px solid rgba(255,255,255,.16)",borderLeft:`4px solid ${it.urgent?P.gold:P.blue}`,borderRadius:6,background:"rgba(18,36,84,.86)",backdropFilter:"blur(10px)",WebkitBackdropFilter:"blur(10px)",color:P.text,fontSize:11,fontWeight:it.urgent?700:400,lineHeight:1.35}}>
           {it.text}
         </button>
       ))}
@@ -5813,7 +5830,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
       <div style={{fontSize:11,color:P.muted,lineHeight:1.6,marginBottom:6}}>Watch <b style={{color:P.text}}>Treasury</b>, <b style={{color:P.text}}>Board</b> and the <b style={{color:P.text}}>rival race</b> each quarter. Any one hitting zero, or a rival finishing first, ends the run.</div>
       <div style={{fontSize:11,color:P.muted,lineHeight:1.6,marginBottom:6}}>• The project strip on screen shows each call's status live: green is on track, red is at risk of running out of cash before it finishes.</div>
       <div style={{fontSize:11,color:P.muted,lineHeight:1.6,marginBottom:10}}>• Hire the specialist a project needs before launching it, and tap any country on the map for details.</div>
-      <button className="btn" onClick={()=>setShowTip(false)} style={{width:"100%",padding:"9px",borderRadius:0,border:"none",background:P.accent,color:"#fff",fontWeight:700,fontSize:12}}>Got it, let's go <Icon name="arrow-right" size={11} color="#fff" style={{marginLeft:5}}/></button>
+      <button className="btn" onClick={()=>setShowTip(false)} style={{width:"100%",padding:"9px",borderRadius:0,border:"none",background:P.accent,color:P.onAccent,fontWeight:700,fontSize:12}}>Got it, let's go <Icon name="arrow-right" size={11} color={P.onAccent} style={{marginLeft:5}}/></button>
     </div>
   );
 
@@ -5937,8 +5954,8 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
             <button className="btn" onClick={()=>{
                 if(gs.pendingEvent?.choices) return; // choices use EventModal buttons
                 dispatch({type:"dismissEvent",choiceIdx:null});
-              }} style={{flex:1,padding:"13px",borderRadius:0,border:"none",background:`linear-gradient(135deg,${P.orange},${P.red})`,color:"#fff",fontWeight:700,fontSize:15}}>
-              <Icon name="bolt" size={14} color="#fff" style={{marginRight:6}}/> {gs.pendingEvent?.choices ? "Decide below ↑" : "Resolve Event"}
+              }} style={{flex:1,padding:"13px",borderRadius:0,border:"none",background:`linear-gradient(135deg,${P.orange},${P.red})`,color:P.onAccent,fontWeight:700,fontSize:15}}>
+              <Icon name="bolt" size={14} color={P.onAccent} style={{marginRight:6}}/> {gs.pendingEvent?.choices ? "Decide below ↑" : "Resolve Event"}
             </button>
           ) : (
             <>
@@ -5977,7 +5994,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
       {sharedModals}
 
       {/* TOP BAR */}
-      <div style={{background:P.panel,borderBottom:`1px solid ${P.border}`,padding:"8px 16px",display:"flex",alignItems:"center",gap:14,flexShrink:0,flexWrap:"wrap"}}>
+      <div className="glass-flat" style={{background:P.panel,borderBottom:`1px solid ${P.border}`,padding:"8px 16px",display:"flex",alignItems:"center",gap:14,flexShrink:0,flexWrap:"wrap"}}>
         <div style={{display:"flex",alignItems:"center",gap:8}}>
           <Icon name={gs.sector?.icon||"display"} size={18} color={gs.sector?.color||P.text}/>
           <div>
@@ -6030,44 +6047,50 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
       <div className="map-sea" style={{flex:1,position:"relative",overflow:"hidden"}}>
         {/* The map and its overlays live in the space the open panels leave free,
             so nothing of Europe is hidden and the map recentres as panels fold. */}
-        <div style={{position:"absolute",top:0,bottom:0,left:leftOpen?215:0,right:dockOpen?dockW:0,transition:"left .18s ease,right .18s ease"}}>
-          <EUMap gs={gs} sel={sel} setSel={setSel} lift={62}/>
+        <div style={{position:"absolute",top:0,bottom:0,left:leftOpen?231:0,right:dockOpen?dockW+16:0,transition:"left .18s ease,right .18s ease"}}>
+          <EUMap gs={gs} sel={sel} setSel={setSel} lift={150}/>
           <DigestCard gs={gs} digestOn={digestOn} reopenTick={digestReopen} onDigestToggle={onDigestToggle}/>
           <MapLegend gs={gs}/>
           {tipCard}
           <AttentionQueue items={attention} onGo={goTo}/>
-          {/* Turn controls sit on the map, bottom right, where the eye ends up */}
-          <div style={{position:"absolute",right:12,bottom:12,zIndex:45,display:"flex",alignItems:"stretch",gap:8}}>
-            <BotBtn id="evolve" label={(() => {
-              // Stage goals at a glance: how many of the next stage's conditions are met
-              const reqs = evolveReqs(gs); const met = reqs.filter(r => r.ok).length;
-              return ok ? "Evolve now" : (gs.stage||0) >= 5 ? "Final stage" : `Stage goals ${met}/${reqs.length}`;
-            })()} color={ok?P.goldText:P.muted} highlight={ok}/>
-            <button className="btn" onClick={()=>setAuto(a=>!a)} disabled={!!gs.pendingEvent} title="Advance quarters automatically until something needs you"
-              style={{padding:"0 13px",border:`1px solid ${auto?P.accent:P.border}`,background:P.panel,color:auto?P.accent:P.muted,fontSize:11,fontWeight:700,opacity:gs.pendingEvent?0.5:1}}>
+          {/* Turn controls: a medallion ends the quarter, with the smaller controls beside it */}
+          <div style={{position:"absolute",right:16,bottom:14,zIndex:45,display:"flex",alignItems:"flex-end",gap:12}}>
+            <button className="btn glass" onClick={() => setModal("evolve")} title="What the next stage requires"
+              style={{padding:"8px 14px",color:ok?P.gold:P.text,fontSize:11.5,fontWeight:ok?700:400,letterSpacing:.4,marginBottom:6}}>
+              {(() => {
+                // Stage goals at a glance: how many of the next stage's conditions are met
+                const reqs = evolveReqs(gs); const met = reqs.filter(r => r.ok).length;
+                return ok ? "Evolve now" : (gs.stage||0) >= 5 ? "Final stage" : `Stage goals ${met}/${reqs.length}`;
+              })()}
+            </button>
+            <button className="btn orb-sm" onClick={()=>setAuto(a=>!a)} disabled={!!gs.pendingEvent} title="Advance quarters automatically until something needs you" aria-pressed={!!auto}
+              style={{color:auto?P.gold:P.text,fontSize:10,fontWeight:700,marginBottom:6,opacity:gs.pendingEvent?0.5:1}}>
               {auto ? "Pause" : "Auto"}
             </button>
-            <button className="btn cut" onClick={() => dispatch({type:"nextTurn"})} disabled={!!gs.pendingEvent}
-              style={{padding:"11px 26px 11px 20px",border:"none",background:gs.pendingEvent?P.bright:P.accent,color:gs.pendingEvent?P.muted:"#fff",fontWeight:700,fontSize:14,textAlign:"left",minWidth:168}}>
-              <div>{gs.pendingEvent ? "Resolve event first" : byRole(gs.roster,"manager")<1 ? "Hire a General Manager" : "Next Quarter"}</div>
-              <div style={{fontSize:10,fontWeight:400,opacity:.85,marginTop:2}}>
+            <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:7}}>
+              <button className="btn orb" onClick={() => dispatch({type:"nextTurn"})} disabled={!!gs.pendingEvent || byRole(gs.roster,"manager")<1}
+                aria-label={gs.pendingEvent ? "Resolve the event first" : byRole(gs.roster,"manager")<1 ? "Hire a General Manager first" : "Next Quarter"}>
+                <span className="title-caps" style={{fontSize:15,lineHeight:1.05,color:"inherit",letterSpacing:1.5}}>{gs.pendingEvent ? "Event" : byRole(gs.roster,"manager")<1 ? "No GM" : "Next"}</span>{" "}
+                <span className="title-caps" style={{fontSize:15,lineHeight:1.05,color:"inherit",letterSpacing:1.5}}>{gs.pendingEvent ? "first" : byRole(gs.roster,"manager")<1 ? "hire one" : "Quarter"}</span>
+              </button>
+              <div className="glass" style={{padding:"3px 11px",fontSize:10.5,color:attention.length?P.gold:P.text,whiteSpace:"nowrap",borderRadius:20}}>
                 {attention.length ? `${attention.length} thing${attention.length===1?"":"s"} could use you first` : `Q${gs.quarter} ${gs.year} · all clear`}
               </div>
-            </button>
+            </div>
           </div>
         </div>
 
-        <div style={{position:"absolute",left:0,top:0,bottom:0,zIndex:60,display:leftOpen?"flex":"none"}}>
+        <div className="glass glass-left" style={{position:"absolute",left:8,top:8,bottom:8,zIndex:60,overflow:"hidden",display:leftOpen?"flex":"none"}}>
           <LeftPanel gs={gs} dispatch={dispatch}/>
         </div>
         <button className="btn" onClick={()=>setLeftOpen(o=>!o)} aria-expanded={leftOpen} aria-label={leftOpen?"Hide the cluster summary":"Show the cluster summary"} title={leftOpen?"Hide the cluster summary":"Show the cluster summary"}
-          style={{position:"absolute",left:leftOpen?215:0,top:"50%",transform:"translateY(-50%)",zIndex:61,width:16,height:54,padding:0,border:`1px solid ${P.border}`,borderLeft:"none",background:P.panel,color:P.muted,fontSize:12,transition:"left .18s ease"}}>{leftOpen?"‹":"›"}</button>
+          style={{position:"absolute",left:leftOpen?225:0,top:"50%",transform:"translateY(-50%)",zIndex:61,width:18,height:58,padding:0,border:"1px solid rgba(255,255,255,.3)",borderRadius:"0 6px 6px 0",background:"rgba(18,36,84,.92)",color:P.gold,fontSize:13,transition:"left .18s ease"}}>{leftOpen?"‹":"›"}</button>
         <button className="btn" onClick={()=>setDockOpen(o=>!o)} aria-expanded={dockOpen} aria-label={dockOpen?"Hide the management panel":"Show the management panel"} title={dockOpen?"Hide the management panel":"Show the management panel"}
-          style={{position:"absolute",right:dockOpen?dockW:0,top:"50%",transform:"translateY(-50%)",zIndex:61,width:16,height:54,padding:0,border:`1px solid ${P.border}`,borderRight:"none",background:P.panel,color:P.muted,fontSize:12,transition:"right .18s ease"}}>{dockOpen?"›":"‹"}</button>
+          style={{position:"absolute",right:dockOpen?dockW+10:0,top:"50%",transform:"translateY(-50%)",zIndex:61,width:18,height:58,padding:0,border:"1px solid rgba(255,255,255,.3)",borderRadius:"6px 0 0 6px",background:"rgba(18,36,84,.92)",color:P.gold,fontSize:13,transition:"right .18s ease"}}>{dockOpen?"›":"‹"}</button>
 
         {/* RIGHT DOCK: Projects / Staff / Network tabs + compact activity & log */}
-        <div style={{position:"absolute",right:0,top:0,bottom:0,zIndex:60,width:dockW,display:dockOpen?"flex":"none",flexDirection:"column",background:P.panel,borderLeft:`1px solid ${P.border}`,overflow:"hidden"}}>
-          <div className="menu-tabs" role="tablist" style={{display:"flex",flexShrink:0,background:P.panel,borderBottom:`1px solid ${P.border}`}}>
+        <div className="glass" style={{position:"absolute",right:8,top:8,bottom:8,zIndex:60,width:dockW,display:dockOpen?"flex":"none",flexDirection:"column",background:P.panel,borderLeft:`1px solid ${P.border}`,overflow:"hidden"}}>
+          <div className="menu-tabs" role="tablist" style={{display:"flex",flexShrink:0,background:"transparent",borderBottom:"1px solid rgba(255,255,255,.18)"}}>
             {[["projects","folder-open","Projects",P.blue],["staff","users","Staff",P.purple],["network","earth-europe","Network",P.teal],["rivals","chess-knight","Rivals",P.red]].map(([id,icon,lbl,col]) => (
               <button key={id} className="btn" onClick={()=>setRightTab(id)} aria-pressed={rightTab===id}
                 style={{flex:1,padding:"11px 4px 8px",border:"none",borderBottom:`3px solid ${rightTab===id?P.gold:"transparent"}`,background:"transparent",color:rightTab===id?P.accent:P.muted,fontSize:12.5,fontWeight:rightTab===id?700:400}}>

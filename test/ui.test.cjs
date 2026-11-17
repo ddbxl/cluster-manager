@@ -341,19 +341,22 @@ const click = (el) => act(() => {
   ok(!/\.btn:hover[^}]*box-shadow:0/.test(G.CSS), "buttons no longer cast a shadow on hover");
   ok(/\.btn:focus-visible/.test(G.CSS), "keyboard focus stays visible");
 
-  // Colour: the European flag, and true neutral greys. Blue-tinted greys are a
-  // large part of what made this read as generic software.
-  ok(G.P.accent.toLowerCase() === "#003399" || G.P.accent.toLowerCase() === "#6d9bff",
-     `actions carry Reflex Blue (${G.P.accent})`);
+  // Colour: deep flag-blue glass, with flag yellow for actions and titles.
+  ok(G.P.accent.toLowerCase() === "#ffcc00", `actions and titles carry flag yellow (${G.P.accent})`);
   ok(G.P.gold.toLowerCase() === "#ffcc00", `emphasis carries flag yellow (${G.P.gold})`);
-  const neutral = hex => {
-    const n = hex.replace("#", "");
-    const r = parseInt(n.slice(0,2),16), g = parseInt(n.slice(2,4),16), b = parseInt(n.slice(4,6),16);
-    return Math.max(r,g,b) - Math.min(r,g,b) <= 6;
-  };
-  for (const key of ["bg", "card", "border", "bright", "text", "muted"]) {
-    ok(neutral(G.P[key]), `${key} is a true grey, not a tinted one (${G.P[key]})`);
+  const rgbOf = hex => { const n = hex.replace("#", ""); return [0,2,4].map(i => parseInt(n.slice(i,i+2),16)); };
+  const lum = hex => { const [r,g,b] = rgbOf(hex).map(v => { v/=255; return v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055,2.4); }); return 0.2126*r+0.7152*g+0.0722*b; };
+  const contrast = (x, y) => { const [hi, lo] = [lum(x), lum(y)].sort((m,n)=>n-m); return (hi+0.05)/(lo+0.05); };
+  for (const key of ["bg", "panel", "card"]) {
+    const [r,g,b] = rgbOf(G.P[key]);
+    ok(b > r && b > g && b < 140, `${key} is a deep blue (${G.P[key]})`);
   }
+  // every text colour has to stay readable on the panels it sits on
+  for (const key of ["text", "muted", "accent", "goldText", "greenText", "redText", "blue"]) {
+    const c = contrast(G.P[key], G.P.panel);
+    ok(c >= 4.5, `${key} reads clearly on a panel (contrast ${c.toFixed(1)})`);
+  }
+  ok(contrast(G.P.onAccent, G.P.accent) >= 7, "text on a yellow fill is dark navy, never white");
 
   // No pastel fills and no gloss: the two habits that make buttons read as SaaS.
   ok(!/sheen/.test(G.CSS), "the gloss sweep across the primary button is gone");
@@ -361,20 +364,18 @@ const click = (el) => act(() => {
 
 /* ── menus share one language: blue band, yellow rule, diamond ── */
 {
-  const rgb = "rgb(0, 51, 153)";
   let closed = false;
   render(null);
   render(React.createElement(G.Modal, { title: "Cluster Dashboard", icon: "gauge-high", onClose: () => { closed = true; } },
     React.createElement(G.Lbl, { t: "Treasury" })));
   const band = qsa(".menu-band")[0];
-  ok(!!band, "a menu opens under a title band");
+  ok(!!band, "a menu opens under a title block");
   if (band) {
-    ok(band.style.background === rgb || band.style.backgroundColor === rgb, `the band is flag blue (${band.style.background})`);
-    ok(/3px solid/.test(band.style.borderBottom), "the band is closed by a rule");
-    ok(/Cluster Dashboard/.test(band.textContent), "the band carries the menu title");
-    const title = [...band.querySelectorAll("span")].find(s => /Cluster Dashboard/.test(s.textContent) && s.style.textTransform === "uppercase");
-    ok(!!title && title.style.color === "rgb(255, 255, 255)", "the title is white on blue, so it stays readable in both themes");
+    const title = band.querySelector(".title-caps");
+    ok(!!title && /Cluster Dashboard/.test(title.textContent), "the title is set in small capitals");
+    ok(band.style.textAlign === "center", "the title is centred over its ornament rule");
   }
+  ok(qsa(".glass").length >= 1, "the window is a glass panel over the map");
   const close = qsa("button").find(b => b.getAttribute("aria-label") === "Close");
   ok(!!close, "the close control is labelled for assistive technology");
   if (close) { click(close); ok(closed, "the close control closes the menu"); }
@@ -404,13 +405,14 @@ const click = (el) => act(() => {
 /* ── inside a menu, a button is text that underlines on hover ── */
 {
   const css = G.CSS;
-  ok(/\.menu-scope \.btn:not\(\.dot\)\{[^}]*background:transparent !important/.test(css), "menu buttons carry no fill");
-  ok(/\.menu-scope \.btn:not\(\.dot\)\{[^}]*border-color:transparent !important/.test(css), "menu buttons carry no box");
-  ok(/\.menu-scope \.btn:not\(\.dot\):hover:not\(:disabled\)[^{]*\{[^}]*text-decoration:underline/.test(css), "hovering a menu button underlines it");
-  ok(/\.menu-scope \.btn:not\(\.dot\):focus-visible/.test(css), "keyboard focus underlines it too");
+  ok(/\.menu-scope \.btn:not\(\.dot\):not\(\.card-btn\)\{[^}]*background:transparent !important/.test(css), "menu buttons carry no fill");
+  ok(/\.menu-scope \.btn:not\(\.dot\):not\(\.card-btn\)\{[^}]*border-color:transparent !important/.test(css), "menu buttons carry no box");
+  ok(/\.menu-scope \.btn:not\(\.dot\):not\(\.card-btn\):hover:not\(:disabled\)[^{]*\{[^}]*text-decoration:underline/.test(css), "hovering a menu button underlines it");
+  ok(/\.menu-scope \.btn:not\(\.dot\):not\(\.card-btn\):focus-visible/.test(css), "keyboard focus underlines it too");
   ok(/\.menu-scope \.btn:disabled\{[^}]*text-decoration:none/.test(css), "a disabled button does not underline");
-  ok(/\.menu-scope \.btn\[style\*="255, 255, 255"\]\{color:#003399 !important\}/.test(css),
-     "text that was white on a fill takes the action colour, so it cannot vanish");
+  ok(css.includes('.menu-scope .btn[style*="color: rgb(12, 26, 61)"]') && /color:#FFCC00 !important/.test(css),
+     "text that sat on a fill takes the action colour, so it cannot vanish");
+  ok(css.includes(".card-btn{") && /\.card-btn:hover[^{]*\{[^}]*border-color:#FFCC00/.test(css), "option cards are framed, and the frame turns yellow under the pointer");
 
   // every kind of menu is inside the scope
   const sector = { id:"digital", name:"Digital", color:"#38bdf8", icon:"display" };
@@ -432,6 +434,43 @@ const click = (el) => act(() => {
   render(null);
   render(React.createElement("div", { className: "menu-scope" }, React.createElement(G.InfoDot, { text: "why", label: "Trend" })));
   ok(qsa("button.dot").length === 1, "the information dot is exempt and keeps its circle");
+}
+
+/* ── glass interface: floating panels, option cards, the medallion ── */
+{
+  const sector = { id:"digital", name:"Digital", color:"#38bdf8", icon:"display" };
+  const g0 = G.initState("Austria", "Steiermark", sector);
+  render(null);
+  render(React.createElement(G.Game, { gs: g0, dispatch: () => {}, vw: 1280, onRestart: () => {} }));
+  ok(qsa(".glass").length >= 3, `the side panels and map furniture are glass (${qsa(".glass").length})`);
+  ok(qsa(".glass-flat").length >= 1, "the top bar is a glass strip");
+  const orb = qsa("button.orb")[0];
+  ok(!!orb && !orb.disabled, "the medallion ends the quarter");
+  ok(!!qsa("button.orb-sm")[0], "automatic play is a small round control beside it");
+
+  // with nobody in charge the medallion says why it is unavailable
+  render(null);
+  render(React.createElement(G.Game, { gs: { ...g0, roster: [] }, dispatch: () => {}, vw: 1280, onRestart: () => {} }));
+  const idle = qsa("button.orb")[0];
+  ok(!!idle && idle.disabled && /General Manager/.test(idle.getAttribute("aria-label") || ""),
+     "without a General Manager the medallion is disabled and says why");
+
+  // event options are framed cards, and the single-answer case gets a framed confirm
+  render(null);
+  const choice = G.EVENTS.find(e => e.t === "choice");
+  let picked = null;
+  render(React.createElement(G.EventModal, { ev: choice, onDismiss: (i) => { picked = i; } }));
+  const cards = qsa("button.card-btn");
+  ok(cards.length === choice.choices.length, "each option is its own framed card");
+  ok(!!qsa(".title-caps")[0], "the event title is set in small capitals");
+  if (cards[1]) { click(cards[1]); ok(picked === 1, "choosing a card answers the event with that option"); }
+  render(null);
+  const plain = G.EVENTS.find(e => e.t !== "choice");
+  render(React.createElement(G.EventModal, { ev: plain, onDismiss: () => {} }));
+  ok(qsa("button.card-btn").length === 1, "a plain event has one framed confirm");
+
+  ok(/backdrop-filter:blur/.test(G.CSS), "glass panels blur the map behind them");
+  ok(/small-caps/.test(G.CSS), "titles use small capitals");
 }
 
 /* ── the painted map: neighbours, candidates and banners ──── */
@@ -489,7 +528,8 @@ const click = (el) => act(() => {
   ok(!!next, "Next Quarter sits on the map");
   ok(!!qsa("button").find((b) => /Stage goals \d+\/\d+|Evolve now|Final stage/.test(b.textContent)),
      "the evolve control shows progress toward the next stage");
-  ok(next && /could use you first|all clear/.test(next.textContent), "it reports how much is still open");
+  ok(next && /orb/.test(next.className), "it is the round medallion");
+  ok(/could use you first|all clear/.test(text()), "a caption under it reports how much is still open");
 
   // a plate takes you to the panel that deals with it
   const plate = qsa('[role="listitem"]').find((b) => /project/i.test(b.textContent));
@@ -682,7 +722,7 @@ const click = (el) => act(() => {
   // the webfont loaded) the gradient filled the whole box and the transparent
   // text disappeared — a coloured bar where "CLUSTER MANAGER" should be.
   ok(G.CSS.includes(".brand-title"), "the wordmark is styled by a class, not fragile inline styles");
-  ok(/\.brand-title\{color:#[0-9A-Fa-f]{6}\}/.test(G.CSS),
+  ok(/\.brand-title\{color:#[0-9A-Fa-f]{6}[;}]/.test(G.CSS),
      "the wordmark is a flat colour, which cannot fail to paint");
 
   // It was gradient-filled text, which sets the glyphs transparent and relies on
