@@ -332,6 +332,47 @@ const fresh = (country = "Austria", region = "Steiermark") =>
   }
 }
 
+/* ── expanding from the map ───────────────────────────────── */
+{
+  const base = { ...G.initState("Austria", "Styria", { id:"digital", name:"Digital", color:"#38bdf8", icon:"display" }), budget: 5_000_000 };
+  const atRegions = G.EU_COUNTRIES["Austria"];
+  const other = atRegions.find(n => n !== "Styria");
+
+  // a NUTS-2 polygon resolves to the playable region it belongs to
+  const at = G.regionAt("AT22");
+  t.ok(at && at.country === "Austria" && at.name === "Styria", "a map polygon resolves to its region and country");
+  t.ok(G.regionAt("ZZ99") === null, "an unknown polygon resolves to nothing");
+
+  t.eq(G.expansionOption(base, "Austria", "Styria").state, "held", "your home region reads as already yours");
+  const reg = G.expansionOption(base, "Austria", other);
+  t.eq(reg.state, "region", "an unheld region in your country can be opened");
+  t.eq(reg.cost, G.regionExpansionCost(base), "the map charges the same as the Network panel");
+  t.eq(reg.action.type, "expandRegion", "opening it expands into that region");
+
+  const after = G.reducer(base, reg.action);
+  t.ok(after.regions.includes(reg.action.region), "the region is added to your network");
+  t.eq(G.expansionOption(after, "Austria", other).state, "held", "once opened, the region reads as yours");
+  t.eq(after.budget, base.budget - reg.cost, "the cost is paid");
+
+  t.eq(G.expansionOption({ ...base, budget: 10 }, "Austria", other).state, "short", "too little money says so");
+  t.eq(G.expansionOption(base, "Germany", G.EU_COUNTRIES["Germany"][0]).state, "blocked", "early on, other countries are closed");
+
+  // later: a bordering country can be entered at the region you picked
+  const later = { ...base, stage: 2 };
+  const target = G.EU_COUNTRIES["Germany"][3];
+  const cty = G.expansionOption(later, "Germany", target);
+  t.eq(cty.state, "country", "at National Association a bordering country can be entered");
+  t.eq(cty.cost, G.countryExpansionCost(later, "Germany"), "the country cost matches the shared rule");
+  const entered = G.reducer(later, cty.action);
+  t.ok(entered.countries.includes("Germany"), "entering adds the country");
+  t.ok(entered.regions.includes(G.regionLabelFor(entered, "Germany", target)), "the first office opens in the region you picked");
+
+  const far = G.expansionOption(later, "Portugal", G.EU_COUNTRIES["Portugal"][0]);
+  t.eq(far.state, "blocked", "a country beyond your borders is out of reach");
+  t.ok(/neighbouring/.test(far.text), "and the reason says what to do");
+  t.eq(G.expansionOption(base, "Austria", "Nowhere").state, "none", "a name outside the country offers nothing");
+}
+
 /* ── the attention queue ──────────────────────────────────── */
 {
   const ids = g => G.attentionItems(g).map(i => i.id);

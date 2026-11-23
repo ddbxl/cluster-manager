@@ -42,7 +42,8 @@ const ENGINE_EXPORTS = [
   "pickEvent", "EVENT_REQ", "ECOSYSTEMS", "ECCP_CLUSTERS", "clusterPicks", "registrySeed",
   "REGIONS_BY_COUNTRY", "RIS_MODIFIER",
   "memberFee", "evolveCost", "trendTitle", "shareSummary", "challengeURL",
-  "attentionItems", "NEIGHBOUR_LAND", "CANDIDATE_LAND", "SERVICING_SHARE", "servicingCost", "costIndex",
+  "attentionItems", "NEIGHBOUR_LAND", "CANDIDATE_LAND",
+  "expansionOption", "regionAt", "regionExpansionCost", "countryExpansionCost", "reachableCountries", "regionLabelFor", "SERVICING_SHARE", "servicingCost", "costIndex",
   "ECO_MIX", "BASE_MIX", "FEE_W", "mixFor", "defaultMix",
 ];
 

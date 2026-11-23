@@ -35,8 +35,8 @@ function ecosystemAligns(region, ecosystemName) {
 ═══════════════════════════════════════════════════════════ */
 const CSS = `
 *{box-sizing:border-box;margin:0;padding:0}
-html,body,#root{height:100%;background:var(--page-bg,#0C1A3D);overflow:hidden;font-size:13px;line-height:1.5}
-html.dark{--page-bg:#060D21;--scroll-bg:#0E1A3C;--scroll-thumb:#2A3D72}
+html,body,#root{height:100%;background:var(--page-bg,#F3F5F9);overflow:hidden;font-size:13px;line-height:1.5}
+html.dark{--page-bg:#0B1220;--scroll-bg:#121B2E;--scroll-thumb:#2C3954}
 body{-webkit-text-size-adjust:100%;text-size-adjust:100%;font-variant-numeric:tabular-nums;overscroll-behavior:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 ::-webkit-scrollbar{width:5px;height:5px;background:var(--scroll-bg,#e4ecf7)}
 ::-webkit-scrollbar-thumb{background:var(--scroll-thumb,#aabdd8)}
@@ -53,26 +53,30 @@ body{-webkit-text-size-adjust:100%;text-size-adjust:100%;font-variant-numeric:ta
 .cut{clip-path:polygon(0 0, calc(100% - 11px) 0, 100% 11px, 100% 100%, 0 100%)}
 .cut-sm{clip-path:polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%)}
 
-/* Glass: every panel is translucent flag-blue laid over the map, softly
-   rounded, with a faint light edge. The map stays visible through it, which is
-   what makes the interface feel like one surface. Forced because panels still
-   carry opaque fills inline. */
-.glass{background:rgba(18,36,84,.84) !important;-webkit-backdrop-filter:blur(14px) saturate(1.15);backdrop-filter:blur(14px) saturate(1.15);border:1px solid rgba(255,255,255,.16) !important;border-radius:10px !important;box-shadow:0 10px 34px rgba(4,10,30,.38) !important}
-html.dark .glass{background:rgba(9,18,46,.88) !important}
-.glass-flat{background:rgba(18,36,84,.90) !important;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-color:rgba(255,255,255,.14) !important}
-html.dark .glass-flat{background:rgba(9,18,46,.92) !important}
+/* Surfaces: white cards with a hairline border and a soft shadow, 10px corners.
+   Forced because panels still carry older fills inline. */
+.glass{background:#FFFFFF !important;border:1px solid #E1E6EF !important;border-radius:12px !important;box-shadow:0 1px 2px rgba(16,24,40,.05),0 8px 24px rgba(16,24,40,.08) !important}
+html.dark .glass{background:#121B2E !important;border-color:#26324A !important;box-shadow:0 8px 24px rgba(0,0,0,.35) !important}
+.glass-flat{background:#FFFFFF !important;border-bottom:1px solid #E1E6EF !important}
+html.dark .glass-flat{background:#121B2E !important;border-bottom-color:#26324A !important}
 .glass-left > div{background:transparent !important;border:none !important}
-/* Titles: yellow small capitals in a classical serif, set wide. */
-.title-caps{font-family:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;font-variant:small-caps;letter-spacing:2.4px;color:#FFCC00;font-weight:400}
-/* Option cards: a hairline frame that turns yellow under the pointer. */
-.card-btn{background:rgba(255,255,255,.04) !important;border:1px solid rgba(255,255,255,.34) !important;border-radius:6px !important;transition:border-color .12s ease,background .12s ease}
-.card-btn:hover:not(:disabled),.card-btn:focus-visible{border-color:#FFCC00 !important;background:rgba(255,204,0,.10) !important;filter:none;outline:none}
-/* The end-of-quarter control: a medallion with a yellow ring. */
-.orb{width:104px;height:104px;border-radius:50% !important;background:radial-gradient(circle at 50% 35%, #2A4690 0%, #132659 72%) !important;border:2px solid #FFCC00 !important;box-shadow:0 0 0 6px rgba(255,204,0,.16),0 0 0 7px rgba(255,255,255,.14),0 10px 28px rgba(4,10,30,.5) !important;color:#F2F5FB !important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0 !important;text-align:center}
-.orb:hover:not(:disabled){filter:brightness(1.12)}
-.orb:disabled{border-color:#5A6EA8 !important;box-shadow:0 0 0 6px rgba(255,255,255,.06) !important;color:#A8B7DA !important}
-.orb-sm{width:46px;height:46px;border-radius:50% !important;background:rgba(18,36,84,.9) !important;border:1.5px solid rgba(255,255,255,.4) !important;padding:0 !important;display:flex;align-items:center;justify-content:center}
-.orb-sm:hover:not(:disabled){border-color:#FFCC00 !important;filter:none}
+/* Headings: plain Helvetica, semibold, sentence case. */
+.title-caps{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:600;letter-spacing:-.2px;color:#0E1A33}
+html.dark .title-caps{color:#EEF2F9}
+/* Option rows: a hairline frame that turns blue under the pointer. */
+.card-btn{background:#FFFFFF !important;border:1px solid #D7DEEA !important;border-radius:10px !important;transition:border-color .12s ease,background .12s ease}
+html.dark .card-btn{background:#172238 !important;border-color:#2C3954 !important}
+.card-btn:hover:not(:disabled),.card-btn:focus-visible{border-color:#1D4ED8 !important;background:#F1F5FE !important;filter:none;outline:none}
+html.dark .card-btn:hover:not(:disabled),html.dark .card-btn:focus-visible{border-color:#5B8CFF !important;background:#1A2848 !important}
+/* The end-of-quarter control: one solid blue button. */
+.orb{min-width:168px;height:52px;border-radius:12px !important;background:#1D4ED8 !important;border:none !important;color:#FFFFFF !important;box-shadow:0 6px 18px rgba(29,78,216,.32) !important;display:flex;align-items:center;justify-content:center;gap:5px;padding:0 22px !important;font-size:15px;font-weight:600}
+.orb:hover:not(:disabled){background:#1A44BF !important;filter:none}
+.orb:disabled{background:#C8D2E3 !important;color:#5E6E89 !important;box-shadow:none !important}
+html.dark .orb{background:#5B8CFF !important;color:#0B1220 !important}
+html.dark .orb:disabled{background:#26324A !important;color:#94A3BF !important}
+.orb-sm{height:40px;min-width:56px;border-radius:10px !important;background:#FFFFFF !important;border:1px solid #D7DEEA !important;padding:0 12px !important;display:flex;align-items:center;justify-content:center}
+.orb-sm:hover:not(:disabled){border-color:#1D4ED8 !important;filter:none}
+html.dark .orb-sm{background:#121B2E !important;border-color:#2C3954 !important}
 
 /* Inside a menu a button is plain text: no box, no fill. Hovering, focusing or
    pressing it draws an underline. The rules are forced because each button
@@ -81,14 +85,14 @@ html.dark .glass-flat{background:rgba(9,18,46,.92) !important}
 .menu-scope .btn:not(.dot):not(.card-btn):hover:not(:disabled),.menu-scope .btn:not(.dot):not(.card-btn):focus-visible,.menu-scope .btn:not(.dot):not(.card-btn):active:not(:disabled){text-decoration:underline;filter:none}
 .menu-scope .btn:disabled{cursor:not-allowed;text-decoration:none}
 .menu-scope .btn:focus-visible{outline:none}
-/* a chosen option stays underlined, in flag yellow */
-.menu-scope .btn[aria-pressed="true"]{text-decoration:underline;text-decoration-color:#FFCC00;text-decoration-thickness:3px}
+/* a chosen option stays underlined */
+.menu-scope .btn[aria-pressed="true"]{text-decoration:underline;text-decoration-color:#1D4ED8;text-decoration-thickness:3px}
 /* buttons that were white on a solid fill would vanish without the fill */
-.menu-scope .btn[style*="color: rgb(12, 26, 61)"],.menu-scope .btn[style*="color:#0C1A3D"]{color:#FFCC00 !important}
-html.dark .menu-scope .btn[style*="color: rgb(6, 13, 33)"]{color:#FFCC00 !important}
+.menu-scope .btn[style*="color: rgb(255, 255, 255)"],.menu-scope .btn[style*="color:#FFFFFF"],.menu-scope .btn[style*="color:#fff"]{color:#1D4ED8 !important}
+html.dark .menu-scope .btn[style*="color: rgb(11, 18, 32)"],html.dark .menu-scope .btn[style*="color:#0B1220"]{color:#5B8CFF !important}
 /* a button in the ordinary text colour would read as a label, so it takes the action colour */
-.menu-scope .btn[style*="color: rgb(242, 245, 251)"]{color:#FFCC00 !important}
-html.dark .menu-scope .btn[style*="color: rgb(238, 242, 250)"]{color:#FFCC00 !important}
+.menu-scope .btn[style*="color: rgb(14, 26, 51)"],.menu-scope .btn[style*="color:#0E1A33"]{color:#1D4ED8 !important}
+html.dark .menu-scope .btn[style*="color: rgb(238, 242, 249)"]{color:#5B8CFF !important}
 .menu-tabs .btn:hover{text-decoration:underline;text-underline-offset:3px;filter:none}
 
 /* Figures line up in columns without a monospace face. */
@@ -115,11 +119,12 @@ html.dark .float-delta{--delta-halo:rgba(5,10,20,.92)}
 /* The wordmark is solid Reflex Blue. It was gradient-filled text, which depends
    on clipping a background to the glyphs and leaves the title invisible whenever
    that clip does not apply. Flat colour cannot fail, and suits the rest. */
-.brand-title{color:#FFCC00;font-family:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;font-variant:small-caps;letter-spacing:3px !important;font-weight:400 !important}
+.brand-title{color:#0A2A7A;font-weight:700 !important;letter-spacing:-1.5px !important}
+html.dark .brand-title{color:#EEF2F9}
 /* The map sea fills its whole panel edge-to-edge; the dot grid is a fixed-size CSS
    layer so it stays crisp no matter how the SVG map scales inside it. */
-.map-sea{background:#A9C6E2}
-html.dark .map-sea{background:#0B1830}
+.map-sea{background:#D7E3F1}
+html.dark .map-sea{background:#0E1729}
 .threat-pulse{animation:threatPulse 2.4s ease-in-out infinite}
 @keyframes threatPulse{0%,100%{box-shadow:0 0 0 0 var(--threat)}50%{box-shadow:0 0 0 3px color-mix(in srgb, var(--threat) 22%, transparent)}}
 
@@ -158,27 +163,27 @@ input[type=range]{width:100%;accent-color:#3860ED;cursor:pointer}
    PALETTE
 ═══════════════════════════════════════════════════════════ */
 // EU Commission colour system (ECL v4); trailing comments name each token.
-/* The interface is deep flag-blue glass laid over a bright map, with flag
-   yellow for titles and for anything you can act on, and near-white for
-   reading text. Semantic colours are lifted so they stay legible on navy. */
+/* Clean and quiet: white surfaces on a pale blue-grey page, one blue for
+   everything you can act on, a lighter blue for highlights, and colour kept for
+   meaning (green gain, red loss). Yellow is reserved for the single star in the
+   wordmark. */
 const P = {
-  bg:"#0C1A3D",     panel:"#16295C",   card:"#1D3470",   border:"#3A5196",
-  bright:"#28427F", text:"#F2F5FB",    muted:"#A8B7DA",
-  accent:"#FFCC00", blue:"#7FA6FF",    gold:"#FFCC00",
-  red:"#FF6F61",    orange:"#FFA84A",  green:"#52D18C",
-  purple:"#B9A0FF", teal:"#73C5FF",
-  goldText:"#FFD84D", greenText:"#7EE2AA", redText:"#FF9389",
-  onAccent:"#0C1A3D",                  // text and icons sitting on a yellow or bright fill
+  bg:"#F3F5F9",     panel:"#FFFFFF",   card:"#F7F9FC",   border:"#E1E6EF",
+  bright:"#EAF0F8", text:"#0E1A33",    muted:"#5E6E89",
+  accent:"#1D4ED8", blue:"#1D4ED8",    gold:"#3B82F6",
+  red:"#D93B3B",    orange:"#D9772B",  green:"#1E9E61",
+  purple:"#7357D6", teal:"#0E9BB5",
+  goldText:"#1D4ED8", greenText:"#17804E", redText:"#B42323",
+  onAccent:"#FFFFFF",                  // text and icons sitting on a blue fill
 };
-// The darker variant deepens the glass and dims the map with it.
 const P_DARK = {
-  bg:"#060D21",     panel:"#0E1A3C",   card:"#14234C",   border:"#2A3D72",
-  bright:"#1B2E5E", text:"#EEF2FA",    muted:"#97A7CC",
-  accent:"#FFCC00", blue:"#7FA6FF",    gold:"#FFCC00",
-  red:"#FF6F61",    orange:"#FFA84A",  green:"#52D18C",
-  purple:"#B9A0FF", teal:"#73C5FF",
-  goldText:"#FFD84D", greenText:"#7EE2AA", redText:"#FF9389",
-  onAccent:"#060D21",
+  bg:"#0B1220",     panel:"#121B2E",   card:"#172238",   border:"#26324A",
+  bright:"#1C2943", text:"#EEF2F9",    muted:"#94A3BF",
+  accent:"#5B8CFF", blue:"#5B8CFF",    gold:"#7CA8FF",
+  red:"#FF6B6B",    orange:"#FFA352",  green:"#47CC8A",
+  purple:"#A68BFF", teal:"#4CC9E0",
+  goldText:"#9DBDFF", greenText:"#6EDCA4", redText:"#FF8F8F",
+  onAccent:"#0B1220",
 };
 let THEME_DARK = false;
 function applyTextScale(big) {
@@ -2788,6 +2793,55 @@ const isCountryFull   = (gs, country) => {
   const all = EU_COUNTRIES[country]||[];
   return all.length>0 && all.every(n => hasRegionActive(gs, country, n));
 };
+/* ── Expansion rules, shared by the map and the Network panel ───────────── */
+const regionExpansionCost = gs =>
+  Math.round(((gs?.prestige||0) * 1400 + 30000) * ((gs?.seats||{}).regional ? 0.75 : 1));
+const countryExpansionCost = (gs, country) => {
+  const base = Math.round(((gs?.prestige||0) * 7000 + 150000) * ((gs?.seats||{}).national ? 0.80 : 1));
+  const contested = (gs?.rivals||[]).some(rv => (rv.countries||[]).includes(country));
+  return contested ? Math.round(base * 1.5) : base;
+};
+// Countries you can enter next: those bordering your network, by land or ferry.
+const reachableCountries = gs => {
+  const out = new Set();
+  (gs?.countries||[]).forEach(c => {
+    const nk = (NAME_TO_ISO[c]||c)==="GR" ? "EL" : (NAME_TO_ISO[c]||c);
+    (NUTS_BORDERS[nk]||[]).forEach(b => { const nm = ISO_TO_NAME[b==="EL" ? "GR" : b]; if (nm) out.add(nm); });
+  });
+  return out;
+};
+// What clicking a region on the map can do: already yours, open an office in a
+// country you hold, enter a new country here, or a plain reason it is not yet possible.
+function expansionOption(gs, country, regionName) {
+  if (!gs || !country || !(EU_COUNTRIES[country]||[]).includes(regionName)) return { state:"none" };
+  const label = regionLabelFor(gs, country, regionName);
+  if ((gs.regions||[]).includes(label) || (country===gs.country && regionName===gs.region))
+    return { state:"held", text:"Your office is here" };
+  const budget = gs.budget||0;
+  if ((gs.countries||[]).includes(country)) {
+    const cost = regionExpansionCost(gs);
+    return { state: budget >= cost ? "region" : "short", cost, kind:"region",
+      text: budget >= cost ? "Open a regional office here" : `Needs ${fmt(cost)}; you have ${fmt(budget)}`,
+      action: { type:"expandRegion", region: label, cost } };
+  }
+  if ((gs.stage||0) < 2) return { state:"blocked", text:`Other countries open up at ${STAGES[2].name}` };
+  if ((gs.countries||[]).length >= countryCap(gs))
+    return { state:"blocked", text:`Your stage allows ${countryCap(gs)} countr${countryCap(gs)===1?"y":"ies"}; evolve to hold more` };
+  if (!reachableCountries(gs).has(country))
+    return { state:"blocked", text:"Out of reach: hold a neighbouring country first" };
+  const cost = countryExpansionCost(gs, country);
+  return { state: budget >= cost ? "country" : "short", cost, kind:"country",
+    text: budget >= cost ? `Enter ${country} with an office here` : `Needs ${fmt(cost)}; you have ${fmt(budget)}`,
+    action: { type:"expandCountry", country, region: regionName, cost } };
+}
+// The playable region a NUTS-2 polygon belongs to (some countries plan at a coarser level).
+function regionAt(code) {
+  const country = ISO_TO_NAME[nutsToIso(String(code).slice(0,2))];
+  const recs = (country && REGION_RECORDS[country]) || [];
+  const rec = recs.find(r => r.nuts && nutsMatch(code, r.nuts)) || (recs.length === 1 ? recs[0] : null);
+  return rec ? { code, country, name: rec.name, rec } : null;
+}
+
 const computeFullCountries = gs => (gs.countries||[]).filter(c => isCountryFull(gs, c));
 
 // Enabling conditions: every call now has its own gates and an upfront own-contribution
@@ -3417,7 +3471,8 @@ function reducer(state, action) {
     case "expandCountry": {
       if ((state.budget||0) < (action.cost||0) || (state.countries||[]).includes(action.country)) return state;
       if ((state.countries||[]).length >= countryCap(state)) return state; // international reach is stage-capped
-      const firstRegion = (EU_COUNTRIES[action.country]||[])[0] || action.country;
+      const pickedOk = action.region && (EU_COUNTRIES[action.country]||[]).includes(action.region);
+      const firstRegion = pickedOk ? action.region : ((EU_COUNTRIES[action.country]||[])[0] || action.country);
       const label = `${firstRegion} (${NAME_TO_ISO[action.country]||action.country})`;
       const mgrSalary = roleCost(STAFF_ROLES.find(x => x.id==="countrymgr"), state.turn);
       return applyCoverage({
@@ -3641,8 +3696,11 @@ function useMapView() {
   };
 }
 
-function EUMap({ gs, sel, setSel, lift=0 }) {
+function EUMap({ gs, sel, setSel, lift=0, dispatch }) {
   const [hov, setHov] = useState(null);
+  const [pick, setPick] = useState(null);   // the region clicked: {code, country, name, rec}
+  const [hovR, setHovR] = useState(null);   // NUTS-2 code under the pointer
+  const choose = code => { const r = regionAt(code); setPick(r); if (r) setSel && setSel(null); };
   const map = useMapView();
   const sc      = gs?.sector?.color || P.accent;
   const homeISO = NAME_TO_ISO[gs?.country] || "";
@@ -3671,7 +3729,7 @@ function EUMap({ gs, sel, setSel, lift=0 }) {
   const codes    = activeNutsCodes(gs);
   const homeNuts = gs?.regionNuts || "";
   const home     = MAP_CENT[isoToNuts(homeISO)];
-  const focus    = sel || hov;
+  const focus    = pick ? null : (sel || hov);
 
   // Tooltip
   let tip = null;
@@ -3717,24 +3775,26 @@ function EUMap({ gs, sel, setSel, lift=0 }) {
       {/* Clicking open water / background closes a pinned tooltip. The sea + dot texture
           now lives on the map panel (see .map-sea) so it fills the whole window rather
           than a letterboxed square. */}
-      <rect x={0} y={0} width={MAP_W} height={MAP_H} fill="transparent" onClick={() => setSel && setSel(null)}/>
+      <rect x={0} y={0} width={MAP_W} height={MAP_H} fill="transparent" onClick={() => { setPick(null); setSel && setSel(null); }}/>
 
       {/* Neighbouring land, then candidate countries, then the Union on top */}
-      <path d={NEIGHBOUR_LAND} fill={THEME_DARK ? "#1C2A3F" : "#D7D3C2"} stroke={THEME_DARK ? "#2B3B55" : "#BDB8A4"} strokeWidth={0.5} strokeLinejoin="round" pointerEvents="none"/>
-      <path d={CANDIDATE_LAND} fill={THEME_DARK ? "#3F3A1E" : "#F3E4A3"} stroke={THEME_DARK ? "#6B6128" : "#CDB95E"} strokeWidth={0.5} strokeLinejoin="round" pointerEvents="none"/>
+      <path d={NEIGHBOUR_LAND} fill={THEME_DARK ? "#182234" : "#EDF0F4"} stroke={THEME_DARK ? "#263247" : "#D3D9E2"} strokeWidth={0.5} strokeLinejoin="round" pointerEvents="none"/>
+      <path d={CANDIDATE_LAND} fill={THEME_DARK ? "#1E2C48" : "#E2EAF7"} stroke={THEME_DARK ? "#34466D" : "#B8C8E2"} strokeWidth={0.5} strokeLinejoin="round" pointerEvents="none"/>
 
       {/* NUTS-2 basemap: every region is a real border polygon. Active regions fill with the sector colour. */}
-      <g stroke={THEME_DARK ? "#4B5E80" : "#A9A48F"} strokeWidth={0.4} strokeLinejoin="round" pointerEvents="none">
+      <g stroke={THEME_DARK ? "#3A4A68" : "#C6D0DE"} strokeWidth={0.4} strokeLinejoin="round">
         {Object.entries(NUTS2_PATHS).map(([k, d]) => {
           const isHome = homeNuts && nutsMatch(k, homeNuts);
           const active = isHome || codes.some(c => nutsMatch(k, c));
           const iso    = nutsToIso(k.slice(0,2));
           const full   = fullSet.has(iso);
-          const fill   = isHome ? `${P.gold}B0` : active ? (full ? `${sc}A8` : `${sc}66`) : (THEME_DARK ? "#2A3B58" : "#F6F2E3");
+          const fill   = isHome ? `${P.gold}B0` : active ? (full ? `${sc}A8` : `${sc}66`) : (THEME_DARK ? "#1F2A40" : "#FFFFFF");
           const pop    = popCode && nutsMatch(k, popCode);
-          return <path key={k} d={d} fill={fill}
+          return <path key={k} d={d} fill={fill} data-nuts={k} style={{cursor:"pointer"}}
+            onMouseEnter={()=>{ setHov(iso); setHovR(k); }} onMouseLeave={()=>{ setHov(null); setHovR(null); }}
+            onClick={(e)=>{ e.stopPropagation(); choose(k); }}
             className={pop ? "map-new" : isHome ? "map-home" : undefined}
-            style={pop || isHome ? {color: isHome ? P.gold : sc, stroke: isHome ? P.gold : "none"} : undefined}/>;
+            {...(pop || isHome ? {style:{cursor:"pointer",color: isHome ? P.gold : sc, stroke: isHome ? P.gold : "none"}} : {})}/>;
         })}
       </g>
 
@@ -3841,13 +3901,9 @@ function EUMap({ gs, sel, setSel, lift=0 }) {
         );
       })}
 
-      {/* Hit areas: the country shapes themselves */}
-      {NUTS0_KEYS.map(k => {
-        const iso = nutsToIso(k);
-        return <path key={`hit-${k}`} d={NUTS0_PATHS[k]} fill="transparent" style={{cursor:"pointer"}}
-          onMouseEnter={()=>setHov(iso)} onMouseLeave={()=>setHov(null)}
-          onClick={()=>setSel && setSel(sel===iso?null:iso)}/>;
-      })}
+      {/* Outline the region under the pointer and the one picked */}
+      {hovR && NUTS2_PATHS[hovR] && hovR !== pick?.code && <path d={NUTS2_PATHS[hovR]} fill="none" stroke={P.accent} strokeWidth={1} pointerEvents="none"/>}
+      {pick && NUTS2_PATHS[pick.code] && <path className="map-pick" d={NUTS2_PATHS[pick.code]} fill={`${P.accent}22`} stroke={P.accent} strokeWidth={1.8} pointerEvents="none"/>}
 
       {/* Enlarged tap targets: these countries' polygons are below comfortable touch size */}
       {["MT","LU","CY","SI","BE","EE","SK"].map(k => {
@@ -3855,13 +3911,47 @@ function EUMap({ gs, sel, setSel, lift=0 }) {
         const iso = nutsToIso(k);
         return <circle key={`hitc-${k}`} cx={c[0]} cy={c[1]} r={14} fill="transparent" style={{cursor:"pointer"}}
           onMouseEnter={()=>setHov(iso)} onMouseLeave={()=>setHov(null)}
-          onClick={()=>setSel && setSel(sel===iso?null:iso)}/>;
+          onClick={(e)=>{ e.stopPropagation(); const code = Object.keys(NUTS2_PATHS).find(c => nutsMatch(c, k)); if (code) choose(code); }}/>;
       })}
 
       {tip}
 
 
     </svg>
+
+    {pick && (() => {
+      const opt = expansionOption(gs, pick.country, pick.name);
+      const rec = pick.rec || {};
+      const aligned = ecosystemAligns(rec, gs.sector?.name);
+      const go = opt.action && (opt.state === "region" || opt.state === "country");
+      return (
+        <div className="glass region-card" role="dialog" aria-label={`Region ${pick.name}`}
+          style={{position:"absolute",left:10,bottom:44,zIndex:46,width:"min(300px, calc(100% - 20px))",padding:"14px 16px 14px"}}>
+          <button className="btn" onClick={() => setPick(null)} aria-label="Close region card"
+            style={{position:"absolute",top:8,right:8,background:"transparent",border:"none",padding:4,display:"flex"}}><Icon name="xmark" size={12} color={P.muted}/></button>
+          <div className="title-caps" style={{fontSize:16,lineHeight:1.25,paddingRight:22}}>{pick.name}</div>
+          <div style={{fontSize:11,color:P.muted,marginTop:2}}>{pick.country} · {rec.nuts || pick.code}{rec.ris ? ` · ${rec.ris}` : ""}{rec.coh ? ` · ${rec.coh}` : ""}</div>
+          <div style={{fontSize:11.5,marginTop:8,color:aligned?P.greenText:P.muted}}>
+            {aligned ? `${gs.sector?.name} is a smart-specialisation priority here` : `${gs.sector?.name} is not a priority here`}
+          </div>
+          {opt.state === "held" && <div style={{fontSize:12.5,fontWeight:600,color:P.accent,marginTop:10}}>{opt.text}</div>}
+          {opt.state === "blocked" && <div style={{fontSize:12,color:P.muted,marginTop:10,lineHeight:1.45}}>{opt.text}</div>}
+          {(opt.state === "region" || opt.state === "country" || opt.state === "short") && (
+            <>
+              <button className="btn" disabled={!go || !dispatch} onClick={() => dispatch && dispatch(opt.action)}
+                style={{marginTop:12,width:"100%",padding:"10px 12px",border:"none",borderRadius:10,background:go?P.accent:P.bright,color:go?P.onAccent:P.muted,fontSize:13,fontWeight:600}}>
+                {opt.kind === "country" ? `Enter ${pick.country}` : "Open office"} · {fmt(opt.cost)}
+              </button>
+              <div style={{fontSize:10.5,color:P.muted,marginTop:6,lineHeight:1.45}}>
+                {opt.state === "short" ? opt.text
+                  : opt.kind === "country" ? `Adds a mandatory Country Manager on the payroll.`
+                  : `Adds a mandatory Regional Coordinator on the payroll.`}
+              </div>
+            </>
+          )}
+        </div>
+      );
+    })()}
 
     {/* Watermark — HTML, not SVG, so zooming the map doesn't magnify it */}
     <div style={{position:"absolute",...(lift ? {left:"50%",transform:"translateX(-50%)"} : {right:8}),bottom:6,pointerEvents:"none",fontSize:10,color:P.muted,opacity:0.55,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',whiteSpace:"nowrap"}}>
@@ -3905,11 +3995,8 @@ const Diamond = ({ size=7, color }) => (
   <span aria-hidden="true" style={{display:"inline-block",width:size,height:size,background:color||P.gold,transform:"rotate(45deg)",flexShrink:0}}/>
 );
 const Lbl = ({ t }) => (
-  <div className="menu-heading" style={{display:"flex",alignItems:"center",gap:9,marginBottom:8}}>
-    <span className="title-caps" style={{fontSize:13.5,letterSpacing:1.6,whiteSpace:"nowrap"}}>{t}</span>
-    <span aria-hidden="true" style={{flex:1,height:1,background:"rgba(255,255,255,.22)"}}/>
-  </div>
-);
+  <div className="menu-heading" style={{fontSize:11,fontWeight:600,letterSpacing:.7,textTransform:"uppercase",color:P.muted,margin:"2px 0 8px"}}>{t}</div>
+)
 
 // Animates a displayed number toward its new value (SSR-safe: effects only)
 function useTicker(value, dur=550) {
@@ -4384,15 +4471,10 @@ function Modal({ title, icon, iconColor, onClose, children, width=600 }) {
       onClick={e => { if (e.target===e.currentTarget) onClose(); }}
     >
       <div className="modal-in glass" style={{background:P.panel,maxWidth:phone?"100%":width,width:"100%",border:phone?"none":`1px solid ${P.border}`,maxHeight:phone?"100%":"92vh",height:phone?"100%":"auto",display:"flex",flexDirection:"column",boxShadow:phone?"none":"0 18px 50px rgba(8,20,50,.25)"}}>
-        {/* Title: centred small capitals over a hairline with the diamond at its middle */}
-        <div className="menu-band" style={{position:"relative",padding:phone?"18px 52px 12px":"20px 56px 12px",textAlign:"center",flexShrink:0}}>
-          <div className="title-caps" style={{fontSize:phone?21:23,lineHeight:1.15,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{title}</div>
-          <div aria-hidden="true" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10,marginTop:9}}>
-            <span style={{width:"22%",maxWidth:120,height:1,background:"rgba(255,255,255,.45)"}}/>
-            <Diamond size={7}/>
-            <span style={{width:"22%",maxWidth:120,height:1,background:"rgba(255,255,255,.45)"}}/>
-          </div>
-          <button className="btn" onClick={onClose} aria-label="Close" style={{position:"absolute",top:phone?12:14,right:phone?12:14,background:"transparent",border:"1px solid rgba(255,255,255,.5)",borderRadius:4,color:"#FFFFFF",padding:"6px 8px",display:"flex",alignItems:"center"}}><Icon name="xmark" size={12} color="#FFFFFF"/></button>
+        {/* Header: the title on the left, close on the right, a hairline beneath */}
+        <div className="menu-band" style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,padding:phone?"16px 16px 14px 18px":"18px 18px 14px 22px",borderBottom:`1px solid ${P.border}`,textAlign:"left",flexShrink:0}}>
+          <div className="title-caps" style={{fontSize:phone?18:19,lineHeight:1.2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{title}</div>
+          <button className="btn" onClick={onClose} aria-label="Close" style={{background:"transparent",border:"none",borderRadius:8,color:P.muted,padding:"6px",display:"flex",alignItems:"center",flexShrink:0}}><Icon name="xmark" size={14} color={P.muted}/></button>
         </div>
         <div className="menu-scope" style={{padding:"16px 18px",overflowY:"auto",flex:1}}>{children}</div>
       </div>
@@ -4478,7 +4560,7 @@ function ProjCard({ p, gs, failRate, onStart }) {
       <div style={{fontSize:10,color:P.muted,marginBottom:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',lineHeight:1.6}}>
         Delivery costs <span style={{color:P.redText}}>{fmt(spendQ)}/Q for {p.dur}Q</span>, of which interim payments reimburse {Math.round(INTERIM_RATE*100)}% as you go · success pays the balance plus <span style={{color:P.greenText}}>≈{fmt(expGain)} margin</span> · failure is audited down to {Math.round(FAIL_RECOVERY*100)}% of costs (clawback)
       </div>
-      <button className="btn" disabled={gs && (gs.budget||0) < need} onClick={() => onStart(p, partners)} style={{padding:"6px 14px",borderRadius:0,border:"none",background:cc,color:P.onAccent,fontWeight:700,fontSize:12,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Launch · invest {fmt(spendQ)}/Q <Icon name="arrow-right" size={11} color={P.onAccent} style={{marginLeft:5}}/></button>
+      <button className="btn" disabled={gs && (gs.budget||0) < need} onClick={() => onStart(p, partners)} style={{padding:"6px 14px",borderRadius:0,border:"none",background:cc,color:P.onAccent,fontWeight:700,fontSize:12,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Launch · invest {fmt(spendQ)}/Q <Icon name="arrow-right" size={11} color={P.accent} style={{marginLeft:5}}/></button>
     </div>
   );
 }
@@ -4754,7 +4836,7 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
   const prestige = gs.prestige || 0;
   const regDisc0 = (gs.seats||{}).regional ? 0.75 : 1; // Regional S3 Committee seat
   const natDisc0 = (gs.seats||{}).national ? 0.80 : 1; // National Cluster Platform seat
-  const rCost    = Math.round((prestige*1400 + 30000) * regDisc0);
+  const rCost    = regionExpansionCost(gs);
   const cCost    = Math.round((prestige*7000 + 150000) * natDisc0);
   const regionLabel = o => regionLabelFor(gs, o.c, o.n);
   const avR      = (gs.countries||[]).flatMap(c => (EU_COUNTRIES[c]||[]).map(n => ({c, n})))
@@ -4960,10 +5042,7 @@ function EventModal({ ev, onDismiss }) {
     <div className="backdrop-in" style={{position:"fixed",inset:0,background:THEME_DARK?"rgba(2,6,16,.72)":"rgba(15,30,60,.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:2000,padding:20}}>
       <div className="event-in menu-scope glass" style={{padding:"26px 30px 28px",maxWidth:520,width:"100%"}}>
         <div style={{display:"flex",alignItems:"center",gap:6,fontSize:9,fontWeight:700,color:col,textTransform:"uppercase",letterSpacing:3,marginBottom:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}><span className={headAnim} style={{display:"inline-flex"}}><Icon name={headingIcon} size={11} color={col}/></span>{heading}</div>
-        <h2 className="title-caps" style={{fontSize:24,marginBottom:6,lineHeight:1.2,textAlign:"center"}}>{ev.n}</h2>
-        <div aria-hidden="true" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10,marginBottom:14}}>
-          <span style={{width:90,height:1,background:"rgba(255,255,255,.45)"}}/><Diamond size={7} color={col}/><span style={{width:90,height:1,background:"rgba(255,255,255,.45)"}}/>
-        </div>
+        <h2 className="title-caps" style={{fontSize:21,marginBottom:10,lineHeight:1.25}}>{ev.n}</h2>
         <p style={{fontSize:13,color:P.muted,lineHeight:1.75,marginBottom:16}}>{ev.d}</p>
         {!isChoice && lines.length > 0 && (
           <div style={{background:P.bright,borderRadius:0,padding:"10px 14px",marginBottom:20,display:"flex",gap:14,flexWrap:"wrap"}}>
@@ -4976,14 +5055,14 @@ function EventModal({ ev, onDismiss }) {
         {isChoice ? (
           <div style={{display:"flex",flexDirection:"column",gap:10}}>
             {(ev.choices||[]).map((ch, i) => (
-              <button key={i} className="btn card-btn" onClick={()=>onDismiss(i)} style={{width:"100%",padding:"13px 16px",color:P.text,fontWeight:400,letterSpacing:.4,fontSize:14,textAlign:"left",display:"flex",flexWrap:"wrap",justifyContent:"space-between",alignItems:"center",columnGap:12,rowGap:4,minWidth:0}}>
+              <button key={i} className="btn card-btn" onClick={()=>onDismiss(i)} style={{width:"100%",padding:"13px 16px",color:P.text,fontWeight:500,fontSize:14,textAlign:"left",display:"flex",flexWrap:"wrap",justifyContent:"space-between",alignItems:"center",columnGap:12,rowGap:4,minWidth:0}}>
                 <span style={{flexShrink:0}}>{ch.label}</span>
                 <span style={{fontSize:10,opacity:0.75,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',textAlign:"right",flex:"1 1 auto",minWidth:0,overflowWrap:"anywhere",lineHeight:1.5}}>{fxLine(ch.fx||{})}</span>
               </button>
             ))}
           </div>
         ) : (
-          <button className="btn card-btn" onClick={()=>onDismiss(null)} style={{display:"block",margin:"0 auto",minWidth:210,padding:"10px 26px",color:P.text,fontWeight:400,fontSize:12,letterSpacing:2,textTransform:"uppercase"}}>
+          <button className="btn card-btn" onClick={()=>onDismiss(null)} style={{display:"block",width:"100%",padding:"12px 20px",color:P.accent,fontWeight:600,fontSize:14}}>
             {isGood ? "Accept" : "Acknowledge"}
           </button>
         )}
@@ -5018,7 +5097,7 @@ function StatsModal({ gs, onClose, dispatch }) {
   const decay    = [2,3,4,5,6,8][gs.stage] ?? 2;
   const next     = STAGES[Math.min(5,gs.stage+1)];
 
-  const Card = ({children, title}) => <div title={title||undefined} style={{background:P.card,borderRadius:0,padding:"12px 14px",border:"1px solid rgba(255,255,255,.12)",borderRadius:6,cursor:title?"help":"default"}}>{children}</div>;
+  const Card = ({children, title}) => <div title={title||undefined} style={{background:P.card,borderRadius:0,padding:"12px 14px",border:`1px solid ${P.border}`,borderRadius:10,cursor:title?"help":"default"}}>{children}</div>;
 
   return (
     <Modal title="Cluster Dashboard" icon="gauge-high" iconColor={P.accent} onClose={onClose} width={560}>
@@ -5342,7 +5421,8 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
     <div style={{height:"100dvh",background:P.bg,display:"flex",padding:mobile?16:24,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.text,overflowY:"auto",overflowX:"hidden"}}>
       <div style={{maxWidth:740,width:"100%",margin:"auto",paddingBottom:8}}>
         <div style={{textAlign:"center",marginBottom:mobile?22:"clamp(14px,3vh,32px)"}}>
-          <div style={{fontSize:9,letterSpacing:5,color:P.muted,textTransform:"uppercase",marginBottom:"clamp(6px,1.2vh,12px)"}}>EU Industrial Strategy Simulation</div>
+          <div style={{fontSize:11,letterSpacing:1.5,fontWeight:600,color:P.muted,textTransform:"uppercase",marginBottom:"clamp(6px,1.2vh,12px)",display:"inline-flex",alignItems:"center",gap:8}}>
+            <span aria-hidden="true" style={{color:"#FFCC00",fontSize:14,lineHeight:1}}>★</span>EU industrial strategy simulation</div>
           <h1 className="brand-title" style={{fontSize:mobile?40:"clamp(34px,6.5vh,54px)",fontWeight:700,lineHeight:1,marginBottom:"clamp(6px,1.2vh,10px)",letterSpacing:-2}}>CLUSTER<br/>MANAGER</h1>
           <div style={{fontSize:12,color:P.muted,marginBottom:14}}>From a local cluster initiative to a Pan-European Cluster Network</div>
           {canResume && (
@@ -5559,9 +5639,9 @@ function MapLegend({ gs }) {
           <Item swatch={box(`${P.gold}B0`, P.gold)} label="Home region"/>
           <Item swatch={box(`${sc}A8`, sc)} label="Full national coverage"/>
           <Item swatch={box(`${sc}66`, sc)} label="Active region"/>
-          <Item swatch={box(THEME_DARK?"#2A3B58":"#F6F2E3", "#A9A48F")} label="Unexplored"/>
-          <Item swatch={box(THEME_DARK?"#3F3A1E":"#F3E4A3", THEME_DARK?"#6B6128":"#CDB95E")} label="Candidate country"/>
-          <Item swatch={box(THEME_DARK?"#1C2A3F":"#D7D3C2", THEME_DARK?"#2B3B55":"#BDB8A4")} label="Outside the Union"/>
+          <Item swatch={box(THEME_DARK?"#1F2A40":"#FFFFFF", "#C6D0DE")} label="Unexplored"/>
+          <Item swatch={box(THEME_DARK?"#1E2C48":"#E2EAF7", THEME_DARK?"#34466D":"#B8C8E2")} label="Candidate country"/>
+          <Item swatch={box(THEME_DARK?"#182234":"#EDF0F4", THEME_DARK?"#263247":"#D3D9E2")} label="Outside the Union"/>
           {rivals.length > 0 && (
             <Item swatch={<span style={{display:"inline-block",width:14,height:10,borderRadius:0,border:`1px solid ${rivals[0].color}`,background:`repeating-linear-gradient(45deg, ${rivals[0].color}44 0 2px, transparent 2px 4px)`}}/>} label="Rival territory"/>
           )}
@@ -5731,7 +5811,7 @@ function AttentionQueue({ items, onGo, compact }) {
       <div role="list" aria-label="Things that could use your attention" style={{flexShrink:0,display:"flex",gap:6,padding:"6px 10px",overflowX:"auto",background:P.panel,borderTop:`1px solid ${P.border}`}}>
         {shown.map(it => (
           <button key={it.id} role="listitem" className="btn" onClick={()=>onGo(it.go)}
-            style={{flexShrink:0,maxWidth:240,textAlign:"left",padding:"6px 9px 6px 8px",border:`1px solid ${P.border}`,borderLeft:`4px solid ${it.urgent?P.gold:P.blue}`,borderRadius:5,background:P.card,color:P.text,fontSize:10.5,fontWeight:it.urgent?700:400,lineHeight:1.3,whiteSpace:"normal"}}>
+            style={{flexShrink:0,maxWidth:240,textAlign:"left",padding:"6px 9px 6px 8px",border:`1px solid ${P.border}`,borderLeft:`3px solid ${it.urgent?P.red:P.accent}`,borderRadius:8,background:P.card,color:P.text,fontSize:10.5,fontWeight:it.urgent?700:400,lineHeight:1.3,whiteSpace:"normal"}}>
             {it.text}
           </button>
         ))}
@@ -5740,10 +5820,10 @@ function AttentionQueue({ items, onGo, compact }) {
   }
   return (
     <div role="list" aria-label="Things that could use your attention" style={{position:"absolute",top:10,left:10,zIndex:44,width:268,display:"flex",flexDirection:"column",gap:4}}>
-      <div className="title-caps" style={{fontSize:12.5,color:"#16295C",textShadow:"0 0 6px rgba(255,255,255,.9)",padding:"0 2px 1px",fontWeight:700}}>Before you end the quarter</div>
+      <div style={{fontSize:11,fontWeight:600,letterSpacing:.7,textTransform:"uppercase",color:P.muted,padding:"0 2px 2px"}}>Before you end the quarter</div>
       {shown.map(it => (
         <button key={it.id} role="listitem" className="btn" onClick={()=>onGo(it.go)}
-          style={{textAlign:"left",padding:"7px 10px 7px 9px",border:"1px solid rgba(255,255,255,.16)",borderLeft:`4px solid ${it.urgent?P.gold:P.blue}`,borderRadius:6,background:"rgba(18,36,84,.86)",backdropFilter:"blur(10px)",WebkitBackdropFilter:"blur(10px)",color:P.text,fontSize:11,fontWeight:it.urgent?700:400,lineHeight:1.35}}>
+          style={{textAlign:"left",padding:"9px 12px 9px 11px",border:`1px solid ${P.border}`,borderLeft:`3px solid ${it.urgent?P.red:P.accent}`,borderRadius:10,background:P.panel,boxShadow:"0 1px 2px rgba(16,24,40,.05),0 4px 12px rgba(16,24,40,.06)",color:P.text,fontSize:12,fontWeight:it.urgent?600:400,lineHeight:1.35}}>
           {it.text}
         </button>
       ))}
@@ -5912,7 +5992,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
 
         {/* Map */}
         <div className="map-sea" style={{flex:1,overflow:"hidden",position:"relative",minHeight:0}}>
-          <EUMap gs={gs} sel={sel} setSel={setSel}/>
+          <EUMap gs={gs} sel={sel} setSel={setSel} dispatch={dispatch}/>
           <DigestCard gs={gs} digestOn={digestOn} reopenTick={digestReopen} onDigestToggle={onDigestToggle}/>
           <MapLegend gs={gs}/>
           {sel && <div style={{position:"absolute",bottom:8,left:8,fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>tap country again to close</div>}
@@ -6048,7 +6128,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
         {/* The map and its overlays live in the space the open panels leave free,
             so nothing of Europe is hidden and the map recentres as panels fold. */}
         <div style={{position:"absolute",top:0,bottom:0,left:leftOpen?231:0,right:dockOpen?dockW+16:0,transition:"left .18s ease,right .18s ease"}}>
-          <EUMap gs={gs} sel={sel} setSel={setSel} lift={150}/>
+          <EUMap gs={gs} sel={sel} setSel={setSel} lift={150} dispatch={dispatch}/>
           <DigestCard gs={gs} digestOn={digestOn} reopenTick={digestReopen} onDigestToggle={onDigestToggle}/>
           <MapLegend gs={gs}/>
           {tipCard}
@@ -6056,7 +6136,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
           {/* Turn controls: a medallion ends the quarter, with the smaller controls beside it */}
           <div style={{position:"absolute",right:16,bottom:14,zIndex:45,display:"flex",alignItems:"flex-end",gap:12}}>
             <button className="btn glass" onClick={() => setModal("evolve")} title="What the next stage requires"
-              style={{padding:"8px 14px",color:ok?P.gold:P.text,fontSize:11.5,fontWeight:ok?700:400,letterSpacing:.4,marginBottom:6}}>
+              style={{padding:"10px 14px",color:ok?P.accent:P.text,fontSize:12,fontWeight:ok?600:500,marginBottom:22}}>
               {(() => {
                 // Stage goals at a glance: how many of the next stage's conditions are met
                 const reqs = evolveReqs(gs); const met = reqs.filter(r => r.ok).length;
@@ -6064,16 +6144,15 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
               })()}
             </button>
             <button className="btn orb-sm" onClick={()=>setAuto(a=>!a)} disabled={!!gs.pendingEvent} title="Advance quarters automatically until something needs you" aria-pressed={!!auto}
-              style={{color:auto?P.gold:P.text,fontSize:10,fontWeight:700,marginBottom:6,opacity:gs.pendingEvent?0.5:1}}>
+              style={{color:auto?P.accent:P.text,fontSize:12,fontWeight:600,marginBottom:22,opacity:gs.pendingEvent?0.5:1}}>
               {auto ? "Pause" : "Auto"}
             </button>
             <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:7}}>
               <button className="btn orb" onClick={() => dispatch({type:"nextTurn"})} disabled={!!gs.pendingEvent || byRole(gs.roster,"manager")<1}
                 aria-label={gs.pendingEvent ? "Resolve the event first" : byRole(gs.roster,"manager")<1 ? "Hire a General Manager first" : "Next Quarter"}>
-                <span className="title-caps" style={{fontSize:15,lineHeight:1.05,color:"inherit",letterSpacing:1.5}}>{gs.pendingEvent ? "Event" : byRole(gs.roster,"manager")<1 ? "No GM" : "Next"}</span>{" "}
-                <span className="title-caps" style={{fontSize:15,lineHeight:1.05,color:"inherit",letterSpacing:1.5}}>{gs.pendingEvent ? "first" : byRole(gs.roster,"manager")<1 ? "hire one" : "Quarter"}</span>
+                <span style={{fontSize:15,fontWeight:600,color:"inherit"}}>{gs.pendingEvent ? "Resolve event first" : byRole(gs.roster,"manager")<1 ? "Hire a General Manager" : "Next quarter"}</span>
               </button>
-              <div className="glass" style={{padding:"3px 11px",fontSize:10.5,color:attention.length?P.gold:P.text,whiteSpace:"nowrap",borderRadius:20}}>
+              <div style={{padding:"2px 4px",fontSize:11,color:attention.length?P.accent:P.muted,whiteSpace:"nowrap",fontWeight:500}}>
                 {attention.length ? `${attention.length} thing${attention.length===1?"":"s"} could use you first` : `Q${gs.quarter} ${gs.year} · all clear`}
               </div>
             </div>
@@ -6084,13 +6163,13 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
           <LeftPanel gs={gs} dispatch={dispatch}/>
         </div>
         <button className="btn" onClick={()=>setLeftOpen(o=>!o)} aria-expanded={leftOpen} aria-label={leftOpen?"Hide the cluster summary":"Show the cluster summary"} title={leftOpen?"Hide the cluster summary":"Show the cluster summary"}
-          style={{position:"absolute",left:leftOpen?225:0,top:"50%",transform:"translateY(-50%)",zIndex:61,width:18,height:58,padding:0,border:"1px solid rgba(255,255,255,.3)",borderRadius:"0 6px 6px 0",background:"rgba(18,36,84,.92)",color:P.gold,fontSize:13,transition:"left .18s ease"}}>{leftOpen?"‹":"›"}</button>
+          style={{position:"absolute",left:leftOpen?225:0,top:"50%",transform:"translateY(-50%)",zIndex:61,width:18,height:58,padding:0,border:`1px solid ${P.border}`,borderRadius:"0 6px 6px 0",background:P.panel,color:P.accent,fontSize:13,transition:"left .18s ease"}}>{leftOpen?"‹":"›"}</button>
         <button className="btn" onClick={()=>setDockOpen(o=>!o)} aria-expanded={dockOpen} aria-label={dockOpen?"Hide the management panel":"Show the management panel"} title={dockOpen?"Hide the management panel":"Show the management panel"}
-          style={{position:"absolute",right:dockOpen?dockW+10:0,top:"50%",transform:"translateY(-50%)",zIndex:61,width:18,height:58,padding:0,border:"1px solid rgba(255,255,255,.3)",borderRadius:"6px 0 0 6px",background:"rgba(18,36,84,.92)",color:P.gold,fontSize:13,transition:"right .18s ease"}}>{dockOpen?"›":"‹"}</button>
+          style={{position:"absolute",right:dockOpen?dockW+10:0,top:"50%",transform:"translateY(-50%)",zIndex:61,width:18,height:58,padding:0,border:`1px solid ${P.border}`,borderRadius:"6px 0 0 6px",background:P.panel,color:P.accent,fontSize:13,transition:"right .18s ease"}}>{dockOpen?"›":"‹"}</button>
 
         {/* RIGHT DOCK: Projects / Staff / Network tabs + compact activity & log */}
         <div className="glass" style={{position:"absolute",right:8,top:8,bottom:8,zIndex:60,width:dockW,display:dockOpen?"flex":"none",flexDirection:"column",background:P.panel,borderLeft:`1px solid ${P.border}`,overflow:"hidden"}}>
-          <div className="menu-tabs" role="tablist" style={{display:"flex",flexShrink:0,background:"transparent",borderBottom:"1px solid rgba(255,255,255,.18)"}}>
+          <div className="menu-tabs" role="tablist" style={{display:"flex",flexShrink:0,background:"transparent",borderBottom:`1px solid ${P.border}`}}>
             {[["projects","folder-open","Projects",P.blue],["staff","users","Staff",P.purple],["network","earth-europe","Network",P.teal],["rivals","chess-knight","Rivals",P.red]].map(([id,icon,lbl,col]) => (
               <button key={id} className="btn" onClick={()=>setRightTab(id)} aria-pressed={rightTab===id}
                 style={{flex:1,padding:"11px 4px 8px",border:"none",borderBottom:`3px solid ${rightTab===id?P.gold:"transparent"}`,background:"transparent",color:rightTab===id?P.accent:P.muted,fontSize:12.5,fontWeight:rightTab===id?700:400}}>

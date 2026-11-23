@@ -342,21 +342,21 @@ const click = (el) => act(() => {
   ok(/\.btn:focus-visible/.test(G.CSS), "keyboard focus stays visible");
 
   // Colour: deep flag-blue glass, with flag yellow for actions and titles.
-  ok(G.P.accent.toLowerCase() === "#ffcc00", `actions and titles carry flag yellow (${G.P.accent})`);
-  ok(G.P.gold.toLowerCase() === "#ffcc00", `emphasis carries flag yellow (${G.P.gold})`);
+  ok(G.P.accent.toLowerCase() === "#1d4ed8", `actions carry one blue (${G.P.accent})`);
+  ok(!/#ffcc00/i.test(Object.values(G.P).join(" ")), "yellow is kept out of the interface palette");
   const rgbOf = hex => { const n = hex.replace("#", ""); return [0,2,4].map(i => parseInt(n.slice(i,i+2),16)); };
   const lum = hex => { const [r,g,b] = rgbOf(hex).map(v => { v/=255; return v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055,2.4); }); return 0.2126*r+0.7152*g+0.0722*b; };
   const contrast = (x, y) => { const [hi, lo] = [lum(x), lum(y)].sort((m,n)=>n-m); return (hi+0.05)/(lo+0.05); };
   for (const key of ["bg", "panel", "card"]) {
     const [r,g,b] = rgbOf(G.P[key]);
-    ok(b > r && b > g && b < 140, `${key} is a deep blue (${G.P[key]})`);
+    ok(Math.min(r,g,b) > 235 && b >= r, `${key} is a light, cool surface (${G.P[key]})`);
   }
   // every text colour has to stay readable on the panels it sits on
   for (const key of ["text", "muted", "accent", "goldText", "greenText", "redText", "blue"]) {
     const c = contrast(G.P[key], G.P.panel);
     ok(c >= 4.5, `${key} reads clearly on a panel (contrast ${c.toFixed(1)})`);
   }
-  ok(contrast(G.P.onAccent, G.P.accent) >= 7, "text on a yellow fill is dark navy, never white");
+  ok(contrast(G.P.onAccent, G.P.accent) >= 4.5, "text on a blue fill is white and reads clearly");
 
   // No pastel fills and no gloss: the two habits that make buttons read as SaaS.
   ok(!/sheen/.test(G.CSS), "the gloss sweep across the primary button is gone");
@@ -373,7 +373,7 @@ const click = (el) => act(() => {
   if (band) {
     const title = band.querySelector(".title-caps");
     ok(!!title && /Cluster Dashboard/.test(title.textContent), "the title is set in small capitals");
-    ok(band.style.textAlign === "center", "the title is centred over its ornament rule");
+    ok(band.style.textAlign === "left" && /1px solid/.test(band.style.borderBottom), "the title sits left above a hairline");
   }
   ok(qsa(".glass").length >= 1, "the window is a glass panel over the map");
   const close = qsa("button").find(b => b.getAttribute("aria-label") === "Close");
@@ -410,9 +410,9 @@ const click = (el) => act(() => {
   ok(/\.menu-scope \.btn:not\(\.dot\):not\(\.card-btn\):hover:not\(:disabled\)[^{]*\{[^}]*text-decoration:underline/.test(css), "hovering a menu button underlines it");
   ok(/\.menu-scope \.btn:not\(\.dot\):not\(\.card-btn\):focus-visible/.test(css), "keyboard focus underlines it too");
   ok(/\.menu-scope \.btn:disabled\{[^}]*text-decoration:none/.test(css), "a disabled button does not underline");
-  ok(css.includes('.menu-scope .btn[style*="color: rgb(12, 26, 61)"]') && /color:#FFCC00 !important/.test(css),
+  ok(css.includes('.menu-scope .btn[style*="color:#FFFFFF"]') && css.includes('.menu-scope .btn[style*="color: rgb(255, 255, 255)"]'),
      "text that sat on a fill takes the action colour, so it cannot vanish");
-  ok(css.includes(".card-btn{") && /\.card-btn:hover[^{]*\{[^}]*border-color:#FFCC00/.test(css), "option cards are framed, and the frame turns yellow under the pointer");
+  ok(css.includes(".card-btn{") && /\.card-btn:hover[^{]*\{[^}]*border-color:#1D4ED8/.test(css), "option rows are framed, and the frame turns blue under the pointer");
 
   // every kind of menu is inside the scope
   const sector = { id:"digital", name:"Digital", color:"#38bdf8", icon:"display" };
@@ -469,8 +469,43 @@ const click = (el) => act(() => {
   render(React.createElement(G.EventModal, { ev: plain, onDismiss: () => {} }));
   ok(qsa("button.card-btn").length === 1, "a plain event has one framed confirm");
 
-  ok(/backdrop-filter:blur/.test(G.CSS), "glass panels blur the map behind them");
-  ok(/small-caps/.test(G.CSS), "titles use small capitals");
+  ok(/\.glass\{background:#FFFFFF/.test(G.CSS), "panels are white cards");
+  ok(!/small-caps/.test(G.CSS), "headings are plain sentence case, without small capitals");
+}
+
+/* ── clicking a region on the map ─────────────────────────── */
+{
+  const sector = { id:"digital", name:"Digital", color:"#38bdf8", icon:"display" };
+  const g0 = { ...G.initState("Austria", "Styria", sector), budget: 5_000_000 };
+  const sent = [];
+  const nuts = (code) => qsa("path").find(p => p.getAttribute("data-nuts") === code);
+  render(null);
+  render(React.createElement(G.EUMap, { gs: g0, sel: null, setSel: () => {}, dispatch: (a) => sent.push(a) }));
+  ok(qsa("path[data-nuts]").length > 200, "every region on the map can be clicked");
+
+  // an unheld Austrian region offers an office
+  const otherCode = Object.keys(G.NUTS2_PATHS).find(c => c.startsWith("AT") && c !== "AT22");
+  click(nuts(otherCode));
+  const card = qsa(".region-card")[0];
+  ok(!!card, "clicking a region opens its card");
+  const open = card && [...card.querySelectorAll("button")].find(b => /Open office/.test(b.textContent));
+  ok(!!open && !open.disabled, "the card offers to open an office there, with its price");
+  if (open) { click(open); ok(sent.length === 1 && sent[0].type === "expandRegion", "pressing it expands into that region"); }
+
+  // the home region reads as held
+  click(nuts("AT22"));
+  ok(/Your office is here/.test(qsa(".region-card")[0]?.textContent || ""), "your own region says so");
+
+  // a closed country explains itself and offers no button
+  const deCode = Object.keys(G.NUTS2_PATHS).find(c => c.startsWith("DE"));
+  click(nuts(deCode));
+  const deCard = qsa(".region-card")[0];
+  ok(deCard && /open up at/.test(deCard.textContent), "a country you cannot enter yet explains why");
+  ok(deCard && ![...deCard.querySelectorAll("button")].some(b => /Enter|Open office/.test(b.textContent)), "and offers nothing to press");
+
+  // the close control and open water both dismiss the card
+  const x = qsa("button").find(b => b.getAttribute("aria-label") === "Close region card");
+  if (x) { click(x); ok(qsa(".region-card").length === 0, "the card closes"); }
 }
 
 /* ── the painted map: neighbours, candidates and banners ──── */
@@ -524,11 +559,11 @@ const click = (el) => act(() => {
   ok(/Before you end the quarter/.test(text()), "the queue says what it is for");
 
   // the turn control carries the count
-  const next = qsa("button").find((b) => /Next Quarter/.test(b.textContent));
+  const next = qsa("button").find((b) => /Next quarter/i.test(b.textContent));
   ok(!!next, "Next Quarter sits on the map");
   ok(!!qsa("button").find((b) => /Stage goals \d+\/\d+|Evolve now|Final stage/.test(b.textContent)),
      "the evolve control shows progress toward the next stage");
-  ok(next && /orb/.test(next.className), "it is the round medallion");
+  ok(next && /orb/.test(next.className), "it is the primary turn button");
   ok(/could use you first|all clear/.test(text()), "a caption under it reports how much is still open");
 
   // a plate takes you to the panel that deals with it
@@ -556,7 +591,7 @@ const click = (el) => act(() => {
   render(null);
   render(React.createElement(G.Game, { gs: g, dispatch: () => {}, vw: 420, onRestart: () => {} }));
   ok(qsa('[role="listitem"]').length >= 1, "the attention queue is present on mobile too");
-  ok(!!qsa("button").find((b) => /Next Quarter/.test(b.textContent)), "Next Quarter is present on mobile");
+  ok(!!qsa("button").find((b) => /Next Quarter/i.test(b.textContent)), "Next Quarter is present on mobile");
 
   // nothing to flag means no empty box
   render(null);

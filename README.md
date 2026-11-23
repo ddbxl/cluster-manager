@@ -45,13 +45,14 @@ You win by reaching Stage 5 before your rivals, or by clearing the field of them
 
 **A living policy cycle.** You meet the instruments your members would face in real life across ninety-nine events: CBAM reporting, the Net-Zero Industry Act, AI Act conformity, Just Transition allocations, Interreg partner searches, EIT communities, state-aid scrutiny, the cohesion mid-term review. Many belong to a single ecosystem, so a textiles cluster and an aerospace cluster read different news. Others answer the shape of your cluster: whether you hold a seat, how corporate-heavy your membership has become, how thin the treasury is, how crowded the field looks. Thirty-nine funding calls span the ladder from an Open Doors Week to a Pan-European Flagship Alliance.
 
-**A glass interface over a painted map.** Panels are translucent flag blue floating over the map, softly rounded, so the map stays visible behind them. Titles are set in yellow small capitals over a hairline with a diamond at its centre; reading text is near white in Helvetica. Flag yellow marks whatever you can act on. Event options are framed cards whose frame turns yellow under the pointer, menu buttons are plain text that underlines, and a round medallion at the bottom right ends the quarter.
+**A clean, quiet interface.** White cards on a pale blue-grey page, one blue for everything you can act on, colour kept for meaning (green for gains, red for losses), and plain Helvetica throughout. Menu buttons are text that underlines when you point at it; event options are framed rows that turn blue under the pointer; a single blue button ends the quarter.
 
 **Three difficulties.** Junior teaches you the ropes, Officer gives you a fair fight, Expert removes the safety net.
 
 ## Quality of life and accessibility
 
-- A painted map: the Union's neighbours are drawn around it, candidate countries are tinted in flag yellow, and banners on the map show how much of each country you hold and where each rival is based
+- A painted map: the Union's neighbours are drawn around it, candidate countries are tinted pale blue, and banners on the map show how much of each country you hold and where each rival is based
+- Click any region on the map to see what it offers: open an office in a country you already hold, or enter a bordering country at that region. If it is out of reach, the card says why
 - The map owns the screen: the side panels float over it and fold away, and the turn controls sit on the map itself
 - An attention queue lists what could still use a decision before you end the quarter, such as an idle project slot, spare staff capacity or a stage you can now reach, and each entry opens the panel that deals with it
 - Trend indicators on each stat, with tap or hover breakdowns that name each contributing factor
