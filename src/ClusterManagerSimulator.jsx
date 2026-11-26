@@ -115,6 +115,20 @@ html.dark .setup input,html.dark .setup select{background:#0F1B3D}
 html.dark .facts{color:#9AA8C8}
 .fact{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.seat-row{display:flex;align-items:center;gap:8px;font-size:12px;padding:4px 0;cursor:help}
+.locked{list-style:none;margin:0;padding:0}
+.locked li{display:grid;grid-template-columns:auto 1fr auto;gap:2px 9px;align-items:center;padding:9px 0;border-top:1px solid #D9DFEA;font-size:12.5px}
+html.dark .locked li{border-top-color:#243461}
+.locked .need{grid-column:2 / 4;font-size:12px;color:#B00E28}
+html.dark .locked .need{color:#FF97A0}
+span[style*="padding: 2px 7px"],span[style*="padding:2px 7px"],span[style*="padding: 2px 8px"],span[style*="padding:2px 8px"],span[style*="padding: 3px 0px"],span[style*="padding:3px 0"]{border:none !important;background:transparent !important;padding:0 !important;font-weight:600}
+/* Segmented control: one rounded track, the chosen option filled. */
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:2px;border-radius:8px;background:#EEF2F7}
+html.dark .seg{background:#16244A}
+.seg .btn{border:none !important;border-radius:6px !important;background:transparent !important;padding:5px 4px !important;font-size:11.5px !important;color:#5A6785 !important;font-weight:500}
+html.dark .seg .btn{color:#9AA8C8 !important}
+.seg .btn[aria-pressed="true"]{background:#FFFFFF !important;color:#0B1B3F !important;box-shadow:0 1px 2px rgba(11,27,63,.12)}
+html.dark .seg .btn[aria-pressed="true"]{background:#0F1B3D !important;color:#EEF2FA !important}
 /* The hover label on the map: sized to its content, wraps long names. */
 .map-hover{position:absolute;z-index:47;pointer-events:none;max-width:240px;padding:9px 11px;background:#FFFFFF;border:1px solid #D9DFEA;border-radius:6px;box-shadow:0 6px 20px rgba(11,27,63,.12);font-size:12px;line-height:1.45;color:#0B1B3F}
 html.dark .map-hover{background:#0F1B3D;border-color:#243461;color:#EEF2FA}
@@ -216,6 +230,8 @@ const P = {
   goldText:"#1F4BD8", greenText:"#0F7B4A", redText:"#B00E28",
   onAccent:"#FFFFFF",
 };
+// The light palette is kept as a copy: applyTheme swaps P back to it after dark mode.
+const P_LIGHT = { ...P };
 const P_DARK = {
   bg:"#0A1430",     panel:"#0F1B3D",   card:"#0F1B3D",   border:"#243461",
   bright:"#16244A", text:"#EEF2FA",    muted:"#9AA8C8",
@@ -4035,7 +4051,7 @@ function EUMap({ gs, sel, setSel, lift=0, dispatch }) {
                 style={{marginTop:12,width:"100%",padding:"10px 12px",border:"none",borderRadius:6,background:go?P.accent:P.bright,color:go?P.onAccent:P.muted,fontSize:13,fontWeight:600}}>
                 {opt.kind === "country" ? `Enter ${pick.country} for ${fmt(opt.cost)}` : `Open an office for ${fmt(opt.cost)}`}
               </button>
-              <div style={{fontSize:10.5,color:P.muted,marginTop:6,lineHeight:1.45}}>
+              <div style={{fontSize:11.5,color:P.muted,marginTop:6,lineHeight:1.45}}>
                 {opt.state === "short" ? opt.text
                   : opt.kind === "country" ? `Adds a mandatory Country Manager on the payroll.`
                   : `Adds a mandatory Regional Coordinator on the payroll.`}
@@ -4047,7 +4063,7 @@ function EUMap({ gs, sel, setSel, lift=0, dispatch }) {
     })()}
 
     {/* Watermark — HTML, not SVG, so zooming the map doesn't magnify it */}
-    <div style={{position:"absolute",...(lift ? {left:"50%",transform:"translateX(-50%)"} : {right:8}),bottom:6,pointerEvents:"none",fontSize:10,color:P.muted,opacity:0.55,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',whiteSpace:"nowrap"}}>
+    <div style={{position:"absolute",...(lift ? {left:"50%",transform:"translateX(-50%)"} : {right:8}),bottom:6,pointerEvents:"none",fontSize:11.5,color:P.muted,opacity:0.55,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',whiteSpace:"nowrap"}}>
       {diffOf(gs).label} difficulty
     </div>
 
@@ -4068,7 +4084,7 @@ function EUMap({ gs, sel, setSel, lift=0, dispatch }) {
 
     {map.zoomed && (
       <div style={{position:"absolute",left:"50%",transform:"translateX(-50%)",top:8,zIndex:36,pointerEvents:"none",
-        fontSize:9.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.muted,background:P.panel,border:`1px solid ${P.border}`,
+        fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.muted,background:P.panel,border:`1px solid ${P.border}`,
         borderRadius:0,padding:"3px 10px",boxShadow:"none",whiteSpace:"nowrap"}}>
         {map.view.z.toFixed(1)}× · drag to pan
       </div>
@@ -4129,7 +4145,7 @@ const EmptyState = ({ icon, title, hint }) => (
   <div style={{textAlign:"center",padding:"20px 16px",color:P.muted}}>
     <div style={{marginBottom:8,display:"flex",justifyContent:"center",opacity:0.55}}><Icon name={icon} size={26} color={P.muted}/></div>
     <div style={{fontSize:12,fontWeight:700,color:P.text,marginBottom:3}}>{title}</div>
-    <div style={{fontSize:10.5,lineHeight:1.5,maxWidth:280,margin:"0 auto"}}>{hint}</div>
+    <div style={{fontSize:11.5,lineHeight:1.5,maxWidth:280,margin:"0 auto"}}>{hint}</div>
   </div>
 );
 const ProgressRing = ({ pct, color, size=30, stroke=3.5, label }) => {
@@ -4225,7 +4241,7 @@ const Bar = ({ val, max=100, color, h=4 }) => (
 
 const MiniStat = ({ l, v, c=P.text }) => (
   <div style={{background:P.card,borderRadius:0,padding:"7px 10px",border:`1px solid ${P.border}`}}>
-    <div style={{fontSize:10,color:P.muted,marginBottom:3,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',letterSpacing:0.3}}>{l}</div>
+    <div style={{fontSize:11.5,color:P.muted,marginBottom:3,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',letterSpacing:0.3}}>{l}</div>
     <div style={{fontSize:16,fontWeight:700,color:c,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{v}</div>
   </div>
 );
@@ -4284,7 +4300,7 @@ function InfoDot({ text, label, children, style }) {
       <button ref={btnRef} className="btn dot" aria-label={label||"More information"} aria-expanded={open}
         onClick={e => { e.stopPropagation(); setOpen(o=>!o); }}
         onMouseEnter={()=>setOpen(true)} onMouseLeave={()=>setOpen(false)}
-        style={{marginLeft:4,width:14,height:14,minWidth:14,borderRadius:"50%",border:`1px solid ${P.border}`,background:P.card,color:P.muted,fontSize:9,fontWeight:700,lineHeight:1,padding:0,display:"inline-flex",alignItems:"center",justifyContent:"center",cursor:"help",flexShrink:0}}>i</button>
+        style={{marginLeft:4,width:14,height:14,minWidth:14,borderRadius:"50%",border:`1px solid ${P.border}`,background:P.card,color:P.muted,fontSize:11,fontWeight:700,lineHeight:1,padding:0,display:"inline-flex",alignItems:"center",justifyContent:"center",cursor:"help",flexShrink:0}}>i</button>
       {open && (
         <span ref={tipRef} role="tooltip"
           style={{position:"fixed",
@@ -4293,7 +4309,7 @@ function InfoDot({ text, label, children, style }) {
             visibility: pos ? "visible" : "hidden",
             zIndex:2000,maxHeight:"70vh",overflowY:"auto",boxSizing:"border-box",
             padding:"8px 10px",borderRadius:0,background:THEME_DARK?"#0b1220":"#1B2740",color:"#fff",
-            fontSize:10.5,lineHeight:1.5,fontWeight:400,whiteSpace:"pre-wrap",overflowWrap:"anywhere",
+            fontSize:11.5,lineHeight:1.5,fontWeight:400,whiteSpace:"pre-wrap",overflowWrap:"anywhere",
             boxShadow:"none",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',textAlign:"left",
             pointerEvents:"none"}}>{text}</span>
       )}
@@ -4302,7 +4318,7 @@ function InfoDot({ text, label, children, style }) {
 }
 
 const Trend = ({ t }) => !t ? null : (
-  <span style={{fontSize:10,fontWeight:700,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:t.delta>0.05?P.greenText:t.delta<-0.05?P.redText:P.muted}}>
+  <span style={{fontSize:11.5,fontWeight:700,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:t.delta>0.05?P.greenText:t.delta<-0.05?P.redText:P.muted}}>
     {t.delta>0.05?"▲":t.delta<-0.05?"▼":"■"} {t.delta>=0?"+":""}{Math.round(t.delta*10)/10}/Q
   </span>
 );
@@ -4375,7 +4391,7 @@ function LeftPanel({ gs, dispatch }) {
           <span className="tnum" style={{fontSize:26,fontWeight:600,letterSpacing:-.5,color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.round(tMembers)}</span>
           <Trend t={trends?.members}/>
         </div>
-        <div style={{fontSize:9,color:P.muted}}>fee {fmt(memberFee(gs.stage))}/quarter · mix ×{(Math.round(feeMult(gs)*100)/100).toFixed(2)}</div>
+        <div style={{fontSize:11,color:P.muted}}>fee {fmt(memberFee(gs.stage))}/quarter · mix ×{(Math.round(feeMult(gs)*100)/100).toFixed(2)}</div>
         {(() => { const mx = mixOf(gs), m = Math.max(1, gs.members||1); return (
           <div style={{marginTop:6}} title={`Member composition\nSMEs ${mx.sme} (fee ×0.8, volatile)\nCorporates ${mx.corp} (fee ×2.1, board +1 at 35%+)\nResearch ${mx.res} (fee ×0.5, research margins +2pp at 20%+)`}>
             <div style={{display:"flex",height:5,borderRadius:0,overflow:"hidden",border:`1px solid ${P.border}`}}>
@@ -4383,12 +4399,16 @@ function LeftPanel({ gs, dispatch }) {
               <div style={{width:`${Math.round(mx.corp/m*100)}%`,background:P.gold}}/>
               <div style={{flex:1,background:P.purple}}/>
             </div>
-            <div style={{fontSize:8.5,color:P.muted,marginTop:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>SME {Math.round(mx.sme/m*100)}% · corp {Math.round(mx.corp/m*100)}% · research {Math.round(mx.res/m*100)}%</div>
-            <div style={{display:"flex",gap:3,marginTop:5,flexWrap:"wrap"}}>
+            <Facts style={{marginTop:6}} items={[
+              {i:"briefcase", t:`${Math.round(mx.sme/m*100)}%`, tip:"Small and medium firms"},
+              {i:"industry", t:`${Math.round(mx.corp/m*100)}%`, tip:"Large companies"},
+              {i:"graduation-cap", t:`${Math.round(mx.res/m*100)}%`, tip:"Research organisations"},
+            ]}/>
+            <div className="seg" role="group" aria-label="Recruitment focus" style={{marginTop:8}}>
               {Object.entries(MIX_FOCUS).map(([fid, fo]) => (
                 <button key={fid} className="btn" title={`Recruitment focus: ${fo.label} — new members join ${Math.round(fo.sme*100)}% SME / ${Math.round(fo.corp*100)}% corporate / ${Math.round(fo.res*100)}% research`}
                   onClick={() => dispatch({type:"setFocus", focus:fid})}
-                  style={{padding:"2px 7px",borderRadius:0,fontSize:8.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',border:`1px solid ${(gs.focus||"balanced")===fid?P.accent:P.border}`,background:(gs.focus||"balanced")===fid?`${P.accent}18`:"transparent",color:(gs.focus||"balanced")===fid?P.accent:P.muted}}>
+                  aria-pressed={(gs.focus||"balanced")===fid}>
                   {fo.label}
                 </button>
               ))}
@@ -4401,7 +4421,7 @@ function LeftPanel({ gs, dispatch }) {
             <div style={{width:`${Math.min(100,Math.round((rivalPressure(gs)/Math.max(1,marketPool(gs)))*100))}%`,background:P.red,opacity:.6}}/>
             <div style={{flex:1,background:P.bg}}/>
           </div>
-          <div style={{fontSize:8.5,color:P.muted,marginTop:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>market {Math.round(marketShare(gs)*100)}% claimed (you + rivals)</div>
+          <div style={{fontSize:11,color:P.muted,marginTop:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>market {Math.round(marketShare(gs)*100)}% claimed (you + rivals)</div>
         </div>
       </div>
 
@@ -4410,45 +4430,47 @@ function LeftPanel({ gs, dispatch }) {
         <div style={{display:"flex",alignItems:"center"}}><Lbl t="Influence"/><InfoDot label="Influence trend" text={trendTitle(trends?.influence, "Plus one-off effects: project deliveries, events, coups.")}/></div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
           <span style={{fontSize:20,fontWeight:700,color:P.purple,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.round(tInfl)}</span>
-          <span style={{display:"inline-flex",alignItems:"baseline",gap:8}}><Trend t={trends?.influence}/><span style={{fontSize:9,color:P.muted}}>/ 100</span></span>
+          <span style={{display:"inline-flex",alignItems:"baseline",gap:8}}><Trend t={trends?.influence}/><span style={{fontSize:11,color:P.muted}}>/ 100</span></span>
         </div>
         <Bar val={gs.prestige||0} color={P.purple}/>
         <div style={{fontSize:12,color:P.muted,marginTop:4}} title="Your political standing with public authorities. It fades each quarter unless you keep earning it.">Fades {decay} a quarter</div>
-        <div style={{marginTop:8,paddingTop:8,borderTop:`1px solid ${P.border}`}}>
-          <div style={{fontSize:8,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:5}}>Political Integration</div>
-          <div style={{display:"flex",gap:4}}>
-            {seatStatus(gs).map(st => {
-              const rvColor = st.heldBy ? ((gs.rivals||[]).find(r=>r.id===st.heldBy)?.color || P.red) : null;
-              return (
-                <span key={st.id} title={st.held?`${st.label} · ${st.effects}`:st.heldBy?`${st.label} · chaired by ${st.holderName} — needs: ${st.reqs.filter(r=>!r.ok).map(r=>r.l).join(", ")||"displacement next quarter"}`:`${st.label} · needs: ${st.reqs.filter(r=>!r.ok).map(r=>r.l).join(", ")||"granted next quarter"}`}
-                  style={{flex:1,textAlign:"center",fontSize:8.5,fontWeight:700,padding:"3px 0",borderRadius:0,letterSpacing:.4,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',
-                    border:`1px solid ${st.held?P.gold:rvColor||P.border}`,background:st.held?`${P.gold}18`:rvColor?`${rvColor}14`:"transparent",color:st.held?P.goldText:rvColor||P.muted}}>
-                  {st.short}
-                </span>
-              );
-            })}
-          </div>
-          {seatsHeld(gs)===0 && <div style={{fontSize:8.5,color:P.muted,marginTop:4,lineHeight:1.4}}>earn seats in policy bodies for lasting advantages · see Statistics</div>}
+        <div className="seats" style={{marginTop:12}}>
+          <div style={{fontSize:13,fontWeight:600,color:P.text,marginBottom:6}}>Seats</div>
+          {seatStatus(gs).map(st => {
+            const rv = st.heldBy ? (gs.rivals||[]).find(r=>r.id===st.heldBy) : null;
+            const missing = st.reqs.filter(r=>!r.ok).map(r=>r.l).join(", ");
+            const tip = st.held ? `${st.label}: ${st.effects}` : rv ? `${st.label}, chaired by ${st.holderName}. Needs: ${missing || "displacement next quarter"}` : `${st.label}. Needs: ${missing}`;
+            return (
+              <div key={st.id} className="seat-row" title={tip}>
+                <Icon name={({regional:"building-columns",national:"landmark",eu:"earth-europe"})[st.id]||"landmark"} size={12} color={st.held?P.accent:P.muted}/>
+                <span style={{flex:1,color:P.text}}>{({regional:"Regional",national:"National",eu:"EU"})[st.id]||st.short}</span>
+                {st.held
+                  ? <span style={{color:P.accent,fontWeight:600}}>Yours</span>
+                  : rv ? <span style={{display:"inline-flex",alignItems:"center",gap:5,color:P.muted,maxWidth:110,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}><span style={{width:7,height:7,borderRadius:2,background:rv.color,flexShrink:0}}/>{rv.name}</span>
+                  : <span style={{color:P.muted}}>Open</span>}
+              </div>
+            );
+          })}
         </div>
       </div>
 
       {/* Board Confidence */}
-      <div className={pBoard} style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${(gs.boardConf||0)<30?`${P.red}55`:P.border}`}}>
-        <div style={{display:"flex",alignItems:"center"}}><Lbl t="Board Confidence"/><InfoDot label="Board confidence trend" text={trendTitle(trends?.board, "Plus one-off effects: project completions +3, failures −8..−15, events.")}/></div>
+      <div className={pBoard} style={{padding:"14px 6px 12px",borderTop:`1px solid ${P.border}`}}>
+        <div style={{display:"flex",alignItems:"center"}}><Lbl t="Board confidence"/><InfoDot label="Board confidence trend" text={trendTitle(trends?.board, "Plus one-off effects: project completions +3, failures −8..−15, events.")}/></div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
           <span style={{fontSize:20,fontWeight:700,color:(gs.boardConf||0)<30?P.red:(gs.boardConf||0)<55?P.orange:P.green,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.round(tBoard)}</span>
-          <span style={{display:"inline-flex",alignItems:"baseline",gap:8}}><Trend t={trends?.board}/><span style={{fontSize:9,color:P.muted}}>/ 100</span></span>
+          <span style={{display:"inline-flex",alignItems:"baseline",gap:8}}><Trend t={trends?.board}/><span style={{fontSize:11,color:P.muted}}>/ 100</span></span>
         </div>
         <Bar val={gs.boardConf||0} color={(gs.boardConf||0)<30?P.red:(gs.boardConf||0)<55?P.orange:P.green}/>
-        {(gs.boardConf||0)<30 && <div style={{display:"flex",alignItems:"center",gap:5,fontSize:9,color:P.red,marginTop:4}}><Icon name="triangle-exclamation" size={9} color={P.red}/>Crisis: +3% extra churn</div>}
+        {(gs.boardConf||0)<30 && <div style={{display:"flex",alignItems:"center",gap:5,fontSize:11,color:P.red,marginTop:4}}><Icon name="triangle-exclamation" size={9} color={P.red}/>Crisis: +3% extra churn</div>}
       </div>
 
       {/* Staff summary */}
       <div style={{padding:"14px 6px 12px",borderTop:`1px solid ${P.border}`}}>
         <Lbl t="Staff"/>
         <div style={{fontSize:18,fontWeight:700,color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{staffTotal(gs.roster)}</div>
-        <div style={{fontSize:9,color:P.muted}}>cost {fmt(staffCostQ(gs.roster, gs.turn))}/quarter · salaries +1%/Q</div>
-        <div style={{fontSize:9,color:P.muted,marginTop:2}}>fail risk: <span style={{color:failRate>25?P.red:failRate>15?P.orange:P.green}}>{failRate}%</span></div>
+        <div style={{fontSize:11,color:P.muted}}>cost {fmt(staffCostQ(gs.roster, gs.turn))}/quarter · salaries +1%/Q</div>
+        <div style={{fontSize:11,color:P.muted,marginTop:2}}>fail risk: <span style={{color:failRate>25?P.red:failRate>15?P.orange:P.green}}>{failRate}%</span></div>
       </div>
 
       {/* Evolution requirements */}
@@ -4456,29 +4478,29 @@ function LeftPanel({ gs, dispatch }) {
         <div style={{padding:"14px 6px 12px",borderTop:`1px solid ${P.border}`}}>
           <Lbl t={<>{STAGES[Math.min(5,gs.stage+1)]?.name||""}</>}/>
           {reqs.map((r,i) => (
-            <div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:9,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',lineHeight:1.9,color:r.ok?P.green:P.muted}}>
+            <div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',lineHeight:1.9,color:r.ok?P.green:P.muted}}>
               <span style={{display:"inline-flex",alignItems:"center",gap:4}}>{r.ok?<Icon name="check" size={9} color={P.green}/>:<Icon name="circle" size={4} color={P.muted}/>} {r.l}</span>
               <span>{r.money?fmt(r.cur):r.cur}/{r.money?fmt(r.req):r.req}</span>
             </div>
           ))}
-          <div style={{marginTop:4,fontSize:9,color:P.muted}}>Cost: <span style={{color:P.red}}>{fmt(evolveCost(gs.stage))}</span></div>
+          <div style={{marginTop:4,fontSize:11,color:P.muted}}>Cost: <span style={{color:P.red}}>{fmt(evolveCost(gs.stage))}</span></div>
         </div>
       )}
 
       {/* Network */}
       <div style={{padding:"14px 6px 12px",borderTop:`1px solid ${P.border}`}}>
         <Lbl t="Network"/>
-        <div style={{fontSize:9,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.blue}}>{(gs.countries||[]).length} countr{(gs.countries||[]).length===1?"y":"ies"}</div>
-        <div style={{fontSize:9,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.teal}}>{(gs.regions||[]).length} region{(gs.regions||[]).length!==1?"s":""}</div>
-        <div style={{fontSize:9,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.muted,marginTop:2}}>{(gs.completedProjects||[]).length} projects done</div>
-        {(gs.fullCountries||[]).length > 0 && <div style={{fontSize:9,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.goldText,marginTop:2}}>{(gs.fullCountries||[]).length} countr{(gs.fullCountries||[]).length===1?"y":"ies"} fully covered</div>}
+        <div style={{fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.blue}}>{(gs.countries||[]).length} countr{(gs.countries||[]).length===1?"y":"ies"}</div>
+        <div style={{fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.teal}}>{(gs.regions||[]).length} region{(gs.regions||[]).length!==1?"s":""}</div>
+        <div style={{fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.muted,marginTop:2}}>{(gs.completedProjects||[]).length} projects done</div>
+        {(gs.fullCountries||[]).length > 0 && <div style={{fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.goldText,marginTop:2}}>{(gs.fullCountries||[]).length} countr{(gs.fullCountries||[]).length===1?"y":"ies"} fully covered</div>}
       </div>
 
       {/* Director governance panel */}
       {byRole(gs.roster,"director") > 0 && (
         <div style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${P.accent}`}}>
           <Lbl t={<>Governance · {byRole(gs.roster,"director")} Director{byRole(gs.roster,"director")>1?"s":""}</>}/>
-          <div style={{fontSize:10,color:P.text,lineHeight:1.7}}>
+          <div style={{fontSize:11.5,color:P.text,lineHeight:1.7}}>
             <div>Board +{4+(byRole(gs.roster,"director")-1)*2}/quarter</div>
             <div>Influence +{byRole(gs.roster,"director")*2}/quarter</div>
             <div>Project income +10%</div>
@@ -4494,7 +4516,7 @@ function LeftPanel({ gs, dispatch }) {
           <Lbl t={<>Rival Race · first to Pan-European Cluster Network</>}/>
           {(gs.rivals||[]).map(rv => (
             <div key={rv.id} style={{marginBottom:7}}>
-              <div style={{display:"flex",justifyContent:"space-between",fontSize:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:11.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
                 <span style={{color:rv.color,display:"inline-flex",alignItems:"center",gap:5}}><Icon name="square" size={7} color={rv.color}/> {rv.name} · {NAME_TO_ISO[rv.country]||""}</span>
                 <span style={{color:rv.stage>gs.stage?P.red:P.muted}}>{STAGES[rv.stage]?.name} · {rv.members} members</span>
               </div>
@@ -4522,7 +4544,7 @@ function RightPanel({ gs, compact }) {
       {/* Active projects */}
       <div style={{padding:compact?"8px 10px 6px":"10px 10px 8px",borderBottom:`1px solid ${P.border}`,flexShrink:0,maxHeight:compact?96:"none",overflowY:compact?"auto":"visible"}}>
         <Lbl t={`Active projects (${active.length})`}/>
-        {active.length===0 && <div style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>No active projects</div>}
+        {active.length===0 && <div style={{fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>No active projects</div>}
         {active.map((p, i) => {
           if (!p) return null;
           const prog = Math.min(1, 1 - ((p.endTurn||0)-(gs.turn||0)) / Math.max(1,p.dur||1));
@@ -4530,13 +4552,13 @@ function RightPanel({ gs, compact }) {
           return (
             <div key={`ap-${i}`} style={{marginBottom:8,padding:"7px 8px",background:P.card,borderRadius:0,border:`1px solid ${P.border}`}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:6,marginBottom:4}}>
-                <div style={{fontSize:10,fontWeight:700,lineHeight:1.3}}>{p.name||""}</div>
-                <span style={{flexShrink:0,fontSize:9,fontWeight:600,color:st.color,whiteSpace:"nowrap",display:"inline-flex",alignItems:"center",gap:4}}><Icon name="circle" size={7} color={st.color}/> {st.label}</span>
+                <div style={{fontSize:11.5,fontWeight:700,lineHeight:1.3}}>{p.name||""}</div>
+                <span style={{flexShrink:0,fontSize:11,fontWeight:600,color:st.color,whiteSpace:"nowrap",display:"inline-flex",alignItems:"center",gap:4}}><Icon name="circle" size={7} color={st.color}/> {st.label}</span>
               </div>
               <div style={{height:2.5,background:P.bright,borderRadius:0}}>
                 <div style={{width:`${prog*100}%`,height:"100%",background:st.color,borderRadius:0,transition:"width .4s"}}/>
               </div>
-              <div style={{display:"flex",justifyContent:"space-between",marginTop:3,fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
+              <div style={{display:"flex",justifyContent:"space-between",marginTop:3,fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
                 <span style={{color:st.color}}>{Math.max(0,(p.endTurn||0)-(gs.turn||0))}Q left</span>
                 <span>{fmt(projBudget(p,p.partners||0))}</span>
               </div>
@@ -4689,22 +4711,22 @@ function ProjectsModal({ gs, dispatch, onClose, panel }) {
       </div>
       {locked.length > 0 && (
         <>
-          <div style={{margin:"14px 0 8px",fontSize:10,color:P.muted,fontWeight:700,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Calls not yet within reach · unmet enabling conditions</div>
-          <div style={{display:"grid",gap:6}}>
-            {locked.map(p => (
-              <div key={p.id} style={{background:P.card,borderRadius:0,padding:"8px 12px",border:`1px solid ${P.border}`,opacity:.78}}>
-                <div style={{display:"flex",justifyContent:"space-between",gap:8,alignItems:"center"}}>
-                  <span style={{fontSize:11,fontWeight:700,color:P.text}}>{p.name}</span>
-                  <span style={{fontSize:9,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{p.fund.toUpperCase()} · {fmt(projBudget(p, p.part||0))}</span>
-                </div>
-                <div style={{display:"flex",gap:5,marginTop:5,flexWrap:"wrap"}}>
-                  {projectConditions(p, gs).filter(c => !c.ok).map((c,i) => (
-                    <span key={i} style={{display:"inline-flex",alignItems:"center",gap:3,fontSize:10,padding:"2px 7px",borderRadius:0,border:`1px solid ${P.red}`,background:"transparent",color:P.redText,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}><Icon name="xmark" size={9} color={P.redText}/>{c.l}</span>
-                  ))}
-                </div>
-              </div>
-            ))}
+          <div style={{display:"flex",alignItems:"center",gap:6,margin:"18px 0 4px"}}>
+            <span style={{fontSize:13,fontWeight:600,color:P.text}}>Not yet available</span>
+            <InfoDot label="Why some calls are locked" text="These calls exist at your stage, but you do not yet meet their conditions. The red line under each says what is missing."/>
           </div>
+          <ul className="locked">
+            {locked.map(p => (
+              <li key={p.id}>
+                <Icon name="lock" size={11} color={P.muted}/>
+                <span style={{color:P.text}}>{p.name}</span>
+                <span className="tnum" style={{color:P.muted,display:"inline-flex",alignItems:"center",gap:5}}>
+                  <Icon name={p.fund==="eu"?"earth-europe":"building-columns"} size={11} color={P.muted}/>{fmt(projBudget(p, p.part||0))}
+                </span>
+                <span className="need">Needs {projectConditions(p, gs).filter(c => !c.ok).map(c => c.l).join(", ")}</span>
+              </li>
+            ))}
+          </ul>
         </>
       )}
     </>
@@ -4735,8 +4757,8 @@ function StaffModal({ gs, dispatch, onClose, panel }) {
         <MiniStat l="Churn Rate"     v={`${churnPct}%/quarter`}             c={P.blue}/>
         <MiniStat l="Fail Risk"      v={`${failRate}%`}                 c={P.orange}/>
       </div>
-      <div style={{fontSize:10,color:P.muted,marginBottom:6,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Salary inflation: labour costs are up {infl}% since founding and rise +1% every quarter, for new hires and the whole payroll.</div>
-      <div style={{fontSize:10,color:visibleStaff(roster)>=staffSpan(roster)?P.redText:P.muted,marginBottom:14,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Management capacity: {visibleStaff(roster)}/{staffSpan(roster)} (the GM manages 7; each Executive Director adds 7) · balance rule: max {roleCap(roster)} per role · exactly one General Manager.</div>
+      <div style={{fontSize:11.5,color:P.muted,marginBottom:6,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Salary inflation: labour costs are up {infl}% since founding and rise +1% every quarter, for new hires and the whole payroll.</div>
+      <div style={{fontSize:11.5,color:visibleStaff(roster)>=staffSpan(roster)?P.redText:P.muted,marginBottom:14,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Management capacity: {visibleStaff(roster)}/{staffSpan(roster)} (the GM manages 7; each Executive Director adds 7) · balance rule: max {roleCap(roster)} per role · exactly one General Manager.</div>
 
       {visibleStaff(roster) <= 1 && (
         <div style={{marginBottom:14}}><EmptyState icon="users" title="Just you and your General Manager" hint="Hire specialists below to unlock projects and grow: a Communications Director recruits members, a Project Manager cuts delivery risk, an Analyst runs research bids. The GM can supervise 7 people."/></div>
@@ -4758,17 +4780,17 @@ function StaffModal({ gs, dispatch, onClose, panel }) {
                   <div>
                     <div style={{fontSize:12,fontWeight:700,color:P.text,display:"flex",alignItems:"center",gap:6}}>
                       {def.icon && <Icon name={def.icon} size={13} color={P.purple}/>} {def.name}{count>1 && <span style={{color:P.accent,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>×{count}</span>}
-                      {seniors>0 && <span style={{display:"inline-flex",alignItems:"center",gap:2,fontSize:9,color:P.goldText,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}><Icon name="star" size={9} color={P.gold}/>{seniors}</span>}
+                      {seniors>0 && <span style={{display:"inline-flex",alignItems:"center",gap:2,fontSize:11,color:P.goldText,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}><Icon name="star" size={9} color={P.gold}/>{seniors}</span>}
                     </div>
-                    <div style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>-{fmt(roleCost(def, gs.turn)*count)}/quarter{count>1?" total":""}</div>
-                    <div title={idxs.map(x => `${x.r.name||"—"} · level ${skillOf(x.r)}`).join("\n")} style={{fontSize:9,color:P.muted,marginTop:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:210}}>
+                    <div style={{fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>-{fmt(roleCost(def, gs.turn)*count)}/quarter{count>1?" total":""}</div>
+                    <div title={idxs.map(x => `${x.r.name||"—"} · level ${skillOf(x.r)}`).join("\n")} style={{fontSize:11,color:P.muted,marginTop:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:210}}>
                       {idxs.slice(0,2).map(x => `${(x.r.name||"—").split(" ")[0]} L${skillOf(x.r)}`).join(" · ")}{count>2?` · +${count-2} more`:""}
                       {idxs.some(x=>skillOf(x.r)>=4) && <Icon name="star" size={8} color={P.gold} style={{marginLeft:4}}/>}
                     </div>
                   </div>
                   {def.hidden
-                    ? <span style={{fontSize:9,padding:"3px 8px",borderRadius:0,border:`1px solid ${P.border}`,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>mandatory</span>
-                    : <button className="btn" title={count>1?"Releases the most recent hire (lowest severance)":""} onClick={() => dispatch({type:"fire",idx:newest.i})} style={{padding:"3px 9px",borderRadius:0,border:`1px solid ${P.red}`,background:"transparent",color:P.red,fontSize:10,whiteSpace:"nowrap"}}>Fire {count>1?"one ":""}-{fmt(sev)}</button>}
+                    ? <span style={{fontSize:11,padding:"3px 8px",borderRadius:0,border:`1px solid ${P.border}`,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>mandatory</span>
+                    : <button className="btn" title={count>1?"Releases the most recent hire (lowest severance)":""} onClick={() => dispatch({type:"fire",idx:newest.i})} style={{padding:"3px 9px",borderRadius:0,border:`1px solid ${P.red}`,background:"transparent",color:P.red,fontSize:11.5,whiteSpace:"nowrap"}}>Fire {count>1?"one ":""}-{fmt(sev)}</button>}
                 </div>
               );
             })}
@@ -4789,10 +4811,10 @@ function StaffModal({ gs, dispatch, onClose, panel }) {
             <div key={`hire-${roleId}`} style={{background:P.card,borderRadius:0,padding:12,border:`1px solid ${P.border}`}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
                 <div><Icon name={staffRole.icon} size={17} color={P.purple}/></div>
-                {count > 0 && <span style={{fontSize:9,padding:"2px 7px",borderRadius:0,background:"transparent",color:P.purple,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{count}×</span>}
+                {count > 0 && <span style={{fontSize:11,padding:"2px 7px",borderRadius:0,background:"transparent",color:P.purple,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{count}×</span>}
               </div>
               <div style={{fontWeight:700,fontSize:13,marginBottom:3,color:P.text}}>{staffRole.name}</div>
-              <div style={{fontSize:10,color:P.muted,marginBottom:8,lineHeight:1.5}}>{staffRole.desc}{blockReason && <span style={{display:"block",fontSize:9,color:P.redText,marginTop:4,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{blockReason}</span>}</div>
+              <div style={{fontSize:11.5,color:P.muted,marginBottom:8,lineHeight:1.5}}>{staffRole.desc}{blockReason && <span style={{display:"block",fontSize:11,color:P.redText,marginTop:4,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{blockReason}</span>}</div>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                 <span style={{fontSize:13,fontWeight:700,color:P.red,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>-{fmt(price)}/quarter</span>
                 <button
@@ -4826,21 +4848,21 @@ function RivalsModal({ gs, dispatch, onClose, panel }) {
   const rvPct  = Math.min(100-youPct, Math.round((rivalPressure(gs)/Math.max(1,marketPool(gs)))*100));
   const body = (
     <>
-      <div style={{fontSize:10,color:P.muted,marginBottom:10,lineHeight:1.5}}>Rival clusters race you to the Pan-European Cluster Network. Contain them, out-politick them, or buy them out: if every rival folds, you win by <strong style={{color:P.text}}>market consolidation</strong> — but collapsed rivals are eventually replaced by new entrants.</div>
+      <div style={{fontSize:11.5,color:P.muted,marginBottom:10,lineHeight:1.5}}>Rival clusters race you to the Pan-European Cluster Network. Contain them, out-politick them, or buy them out: if every rival folds, you win by <strong style={{color:P.text}}>market consolidation</strong> — but collapsed rivals are eventually replaced by new entrants.</div>
       {(gs.coalitionUntil||0) > (gs.turn||0) && (
         <div style={{background:"transparent",border:`1.5px solid ${P.red}`,borderRadius:0,padding:"8px 12px",marginBottom:10,display:"flex",gap:8,alignItems:"center"}}>
           <span className="wiggle" style={{display:"inline-flex"}}><Icon name="triangle-exclamation" size={13} color={P.red}/></span>
-          <div style={{fontSize:10,color:P.redText,lineHeight:1.5}}><strong>RIVAL COALITION</strong> active for {(gs.coalitionUntil||0)-(gs.turn||0)} more quarters: their progress +10%, poaching +25%. Signing a consortium pact with any rival breaks it.</div>
+          <div style={{fontSize:11.5,color:P.redText,lineHeight:1.5}}><strong>RIVAL COALITION</strong> active for {(gs.coalitionUntil||0)-(gs.turn||0)} more quarters: their progress +10%, poaching +25%. Signing a consortium pact with any rival breaks it.</div>
         </div>
       )}
       <div style={{background:P.card,borderRadius:0,padding:"8px 12px",border:`1px solid ${P.border}`,marginBottom:12}}>
-        <div style={{fontSize:9,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:5}}>Member market in your territory · {Math.round(share*100)}% claimed</div>
+        <div style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:5}}>Member market in your territory · {Math.round(share*100)}% claimed</div>
         <div style={{display:"flex",height:8,borderRadius:0,overflow:"hidden",border:`1px solid ${P.border}`}}>
           <div style={{width:`${youPct}%`,background:gs.sector?.color||P.accent}} title={`You: ${gs.members||0} members`}/>
           <div style={{width:`${rvPct}%`,background:P.red,opacity:.7}} title="Rival pressure"/>
           <div style={{flex:1,background:P.bg}} title="Untapped market"/>
         </div>
-        <div style={{fontSize:9,color:P.muted,marginTop:4,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>you {youPct}% · rivals {rvPct}% · open {Math.max(0,100-youPct-rvPct)}% — recruitment slows as the pool empties; expansion grows the pool</div>
+        <div style={{fontSize:11,color:P.muted,marginTop:4,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>you {youPct}% · rivals {rvPct}% · open {Math.max(0,100-youPct-rvPct)}% — recruitment slows as the pool empties; expansion grows the pool</div>
       </div>
       {(gs.rivals||[]).length===0 && <div style={{textAlign:"center",padding:24,color:P.goldText,fontWeight:700}}>No rivals remain. The market is yours.</div>}
       <div style={{display:"grid",gap:10}}>
@@ -4863,20 +4885,20 @@ function RivalsModal({ gs, dispatch, onClose, panel }) {
                 <div style={{display:"flex",alignItems:"center",gap:7}}>
                   <span style={{width:9,height:9,borderRadius:0,background:rv.color,display:"inline-block"}}/>
                   <span style={{fontWeight:700,fontSize:13,color:P.text}}>{rv.name}</span>
-                  <span style={{fontSize:9,padding:"2px 7px",borderRadius:0,border:`1px solid ${rv.color}55`,color:rv.color,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{arch.label}</span>
-                  {truce && <span style={{fontSize:9,padding:"2px 7px",borderRadius:0,border:`1px solid ${P.green}`,background:"transparent",color:P.greenText,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>TRUCE until Q{rv.truce}</span>}
-                  {threat && !truce && <span className="wiggle" style={{fontSize:9,padding:"2px 7px",borderRadius:0,border:`1px solid ${ahead?P.red:P.orange}`,background:`${ahead?P.red:P.orange}12`,color:ahead?P.redText:P.orange,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',display:"inline-flex",alignItems:"center",gap:3}}><Icon name="triangle-exclamation" size={8} color={ahead?P.red:P.orange}/>{ahead?"AHEAD OF YOU":"THREAT"}</span>}
+                  <span style={{fontSize:11,padding:"2px 7px",borderRadius:0,border:`1px solid ${rv.color}55`,color:rv.color,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{arch.label}</span>
+                  {truce && <span style={{fontSize:11,padding:"2px 7px",borderRadius:0,border:`1px solid ${P.green}`,background:"transparent",color:P.greenText,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>TRUCE until Q{rv.truce}</span>}
+                  {threat && !truce && <span className="wiggle" style={{fontSize:11,padding:"2px 7px",borderRadius:0,border:`1px solid ${ahead?P.red:P.orange}`,background:`${ahead?P.red:P.orange}12`,color:ahead?P.redText:P.orange,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',display:"inline-flex",alignItems:"center",gap:3}}><Icon name="triangle-exclamation" size={8} color={ahead?P.red:P.orange}/>{ahead?"AHEAD OF YOU":"THREAT"}</span>}
                 </div>
-                <span style={{fontSize:9,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{STAGES[rv.stage]?.name} · {rv.members||0} members · {(rv.countries||[]).length} countr{(rv.countries||[]).length===1?"y":"ies"}</span>
+                <span style={{fontSize:11,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{STAGES[rv.stage]?.name} · {rv.members||0} members · {(rv.countries||[]).length} countr{(rv.countries||[]).length===1?"y":"ies"}</span>
               </div>
-              <div style={{fontSize:9.5,color:P.muted,margin:"4px 0 7px"}}>{arch.blurb}{shared.length>0 && <> · <span style={{color:P.redText}}>contests you in {shared.join(", ")}</span></>}{seatsHeldByRv.length>0 && <> · <span style={{color:P.goldText}}>holds: {seatsHeldByRv.map(s=>s.label).join(", ")}</span></>}</div>
+              <div style={{fontSize:11,color:P.muted,margin:"4px 0 7px"}}>{arch.blurb}{shared.length>0 && <> · <span style={{color:P.redText}}>contests you in {shared.join(", ")}</span></>}{seatsHeldByRv.length>0 && <> · <span style={{color:P.goldText}}>holds: {seatsHeldByRv.map(s=>s.label).join(", ")}</span></>}</div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
                 <div>
-                  <div style={{fontSize:8.5,color:P.muted,marginBottom:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>progress to next stage</div>
+                  <div style={{fontSize:11,color:P.muted,marginBottom:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>progress to next stage</div>
                   <div style={{height:5,background:P.bg,borderRadius:0,overflow:"hidden"}}><div style={{width:`${Math.min(100,rv.progress||0)}%`,height:"100%",background:rv.color}}/></div>
                 </div>
                 <div>
-                  <div style={{fontSize:8.5,color:P.muted,marginBottom:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>health {Math.round(hp)}{hp<=25 && <span style={{color:P.redText}}> · collapsing — acquirable</span>}</div>
+                  <div style={{fontSize:11,color:P.muted,marginBottom:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>health {Math.round(hp)}{hp<=25 && <span style={{color:P.redText}}> · collapsing — acquirable</span>}</div>
                   <div style={{height:5,background:P.bg,borderRadius:0,overflow:"hidden"}}><div style={{width:`${hp}%`,height:"100%",background:hp>60?P.green:hp>30?P.orange:P.red}}/></div>
                 </div>
               </div>
@@ -4884,7 +4906,7 @@ function RivalsModal({ gs, dispatch, onClose, panel }) {
                 const owned = new Set(rv.countries||[]);
                 const target = (NUTS_BORDERS[NAME_TO_ISO[rv.country]]||[]).map(iso => ISO_TO_NAME[iso]).find(n => n && !owned.has(n));
                 return (
-                  <div style={{fontSize:9,color:P.tealText||P.blue,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',margin:"4px 0",padding:"4px 8px",background:"transparent",borderRadius:0,border:`1px dashed ${P.blue}44`}}>
+                  <div style={{fontSize:11,color:P.tealText||P.blue,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',margin:"4px 0",padding:"4px 8px",background:"transparent",borderRadius:0,border:`1px dashed ${P.blue}44`}}>
                     <Icon name="magnifying-glass-chart" size={9} color={P.blue}/> INTEL ({(rv.scoutedUntil||0)-(gs.turn||0)}Q): progress {Math.round(rv.progress||0)}% to {STAGES[Math.min(5,(rv.stage||0)+1)]?.name} · next target: {target||"consolidating home market"} · poaching blunted −15%
                   </div>
                 );
@@ -4904,7 +4926,7 @@ function RivalsModal({ gs, dispatch, onClose, panel }) {
                   return (
                     <button key={opId} className="btn" disabled={!!blocked} title={blocked || op.desc}
                       onClick={() => dispatch({type, rid:rv.id})}
-                      style={{padding:"5px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:blocked?P.muted:P.text,fontSize:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',display:"inline-flex",alignItems:"center",gap:5}}>
+                      style={{padding:"5px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:blocked?P.muted:P.text,fontSize:11.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',display:"inline-flex",alignItems:"center",gap:5}}>
                       <Icon name={op.icon} size={10} color={blocked?P.muted:P.text}/>{op.label} · {fmt(cost)}
                     </button>
                   );
@@ -4967,20 +4989,20 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
               const bg     = full ? `${P.gold}20` : home ? `${P.gold}12` : `${sc}14`;
               return (
                 <span key={c} title={`${c}: ${active}/${total} regions active${full?" · fully covered":""}`}
-                  style={{fontSize:10,padding:"2px 8px",borderRadius:0,background:bg,border:`1px solid ${full?P.gold:home?`${P.gold}66`:`${sc}33`}`,color:col,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
+                  style={{fontSize:11.5,padding:"2px 8px",borderRadius:0,background:bg,border:`1px solid ${full?P.gold:home?`${P.gold}66`:`${sc}33`}`,color:col,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
                   {NAME_TO_ISO[c]||c} {active}/{total}{full && " ●"}{home && <Icon name="star" size={8} color={P.goldText} style={{marginLeft:3}}/>}
                 </span>
               );
             })}
           </div>
-          <div style={{fontSize:8.5,color:P.muted,marginTop:5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>● fully covered · ★ home country · activate every region of a country for a national coverage bonus</div>
+          <div style={{fontSize:11,color:P.muted,marginTop:5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>● fully covered · ★ home country · activate every region of a country for a national coverage bonus</div>
         </div>
       </div>
 
       {gs.stage >= 1 && avR.length > 0 && (
         <div style={{marginBottom:16}}>
-          <div style={{fontWeight:700,fontSize:13,marginBottom:4,color:P.text}}>Expand to New Region · <span style={{color:P.red}}>{fmt(rCost)}</span>{(gs.seats||{}).regional && <span style={{fontSize:9,color:P.goldText,marginLeft:6}}>−25% S3 Committee seat</span>}</div>
-          <div style={{fontSize:10,color:P.muted,marginBottom:8}}>Cost scales with influence · Stage 1+ required · every new region hires a mandatory Regional Coordinator ({fmt(coordSalary)}/quarter) and adds +4% coordination overhead.</div>
+          <div style={{fontWeight:700,fontSize:13,marginBottom:4,color:P.text}}>Expand to New Region · <span style={{color:P.red}}>{fmt(rCost)}</span>{(gs.seats||{}).regional && <span style={{fontSize:11,color:P.goldText,marginLeft:6}}>−25% S3 Committee seat</span>}</div>
+          <div style={{fontSize:11.5,color:P.muted,marginBottom:8}}>Cost scales with influence · Stage 1+ required · every new region hires a mandatory Regional Coordinator ({fmt(coordSalary)}/quarter) and adds +4% coordination overhead.</div>
           {(() => {
             const byCountry = {};
             avR.forEach(o => { (byCountry[o.c] = byCountry[o.c] || []).push(o); });
@@ -4992,7 +5014,7 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
                   <div style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:8}}>
                     {cs.map(c => (
                       <button key={c} className="btn" onClick={() => setRegCountry(c)} aria-pressed={selC===c}
-                        style={{padding:"3px 9px",borderRadius:0,fontSize:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',border:`1px solid ${selC===c?P.accent:P.border}`,background:selC===c?`${P.accent}0d`:"transparent",color:selC===c?P.accent:P.muted}}>
+                        style={{padding:"3px 9px",borderRadius:0,fontSize:11.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',border:`1px solid ${selC===c?P.accent:P.border}`,background:selC===c?`${P.accent}0d`:"transparent",color:selC===c?P.accent:P.muted}}>
                         {NAME_TO_ISO[c]||c} · {byCountry[c].length}
                       </button>
                     ))}
@@ -5011,8 +5033,8 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
 
       {gs.stage >= 2 && avC.length > 0 && (
         <div>
-          <div style={{fontWeight:700,fontSize:13,marginBottom:4,color:P.text}}>Expand to New Country · <span style={{color:P.red}}>{fmt(cCost)}</span>{(gs.seats||{}).national && <span style={{fontSize:9,color:P.goldText,marginLeft:6}}>−20% National Platform seat</span>}</div>
-          <div style={{fontSize:10,color:P.muted,marginBottom:8}}>Cost scales with influence · Stage 2+ required · only countries <strong style={{color:P.text}}>bordering your network</strong> (incl. ferry links) are open · international reach {String((gs.countries||[]).length)}/{capC} at this stage · every new country hires a mandatory Country Manager ({fmt(mgrSalary)}/quarter) and raises failure & event risk.</div>
+          <div style={{fontWeight:700,fontSize:13,marginBottom:4,color:P.text}}>Expand to New Country · <span style={{color:P.red}}>{fmt(cCost)}</span>{(gs.seats||{}).national && <span style={{fontSize:11,color:P.goldText,marginLeft:6}}>−20% National Platform seat</span>}</div>
+          <div style={{fontSize:11.5,color:P.muted,marginBottom:8}}>Cost scales with influence · Stage 2+ required · only countries <strong style={{color:P.text}}>bordering your network</strong> (incl. ferry links) are open · international reach {String((gs.countries||[]).length)}/{capC} at this stage · every new country hires a mandatory Country Manager ({fmt(mgrSalary)}/quarter) and raises failure & event risk.</div>
           <div style={{display:"flex",flexWrap:"wrap",gap:6,maxHeight:200,overflowY:"auto"}}>
             {avC.map(c => {
               const contested = occupied.has(c);
@@ -5026,10 +5048,10 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
       )}
 
       {gs.stage >= 2 && atCap && (gs.countries||[]).length < 27 && (
-        <div style={{fontSize:10,color:P.goldText,marginTop:6,fontWeight:600}}>International reach {String((gs.countries||[]).length)}/{capC}: a {STAGES[gs.stage]?.name} can credibly operate in at most {capC} countries — evolve to expand further.</div>
+        <div style={{fontSize:11.5,color:P.goldText,marginTop:6,fontWeight:600}}>International reach {String((gs.countries||[]).length)}/{capC}: a {STAGES[gs.stage]?.name} can credibly operate in at most {capC} countries — evolve to expand further.</div>
       )}
       {gs.stage >= 2 && !atCap && avC.length===0 && Object.keys(EU_COUNTRIES).some(c => !(gs.countries||[]).includes(c)) && (
-        <div style={{fontSize:10,color:P.muted,marginTop:6}}>No unclaimed country currently borders your network.</div>
+        <div style={{fontSize:11.5,color:P.muted,marginTop:6}}>No unclaimed country currently borders your network.</div>
       )}
       {gs.stage < 1 && <div style={{textAlign:"center",padding:28,color:P.muted}}>Reach Cluster Organisation (Stage 1) to expand geographically.</div>}
     </>
@@ -5091,7 +5113,7 @@ function LogModal({ gs, onClose }) {
         {(gs.log||[]).map((e,i) => (
           <div key={i} style={{padding:"7px 10px",borderRadius:0,marginBottom:4,background:P.card,border:`1px solid ${(cols[e?.t]||P.border)}22`,display:"flex",gap:7,alignItems:"flex-start"}}>
             <Icon name={LOG_ICON[e?.t]||"circle-info"} size={11} color={cols[e?.t]||P.muted} style={{marginTop:2}}/>
-            <div style={{fontSize:10,color:cols[e?.t]||P.text,lineHeight:1.5}}>{e?.txt||""}</div>
+            <div style={{fontSize:11.5,color:cols[e?.t]||P.text,lineHeight:1.5}}>{e?.txt||""}</div>
           </div>
         ))}
       </div>
@@ -5134,7 +5156,7 @@ function EventModal({ ev, onDismiss }) {
   return (
     <div className="backdrop-in" style={{position:"fixed",inset:0,background:THEME_DARK?"rgba(2,6,16,.72)":"rgba(15,30,60,.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:2000,padding:20}}>
       <div className="event-in menu-scope glass" style={{padding:"26px 30px 28px",maxWidth:520,width:"100%"}}>
-        <div style={{display:"flex",alignItems:"center",gap:6,fontSize:9,fontWeight:700,color:col,letterSpacing:0,marginBottom:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}><span className={headAnim} style={{display:"inline-flex"}}><Icon name={headingIcon} size={11} color={col}/></span>{heading}</div>
+        <div style={{display:"flex",alignItems:"center",gap:6,fontSize:11,fontWeight:700,color:col,letterSpacing:0,marginBottom:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}><span className={headAnim} style={{display:"inline-flex"}}><Icon name={headingIcon} size={11} color={col}/></span>{heading}</div>
         <h2 className="title-caps" style={{fontSize:21,marginBottom:10,lineHeight:1.25}}>{ev.n}</h2>
         <p style={{fontSize:13,color:P.muted,lineHeight:1.75,marginBottom:16}}>{ev.d}</p>
         {!isChoice && lines.length > 0 && (
@@ -5150,7 +5172,7 @@ function EventModal({ ev, onDismiss }) {
             {(ev.choices||[]).map((ch, i) => (
               <button key={i} className="btn card-btn" onClick={()=>onDismiss(i)} style={{width:"100%",padding:"13px 16px",color:P.text,fontWeight:500,fontSize:14,textAlign:"left",display:"flex",flexWrap:"wrap",justifyContent:"space-between",alignItems:"center",columnGap:12,rowGap:4,minWidth:0}}>
                 <span style={{flexShrink:0}}>{ch.label}</span>
-                <span style={{fontSize:10,opacity:0.75,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',textAlign:"right",flex:"1 1 auto",minWidth:0,overflowWrap:"anywhere",lineHeight:1.5}}>{fxLine(ch.fx||{})}</span>
+                <span style={{fontSize:11.5,opacity:0.75,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',textAlign:"right",flex:"1 1 auto",minWidth:0,overflowWrap:"anywhere",lineHeight:1.5}}>{fxLine(ch.fx||{})}</span>
               </button>
             ))}
           </div>
@@ -5229,7 +5251,7 @@ function StatsModal({ gs, onClose, dispatch }) {
                       <span style={{fontWeight:600,color:P.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.name}</span>
                       <span style={{color:pst.color,fontWeight:600,whiteSpace:"nowrap",display:"inline-flex",alignItems:"center",gap:4}}><Icon name="circle" size={7} color={pst.color}/> {pst.label}</span>
                     </div>
-                    <div style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.max(0,(p.endTurn||0)-(gs.turn||0))}Q left · {fmt(projBudget(p,p.partners||0))}</div>
+                    <div style={{fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.max(0,(p.endTurn||0)-(gs.turn||0))}Q left · {fmt(projBudget(p,p.partners||0))}</div>
                   </div>
                 </div>
               );
@@ -5244,7 +5266,7 @@ function StatsModal({ gs, onClose, dispatch }) {
               <span className="tnum" style={{fontSize:26,fontWeight:600,letterSpacing:-.5,color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{gs.members||0}</span>
               <Trend t={statTrends(gs)?.members}/>
             </div>
-            <div style={{fontSize:10,color:P.muted}}>fee {fmt(memberFee(gs.stage))}/quarter · mix ×{(Math.round(feeMult(gs)*100)/100).toFixed(2)}</div>
+            <div style={{fontSize:11.5,color:P.muted}}>fee {fmt(memberFee(gs.stage))}/quarter · mix ×{(Math.round(feeMult(gs)*100)/100).toFixed(2)}</div>
             {(() => { const mx = mixOf(gs), m = Math.max(1, gs.members||1); return (
               <div style={{marginTop:5}}>
                 <div style={{display:"flex",height:5,borderRadius:0,overflow:"hidden",border:`1px solid ${P.border}`}}>
@@ -5252,12 +5274,12 @@ function StatsModal({ gs, onClose, dispatch }) {
                   <div style={{width:`${Math.round(mx.corp/m*100)}%`,background:P.gold}} title={`Corporates ${mx.corp}`}/>
                   <div style={{flex:1,background:P.purple}} title={`Research ${mx.res}`}/>
                 </div>
-                <div style={{fontSize:8.5,color:P.muted,marginTop:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>SME {Math.round(mx.sme/m*100)}% · corp {Math.round(mx.corp/m*100)}% · res {Math.round(mx.res/m*100)}%{cohesionShare(gs)>0?` · cohesion regions ${Math.round(cohesionShare(gs)*100)}%`:""}</div>
+                <div style={{fontSize:11,color:P.muted,marginTop:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>SME {Math.round(mx.sme/m*100)}% · corp {Math.round(mx.corp/m*100)}% · res {Math.round(mx.res/m*100)}%{cohesionShare(gs)>0?` · cohesion regions ${Math.round(cohesionShare(gs)*100)}%`:""}</div>
                 {dispatch && (
                   <div style={{display:"flex",gap:3,marginTop:5,flexWrap:"wrap"}}>
                     {Object.entries(MIX_FOCUS).map(([fid, fo]) => (
                       <button key={fid} className="btn" onClick={() => dispatch({type:"setFocus", focus:fid})}
-                        style={{padding:"2px 7px",borderRadius:0,fontSize:8.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',border:`1px solid ${(gs.focus||"balanced")===fid?P.accent:P.border}`,background:(gs.focus||"balanced")===fid?`${P.accent}18`:"transparent",color:(gs.focus||"balanced")===fid?P.accent:P.muted}}>
+                        aria-pressed={(gs.focus||"balanced")===fid}>
                         {fo.label}
                       </button>
                     ))}
@@ -5270,12 +5292,12 @@ function StatsModal({ gs, onClose, dispatch }) {
             <Card>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                 <Lbl t={`History · last ${Math.min(60,(gs.history||[]).length)} quarters`}/>
-                <button className="btn" onClick={() => downloadCSV(gs)} title="Export the full run history as CSV" style={{padding:"2px 8px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:9,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>CSV ⬇</button>
+                <button className="btn" onClick={() => downloadCSV(gs)} title="Export the full run history as CSV" style={{padding:"2px 8px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>CSV ⬇</button>
               </div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:"6px 14px",marginTop:2}}>
                 {[["Treasury","b",P.accent],["Members","m",P.gold],["Influence","p",P.purple],["Board","bc",P.green]].map(([lbl,k,col]) => (
                   <div key={k}>
-                    <div style={{fontSize:9,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{lbl}</div>
+                    <div style={{fontSize:11,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{lbl}</div>
                     <Sparkline data={(gs.history||[]).slice(-60).map(x=>x[k]||0)} color={col}/>
                   </div>
                 ))}
@@ -5285,7 +5307,7 @@ function StatsModal({ gs, onClose, dispatch }) {
           <Card>
             <Lbl t="Staff"/>
             <div style={{fontSize:22,fontWeight:700,color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{staffTotal(gs.roster)}</div>
-            <div style={{fontSize:10,color:P.muted}}>fail risk <span style={{color:failRate>25?P.red:failRate>15?P.orange:P.green}}>{failRate}%</span></div>
+            <div style={{fontSize:11.5,color:P.muted}}>fail risk <span style={{color:failRate>25?P.red:failRate>15?P.orange:P.green}}>{failRate}%</span></div>
           </Card>
         </div>
 
@@ -5293,24 +5315,24 @@ function StatsModal({ gs, onClose, dispatch }) {
           <Lbl t="Influence"/>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
             <span style={{fontSize:22,fontWeight:700,color:P.purple,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.round(gs.prestige||0)}</span>
-            <span style={{fontSize:10,color:P.muted}}>fades -{decay}/quarter</span>
+            <span style={{fontSize:11.5,color:P.muted}}>fades -{decay}/quarter</span>
           </div>
           <Bar val={gs.prestige||0} color={P.purple}/>
-          <div style={{fontSize:10,color:P.muted,marginTop:6,lineHeight:1.5}}>Your political standing with regional, national and EU authorities. Earned by delivering projects and by communications, policy and research staff; it fades every quarter without visibility work. Gatekeeps calls, evolution and political seats.</div>
+          <div style={{fontSize:11.5,color:P.muted,marginTop:6,lineHeight:1.5}}>Your political standing with regional, national and EU authorities. Earned by delivering projects and by communications, policy and research staff; it fades every quarter without visibility work. Gatekeeps calls, evolution and political seats.</div>
           <div style={{marginTop:10,paddingTop:10,borderTop:`1px solid ${P.border}`}}>
-            <div style={{fontSize:10,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:8}}>Political Integration · seats in policy bodies</div>
+            <div style={{fontSize:11.5,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:8}}>Seats in policy bodies</div>
             {seatStatus(gs).map(st => (
               <div key={st.id} style={{marginBottom:9,padding:"8px 10px",borderRadius:0,border:`1px solid ${st.held?`${P.gold}66`:P.border}`,background:st.held?`${P.gold}0d`:"transparent"}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8}}>
                   <span style={{fontSize:11,fontWeight:700,color:st.held?P.goldText:P.text}}>{st.label}</span>
-                  {st.held && <span style={{fontSize:8.5,fontWeight:700,color:P.goldText,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>SEAT HELD</span>}
-                  {!st.held && st.heldBy && <span style={{fontSize:8.5,fontWeight:700,color:P.redText,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>CHAIRED BY {String(st.holderName||"").toUpperCase()}</span>}
+                  {st.held && <span style={{fontSize:11,fontWeight:700,color:P.goldText,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>SEAT HELD</span>}
+                  {!st.held && st.heldBy && <span style={{fontSize:11,fontWeight:700,color:P.redText,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>CHAIRED BY {String(st.holderName||"").toUpperCase()}</span>}
                 </div>
-                <div style={{fontSize:9,color:P.muted,margin:"3px 0 6px"}}>{st.effects}</div>
+                <div style={{fontSize:11,color:P.muted,margin:"3px 0 6px"}}>{st.effects}</div>
                 {!st.held && (
                   <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
                     {st.reqs.map((c,i) => (
-                      <span key={i} style={{display:"inline-flex",alignItems:"center",gap:3,fontSize:9.5,padding:"2px 7px",borderRadius:0,border:`1px solid ${(c.ok?P.green:P.red)}55`,background:`${c.ok?P.green:P.red}10`,color:c.ok?P.greenText:P.redText,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
+                      <span key={i} style={{display:"inline-flex",alignItems:"center",gap:3,fontSize:11,padding:"2px 7px",borderRadius:0,border:`1px solid ${(c.ok?P.green:P.red)}55`,background:`${c.ok?P.green:P.red}10`,color:c.ok?P.greenText:P.redText,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
                         <Icon name={c.ok?"check":"xmark"} size={8} color={c.ok?P.greenText:P.redText}/>{c.l}
                       </span>
                     ))}
@@ -5322,13 +5344,13 @@ function StatsModal({ gs, onClose, dispatch }) {
         </Card>
 
         <Card>
-          <Lbl t="Board Confidence"/>
+          <Lbl t="Board confidence"/>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
             <span style={{fontSize:22,fontWeight:700,color:(gs.boardConf||0)<30?P.red:(gs.boardConf||0)<55?P.orange:P.green,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.round(gs.boardConf||0)}</span>
-            <span style={{fontSize:10,color:P.muted}}>/ 100</span>
+            <span style={{fontSize:11.5,color:P.muted}}>/ 100</span>
           </div>
           <Bar val={gs.boardConf||0} color={(gs.boardConf||0)<30?P.red:(gs.boardConf||0)<55?P.orange:P.green}/>
-          {(gs.boardConf||0)<30 && <div style={{display:"flex",alignItems:"center",gap:5,fontSize:10,color:P.red,marginTop:4}}><Icon name="triangle-exclamation" size={10} color={P.red}/>Crisis: +3% extra member churn</div>}
+          {(gs.boardConf||0)<30 && <div style={{display:"flex",alignItems:"center",gap:5,fontSize:11.5,color:P.red,marginTop:4}}><Icon name="triangle-exclamation" size={10} color={P.red}/>Crisis: +3% extra member churn</div>}
         </Card>
 
         {gs.stage < 5 && (
@@ -5342,7 +5364,7 @@ function StatsModal({ gs, onClose, dispatch }) {
                 </div>
               ))}
             </div>
-            <div style={{marginTop:6,fontSize:10,color:P.muted}}>Evolution cost: <span style={{color:P.red}}>{fmt(evolveCost(gs.stage))}</span></div>
+            <div style={{marginTop:6,fontSize:11.5,color:P.muted}}>Evolution cost: <span style={{color:P.red}}>{fmt(evolveCost(gs.stage))}</span></div>
           </Card>
         )}
 
@@ -5351,7 +5373,7 @@ function StatsModal({ gs, onClose, dispatch }) {
             <Lbl t={<>Rival Race · first to a Pan-European Cluster Network</>}/>
             {(gs.rivals||[]).map(rv => (
               <div key={rv.id} style={{marginBottom:8}}>
-                <div style={{display:"flex",justifyContent:"space-between",fontSize:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
+                <div style={{display:"flex",justifyContent:"space-between",fontSize:11.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
                   <span style={{color:rv.color,display:"inline-flex",alignItems:"center",gap:5}}><Icon name="square" size={7} color={rv.color}/> {rv.name} · {NAME_TO_ISO[rv.country]||""}</span>
                   <span style={{color:rv.stage>gs.stage?P.red:P.muted}}>{STAGES[rv.stage]?.name} · {rv.members} members</span>
                 </div>
@@ -5598,7 +5620,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                     style={{flex:"1 1 150px",minWidth:0,padding:"6px 9px",borderRadius:0,border:`1px dashed ${P.border}`,background:P.panel,color:P.text,fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',outline:"none"}}/>
                 </div>
                 </details>
-                {challengeApplied && <div style={{fontSize:10,color:P.greenText,marginTop:5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>✓ Challenge loaded: {DIFFICULTIES[diff]?.label} · {SCENARIOS.find(x=>x.id===scenario)?.name} · pick your country to match</div>}
+                {challengeApplied && <div style={{fontSize:11.5,color:P.greenText,marginTop:5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>✓ Challenge loaded: {DIFFICULTIES[diff]?.label} · {SCENARIOS.find(x=>x.id===scenario)?.name} · pick your country to match</div>}
               </div>
               <div style={{marginBottom:18}}>
                 <div style={{fontSize:13,fontWeight:600,marginBottom:8}}>Start as a real cluster</div>
@@ -5610,15 +5632,15 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                       <button key={`${c.n}-${i}`} className="btn" onClick={()=>adoptCluster(c)}
                         style={{display:"block",width:"100%",textAlign:"left",padding:"7px 10px",border:"none",borderBottom:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11.5,lineHeight:1.35}}>
                         <span style={{fontWeight:600}}>{c.n}</span>
-                        <span style={{color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',fontSize:10}}>{"  "}{c.y ? c.y+", " : ""}{c.c} · {ECOSYSTEMS.find(e=>e.id===c.e)?.name || c.e}</span>
+                        <span style={{color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',fontSize:11.5}}>{"  "}{c.y ? c.y+", " : ""}{c.c} · {ECOSYSTEMS.find(e=>e.id===c.e)?.name || c.e}</span>
                       </button>
                     ))}
                   </div>
                 )}
                 {nameQuery.trim().length >= 2 && registryMatches.length === 0 && (
-                  <div style={{fontSize:10.5,color:P.muted,marginTop:6}}>No registry match. Keep typing, or just pick a country below and name the cluster yourself.</div>
+                  <div style={{fontSize:11.5,color:P.muted,marginTop:6}}>No registry match. Keep typing, or just pick a country below and name the cluster yourself.</div>
                 )}
-                <div style={{fontSize:9.5,color:P.muted,marginTop:7,lineHeight:1.45}}>
+                <div style={{fontSize:11,color:P.muted,marginTop:7,lineHeight:1.45}}>
                   Names from the European Cluster Collaboration Platform. Picking one sets its country and ecosystem; what happens next is fiction.
                 </div>
               </div>
@@ -5643,7 +5665,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                   return (
                     <button key={rec.name} className="btn" style={{...sel(region===rec.name), display:"flex", flexDirection:"column", alignItems:"flex-start", gap:2, padding:"7px 11px"}} onClick={() => { setRegion(rec.name); setStep(2); }}>
                       <span style={{fontWeight:600,display:"inline-flex",alignItems:"center",gap:4}}>{strong && <Icon name="star" size={10} color={P.gold}/>}{rec.name}</span>
-                      <span style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{rec.nuts} · Innovation tier: {rec.ris||"not rated"}{rec.coh ? ` · ${rec.coh}` : ""} · {(rec.ecos||[]).filter(e=>e!=="Cross-ecosystem").length} ecosystems</span>
+                      <span style={{fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{rec.nuts} · Innovation tier: {rec.ris||"not rated"}{rec.coh ? ` · ${rec.coh}` : ""} · {(rec.ecos||[]).filter(e=>e!=="Cross-ecosystem").length} ecosystems</span>
                     </button>
                   );
                 })}
@@ -5656,12 +5678,12 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
               {adopted && (
                 <div style={{marginBottom:10,padding:"9px 12px",borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent"}}>
                   <div style={{fontSize:11.5,fontWeight:700,color:P.accent,marginBottom:3}}>Set up from {adopted.name}</div>
-                  <div style={{fontSize:10.5,color:P.text,lineHeight:1.5}}>
+                  <div style={{fontSize:11.5,color:P.text,lineHeight:1.5}}>
                     Country and ecosystem come from the registry{adopted.city ? `, and the region is our best guess from ${adopted.city}` : ""}.
                     Change any of it below, or use Back to pick a different region.
                   </div>
                   <button className="btn" onClick={()=>{ setAdopted(null); setClusterName(""); setSector(null); setRegion(""); setStep(0); }}
-                    style={{marginTop:6,padding:"4px 9px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:10,fontWeight:700}}>Start over instead</button>
+                    style={{marginTop:6,padding:"4px 9px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:11.5,fontWeight:700}}>Start over instead</button>
                 </div>
               )}
               <div style={{marginBottom:2,fontSize:13,fontWeight:600}}>Industrial ecosystem</div>
@@ -5694,7 +5716,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                     <div style={{fontSize:12,color:P.muted,marginTop:8,minHeight:34,lineHeight:1.45}}>{DIFFICULTIES[diff].desc}</div>
                   </div>
                   <div style={{marginTop:14}}>
-                    <div style={{fontSize:10,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:6}}>Home region</div>
+                    <div style={{fontSize:11.5,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:6}}>Home region</div>
                     <select value={region} onChange={e=>setRegion(e.target.value)} aria-label="Change your home region"
                       style={{width:"100%",boxSizing:"border-box",padding:"8px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:12,outline:"none"}}>
                       {(REGIONS_BY_COUNTRY[country]||[]).map(r => (
@@ -5703,20 +5725,20 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                         </option>
                       ))}
                     </select>
-                    <div style={{fontSize:9.5,color:P.muted,marginTop:4}}>
+                    <div style={{fontSize:11,color:P.muted,marginTop:4}}>
                       {getRegion(country, region) && ecosystemAligns(getRegion(country, region), sector.name)
                         ? `${sector.name} is a smart-specialisation priority here, so funding and influence come easier.`
                         : `${sector.name} is not a priority in this region: expect harder funding and slower influence.`}
                     </div>
                   </div>
                   <div style={{marginTop:14}}>
-                    <div style={{fontSize:10,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:6}}>Cluster name</div>
+                    <div style={{fontSize:11.5,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:6}}>Cluster name</div>
                     <input value={clusterName} onChange={e=>setClusterName(e.target.value)} maxLength={70}
                       placeholder={`e.g. ${region} ${sector.name} Cluster`} aria-label="Name your cluster organisation"
                       style={{width:"100%",boxSizing:"border-box",padding:"8px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:12,outline:"none"}}/>
-                    <div style={{fontSize:9.5,color:P.muted,marginTop:4}}>Optional. Leave it blank and the header just shows your ecosystem.</div>
+                    <div style={{fontSize:11,color:P.muted,marginTop:4}}>Optional. Leave it blank and the header just shows your ecosystem.</div>
                   </div>
-                  <div style={{fontSize:10,color:P.muted,marginTop:10,lineHeight:1.4}}>Scenario <strong style={{color:P.goldText}}>{SCENARIOS.find(x=>x.id===scenario)?.name}</strong>{seed?` · seed "${seed.trim()}"`:""} — change these on the first step.</div>
+                  <div style={{fontSize:11.5,color:P.muted,marginTop:10,lineHeight:1.4}}>Scenario <strong style={{color:P.goldText}}>{SCENARIOS.find(x=>x.id===scenario)?.name}</strong>{seed?` · seed "${seed.trim()}"`:""} — change these on the first step.</div>
                   <button className="btn cut" onClick={() => onStart(country, region, sector, diff, scenario, seed.trim(), clusterName.trim())} style={{marginTop:10,width:"100%",padding:13,borderRadius:0,background:`${P.accent}`,color:P.bg,fontWeight:700,fontSize:15,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',letterSpacing:.3}}>
                     <Icon name={sector.icon} size={14} color={P.onAccent} style={{marginRight:6}}/> Launch {sector.name} cluster in {region} <Icon name="arrow-right" size={12} color={P.onAccent} style={{marginLeft:6}}/>
                   </button>
@@ -5733,7 +5755,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
             <Icon name="circle-question" size={12} color={P.blue}/> How to Play · Game Rules
           </button>
         </div>
-        <div style={{textAlign:"center",marginTop:10,fontSize:9,color:P.muted,opacity:.65,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',letterSpacing:0}}>vibecoded by DDE</div>
+        <div style={{textAlign:"center",marginTop:10,fontSize:11,color:P.muted,opacity:.65,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',letterSpacing:0}}>vibecoded by DDE</div>
         {showRules && <RulesModal onClose={() => setShowRules(false)}/>}
       </div>
       </div>
@@ -5750,7 +5772,7 @@ function MapLegend({ gs }) {
   const sc = gs?.sector?.color || P.accent;
   const rivals = gs?.rivals || [];
   const Item = ({ swatch, label }) => (
-    <div style={{display:"flex",alignItems:"center",gap:7,fontSize:10,color:P.text,padding:"1px 0"}}>
+    <div style={{display:"flex",alignItems:"center",gap:7,fontSize:11.5,color:P.text,padding:"1px 0"}}>
       <span style={{flexShrink:0}}>{swatch}</span><span>{label}</span>
     </div>
   );
@@ -5760,7 +5782,7 @@ function MapLegend({ gs }) {
       {open ? (
         <div className="event-in glass" style={{padding:"9px 11px",minWidth:172}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
-            <span style={{fontSize:9,fontWeight:700,color:P.muted,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Map key</span>
+            <span style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Map key</span>
             <button className="btn" onClick={()=>setOpen(false)} aria-label="Close map key" style={{border:"none",background:"none",color:P.muted,fontSize:13,lineHeight:1,cursor:"pointer",padding:0,width:16,height:16}}>×</button>
           </div>
           <Item swatch={box(`${P.gold}B0`, P.gold)} label="Home region"/>
@@ -5773,10 +5795,10 @@ function MapLegend({ gs }) {
             <Item swatch={<span style={{display:"inline-block",width:14,height:10,borderRadius:0,border:`1px solid ${rivals[0].color}`,background:`repeating-linear-gradient(45deg, ${rivals[0].color}44 0 2px, transparent 2px 4px)`}}/>} label="Rival territory"/>
           )}
           <Item swatch={<span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:14,height:10}}><span style={{width:8,height:8,borderRadius:"50%",border:`1.5px solid ${P.purple}`,background:P.panel}}/></span>} label="Political seat"/>
-          <div style={{fontSize:8.5,color:P.muted,marginTop:5,lineHeight:1.4,fontStyle:"italic"}}>Dashed lines link your territories; a shimmer marks contested countries.</div>
+          <div style={{fontSize:11,color:P.muted,marginTop:5,lineHeight:1.4,fontStyle:"italic"}}>Dashed lines link your territories; a shimmer marks contested countries.</div>
         </div>
       ) : (
-        <button className="btn" onClick={()=>setOpen(true)} title="Show map key" style={{display:"inline-flex",alignItems:"center",gap:5,background:P.panel,border:`1px solid ${P.border}`,borderRadius:0,padding:"5px 9px",fontSize:10,fontWeight:700,color:P.muted,boxShadow:"none"}}>
+        <button className="btn" onClick={()=>setOpen(true)} title="Show map key" style={{display:"inline-flex",alignItems:"center",gap:5,background:P.panel,border:`1px solid ${P.border}`,borderRadius:0,padding:"5px 9px",fontSize:11.5,fontWeight:700,color:P.muted,boxShadow:"none"}}>
           <Icon name="circle-info" size={11} color={P.muted}/> Key
         </button>
       )}
@@ -5822,8 +5844,8 @@ function DigestCard({ gs, digestOn, reopenTick, onDigestToggle }) {
       <button className="btn" onClick={() => setExpanded(e=>!e)} aria-expanded={expanded} style={{width:"100%",textAlign:"left",background:"none",border:"none",padding:"8px 26px 8px 10px",cursor:"pointer",display:"block"}}>
         <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:5,paddingRight:18}}>
           <Icon name="clipboard-check" size={11} color={P.accent}/>
-          <span style={{fontSize:9,fontWeight:700,color:P.muted,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Q{((d.turn-1)%4)+1} {2024+Math.floor((d.turn-1)/4)} review</span>
-          <span style={{marginLeft:"auto",fontSize:9,color:P.muted}}>{expanded?"▲":"▼"}</span>
+          <span style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Q{((d.turn-1)%4)+1} {2024+Math.floor((d.turn-1)/4)} review</span>
+          <span style={{marginLeft:"auto",fontSize:11,color:P.muted}}>{expanded?"▲":"▼"}</span>
         </div>
         {d.evolved && <div style={{fontSize:11,fontWeight:700,color:P.goldText,marginBottom:4}}>⭐ Evolved to {d.evolved}!</div>}
         <div style={{display:"flex",flexWrap:"wrap",gap:"2px 10px"}}>
@@ -5835,7 +5857,7 @@ function DigestCard({ gs, digestOn, reopenTick, onDigestToggle }) {
       </button>
       {expanded && (
         <div style={{padding:"0 10px 10px",borderTop:`1px solid ${P.border}`}}>
-          <div style={{fontSize:8.5,fontWeight:700,color:P.muted,letterSpacing:0,margin:"7px 0 3px",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Cashflow</div>
+          <div style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,margin:"7px 0 3px",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Cashflow</div>
           <Row label="Membership fees" val={d.qMember} fmtFn={v=>fmt(v)} good={true}/>
           <Row label="Project income" val={d.qProj} fmtFn={v=>fmt(v)} good={true}/>
           <Row label="Salaries" val={-d.qStaff} fmtFn={v=>fmt(Math.abs(v))} good={false}/>
@@ -5844,9 +5866,9 @@ function DigestCard({ gs, digestOn, reopenTick, onDigestToggle }) {
           <Row label="Delivery costs" val={-d.qDelivery} fmtFn={v=>fmt(Math.abs(v))} good={false}/>
           {d.events.length > 0 && (
             <>
-              <div style={{fontSize:8.5,fontWeight:700,color:P.muted,letterSpacing:0,margin:"7px 0 3px",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>This quarter</div>
+              <div style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,margin:"7px 0 3px",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>This quarter</div>
               {d.events.map((e,i) => (
-                <div key={i} style={{fontSize:10,lineHeight:1.4,color:P.text,display:"flex",gap:5,alignItems:"flex-start",marginBottom:2}}>
+                <div key={i} style={{fontSize:11.5,lineHeight:1.4,color:P.text,display:"flex",gap:5,alignItems:"flex-start",marginBottom:2}}>
                   <Icon name={e.t==="good"?"circle-check":"circle-exclamation"} size={9} color={e.t==="good"?P.green:P.red} style={{marginTop:2,flexShrink:0}}/>
                   <span>{e.txt}</span>
                 </div>
@@ -5854,7 +5876,7 @@ function DigestCard({ gs, digestOn, reopenTick, onDigestToggle }) {
             </>
           )}
           {onDigestToggle && (
-            <label style={{display:"flex",alignItems:"center",gap:6,marginTop:8,fontSize:9.5,color:P.muted,cursor:"pointer"}}>
+            <label style={{display:"flex",alignItems:"center",gap:6,marginTop:8,fontSize:11,color:P.muted,cursor:"pointer"}}>
               <input type="checkbox" checked={!!digestOn} onChange={onDigestToggle} style={{accentColor:P.accent,cursor:"pointer"}}/>
               Show automatically each quarter
             </label>
@@ -5914,13 +5936,13 @@ function Tutorial({ gs }) {
   const st = TUT_STEPS[step];
   return (
     <div className="event-in" style={{position:"fixed",left:14,bottom:76,zIndex:2600,maxWidth:300,background:P.panel,border:`2px solid ${P.accent}`,borderRadius:0,padding:"12px 14px",boxShadow:"none"}}>
-      <div style={{fontSize:9,fontWeight:700,color:P.accent,letterSpacing:0,marginBottom:4,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Tutorial {step>0?`· ${step}/${TUT_STEPS.length-2}`:""}</div>
+      <div style={{fontSize:11,fontWeight:700,color:P.accent,letterSpacing:0,marginBottom:4,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Tutorial {step>0?`· ${step}/${TUT_STEPS.length-2}`:""}</div>
       <div style={{fontSize:12,fontWeight:700,color:P.text,marginBottom:4}}>{st.t}</div>
-      <div style={{fontSize:10.5,color:P.muted,lineHeight:1.55,marginBottom:8}}>{st.d}</div>
+      <div style={{fontSize:11.5,color:P.muted,lineHeight:1.55,marginBottom:8}}>{st.d}</div>
       <div style={{display:"flex",gap:6,justifyContent:"flex-end"}}>
-        <button className="btn" onClick={() => setStep(finish())} style={{padding:"4px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:10}}>Skip tutorial</button>
+        <button className="btn" onClick={() => setStep(finish())} style={{padding:"4px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:11.5}}>Skip tutorial</button>
         {(step === 0 || step === TUT_STEPS.length-1) && (
-          <button className="btn" onClick={() => step === 0 ? setStep(1) : setStep(finish())} style={{padding:"4px 12px",borderRadius:0,border:"none",background:P.accent,color:P.onAccent,fontSize:10,fontWeight:700}}>{step===0?"Start":"Got it"}</button>
+          <button className="btn" onClick={() => step === 0 ? setStep(1) : setStep(finish())} style={{padding:"4px 12px",borderRadius:0,border:"none",background:P.accent,color:P.onAccent,fontSize:11.5,fontWeight:700}}>{step===0?"Start":"Got it"}</button>
         )}
       </div>
     </div>
@@ -5940,7 +5962,7 @@ function AttentionQueue({ items, onGo, compact }) {
       <div role="list" aria-label="Things that could use your attention" style={{flexShrink:0,display:"flex",gap:6,padding:"6px 10px",overflowX:"auto",background:P.panel,borderTop:`1px solid ${P.border}`}}>
         {shown.map(it => (
           <button key={it.id} role="listitem" className="btn" onClick={()=>onGo(it.go)}
-            style={{flexShrink:0,maxWidth:240,textAlign:"left",padding:"6px 9px 6px 8px",border:`1px solid ${P.border}`,borderLeft:`3px solid ${it.urgent?P.red:P.accent}`,borderRadius:8,background:P.card,color:P.text,fontSize:10.5,fontWeight:it.urgent?700:400,lineHeight:1.3,whiteSpace:"normal"}}>
+            style={{flexShrink:0,maxWidth:240,textAlign:"left",padding:"6px 9px 6px 8px",border:`1px solid ${P.border}`,borderLeft:`3px solid ${it.urgent?P.red:P.accent}`,borderRadius:8,background:P.card,color:P.text,fontSize:11.5,fontWeight:it.urgent?700:400,lineHeight:1.3,whiteSpace:"normal"}}>
             <span style={{display:"inline-flex",alignItems:"center",gap:7}}><Icon name={ATTN_ICON[it.id]||"circle-info"} size={12} color={it.urgent?P.redText:P.accent}/>{it.text}</span>
           </button>
         ))}
@@ -5956,7 +5978,7 @@ function AttentionQueue({ items, onGo, compact }) {
           <span style={{display:"flex",alignItems:"center",gap:9}}><Icon name={ATTN_ICON[it.id]||"circle-info"} size={13} color={it.urgent?P.redText:P.accent}/>{it.text}</span>
         </button>
       ))}
-      {items.length > shown.length && <div style={{fontSize:10,color:P.muted,padding:"0 2px"}}>and {items.length - shown.length} more</div>}
+      {items.length > shown.length && <div style={{fontSize:11.5,color:P.muted,padding:"0 2px"}}>and {items.length - shown.length} more</div>}
     </div>
   );
 }
@@ -6080,7 +6102,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
     const navBtn = (id, icon, label, color, badge) => (
       <button className="btn" onClick={() => setModal(id)} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:3,padding:"8px 2px",border:"none",background:"none",color:modal===id?color:P.text,position:"relative"}}>
         <Icon name={icon} size={17} color={modal===id?color:P.muted}/>
-        <span style={{fontSize:9,fontWeight:600,color:badge?darkHex(color,0.6):P.muted}}>{label}</span>
+        <span style={{fontSize:11,fontWeight:600,color:badge?darkHex(color,0.6):P.muted}}>{label}</span>
         {badge && <span style={{position:"absolute",top:4,right:"24%",width:7,height:7,borderRadius:"50%",background:color}}/>}
       </button>
     );
@@ -6095,7 +6117,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
             <Icon name={gs.sector?.icon||"display"} size={18} color={gs.sector?.color||P.text}/>
             <div style={{flex:1,minWidth:0}}>
               <div title={gs.clusterName || gs.sector?.name} style={{fontSize:12,fontWeight:700,color:gs.sector?.color||P.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName || gs.sector?.name}</div>
-              <div style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName ? `${stage.name} · ${gs.sector?.name}` : stage.name}</div>
+              <div style={{fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName ? `${stage.name} · ${gs.sector?.name}` : stage.name}</div>
             </div>
             {/* Re-opening the quarter review existed only in the desktop header,
                 which left no way back to it on a phone once it faded. */}
@@ -6124,7 +6146,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
           <EUMap gs={gs} sel={sel} setSel={setSel} dispatch={dispatch}/>
           <DigestCard gs={gs} digestOn={digestOn} reopenTick={digestReopen} onDigestToggle={onDigestToggle}/>
           <MapLegend gs={gs}/>
-          {sel && <div style={{position:"absolute",bottom:8,left:8,fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>tap country again to close</div>}
+          {sel && <div style={{position:"absolute",bottom:8,left:8,fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>tap country again to close</div>}
           {tipCard}
         </div>
 
@@ -6138,11 +6160,11 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
               const left = Math.max(0,(p.endTurn||0)-(gs.turn||0));
               return (
                 <button key={`hud-${i}`} className="btn" onClick={()=>setModal("projects")} style={{flexShrink:0,minWidth:128,textAlign:"left",padding:"6px 9px",borderRadius:0,border:`1px solid ${st.color}55`,background:P.card}}>
-                  <div style={{fontSize:9,fontWeight:700,color:P.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:128}}>{p.name}</div>
+                  <div style={{fontSize:11,fontWeight:700,color:P.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:128}}>{p.name}</div>
                   <div style={{height:2.5,background:P.bright,borderRadius:0,marginTop:3}}>
                     <div style={{width:`${prog*100}%`,height:"100%",background:st.color,borderRadius:0}}/>
                   </div>
-                  <div style={{fontSize:8,color:st.color,marginTop:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{left}Q · {st.label}</div>
+                  <div style={{fontSize:11,color:st.color,marginTop:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{left}Q · {st.label}</div>
                 </button>
               );
             })}
@@ -6210,7 +6232,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
             <div style={{fontSize:12,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{stage.name}, {gs.region||""}</div>
           </div>
         </div>
-        <button className="btn" onClick={()=>setModal("rules")} title="Game rules" style={{padding:"4px 10px",borderRadius:6,border:"1px solid transparent",background:"transparent",color:P.muted,fontSize:10,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5,flexShrink:0}}>
+        <button className="btn" onClick={()=>setModal("rules")} title="Game rules" style={{padding:"4px 10px",borderRadius:6,border:"1px solid transparent",background:"transparent",color:P.muted,fontSize:11.5,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5,flexShrink:0}}>
           Rules
         </button>
         <button className="btn" onClick={onTheme} title={dark?"Switch to light mode":"Switch to dark mode"} style={{padding:"4px 9px",borderRadius:6,border:"1px solid transparent",background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
@@ -6229,12 +6251,12 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
           <Icon name="floppy-disk" size={12} color={P.muted}/>
         </button>
         {canUndo && (
-          <button className="btn" onClick={onUndo} title="Undo last quarter (U) — once per quarter, Junior & Officer only" style={{padding:"4px 10px",borderRadius:6,border:"1px solid transparent",background:"transparent",color:P.aoldText,fontSize:10,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5,flexShrink:0}}>
+          <button className="btn" onClick={onUndo} title="Undo last quarter (U) — once per quarter, Junior & Officer only" style={{padding:"4px 10px",borderRadius:6,border:"1px solid transparent",background:"transparent",color:P.aoldText,fontSize:11.5,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5,flexShrink:0}}>
             Undo
           </button>
         )}
         {gs.pendingEvent && (
-          <div style={{fontSize:10,padding:"5px 10px",borderRadius:0,background:"transparent",border:"none",color:P.redText,fontWeight:600,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
+          <div style={{fontSize:11.5,padding:"5px 10px",borderRadius:0,background:"transparent",border:"none",color:P.redText,fontWeight:600,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
             An event is waiting
           </div>
         )}
@@ -6376,7 +6398,7 @@ function GameOver({ gs, onRestart }) {
           ].map(([v,l,c]) => (
             <div key={l} style={{background:P.panel,borderRadius:0,padding:"14px 12px",border:`1px solid ${P.border}`}}>
               <div style={{fontSize:18,fontWeight:700,color:c,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{v}</div>
-              <div style={{fontSize:9,color:P.muted,marginTop:4,letterSpacing:0}}>{l}</div>
+              <div style={{fontSize:11,color:P.muted,marginTop:4,letterSpacing:0}}>{l}</div>
             </div>
           ))}
         </div>
@@ -6385,26 +6407,26 @@ function GameOver({ gs, onRestart }) {
           <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:10}}>
             <div style={{fontSize:44,fontWeight:800,color:gradeCol,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',lineHeight:1}}>{grade}</div>
             <div>
-              <div style={{fontSize:9,fontWeight:700,color:P.muted,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Campaign Report Card</div>
+              <div style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Campaign Report Card</div>
               <div style={{fontSize:16,fontWeight:700,color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{fmtN(score)} points</div>
-              <div style={{fontSize:9.5,color:P.muted}}>{scen.name} · {DIFFICULTIES[gs.difficulty]?.label||gs.difficulty}{gs.seedStr?` · seed "${gs.seedStr}"`:""}</div>
+              <div style={{fontSize:11,color:P.muted}}>{scen.name} · {DIFFICULTIES[gs.difficulty]?.label||gs.difficulty}{gs.seedStr?` · seed "${gs.seedStr}"`:""}</div>
             </div>
           </div>
           {hist.length >= 3 && (
             <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(120px,1fr))",gap:"4px 12px",marginBottom:10}}>
               {[["Treasury","b",P.accent],["Members","m",P.gold],["Influence","p",P.purple],["Board","bc",P.green]].map(([lbl,k,col]) => (
                 <div key={k}>
-                  <div style={{fontSize:8.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{lbl}</div>
+                  <div style={{fontSize:11,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{lbl}</div>
                   <Sparkline data={hist.map(x=>x[k]||0)} color={col} w={120} h={24}/>
                 </div>
               ))}
             </div>
           )}
-          <div style={{fontSize:9,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Achievements · {Object.keys(achvAll).length}/{ACHIEVEMENTS.length}</div>
+          <div style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Achievements · {Object.keys(achvAll).length}/{ACHIEVEMENTS.length}</div>
           <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:12}}>
             {ACHIEVEMENTS.map(a => {
               const got = !!achvAll[a.id];
-              return <span key={a.id} title={`${a.name}: ${a.desc}`} style={{fontSize:9,padding:"3px 8px",borderRadius:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',border:`1px solid ${got?P.gold+"88":P.border}`,background:got?`${P.gold}14`:"transparent",color:got?P.goldText:P.muted,opacity:got?1:0.55}}>{got?"★ ":""}{a.name}</span>;
+              return <span key={a.id} title={`${a.name}: ${a.desc}`} style={{fontSize:11,padding:"3px 8px",borderRadius:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',border:`1px solid ${got?P.gold+"88":P.border}`,background:got?`${P.gold}14`:"transparent",color:got?P.goldText:P.muted,opacity:got?1:0.55}}>{got?"★ ":""}{a.name}</span>;
             })}
           </div>
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
@@ -6423,14 +6445,14 @@ function GameOver({ gs, onRestart }) {
               </button>
             )}
             <button className="btn" onClick={copyChallenge} title="Copies a CM1|… code: a friend can paste it on the setup screen and play the identical campaign, then compare report cards"
-              style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent",color:P.accent,fontSize:10,fontWeight:700,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
+              style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent",color:P.accent,fontSize:11.5,fontWeight:700,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
               Copy challenge code
             </button>
             {gs.seedStr ? null : (
-              <span style={{fontSize:10,color:P.muted,alignSelf:"center"}}>Start a seeded campaign to share a replayable challenge.</span>
+              <span style={{fontSize:11.5,color:P.muted,alignSelf:"center"}}>Start a seeded campaign to share a replayable challenge.</span>
             )}
             {hist.length >= 2 && (
-              <button className="btn" onClick={() => downloadCSV(gs)} style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:10,fontWeight:700,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Export run as CSV ⬇</button>
+              <button className="btn" onClick={() => downloadCSV(gs)} style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:11.5,fontWeight:700,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Export run as CSV ⬇</button>
             )}
           </div>
           {shareMsg && (
@@ -6634,7 +6656,7 @@ function SaveSlots({ gs, onClose, onLoad }) {
         <div key={s.i} style={{display:"flex",alignItems:"center",gap:8,padding:"9px 11px",marginBottom:6,borderRadius:0,border:`1px solid ${P.border}`,background:P.card}}>
           <div style={{flex:1,minWidth:0}}>
             <div style={{fontSize:12,fontWeight:700,color:s.empty?P.muted:P.text}}>{s.empty ? `Slot ${s.i+1} — empty` : s.label}</div>
-            {!s.empty && <div style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{STAGES[s.stage]?.name} · Q{s.q} {s.year}</div>}
+            {!s.empty && <div style={{fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{STAGES[s.stage]?.name} · Q{s.q} {s.year}</div>}
           </div>
           {gs && <button className="btn" disabled={busy} onClick={()=>doSave(s.i)} style={{padding:"5px 11px",borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent",color:P.accent,fontSize:11,fontWeight:700}}>Save here</button>}
           {!s.empty && onLoad && <button className="btn" onClick={()=>doLoad(s.i)} style={{padding:"5px 11px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11,fontWeight:700}}>Load</button>}
@@ -6661,14 +6683,14 @@ function SaveSlots({ gs, onClose, onLoad }) {
             {code && (
               <div>
                 <textarea readOnly value={code} onFocus={e=>e.target.select()} rows={3} aria-label="Your save code — copy all of it"
-                  style={{width:"100%",boxSizing:"border-box",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',fontSize:9.5,padding:8,borderRadius:0,border:`1px solid ${P.border}`,background:P.bright,color:P.text,resize:"vertical",lineHeight:1.35}}/>
+                  style={{width:"100%",boxSizing:"border-box",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',fontSize:11,padding:8,borderRadius:0,border:`1px solid ${P.border}`,background:P.bright,color:P.text,resize:"vertical",lineHeight:1.35}}/>
                 <div style={{display:"flex",alignItems:"center",gap:8,marginTop:5}}>
                   <button className="btn" onClick={async()=>{
                     let done=false;
                     try { if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(code); done=true; } } catch(e) {}
                     setMsg(done ? {t:"good",x:"Save code copied to the clipboard."} : {t:"bad",x:"Couldn't copy automatically — select the text and copy it manually."});
                   }} style={{padding:"5px 11px",borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent",color:P.accent,fontSize:11,fontWeight:700}}>Copy</button>
-                  <span style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{code.length.toLocaleString()} characters — copy all of it</span>
+                  <span style={{fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{code.length.toLocaleString()} characters — copy all of it</span>
                 </div>
               </div>
             )}
@@ -6678,7 +6700,7 @@ function SaveSlots({ gs, onClose, onLoad }) {
         <div>
           <div style={{fontSize:11,fontWeight:700,color:P.text,marginBottom:5}}>Restore from a code or file</div>
           <textarea value={paste} onChange={e=>{ setPaste(e.target.value); setMsg(null); }} rows={2} placeholder="Paste a save code here…" aria-label="Paste a save code to restore a run"
-            style={{width:"100%",boxSizing:"border-box",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',fontSize:9.5,padding:8,borderRadius:0,border:`1px solid ${P.border}`,background:P.card,color:P.text,resize:"vertical"}}/>
+            style={{width:"100%",boxSizing:"border-box",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',fontSize:11,padding:8,borderRadius:0,border:`1px solid ${P.border}`,background:P.card,color:P.text,resize:"vertical"}}/>
           <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:6}}>
             <button className="btn" disabled={!paste.trim()} onClick={()=>{
               const r = importSave(paste);

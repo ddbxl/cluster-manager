@@ -539,6 +539,45 @@ const click = (el) => act(() => {
   ok(qsa('[role="listitem"]').every(b => b.textContent.length < 45), "and its text is short");
 }
 
+/* ── dark mode and back again ─────────────────────────────── */
+{
+  // Regression: switching back to light mode referenced a palette that no longer
+  // existed, so the whole page crashed to blank.
+  const sector = { id:"digital", name:"Digital", color:"#38bdf8", icon:"display" };
+  const g0 = G.initState("Austria", "Styria", sector);
+  const lightPanel = G.P.panel;
+  let threw = null;
+  try {
+    G.applyTheme(true);
+    render(null); render(React.createElement(G.Game, { gs: g0, dispatch: () => {}, vw: 1280, onRestart: () => {} }));
+    ok(G.P.panel !== lightPanel, "dark mode swaps the palette");
+    G.applyTheme(false);
+    render(null); render(React.createElement(G.Game, { gs: g0, dispatch: () => {}, vw: 1280, onRestart: () => {} }));
+  } catch (e) { threw = e; }
+  ok(!threw, `switching dark and back to light does not crash${threw ? ` (${threw.message})` : ""}`);
+  ok(G.P.panel === lightPanel, "light mode restores the original palette");
+  ok(qsa("button").length > 5, "the game is still drawn after the round trip");
+  G.applyTheme(false);
+}
+
+/* ── seats and locked calls read as plain lists ──────────── */
+{
+  const sector = { id:"digital", name:"Digital", color:"#38bdf8", icon:"display" };
+  const g0 = G.initState("Austria", "Styria", sector);
+  render(null); render(React.createElement(G.LeftPanel, { gs: g0, dispatch: () => {} }));
+  const rows = qsa(".seat-row");
+  ok(rows.length === 3, "the three seats are listed as rows");
+  ok(rows.every(r => r.querySelector("svg") && /Open|Yours|\w/.test(r.textContent)), "each seat row has an icon and a status");
+  ok(rows.every(r => r.getAttribute("title")), "what a seat needs is in its tooltip");
+  render(null); render(React.createElement(G.ProjectsModal, { gs: g0, dispatch: () => {}, onClose: () => {}, panel: true }));
+  const locked = qsa(".locked li");
+  ok(locked.length >= 1, "calls you cannot start yet are listed");
+  ok(locked.every(li => /Needs /.test(li.textContent)), "each says in words what is missing");
+  ok(/Not yet available/.test(text()), "the list has a plain heading");
+  ok(!/fontSize:(8|8\.5|9|9\.5)[,}]/.test(require("fs").readFileSync(require("path").join(__dirname, "..", "src", "ClusterManagerSimulator.jsx"), "utf8")),
+     "no interface text is set smaller than 11px");
+}
+
 /* ── the setup screen ─────────────────────────────────────── */
 {
   render(null);
