@@ -5430,7 +5430,7 @@ function StatsModal({ gs, onClose, dispatch }) {
             <span style={{fontSize:11.5,color:P.muted}}>fades -{decay}/quarter</span>
           </div>
           <Bar val={gs.prestige||0} color={P.purple}/>
-          <div style={{fontSize:11.5,color:P.muted,marginTop:6,lineHeight:1.5}}>Your political standing with regional, national and EU authorities. Earned by delivering projects and by communications, policy and research staff; it fades every quarter without visibility work. Gatekeeps calls, evolution and political seats.</div>
+          
           <div style={{marginTop:10,paddingTop:10,borderTop:`1px solid ${P.border}`}}>
             <div style={{fontSize:11.5,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:8}}>Seats in policy bodies</div>
             {seatStatus(gs).map(st => (
@@ -5803,13 +5803,13 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
           <div style={{fontSize:11,letterSpacing:0,fontWeight:600,color:P.muted,marginBottom:"clamp(6px,1.2vh,12px)",display:"inline-flex",alignItems:"center",gap:8}}>
             <span aria-hidden="true" style={{color:"#FFCC00",fontSize:14,lineHeight:1}}>★</span>EU industrial strategy simulation</div>
           <h1 className="brand-title" style={{fontSize:mobile?38:48,fontWeight:700,lineHeight:1,margin:"0 0 10px",letterSpacing:-2}}>Cluster Manager</h1>
-          <div style={{fontSize:15,color:P.muted,lineHeight:1.45,maxWidth:"40ch"}}>Grow a regional cluster into a network that spans Europe.</div>
+          <div style={{fontSize:15,color:P.muted,lineHeight:1.45,maxWidth:"40ch"}}>Grow a regional cluster into an EU-wide cluster network.</div>
           {canResume && (
             <div style={{marginTop:16}}>
               <button className="btn" onClick={onResume} style={{padding:"12px 24px",borderRadius:8,border:"none",background:P.accent,color:P.onAccent,fontWeight:700,fontSize:15,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
                 <Icon name="play" size={11} color="currentColor" style={{marginRight:8}}/> Continue saved game
               </button>
-              <div style={{fontSize:12,color:P.muted,marginTop:8}}>or start a new game</div>
+              
             </div>
           )}
           {onOpenSlots && (
@@ -5845,7 +5845,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                     </button>
                   ))}
                 </div>
-                <div style={{fontSize:12,color:P.muted,marginTop:8,minHeight:34,lineHeight:1.45}}>{SCENARIOS.find(x=>x.id===scenario)?.desc}</div>
+                
                 <details style={{marginTop:6}} open={!!challengeApplied || !!seed}>
                   <summary style={{fontSize:12.5,color:P.accent,cursor:"pointer",userSelect:"none"}}>Seed or challenge code</summary>
                 <div style={{display:"flex",gap:6,marginTop:8,alignItems:"center",flexWrap:"wrap"}}>
@@ -5873,15 +5873,15 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                   </div>
                 )}
                 {nameQuery.trim().length >= 2 && registryMatches.length === 0 && (
-                  <div style={{fontSize:11.5,color:P.muted,marginTop:6}}>No registry match. Keep typing, or just pick a country below and name the cluster yourself.</div>
+                  <div style={{fontSize:11.5,color:P.muted,marginTop:6}}>No match</div>
                 )}
                 <div style={{fontSize:11,color:P.muted,marginTop:7,lineHeight:1.45}}>
-                  Names from the European Cluster Collaboration Platform. Picking one sets its country and ecosystem; what happens next is fiction.
+                  Names: European Cluster Collaboration Platform. Events are fiction.
                 </div>
               </div>
 
               <div style={{marginBottom:2,fontSize:13,fontWeight:600}}>Or pick a country</div>
-              <div style={{marginBottom:10,fontSize:12,color:P.muted}}>You can expand into other countries later.</div>
+              
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(140px,1fr))",gap:6,maxHeight:290,overflowY:"auto",paddingRight:4}}>
                 {Object.keys(EU_COUNTRIES).sort().map(c => (
                   <button key={c} className="btn" style={sel(country===c)} onClick={() => { setCountry(c); setStep(1); }}>{c}</button>
@@ -5892,8 +5892,8 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
           {step===1 && (
             <>
               <button className="btn" onClick={() => setStep(0)} style={{background:"none",border:"none",color:P.accent,fontSize:13,marginBottom:12,padding:0,fontFamily:"inherit",cursor:"pointer",display:"inline-flex",alignItems:"center",gap:5}}><Icon name="arrow-left" size={11} color={P.accent}/> Back</button>
-              <div style={{marginBottom:2,fontSize:14,fontWeight:700}}>Region in <span style={{color:P.accent}}>{country}</span></div>
-              <div style={{marginBottom:12,fontSize:11,color:P.muted,display:"flex",alignItems:"flex-start",gap:5}}><Icon name="star" size={11} color={P.gold} style={{marginTop:2,flexShrink:0}}/><span>{(REGION_RECORDS[country]||[]).length} regions. The star icon marks a stronger Regional Innovation Scoreboard tier, meaning more budget and members at the start.</span></div>
+              <div style={{marginBottom:10,fontSize:13,fontWeight:600}}>Region in {country}</div>
+              
               {region && (
                 <div className="region-pick" style={{marginBottom:14,padding:"12px 14px",borderRadius:10,background:P.bright}}>
                   <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10}}>
@@ -5904,7 +5904,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                   </div>
                   {(regionCounts.byRegion[region]||[]).length > 0 && (
                     <>
-                      <div style={{fontSize:12,color:P.muted,margin:"10px 0 6px"}}>Or take over a real cluster based here</div>
+                      <div style={{fontSize:12,color:P.muted,margin:"10px 0 6px"}}>Or take over</div>
                       <div style={{display:"grid",gap:4,maxHeight:180,overflowY:"auto"}}>
                         {regionCounts.byRegion[region].map((c,i) => (
                           <button key={`${c.n}-${i}`} className="btn real-pick" onClick={() => { adoptCluster(c); setRegion(region); }}>
@@ -5922,8 +5922,8 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                   const strong = /Leader|Strong/.test(rec.ris||"");
                   return (
                     <button key={rec.name} className="btn" style={{...sel(region===rec.name), display:"flex", flexDirection:"column", alignItems:"flex-start", gap:2, padding:"7px 11px"}} onClick={() => { setRegion(rec.name); setStep(1); }}>
-                      <span style={{fontWeight:600,display:"inline-flex",alignItems:"center",gap:4}}>{strong && <Icon name="star" size={10} color={P.gold}/>}{rec.name}</span>
-                      <span style={{fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{rec.nuts} · Innovation tier: {rec.ris||"not rated"}{rec.coh ? ` · ${rec.coh}` : ""} · {(rec.ecos||[]).filter(e=>e!=="Cross-ecosystem").length} ecosystems</span>
+                      <span style={{fontWeight:600,display:"inline-flex",alignItems:"center",gap:4}}>{strong && <Icon name="star" size={10} color={P.accent}/>}{rec.name}</span>
+                      <span style={{fontSize:12,color:P.muted}}>{(rec.ris||"not rated").toLowerCase()}</span>
                     </button>
                   );
                 })}
@@ -5933,19 +5933,8 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
           {step===2 && (
             <>
               <button className="btn" onClick={() => setStep(1)} style={{background:"none",border:"none",color:P.accent,fontSize:13,marginBottom:12,padding:0,fontFamily:"inherit",cursor:"pointer",display:"inline-flex",alignItems:"center",gap:5}}><Icon name="arrow-left" size={11} color={P.accent}/> Back</button>
-              {adopted && (
-                <div style={{marginBottom:10,padding:"9px 12px",borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent"}}>
-                  <div style={{fontSize:11.5,fontWeight:700,color:P.accent,marginBottom:3}}>Set up from {adopted.name}</div>
-                  <div style={{fontSize:11.5,color:P.text,lineHeight:1.5}}>
-                    Country and ecosystem come from the registry{adopted.city ? `, and the region is our best guess from ${adopted.city}` : ""}.
-                    Change any of it below, or use Back to pick a different region.
-                  </div>
-                  <button className="btn" onClick={()=>{ setAdopted(null); setClusterName(""); setSector(null); setRegion(""); setStep(0); }}
-                    style={{marginTop:6,padding:"4px 9px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:11.5,fontWeight:700}}>Start over instead</button>
-                </div>
-              )}
               <div style={{marginBottom:2,fontSize:13,fontWeight:600}}>Industrial ecosystem</div>
-              <div style={{marginBottom:12,fontSize:11,color:P.muted,display:"flex",alignItems:"flex-start",gap:5}}><Icon name="bullseye" size={11} color={P.accent} style={{marginTop:2,flexShrink:0}}/><span>marks a real Smart Specialisation priority of <span style={{color:P.accent}}>{region}</span> · choosing it gives a lasting bonus. Other sectors are harder to grow here.</span></div>
+              <div style={{marginBottom:10,fontSize:12,color:P.muted,display:"flex",alignItems:"center",gap:6}}><Icon name="bullseye" size={11} color={P.green}/>Priority in {region}</div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:6,maxHeight:280,overflowY:"auto",paddingRight:4}}>
                 {[...ECOSYSTEMS].map(e => {
                   const rec = getRegion(country, region);
@@ -5965,40 +5954,36 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                     <div style={{fontSize:13,fontWeight:600,marginBottom:8}}>Difficulty</div>
                     <div style={{display:"flex",gap:6}}>
                       {Object.values(DIFFICULTIES).map(d => (
-                        <button key={d.id} className="btn" onClick={() => setDiff(d.id)} aria-pressed={diff===d.id}
+                        <button key={d.id} className="btn" onClick={() => setDiff(d.id)} aria-pressed={diff===d.id} title={d.desc}
                           style={{...sel(diff===d.id),flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:7,fontWeight:500}}>
                           <Icon name={({junior:"seedling",officer:"user-tie",expert:"chess-knight"})[d.id]||"user-tie"} size={13} color={diff===d.id?P.accent:P.muted}/>{d.label}
                         </button>
                       ))}
                     </div>
-                    <div style={{fontSize:12,color:P.muted,marginTop:8,minHeight:34,lineHeight:1.45}}>{DIFFICULTIES[diff].desc}</div>
+
                   </div>
                   <div style={{marginTop:14}}>
-                    <div style={{fontSize:11.5,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:6}}>Home region</div>
+                    <div style={{fontSize:13,fontWeight:600,marginBottom:8}}>Home region</div>
                     <select value={region} onChange={e=>setRegion(e.target.value)} aria-label="Change your home region"
-                      style={{width:"100%",boxSizing:"border-box",padding:"8px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:12,outline:"none"}}>
+                      style={{width:"100%",boxSizing:"border-box",padding:"10px 12px",borderRadius:8,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:13,outline:"none"}}>
                       {(REGIONS_BY_COUNTRY[country]||[]).map(r => (
                         <option key={r.nuts+r.name} value={r.name}>
-                          {r.name}{ecosystemAligns(r, sector.name) ? "  (aligned)" : ""}{r.ris ? `  · ${r.ris}` : ""}
+                          {r.name}{ecosystemAligns(r, sector.name) ? "  ◎" : ""}
                         </option>
                       ))}
                     </select>
-                    <div style={{fontSize:11,color:P.muted,marginTop:4}}>
-                      {getRegion(country, region) && ecosystemAligns(getRegion(country, region), sector.name)
-                        ? `${sector.name} is a smart-specialisation priority here, so funding and influence come easier.`
-                        : `${sector.name} is not a priority in this region: expect harder funding and slower influence.`}
-                    </div>
+
                   </div>
                   <div style={{marginTop:14}}>
-                    <div style={{fontSize:11.5,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:6}}>Cluster name</div>
+                    <div style={{fontSize:13,fontWeight:600,marginBottom:8}}>Cluster name</div>
                     <input value={clusterName} onChange={e=>setClusterName(e.target.value)} maxLength={70}
                       placeholder={`e.g. ${region} ${sector.name} Cluster`} aria-label="Name your cluster organisation"
-                      style={{width:"100%",boxSizing:"border-box",padding:"8px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:12,outline:"none"}}/>
-                    <div style={{fontSize:11,color:P.muted,marginTop:4}}>Optional. Leave it blank and the header just shows your ecosystem.</div>
+                      style={{width:"100%",boxSizing:"border-box",padding:"10px 12px",borderRadius:8,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:13,outline:"none"}}/>
+
                   </div>
-                  <div style={{fontSize:11.5,color:P.muted,marginTop:10,lineHeight:1.4}}>Scenario <strong style={{color:P.goldText}}>{SCENARIOS.find(x=>x.id===scenario)?.name}</strong>{seed?` · seed "${seed.trim()}"`:""} — change these on the first step.</div>
-                  <button className="btn cut" onClick={() => onStart(country, region, sector, diff, scenario, seed.trim(), clusterName.trim())} style={{marginTop:10,width:"100%",padding:13,borderRadius:0,background:`${P.accent}`,color:P.bg,fontWeight:700,fontSize:15,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',letterSpacing:.3}}>
-                    <Icon name={sector.icon} size={14} color={P.onAccent} style={{marginRight:6}}/> Launch {sector.name} cluster in {region} <Icon name="arrow-right" size={12} color={P.onAccent} style={{marginLeft:6}}/>
+                  
+                  <button className="btn orb" onClick={() => onStart(country, region, sector, diff, scenario, seed.trim(), clusterName.trim())} style={{marginTop:18,width:"100%"}}>
+                    Start in {region}
                   </button>
                 </>
               )}
@@ -6053,7 +6038,7 @@ function MapLegend({ gs }) {
             <Item swatch={<span style={{display:"inline-block",width:14,height:10,borderRadius:0,border:`1px solid ${rivals[0].color}`,background:`repeating-linear-gradient(45deg, ${rivals[0].color}44 0 2px, transparent 2px 4px)`}}/>} label="Rival territory"/>
           )}
           <Item swatch={<span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:14,height:10}}><span style={{width:8,height:8,borderRadius:"50%",border:`1.5px solid ${P.purple}`,background:P.panel}}/></span>} label="Political seat"/>
-          <div style={{fontSize:11,color:P.muted,marginTop:5,lineHeight:1.4,fontStyle:"italic"}}>Dashed lines link your territories; a shimmer marks contested countries.</div>
+          
         </div>
       ) : (
         <button className="btn" onClick={()=>setOpen(true)} title="Show map key" style={{display:"inline-flex",alignItems:"center",gap:5,background:P.panel,border:`1px solid ${P.border}`,borderRadius:0,padding:"5px 9px",fontSize:11.5,fontWeight:700,color:P.muted,boxShadow:"none"}}>
@@ -6313,7 +6298,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
 
   if (!gs) return null;
 
-  const tipCard = showTip && (
+  const tipCard = false && (
     <div style={{position:"absolute",top:10,left:10,right:10,zIndex:50,maxWidth:380,margin:"0 auto",background:P.panel,borderRadius:0,border:`1px solid ${P.accent}`,boxShadow:"none",padding:"14px 16px",animation:"fadeUp .2s ease"}}>
       <div style={{fontSize:13,fontWeight:700,marginBottom:8,color:P.text}}>Quick orientation</div>
       <div style={{fontSize:11,color:P.muted,lineHeight:1.6,marginBottom:6}}>Watch <b style={{color:P.text}}>Treasury</b>, <b style={{color:P.text}}>Board</b> and the <b style={{color:P.text}}>rival race</b> each quarter. Any one hitting zero, or a rival finishing first, ends the run.</div>
@@ -6906,7 +6891,7 @@ function SaveSlots({ gs, onClose, onLoad }) {
   const doLoad = async i => { const s = await loadSlot(i); if (s && onLoad) onLoad(s); };
   return (
     <Modal title="Save Slots" icon="floppy-disk" iconColor={P.accent} onClose={onClose} width={440}>
-      <div style={{fontSize:11,color:P.muted,marginBottom:10,lineHeight:1.5}}>Your game autosaves continuously. These three slots are manual checkpoints you can return to — handy before a risky expansion or a new scenario.</div>
+      
       {!slots ? <div style={{color:P.muted,fontSize:12}}>Loading…</div> : slots.map(s => (
         <div key={s.i} style={{display:"flex",alignItems:"center",gap:8,padding:"9px 11px",marginBottom:6,borderRadius:0,border:`1px solid ${P.border}`,background:P.card}}>
           <div style={{flex:1,minWidth:0}}>

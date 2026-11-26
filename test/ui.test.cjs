@@ -628,6 +628,22 @@ const click = (el) => act(() => {
   if (realPick) { click(realPick); ok(/Industrial ecosystem/.test(text()), "taking one over moves on with its ecosystem set"); }
 }
 
+/* ── no explanatory filler in the interface ───────────────── */
+{
+  const src = require("fs").readFileSync(require("path").join(__dirname, "..", "src", "ClusterManagerSimulator.jsx"), "utf8");
+  ok(/Grow a regional cluster into an EU-wide cluster network\./.test(src), "the tagline reads as agreed");
+  for (const filler of ["Set up from", "Optional. Leave it blank", "Change any of it below", "Your game autosaves continuously",
+                        "Dashed lines link your territories", "is a smart-specialisation priority here, so", "or start a new game"])
+    ok(!src.includes(filler), `no filler text: "${filler}"`);
+  render(null);
+  render(React.createElement(G.Setup, { onStart: () => {}, canResume: false, onResume: () => {}, mobile: false }));
+  const s = qsa("input").find(i => /real cluster/i.test(i.getAttribute("aria-label") || ""));
+  act(() => { const set = Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, "value").set; set.call(s, "Photonics Bretagne"); s.dispatchEvent(new dom.window.Event("input", { bubbles: true })); });
+  click(qsa("button").find(b => /Photonics Bretagne/.test(b.textContent)));
+  ok(!/registry|best guess/i.test(text()), "taking over a real cluster adds no explanation box");
+  ok(qsa("button.orb").some(b => /Start in Brittany/.test(b.textContent)), "the start button names where you begin");
+}
+
 /* ── dark mode and back again ─────────────────────────────── */
 {
   // Regression: switching back to light mode referenced a palette that no longer
