@@ -589,6 +589,16 @@ const click = (el) => act(() => {
   ok(G.regionFromLabel("Germany", "Somewhere", "Generic Cluster") === "", "a cluster with no regional clue is not guessed into a region");
   ok(G.regionFromLabel("Latvia", "", "Anything") === "Latvia", "a single-region country takes its only region");
   ok(G.countryRegionShapes("Germany").length === 16, "every German region has a shape to click");
+  // the map draws each playable region at its own NUTS level: one shape per region
+  for (const [country, n] of [["Germany",16],["Netherlands",4],["Belgium",3],["Finland",18],["Sweden",21]])
+    ok(G.countryRegionShapes(country).length === n && G.countryRegionShapes(country).every(sh => sh.codes.length === 1),
+       `${country} shows ${n} regions, one shape each`);
+  const R0 = G.REGIONS_BY_COUNTRY;
+  const playable = Object.values(G.EU_COUNTRIES).flat().length;
+  ok(Object.keys(G.NUTS2_PATHS).length === playable, `every playable region has exactly one map shape (${Object.keys(G.NUTS2_PATHS).length} of ${playable})`);
+  ok(Object.values(G.NUTS2_PATHS)[0].length > 20 && G.NUTS2_PATHS["DE4"].split("M").length - 1 >= 2, "a region around another keeps the hole for it (Brandenburg around Berlin)");
+  const fi = G.ECCP_CLUSTERS.filter(c => c.c === "FI" && c.r);
+  ok(new Set(fi.map(c => c.r)).size >= 8, `Finnish clusters spread across their real regions (${new Set(fi.map(c => c.r)).size})`);
   // most real clusters are placed in a region from their city's location
   const R = G.REGIONS_BY_COUNTRY;
   const euClusters = G.ECCP_CLUSTERS.filter(c => R[G.ISO_TO_NAME[c.c]]);
