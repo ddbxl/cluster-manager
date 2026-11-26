@@ -30,10 +30,7 @@ const READABLE = process.argv.includes("--readable");
 
 // ── Meta / branding (edit these if you fork) ─────────────────────
 const SITE_URL = "https://ddbxl.github.io/cluster-manager/";
-const DESC =
-  "A browser strategy game: grow a regional cluster into the Pan-European " +
-  "Cluster Network across 27 countries. Real NUTS-2 map, rival AI, political " +
-  "seats, EU-style project finance.";
+const DESC = "Grow a regional cluster into an EU-wide cluster network.";
 // Inline SVG favicon (three linked nodes) — no separate icon file needed.
 const FAVICON =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E" +
@@ -123,15 +120,15 @@ function htmlShell(js, { readable }) {
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Cluster Manager">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Cluster Manager · EU Industrial Strategy Simulation">
+<meta property="og:title" content="Cluster Manager: EU industrial strategy simulation">
 <meta property="og:description" content="${DESC}">
 <meta property="og:image" content="${OG_IMG}">
 <meta property="og:url" content="${SITE_URL}">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Cluster Manager · EU Industrial Strategy Simulation">
+<meta name="twitter:title" content="Cluster Manager: EU industrial strategy simulation">
 <meta name="twitter:description" content="${DESC}">
 <meta name="twitter:image" content="${OG_IMG}">
-<style>html,body{margin:0;padding:0;height:100%;background:#F8F9FD}#root{height:100%}noscript{display:block;padding:40px;font-family:sans-serif;color:#26324B}</style>
+<style>html,body{margin:0;padding:0;height:100%;background:#F5F7FA}#root{height:100%}noscript{display:block;padding:40px;font-family:sans-serif;color:#26324B}</style>
 </head>
 <body>
 <div id="root"></div>
