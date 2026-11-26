@@ -45,7 +45,7 @@ You win by reaching Stage 5 before your rivals, or by clearing the field of them
 
 **A living policy cycle.** You meet the instruments your members would face in real life across ninety-nine events: CBAM reporting, the Net-Zero Industry Act, AI Act conformity, Just Transition allocations, Interreg partner searches, EIT communities, state-aid scrutiny, the cohesion mid-term review. Many belong to a single ecosystem, so a textiles cluster and an aerospace cluster read different news. Others answer the shape of your cluster: whether you hold a seat, how corporate-heavy your membership has become, how thin the treasury is, how crowded the field looks. Thirty-nine funding calls span the ladder from an Open Doors Week to a Pan-European Flagship Alliance.
 
-**A clean, quiet interface.** White cards on a pale blue-grey page, one blue for everything you can act on, colour kept for meaning (green for gains, red for losses), and plain Helvetica throughout. Menu buttons are text that underlines when you point at it; event options are framed rows that turn blue under the pointer; a single blue button ends the quarter.
+**Built like an instrument.** Fixed panels are flat white sheets attached to the screen edges; anything that floats over the map is a lifted card with soft corners, so the shape tells you which is which. Text is navy ink in Helvetica, sentence case throughout, figures large and aligned. Blue marks what you can act on; red and green mark losses and gains, and the rivals' colours on the map are the only other colour on screen.
 
 **Three difficulties.** Junior teaches you the ropes, Officer gives you a fair fight, Expert removes the safety net.
 

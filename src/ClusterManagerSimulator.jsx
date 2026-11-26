@@ -35,8 +35,8 @@ function ecosystemAligns(region, ecosystemName) {
 ═══════════════════════════════════════════════════════════ */
 const CSS = `
 *{box-sizing:border-box;margin:0;padding:0}
-html,body,#root{height:100%;background:var(--page-bg,#F3F5F9);overflow:hidden;font-size:13px;line-height:1.5}
-html.dark{--page-bg:#0B1220;--scroll-bg:#121B2E;--scroll-thumb:#2C3954}
+html,body,#root{height:100%;background:var(--page-bg,#F5F7FA);overflow:hidden;font-size:13px;line-height:1.5}
+html.dark{--page-bg:#0A1430;--scroll-bg:#0F1B3D;--scroll-thumb:#243461}
 body{-webkit-text-size-adjust:100%;text-size-adjust:100%;font-variant-numeric:tabular-nums;overscroll-behavior:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 ::-webkit-scrollbar{width:5px;height:5px;background:var(--scroll-bg,#e4ecf7)}
 ::-webkit-scrollbar-thumb{background:var(--scroll-thumb,#aabdd8)}
@@ -53,30 +53,71 @@ body{-webkit-text-size-adjust:100%;text-size-adjust:100%;font-variant-numeric:ta
 .cut{clip-path:polygon(0 0, calc(100% - 11px) 0, 100% 11px, 100% 100%, 0 100%)}
 .cut-sm{clip-path:polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%)}
 
-/* Surfaces: white cards with a hairline border and a soft shadow, 10px corners.
-   Forced because panels still carry older fills inline. */
-.glass{background:#FFFFFF !important;border:1px solid #E1E6EF !important;border-radius:12px !important;box-shadow:0 1px 2px rgba(16,24,40,.05),0 8px 24px rgba(16,24,40,.08) !important}
-html.dark .glass{background:#121B2E !important;border-color:#26324A !important;box-shadow:0 8px 24px rgba(0,0,0,.35) !important}
-.glass-flat{background:#FFFFFF !important;border-bottom:1px solid #E1E6EF !important}
-html.dark .glass-flat{background:#121B2E !important;border-bottom-color:#26324A !important}
-.glass-left > div{background:transparent !important;border:none !important}
-/* Headings: plain Helvetica, semibold, sentence case. */
-.title-caps{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:600;letter-spacing:-.2px;color:#0E1A33}
-html.dark .title-caps{color:#EEF2F9}
-/* Option rows: a hairline frame that turns blue under the pointer. */
-.card-btn{background:#FFFFFF !important;border:1px solid #D7DEEA !important;border-radius:10px !important;transition:border-color .12s ease,background .12s ease}
-html.dark .card-btn{background:#172238 !important;border-color:#2C3954 !important}
-.card-btn:hover:not(:disabled),.card-btn:focus-visible{border-color:#1D4ED8 !important;background:#F1F5FE !important;filter:none;outline:none}
-html.dark .card-btn:hover:not(:disabled),html.dark .card-btn:focus-visible{border-color:#5B8CFF !important;background:#1A2848 !important}
-/* The end-of-quarter control: one solid blue button. */
-.orb{min-width:168px;height:52px;border-radius:12px !important;background:#1D4ED8 !important;border:none !important;color:#FFFFFF !important;box-shadow:0 6px 18px rgba(29,78,216,.32) !important;display:flex;align-items:center;justify-content:center;gap:5px;padding:0 22px !important;font-size:15px;font-weight:600}
-.orb:hover:not(:disabled){background:#1A44BF !important;filter:none}
-.orb:disabled{background:#C8D2E3 !important;color:#5E6E89 !important;box-shadow:none !important}
-html.dark .orb{background:#5B8CFF !important;color:#0B1220 !important}
-html.dark .orb:disabled{background:#26324A !important;color:#94A3BF !important}
-.orb-sm{height:40px;min-width:56px;border-radius:10px !important;background:#FFFFFF !important;border:1px solid #D7DEEA !important;padding:0 12px !important;display:flex;align-items:center;justify-content:center}
-.orb-sm:hover:not(:disabled){border-color:#1D4ED8 !important;filter:none}
-html.dark .orb-sm{background:#121B2E !important;border-color:#2C3954 !important}
+/* Surfaces. Sheets are fixed panels attached to the screen edge: square, no
+   shadow, divided from the map by one rule. Floating things (cards over the map,
+   tooltips, the turn button) get a 6px radius and a single crisp shadow, so the
+   radius itself says "this sits above the map". */
+.sheet{background:#FFFFFF !important;border:none !important;border-radius:0 !important;box-shadow:none !important}
+.sheet-left{border-right:1px solid #D9DFEA !important}
+.sheet-right{border-left:1px solid #D9DFEA !important}
+html.dark .sheet{background:#0F1B3D !important}
+html.dark .sheet-left{border-right-color:#243461 !important}
+html.dark .sheet-right{border-left-color:#243461 !important}
+.sheet > div{background:transparent !important;border:none !important}
+.glass{background:#FFFFFF !important;border:1px solid #D9DFEA !important;border-radius:6px !important;box-shadow:0 1px 0 rgba(11,27,63,.04),0 6px 20px rgba(11,27,63,.10) !important}
+html.dark .glass{background:#0F1B3D !important;border-color:#243461 !important;box-shadow:0 6px 20px rgba(0,0,0,.4) !important}
+.glass-flat{background:#FFFFFF !important;border-bottom:1px solid #D9DFEA !important}
+html.dark .glass-flat{background:#0F1B3D !important;border-bottom-color:#243461 !important}
+.title-caps{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:600;letter-spacing:-.2px;color:#0B1B3F}
+html.dark .title-caps{color:#EEF2FA}
+.card-btn{background:#FFFFFF !important;border:1px solid #D9DFEA !important;border-radius:6px !important}
+html.dark .card-btn{background:#0F1B3D !important;border-color:#243461 !important}
+.card-btn:hover:not(:disabled),.card-btn:focus-visible{border-color:#1F4BD8 !important;background:#F2F5FD !important;filter:none;outline:none}
+html.dark .card-btn:hover:not(:disabled),html.dark .card-btn:focus-visible{border-color:#7C9BFF !important;background:#16244A !important}
+.orb{min-width:176px;height:48px;border-radius:6px !important;background:#1F4BD8 !important;border:none !important;color:#FFFFFF !important;box-shadow:0 6px 18px rgba(31,75,216,.28) !important;display:flex;align-items:center;justify-content:center;padding:0 22px !important;font-size:15px;font-weight:600}
+.orb:hover:not(:disabled){background:#1A40BA !important;filter:none}
+.orb:disabled{background:#D9DFEA !important;color:#5A6785 !important;box-shadow:none !important}
+html.dark .orb{background:#7C9BFF !important;color:#0A1430 !important}
+html.dark .orb:disabled{background:#243461 !important;color:#9AA8C8 !important}
+.orb-sm{height:48px;min-width:64px;border-radius:6px !important;background:#FFFFFF !important;border:1px solid #D9DFEA !important;padding:0 14px !important;display:flex;align-items:center;justify-content:center}
+.orb-sm:hover:not(:disabled){border-color:#1F4BD8 !important;filter:none}
+html.dark .orb-sm{background:#0F1B3D !important;border-color:#243461 !important}
+/* Figures: label over value, values large and tabular. */
+.figs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px 16px;margin:12px 0 6px}
+.figs div{min-width:0}
+.figs dt{font-size:11.5px;color:#5A6785;margin:0;display:flex;align-items:center;gap:5px}
+.figs dd{font-size:17px;font-weight:600;margin:1px 0 0;color:#0B1B3F;font-variant-numeric:tabular-nums}
+html.dark .figs dt{color:#9AA8C8}
+html.dark .figs dd{color:#EEF2FA}
+/* Conditions read as a short list: met ones quiet, unmet ones in red. */
+.conds{list-style:none;padding:0;margin:8px 0 0;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px}
+.conds li::before{display:inline-block;width:14px;font-weight:700}
+.conds .met{color:#5A6785}.conds .met::before{content:"✓";color:#0F7B4A}
+.conds .unmet{color:#B00E28}.conds .unmet::before{content:"✕"}
+html.dark .conds .met{color:#9AA8C8}
+.partners{display:flex;align-items:center;gap:12px;margin-top:10px;font-size:12px;color:#5A6785}
+.partners input{flex:1;accent-color:#1F4BD8}
+.partners .tnum{min-width:2ch;text-align:right;color:#0B1B3F;font-weight:600}
+html.dark .partners .tnum{color:#EEF2FA}
+.menu-scope .btn.act{display:block;margin-top:10px;padding:6px 0 !important;font-size:13.5px;font-weight:600;color:#1F4BD8}
+html.dark .menu-scope .btn.act{color:#7C9BFF}
+.menu-scope .btn.act:disabled{color:#5A6785}
+.rows{display:grid;grid-template-columns:1fr auto;gap:3px 10px;margin:10px 0 0;font-size:12px}
+.rows dt{color:#5A6785;margin:0;display:flex;align-items:center;gap:7px}.rows dd{margin:0;text-align:right;color:#0B1B3F;font-variant-numeric:tabular-nums}
+html.dark .rows dt{color:#9AA8C8} html.dark .rows dd{color:#EEF2FA}
+.glass-flat .btn:hover:not(:disabled){background:#EEF2F7 !important;filter:none}
+html.dark .glass-flat .btn:hover:not(:disabled){background:#16244A !important}
+.setup input,.setup select{border-radius:8px !important;border-style:solid !important;padding:10px 12px !important;font-size:13px !important;background:#FFFFFF}
+html.dark .setup input,html.dark .setup select{background:#0F1B3D}
+.setup .btn{border-radius:8px}
+.setup .btn:hover:not(:disabled){filter:none;border-color:#1F4BD8}
+.facts{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:#5A6785;line-height:1.3}
+html.dark .facts{color:#9AA8C8}
+.fact{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* The hover label on the map: sized to its content, wraps long names. */
+.map-hover{position:absolute;z-index:47;pointer-events:none;max-width:240px;padding:9px 11px;background:#FFFFFF;border:1px solid #D9DFEA;border-radius:6px;box-shadow:0 6px 20px rgba(11,27,63,.12);font-size:12px;line-height:1.45;color:#0B1B3F}
+html.dark .map-hover{background:#0F1B3D;border-color:#243461;color:#EEF2FA}
 
 /* Inside a menu a button is plain text: no box, no fill. Hovering, focusing or
    pressing it draws an underline. The rules are forced because each button
@@ -86,13 +127,13 @@ html.dark .orb-sm{background:#121B2E !important;border-color:#2C3954 !important}
 .menu-scope .btn:disabled{cursor:not-allowed;text-decoration:none}
 .menu-scope .btn:focus-visible{outline:none}
 /* a chosen option stays underlined */
-.menu-scope .btn[aria-pressed="true"]{text-decoration:underline;text-decoration-color:#1D4ED8;text-decoration-thickness:3px}
+.menu-scope .btn[aria-pressed="true"]{text-decoration:underline;text-decoration-color:#1F4BD8;text-decoration-thickness:3px}
 /* buttons that were white on a solid fill would vanish without the fill */
-.menu-scope .btn[style*="color: rgb(255, 255, 255)"],.menu-scope .btn[style*="color:#FFFFFF"],.menu-scope .btn[style*="color:#fff"]{color:#1D4ED8 !important}
-html.dark .menu-scope .btn[style*="color: rgb(11, 18, 32)"],html.dark .menu-scope .btn[style*="color:#0B1220"]{color:#5B8CFF !important}
+.menu-scope .btn[style*="color: rgb(255, 255, 255)"],.menu-scope .btn[style*="color:#FFFFFF"],.menu-scope .btn[style*="color:#fff"]{color:#1F4BD8 !important}
+html.dark .menu-scope .btn[style*="color: rgb(10, 20, 48)"],html.dark .menu-scope .btn[style*="color:#0A1430"]{color:#7C9BFF !important}
 /* a button in the ordinary text colour would read as a label, so it takes the action colour */
-.menu-scope .btn[style*="color: rgb(14, 26, 51)"],.menu-scope .btn[style*="color:#0E1A33"]{color:#1D4ED8 !important}
-html.dark .menu-scope .btn[style*="color: rgb(238, 242, 249)"]{color:#5B8CFF !important}
+.menu-scope .btn[style*="color: rgb(11, 27, 63)"],.menu-scope .btn[style*="color:#0B1B3F"]{color:#1F4BD8 !important}
+html.dark .menu-scope .btn[style*="color: rgb(238, 242, 250)"]{color:#7C9BFF !important}
 .menu-tabs .btn:hover{text-decoration:underline;text-underline-offset:3px;filter:none}
 
 /* Figures line up in columns without a monospace face. */
@@ -119,12 +160,12 @@ html.dark .float-delta{--delta-halo:rgba(5,10,20,.92)}
 /* The wordmark is solid Reflex Blue. It was gradient-filled text, which depends
    on clipping a background to the glyphs and leaves the title invisible whenever
    that clip does not apply. Flat colour cannot fail, and suits the rest. */
-.brand-title{color:#0A2A7A;font-weight:700 !important;letter-spacing:-1.5px !important}
-html.dark .brand-title{color:#EEF2F9}
+.brand-title{color:#0B1B3F;font-weight:700 !important;letter-spacing:-2px !important}
+html.dark .brand-title{color:#EEF2FA}
 /* The map sea fills its whole panel edge-to-edge; the dot grid is a fixed-size CSS
    layer so it stays crisp no matter how the SVG map scales inside it. */
-.map-sea{background:#D7E3F1}
-html.dark .map-sea{background:#0E1729}
+.map-sea{background:#CFDDEE}
+html.dark .map-sea{background:#081131}
 .threat-pulse{animation:threatPulse 2.4s ease-in-out infinite}
 @keyframes threatPulse{0%,100%{box-shadow:0 0 0 0 var(--threat)}50%{box-shadow:0 0 0 3px color-mix(in srgb, var(--threat) 22%, transparent)}}
 
@@ -163,27 +204,26 @@ input[type=range]{width:100%;accent-color:#3860ED;cursor:pointer}
    PALETTE
 ═══════════════════════════════════════════════════════════ */
 // EU Commission colour system (ECL v4); trailing comments name each token.
-/* Clean and quiet: white surfaces on a pale blue-grey page, one blue for
-   everything you can act on, a lighter blue for highlights, and colour kept for
-   meaning (green gain, red loss). Yellow is reserved for the single star in the
-   wordmark. */
+/* Paper, ink and one blue. Text is a deep navy ink, actions are blue, red and
+   green only mark losses and gains. Secondary hues are muted so the rivals'
+   colours on the map are the only saturated colour on screen besides blue. */
 const P = {
-  bg:"#F3F5F9",     panel:"#FFFFFF",   card:"#F7F9FC",   border:"#E1E6EF",
-  bright:"#EAF0F8", text:"#0E1A33",    muted:"#5E6E89",
-  accent:"#1D4ED8", blue:"#1D4ED8",    gold:"#3B82F6",
-  red:"#D93B3B",    orange:"#D9772B",  green:"#1E9E61",
-  purple:"#7357D6", teal:"#0E9BB5",
-  goldText:"#1D4ED8", greenText:"#17804E", redText:"#B42323",
-  onAccent:"#FFFFFF",                  // text and icons sitting on a blue fill
+  bg:"#F5F7FA",     panel:"#FFFFFF",   card:"#FFFFFF",   border:"#D9DFEA",
+  bright:"#EEF2F7", text:"#0B1B3F",    muted:"#5A6785",
+  accent:"#1F4BD8", blue:"#1F4BD8",    gold:"#1F4BD8",
+  red:"#C8102E",    orange:"#A85A00",  green:"#0F7B4A",
+  purple:"#3F4E86", teal:"#1B6A86",
+  goldText:"#1F4BD8", greenText:"#0F7B4A", redText:"#B00E28",
+  onAccent:"#FFFFFF",
 };
 const P_DARK = {
-  bg:"#0B1220",     panel:"#121B2E",   card:"#172238",   border:"#26324A",
-  bright:"#1C2943", text:"#EEF2F9",    muted:"#94A3BF",
-  accent:"#5B8CFF", blue:"#5B8CFF",    gold:"#7CA8FF",
-  red:"#FF6B6B",    orange:"#FFA352",  green:"#47CC8A",
-  purple:"#A68BFF", teal:"#4CC9E0",
-  goldText:"#9DBDFF", greenText:"#6EDCA4", redText:"#FF8F8F",
-  onAccent:"#0B1220",
+  bg:"#0A1430",     panel:"#0F1B3D",   card:"#0F1B3D",   border:"#243461",
+  bright:"#16244A", text:"#EEF2FA",    muted:"#9AA8C8",
+  accent:"#7C9BFF", blue:"#7C9BFF",    gold:"#7C9BFF",
+  red:"#FF7A85",    orange:"#F0A257",  green:"#4FCB8E",
+  purple:"#A7B4E6", teal:"#7FC3DD",
+  goldText:"#9DB4FF", greenText:"#6FD9A4", redText:"#FF97A0",
+  onAccent:"#0A1430",
 };
 let THEME_DARK = false;
 function applyTextScale(big) {
@@ -214,6 +254,34 @@ const darkHex = (h, f=0.5) => {
    Path data is embedded so the game makes no external request.
 ═══════════════════════════════════════════════════════════ */
 const ICON_PATHS = {
+  "hourglass-half":[384,512,"M32 0C14.3 0 0 14.3 0 32S14.3 64 32 64l0 11c0 42.4 16.9 83.1 46.9 113.1L146.7 256 78.9 323.9C48.9 353.9 32 394.6 32 437l0 11c-17.7 0-32 14.3-32 32s14.3 32 32 32l32 0 256 0 32 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l0-11c0-42.4-16.9-83.1-46.9-113.1L237.3 256l67.9-67.9c30-30 46.9-70.7 46.9-113.1l0-11c17.7 0 32-14.3 32-32s-14.3-32-32-32L320 0 64 0 32 0zM96 75l0-11 192 0 0 11c0 19-5.6 37.4-16 53L112 128c-10.3-15.6-16-34-16-53zm16 309c3.5-5.3 7.6-10.3 12.1-14.9L192 301.3l67.9 67.9c4.6 4.6 8.6 9.6 12.1 14.9L112 384z"],
+  "calendar-days":[448,512,"M128 0c17.7 0 32 14.3 32 32l0 32 128 0 0-32c0-17.7 14.3-32 32-32s32 14.3 32 32l0 32 48 0c26.5 0 48 21.5 48 48l0 48L0 160l0-48C0 85.5 21.5 64 48 64l48 0 0-32c0-17.7 14.3-32 32-32zM0 192l448 0 0 272c0 26.5-21.5 48-48 48L48 512c-26.5 0-48-21.5-48-48L0 192zm64 80l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16zm128 0l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16zm144-16c-8.8 0-16 7.2-16 16l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0zM64 400l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16zm144-16c-8.8 0-16 7.2-16 16l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0zm112 16l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16z"],
+  "arrow-trend-up":[576,512,"M384 160c-17.7 0-32-14.3-32-32s14.3-32 32-32l160 0c17.7 0 32 14.3 32 32l0 160c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-82.7L342.6 374.6c-12.5 12.5-32.8 12.5-45.3 0L192 269.3 54.6 406.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160c12.5-12.5 32.8-12.5 45.3 0L320 306.7 466.7 160 384 160z"],
+  "map-location-dot":[576,512,"M408 120c0 54.6-73.1 151.9-105.2 192c-7.7 9.6-22 9.6-29.6 0C241.1 271.9 168 174.6 168 120C168 53.7 221.7 0 288 0s120 53.7 120 120zm8 80.4c3.5-6.9 6.7-13.8 9.6-20.6c.5-1.2 1-2.5 1.5-3.7l116-46.4C558.9 123.4 576 135 576 152l0 270.8c0 9.8-6 18.6-15.1 22.3L416 503l0-302.6zM137.6 138.3c2.4 14.1 7.2 28.3 12.8 41.5c2.9 6.8 6.1 13.7 9.6 20.6l0 251.4L32.9 502.7C17.1 509 0 497.4 0 480.4L0 209.6c0-9.8 6-18.6 15.1-22.3l122.6-49zM327.8 332c13.9-17.4 35.7-45.7 56.2-77l0 249.3L192 449.4 192 255c20.5 31.3 42.3 59.6 56.2 77c20.5 25.6 59.1 25.6 79.6 0zM288 152a40 40 0 1 0 0-80 40 40 0 1 0 0 80z"],
+  "location-dot":[384,512,"M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"],
+  "percent":[384,512,"M374.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-320 320c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l320-320zM128 128A64 64 0 1 0 0 128a64 64 0 1 0 128 0zM384 384a64 64 0 1 0 -128 0 64 64 0 1 0 128 0z"],
+  "user-plus":[640,512,"M96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM0 482.3C0 383.8 79.8 304 178.3 304l91.4 0C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7L29.7 512C13.3 512 0 498.7 0 482.3zM504 312l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"],
+  "people-group":[640,512,"M72 88a56 56 0 1 1 112 0A56 56 0 1 1 72 88zM64 245.7C54 256.9 48 271.8 48 288s6 31.1 16 42.3l0-84.7zm144.4-49.3C178.7 222.7 160 261.2 160 304c0 34.3 12 65.8 32 90.5l0 21.5c0 17.7-14.3 32-32 32l-64 0c-17.7 0-32-14.3-32-32l0-26.8C26.2 371.2 0 332.7 0 288c0-61.9 50.1-112 112-112l32 0c24 0 46.2 7.5 64.4 20.3zM448 416l0-21.5c20-24.7 32-56.2 32-90.5c0-42.8-18.7-81.3-48.4-107.7C449.8 183.5 472 176 496 176l32 0c61.9 0 112 50.1 112 112c0 44.7-26.2 83.2-64 101.2l0 26.8c0 17.7-14.3 32-32 32l-64 0c-17.7 0-32-14.3-32-32zm8-328a56 56 0 1 1 112 0A56 56 0 1 1 456 88zM576 245.7l0 84.7c10-11.3 16-26.1 16-42.3s-6-31.1-16-42.3zM320 32a64 64 0 1 1 0 128 64 64 0 1 1 0-128zM240 304c0 16.2 6 31 16 42.3l0-84.7c-10 11.3-16 26.1-16 42.3zm144-42.3l0 84.7c10-11.3 16-26.1 16-42.3s-6-31.1-16-42.3zM448 304c0 44.7-26.2 83.2-64 101.2l0 42.8c0 17.7-14.3 32-32 32l-64 0c-17.7 0-32-14.3-32-32l0-42.8c-37.8-18-64-56.5-64-101.2c0-61.9 50.1-112 112-112l32 0c61.9 0 112 50.1 112 112z"],
+  "city":[640,512,"M480 48c0-26.5-21.5-48-48-48L336 0c-26.5 0-48 21.5-48 48l0 48-64 0 0-72c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 72-64 0 0-72c0-13.3-10.7-24-24-24S64 10.7 64 24l0 72L48 96C21.5 96 0 117.5 0 144l0 96L0 464c0 26.5 21.5 48 48 48l256 0 32 0 96 0 160 0c26.5 0 48-21.5 48-48l0-224c0-26.5-21.5-48-48-48l-112 0 0-144zm96 320l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16zM240 416l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16zM128 400c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16l0 32zM560 256c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0zM256 176l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16zM112 160c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0zM256 304c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16l0 32zM112 320l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16zm304-48l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16zM400 64c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0zm16 112l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16z"],
+  "globe":[512,512,"M352 256c0 22.2-1.2 43.6-3.3 64l-185.3 0c-2.2-20.4-3.3-41.8-3.3-64s1.2-43.6 3.3-64l185.3 0c2.2 20.4 3.3 41.8 3.3 64zm28.8-64l123.1 0c5.3 20.5 8.1 41.9 8.1 64s-2.8 43.5-8.1 64l-123.1 0c2.1-20.6 3.2-42 3.2-64s-1.1-43.4-3.2-64zm112.6-32l-116.7 0c-10-63.9-29.8-117.4-55.3-151.6c78.3 20.7 142 77.5 171.9 151.6zm-149.1 0l-176.6 0c6.1-36.4 15.5-68.6 27-94.7c10.5-23.6 22.2-40.7 33.5-51.5C239.4 3.2 248.7 0 256 0s16.6 3.2 27.8 13.8c11.3 10.8 23 27.9 33.5 51.5c11.6 26 20.9 58.2 27 94.7zm-209 0L18.6 160C48.6 85.9 112.2 29.1 190.6 8.4C165.1 42.6 145.3 96.1 135.3 160zM8.1 192l123.1 0c-2.1 20.6-3.2 42-3.2 64s1.1 43.4 3.2 64L8.1 320C2.8 299.5 0 278.1 0 256s2.8-43.5 8.1-64zM194.7 446.6c-11.6-26-20.9-58.2-27-94.6l176.6 0c-6.1 36.4-15.5 68.6-27 94.6c-10.5 23.6-22.2 40.7-33.5 51.5C272.6 508.8 263.3 512 256 512s-16.6-3.2-27.8-13.8c-11.3-10.8-23-27.9-33.5-51.5zM135.3 352c10 63.9 29.8 117.4 55.3 151.6C112.2 482.9 48.6 426.1 18.6 352l116.7 0zm358.1 0c-30 74.1-93.6 130.9-171.9 151.6c25.5-34.2 45.2-87.7 55.3-151.6l116.7 0z"],
+  "sliders":[512,512,"M0 416c0 17.7 14.3 32 32 32l54.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 448c17.7 0 32-14.3 32-32s-14.3-32-32-32l-246.7 0c-12.3-28.3-40.5-48-73.3-48s-61 19.7-73.3 48L32 384c-17.7 0-32 14.3-32 32zm128 0a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zM320 256a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm32-80c-32.8 0-61 19.7-73.3 48L32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l246.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48l54.7 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-54.7 0c-12.3-28.3-40.5-48-73.3-48zM192 128a32 32 0 1 1 0-64 32 32 0 1 1 0 64zm73.3-64C253 35.7 224.8 16 192 16s-61 19.7-73.3 48L32 64C14.3 64 0 78.3 0 96s14.3 32 32 32l86.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 128c17.7 0 32-14.3 32-32s-14.3-32-32-32L265.3 64z"],
+  "dice":[640,512,"M274.9 34.3c-28.1-28.1-73.7-28.1-101.8 0L34.3 173.1c-28.1 28.1-28.1 73.7 0 101.8L173.1 413.7c28.1 28.1 73.7 28.1 101.8 0L413.7 274.9c28.1-28.1 28.1-73.7 0-101.8L274.9 34.3zM200 224a24 24 0 1 1 48 0 24 24 0 1 1 -48 0zM96 200a24 24 0 1 1 0 48 24 24 0 1 1 0-48zM224 376a24 24 0 1 1 0-48 24 24 0 1 1 0 48zM352 200a24 24 0 1 1 0 48 24 24 0 1 1 0-48zM224 120a24 24 0 1 1 0-48 24 24 0 1 1 0 48zm96 328c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-192c0-35.3-28.7-64-64-64l-114.3 0c11.6 36 3.1 77-25.4 105.5L320 413.8l0 34.2zM480 328a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"],
+  "seedling":[512,512,"M512 32c0 113.6-84.6 207.5-194.2 222c-7.1-53.4-30.6-101.6-65.3-139.3C290.8 46.3 364 0 448 0l32 0c17.7 0 32 14.3 32 32zM0 96C0 78.3 14.3 64 32 64l32 0c123.7 0 224 100.3 224 224l0 32 0 160c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-160C100.3 320 0 219.7 0 96z"],
+  "list-check":[512,512,"M152.1 38.2c9.9 8.9 10.7 24 1.8 33.9l-72 80c-4.4 4.9-10.6 7.8-17.2 7.9s-12.9-2.4-17.6-7L7 113C-2.3 103.6-2.3 88.4 7 79s24.6-9.4 33.9 0l22.1 22.1 55.1-61.2c8.9-9.9 24-10.7 33.9-1.8zm0 160c9.9 8.9 10.7 24 1.8 33.9l-72 80c-4.4 4.9-10.6 7.8-17.2 7.9s-12.9-2.4-17.6-7L7 273c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l22.1 22.1 55.1-61.2c8.9-9.9 24-10.7 33.9-1.8zM224 96c0-17.7 14.3-32 32-32l224 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-224 0c-17.7 0-32-14.3-32-32zm0 160c0-17.7 14.3-32 32-32l224 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-224 0c-17.7 0-32-14.3-32-32zM160 416c0-17.7 14.3-32 32-32l288 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-288 0c-17.7 0-32-14.3-32-32zM48 368a48 48 0 1 1 0 96 48 48 0 1 1 0-96z"],
+  "chevron-right":[320,512,"M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z"],
+  "chevron-left":[320,512,"M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z"],
+  "plus":[448,512,"M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z"],
+  "minus":[448,512,"M432 256c0 17.7-14.3 32-32 32L48 288c-17.7 0-32-14.3-32-32s14.3-32 32-32l352 0c17.7 0 32 14.3 32 32z"],
+  "hand-holding-dollar":[576,512,"M312 24l0 10.5c6.4 1.2 12.6 2.7 18.2 4.2c12.8 3.4 20.4 16.6 17 29.4s-16.6 20.4-29.4 17c-10.9-2.9-21.1-4.9-30.2-5c-7.3-.1-14.7 1.7-19.4 4.4c-2.1 1.3-3.1 2.4-3.5 3c-.3 .5-.7 1.2-.7 2.8c0 .3 0 .5 0 .6c.2 .2 .9 1.2 3.3 2.6c5.8 3.5 14.4 6.2 27.4 10.1l.9 .3s0 0 0 0c11.1 3.3 25.9 7.8 37.9 15.3c13.7 8.6 26.1 22.9 26.4 44.9c.3 22.5-11.4 38.9-26.7 48.5c-6.7 4.1-13.9 7-21.3 8.8l0 10.6c0 13.3-10.7 24-24 24s-24-10.7-24-24l0-11.4c-9.5-2.3-18.2-5.3-25.6-7.8c-2.1-.7-4.1-1.4-6-2c-12.6-4.2-19.4-17.8-15.2-30.4s17.8-19.4 30.4-15.2c2.6 .9 5 1.7 7.3 2.5c13.6 4.6 23.4 7.9 33.9 8.3c8 .3 15.1-1.6 19.2-4.1c1.9-1.2 2.8-2.2 3.2-2.9c.4-.6 .9-1.8 .8-4.1l0-.2c0-1 0-2.1-4-4.6c-5.7-3.6-14.3-6.4-27.1-10.3l-1.9-.6c-10.8-3.2-25-7.5-36.4-14.4c-13.5-8.1-26.5-22-26.6-44.1c-.1-22.9 12.9-38.6 27.7-47.4c6.4-3.8 13.3-6.4 20.2-8.2L264 24c0-13.3 10.7-24 24-24s24 10.7 24 24zM568.2 336.3c13.1 17.8 9.3 42.8-8.5 55.9L433.1 485.5c-23.4 17.2-51.6 26.5-80.7 26.5L192 512 32 512c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l36.8 0 44.9-36c22.7-18.2 50.9-28 80-28l78.3 0 16 0 64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0-16 0c-8.8 0-16 7.2-16 16s7.2 16 16 16l120.6 0 119.7-88.2c17.8-13.1 42.8-9.3 55.9 8.5zM193.6 384c0 0 0 0 0 0l-.9 0c.3 0 .6 0 .9 0z"],
+  "file-signature":[576,512,"M64 0C28.7 0 0 28.7 0 64L0 448c0 35.3 28.7 64 64 64l256 0c35.3 0 64-28.7 64-64l0-19.3c-2.7 1.1-5.4 2-8.2 2.7l-60.1 15c-3 .7-6 1.2-9 1.4c-.9 .1-1.8 .2-2.7 .2l-64 0c-6.1 0-11.6-3.4-14.3-8.8l-8.8-17.7c-1.7-3.4-5.1-5.5-8.8-5.5s-7.2 2.1-8.8 5.5l-8.8 17.7c-2.9 5.9-9.2 9.4-15.7 8.8s-12.1-5.1-13.9-11.3L144 381l-9.8 32.8c-6.1 20.3-24.8 34.2-46 34.2L80 448c-8.8 0-16-7.2-16-16s7.2-16 16-16l8.2 0c7.1 0 13.3-4.6 15.3-11.4l14.9-49.5c3.4-11.3 13.8-19.1 25.6-19.1s22.2 7.8 25.6 19.1l11.6 38.6c7.4-6.2 16.8-9.7 26.8-9.7c15.9 0 30.4 9 37.5 23.2l4.4 8.8 8.9 0c-3.1-8.8-3.7-18.4-1.4-27.8l15-60.1c2.8-11.3 8.6-21.5 16.8-29.7L384 203.6l0-43.6-128 0c-17.7 0-32-14.3-32-32L224 0 64 0zM256 0l0 128 128 0L256 0zM549.8 139.7c-15.6-15.6-40.9-15.6-56.6 0l-29.4 29.4 71 71 29.4-29.4c15.6-15.6 15.6-40.9 0-56.6l-14.4-14.4zM311.9 321c-4.1 4.1-7 9.2-8.4 14.9l-15 60.1c-1.4 5.5 .2 11.2 4.2 15.2s9.7 5.6 15.2 4.2l60.1-15c5.6-1.4 10.8-4.3 14.9-8.4L512.1 262.7l-71-71L311.9 321z"],
+  "route":[512,512,"M512 96c0 50.2-59.1 125.1-84.6 155c-3.8 4.4-9.4 6.1-14.5 5L320 256c-17.7 0-32 14.3-32 32s14.3 32 32 32l96 0c53 0 96 43 96 96s-43 96-96 96l-276.4 0c8.7-9.9 19.3-22.6 30-36.8c6.3-8.4 12.8-17.6 19-27.2L416 448c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0c-53 0-96-43-96-96s43-96 96-96l39.8 0c-21-31.5-39.8-67.7-39.8-96c0-53 43-96 96-96s96 43 96 96zM117.1 489.1c-3.8 4.3-7.2 8.1-10.1 11.3l-1.8 2-.2-.2c-6 4.6-14.6 4-20-1.8C59.8 473 0 402.5 0 352c0-53 43-96 96-96s96 43 96 96c0 30-21.1 67-43.5 97.9c-10.7 14.7-21.7 28-30.8 38.5l-.6 .7zM128 352a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zM416 128a32 32 0 1 0 0-64 32 32 0 1 0 0 64z"],
+  "circle-nodes":[512,512,"M418.4 157.9c35.3-8.3 61.6-40 61.6-77.9c0-44.2-35.8-80-80-80c-43.4 0-78.7 34.5-80 77.5L136.2 151.1C121.7 136.8 101.9 128 80 128c-44.2 0-80 35.8-80 80s35.8 80 80 80c12.2 0 23.8-2.7 34.1-7.6L259.7 407.8c-2.4 7.6-3.7 15.8-3.7 24.2c0 44.2 35.8 80 80 80s80-35.8 80-80c0-27.7-14-52.1-35.4-66.4l37.8-207.7zM156.3 232.2c2.2-6.9 3.5-14.2 3.7-21.7l183.8-73.5c3.6 3.5 7.4 6.7 11.6 9.5L317.6 354.1c-5.5 1.3-10.8 3.1-15.8 5.5L156.3 232.2z"],
+  "arrow-right-to-bracket":[512,512,"M352 96l64 0c17.7 0 32 14.3 32 32l0 256c0 17.7-14.3 32-32 32l-64 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l64 0c53 0 96-43 96-96l0-256c0-53-43-96-96-96l-64 0c-17.7 0-32 14.3-32 32s14.3 32 32 32zm-9.4 182.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L242.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l210.7 0-73.4 73.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l128-128z"],
+  "gauge-simple-high":[512,512,"M0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm320 96c0-15.9-5.8-30.4-15.3-41.6l76.6-147.4c6.1-11.8 1.5-26.3-10.2-32.4s-26.2-1.5-32.4 10.2L262.1 288.3c-2-.2-4-.3-6.1-.3c-35.3 0-64 28.7-64 64s28.7 64 64 64s64-28.7 64-64z"],
+  "person-chalkboard":[640,512,"M192 96a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm-8 384l0-128 16 0 0 128c0 17.7 14.3 32 32 32s32-14.3 32-32l0-288 56 0 64 0 16 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-16 0 0-64 192 0 0 192-192 0 0-32-64 0 0 48c0 26.5 21.5 48 48 48l224 0c26.5 0 48-21.5 48-48l0-224c0-26.5-21.5-48-48-48L368 0c-26.5 0-48 21.5-48 48l0 80-76.9 0-65.9 0c-33.7 0-64.9 17.7-82.3 46.6l-58.3 97c-9.1 15.1-4.2 34.8 10.9 43.9s34.8 4.2 43.9-10.9L120 256.9 120 480c0 17.7 14.3 32 32 32s32-14.3 32-32z"],
+  "clock-rotate-left":[512,512,"M75 75L41 41C25.9 25.9 0 36.6 0 57.9L0 168c0 13.3 10.7 24 24 24l110.1 0c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24l0 104c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65 0-94.1c0-13.3-10.7-24-24-24z"],
+  "bolt-lightning":[384,512,"M0 256L28.5 28c2-16 15.6-28 31.8-28H228.9c15 0 27.1 12.1 27.1 27.1c0 3.2-.6 6.5-1.7 9.5L208 160H347.3c20.2 0 36.7 16.4 36.7 36.7c0 7.4-2.2 14.6-6.4 20.7l-192.2 281c-5.9 8.6-15.6 13.7-25.9 13.7h-2.9c-15.7 0-28.5-12.8-28.5-28.5c0-2.3 .3-4.6 .9-6.9L176 288H32c-17.7 0-32-14.3-32-32z"],
+  "check-double":[448,512,"M342.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L160 178.7l-57.4-57.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l80 80c12.5 12.5 32.8 12.5 45.3 0l160-160zm96 128c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L160 402.7 54.6 297.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l128 128c12.5 12.5 32.8 12.5 45.3 0l256-256z"],
   "star":[576,512,"M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"],
   "triangle-exclamation":[512,512,"M256 32c14.2 0 27.3 7.5 34.5 19.8l216 368c7.3 12.4 7.3 27.7 .2 40.1S486.3 480 472 480L40 480c-14.3 0-27.6-7.7-34.7-20.1s-7-27.8 .2-40.1l216-368C228.7 39.5 241.8 32 256 32zm0 128c-13.3 0-24 10.7-24 24l0 112c0 13.3 10.7 24 24 24s24-10.7 24-24l0-112c0-13.3-10.7-24-24-24zm32 224a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"],
   "clipboard-check":[384,512,"M192 0c-41.8 0-77.4 26.7-90.5 64L64 64C28.7 64 0 92.7 0 128L0 448c0 35.3 28.7 64 64 64l256 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64l-37.5 0C269.4 26.7 233.8 0 192 0zm0 64a32 32 0 1 1 0 64 32 32 0 1 1 0-64zM305 273L177 401c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L271 239c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"],
@@ -2692,22 +2760,22 @@ function attentionItems(gs) {
   const add = (id, urgent, text, go) => items.push({ id, urgent, text, go });
   const roster = gs.roster || [];
 
-  if (gs.pendingEvent) add("event", true, "An event is waiting for your decision", "event");
-  if (byRole(roster, "manager") < 1) add("gm", true, "No General Manager: the cluster cannot advance", "staff");
+  if (gs.pendingEvent) add("event", true, "An event needs a decision", "event");
+  if (byRole(roster, "manager") < 1) add("gm", true, "Hire a General Manager to continue", "staff");
 
   const burn = (gs.qStaff||0) + (gs.qOverhead||0) + (gs.qServicing||0) + Math.max(0, (gs.qDelivery||0) - (gs.qInterim||0));
   if ((gs.turn||0) > 0 && burn > 0 && (gs.budget||0) / burn < 3 && (gs.qNet||0) < 0)
-    add("runway", true, `Treasury covers under ${Math.max(1, Math.ceil((gs.budget||0) / burn))} quarters at this burn`, "stats");
-  if ((gs.boardConf||0) < 35) add("board", true, `Board confidence is down to ${Math.round(gs.boardConf||0)}%`, "stats");
+    add("runway", true, `Cash for under ${Math.max(1, Math.ceil((gs.budget||0) / burn))} quarters`, "stats");
+  if ((gs.boardConf||0) < 35) add("board", true, `Board confidence at ${Math.round(gs.boardConf||0)}%`, "stats");
 
-  if (canEvolve(gs)) add("evolve", false, `Ready to evolve into ${STAGES[(gs.stage||0)+1]?.name || "the next stage"}`, "evolve");
+  if (canEvolve(gs)) add("evolve", false, `Ready to become ${STAGES[(gs.stage||0)+1]?.name || "the next stage"}`, "evolve");
 
   const calls = availableProjects(gs);
   if (calls.length) {
     const running = (gs.activeProjects||[]).length;
     add("projects", running === 0, running === 0
-      ? `No project running, and ${calls.length} call${calls.length===1?" is":"s are"} open to you`
-      : `A project slot is free: ${calls.length} call${calls.length===1?"":"s"} open`, "projects");
+      ? `No project running, ${calls.length} call${calls.length===1?"":"s"} open`
+      : `A project slot is free`, "projects");
   }
 
   // Unused management capacity only counts when a hire is comfortably affordable.
@@ -2715,7 +2783,7 @@ function attentionItems(gs) {
   if (room > 0 && byRole(roster, "manager") >= 1) {
     const cheapest = Math.min(...STAFF_ROLES.filter(r => !r.hidden && r.id !== "manager" && !hireBlockReason(gs, r.id)).map(r => roleCost(r, gs.turn||0)).concat([Infinity]));
     if (Number.isFinite(cheapest) && (gs.budget||0) - cheapest > staffCostQ(roster, gs.turn||0) * 3 + 40000)
-      add("staff", false, `Room for ${room} more staff, and the treasury can carry a hire`, "staff");
+      add("staff", false, `Room for ${room} more staff`, "staff");
   }
 
   // A region gate is the usual thing holding back the next stage.
@@ -2723,7 +2791,7 @@ function attentionItems(gs) {
   if (needRegion) {
     const cost = Math.round((gs.prestige||0) * 1400 + 30000);
     if ((gs.budget||0) - cost > staffCostQ(roster, gs.turn||0) * 3)
-      add("region", false, `The next stage needs more regions, and you can afford one`, "network");
+      add("region", false, `Next stage needs more regions`, "network");
   }
   return items.sort((a, b) => (b.urgent?1:0) - (a.urgent?1:0));
 }
@@ -3700,6 +3768,8 @@ function EUMap({ gs, sel, setSel, lift=0, dispatch }) {
   const [hov, setHov] = useState(null);
   const [pick, setPick] = useState(null);   // the region clicked: {code, country, name, rec}
   const [hovR, setHovR] = useState(null);   // NUTS-2 code under the pointer
+  const [hovXY, setHovXY] = useState(null); // pointer position inside the map, for the hover label
+  const track = e => { const r = map.svgRef.current && map.svgRef.current.getBoundingClientRect(); if (r) setHovXY({ x: e.clientX - r.left, y: e.clientY - r.top, w: r.width, h: r.height }); };
   const choose = code => { const r = regionAt(code); setPick(r); if (r) setSel && setSel(null); };
   const map = useMapView();
   const sc      = gs?.sector?.color || P.accent;
@@ -3791,7 +3861,7 @@ function EUMap({ gs, sel, setSel, lift=0, dispatch }) {
           const fill   = isHome ? `${P.gold}B0` : active ? (full ? `${sc}A8` : `${sc}66`) : (THEME_DARK ? "#1F2A40" : "#FFFFFF");
           const pop    = popCode && nutsMatch(k, popCode);
           return <path key={k} d={d} fill={fill} data-nuts={k} style={{cursor:"pointer"}}
-            onMouseEnter={()=>{ setHov(iso); setHovR(k); }} onMouseLeave={()=>{ setHov(null); setHovR(null); }}
+            onMouseEnter={(e)=>{ setHov(iso); setHovR(k); track(e); }} onMouseMove={track} onMouseLeave={()=>{ setHov(null); setHovR(null); setHovXY(null); }}
             onClick={(e)=>{ e.stopPropagation(); choose(k); }}
             className={pop ? "map-new" : isHome ? "map-home" : undefined}
             {...(pop || isHome ? {style:{cursor:"pointer",color: isHome ? P.gold : sc, stroke: isHome ? P.gold : "none"}} : {})}/>;
@@ -3914,10 +3984,33 @@ function EUMap({ gs, sel, setSel, lift=0, dispatch }) {
           onClick={(e)=>{ e.stopPropagation(); const code = Object.keys(NUTS2_PATHS).find(c => nutsMatch(c, k)); if (code) choose(code); }}/>;
       })}
 
-      {tip}
 
 
     </svg>
+
+    {!pick && hov && hovXY && (() => {
+      const name = ISO_TO_NAME[hov] || hov;
+      const recs = REGION_RECORDS[name] || [];
+      const held = recs.filter(rec => hasRegionActive(gs, name, rec.name)).length;
+      const r = hovR && regionAt(hovR);
+      const here = rivals.filter(rv => (rv.countries||[]).includes(name));
+      const status = hov === homeISO ? "Your home country" : fullSet.has(hov) ? "Fully covered" : activeSet.has(hov) ? `You hold ${held} of ${recs.length} regions` : "Not in your network";
+      const left = hovXY.x + 14 + 240 > hovXY.w ? Math.max(6, hovXY.x - 254) : hovXY.x + 14;
+      const top  = Math.min(hovXY.y + 14, Math.max(6, hovXY.h - 140));
+      return (
+        <div className="map-hover" style={{left, top}}>
+          <div style={{fontWeight:600}}>{r && r.name !== name ? r.name : name}</div>
+          <div style={{color:P.muted}}>{r && r.name !== name ? `${name}. ` : ""}{status}</div>
+          {here.map(rv => (
+            <div key={rv.id} style={{display:"flex",gap:7,alignItems:"baseline",marginTop:3}}>
+              <span aria-hidden="true" style={{width:8,height:8,borderRadius:2,background:rv.color,flexShrink:0,transform:"translateY(1px)"}}/>
+              <span>{rv.name}, {(STAGES[rv.stage]?.name || "").toLowerCase()}</span>
+            </div>
+          ))}
+          <div style={{color:P.muted,marginTop:4,fontSize:11}}>Click for options</div>
+        </div>
+      );
+    })()}
 
     {pick && (() => {
       const opt = expansionOption(gs, pick.country, pick.name);
@@ -3926,11 +4019,11 @@ function EUMap({ gs, sel, setSel, lift=0, dispatch }) {
       const go = opt.action && (opt.state === "region" || opt.state === "country");
       return (
         <div className="glass region-card" role="dialog" aria-label={`Region ${pick.name}`}
-          style={{position:"absolute",left:10,bottom:44,zIndex:46,width:"min(300px, calc(100% - 20px))",padding:"14px 16px 14px"}}>
+          style={{position:"absolute",left:12,bottom:48,zIndex:46,width:"min(300px, calc(100% - 24px))",padding:"14px 16px 14px"}}>
           <button className="btn" onClick={() => setPick(null)} aria-label="Close region card"
             style={{position:"absolute",top:8,right:8,background:"transparent",border:"none",padding:4,display:"flex"}}><Icon name="xmark" size={12} color={P.muted}/></button>
           <div className="title-caps" style={{fontSize:16,lineHeight:1.25,paddingRight:22}}>{pick.name}</div>
-          <div style={{fontSize:11,color:P.muted,marginTop:2}}>{pick.country} · {rec.nuts || pick.code}{rec.ris ? ` · ${rec.ris}` : ""}{rec.coh ? ` · ${rec.coh}` : ""}</div>
+          <div style={{fontSize:12,color:P.muted,marginTop:2,lineHeight:1.45}}>{pick.country}, {rec.nuts || pick.code}{rec.ris ? `. Innovation: ${rec.ris.toLowerCase()}` : ""}{rec.coh ? `. Cohesion: ${rec.coh.toLowerCase()}` : ""}</div>
           <div style={{fontSize:11.5,marginTop:8,color:aligned?P.greenText:P.muted}}>
             {aligned ? `${gs.sector?.name} is a smart-specialisation priority here` : `${gs.sector?.name} is not a priority here`}
           </div>
@@ -3939,8 +4032,8 @@ function EUMap({ gs, sel, setSel, lift=0, dispatch }) {
           {(opt.state === "region" || opt.state === "country" || opt.state === "short") && (
             <>
               <button className="btn" disabled={!go || !dispatch} onClick={() => dispatch && dispatch(opt.action)}
-                style={{marginTop:12,width:"100%",padding:"10px 12px",border:"none",borderRadius:10,background:go?P.accent:P.bright,color:go?P.onAccent:P.muted,fontSize:13,fontWeight:600}}>
-                {opt.kind === "country" ? `Enter ${pick.country}` : "Open office"} · {fmt(opt.cost)}
+                style={{marginTop:12,width:"100%",padding:"10px 12px",border:"none",borderRadius:6,background:go?P.accent:P.bright,color:go?P.onAccent:P.muted,fontSize:13,fontWeight:600}}>
+                {opt.kind === "country" ? `Enter ${pick.country} for ${fmt(opt.cost)}` : `Open an office for ${fmt(opt.cost)}`}
               </button>
               <div style={{fontSize:10.5,color:P.muted,marginTop:6,lineHeight:1.45}}>
                 {opt.state === "short" ? opt.text
@@ -3955,7 +4048,7 @@ function EUMap({ gs, sel, setSel, lift=0, dispatch }) {
 
     {/* Watermark — HTML, not SVG, so zooming the map doesn't magnify it */}
     <div style={{position:"absolute",...(lift ? {left:"50%",transform:"translateX(-50%)"} : {right:8}),bottom:6,pointerEvents:"none",fontSize:10,color:P.muted,opacity:0.55,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',whiteSpace:"nowrap"}}>
-      {STAGES[gs?.stage||0]?.name} · Quarter {gs?.quarter||1} {gs?.year||2024} · {diffOf(gs).label}
+      {diffOf(gs).label} difficulty
     </div>
 
     {/* Zoom controls: buttons matter for anyone who can't pinch (desktop, or
@@ -3995,7 +4088,7 @@ const Diamond = ({ size=7, color }) => (
   <span aria-hidden="true" style={{display:"inline-block",width:size,height:size,background:color||P.gold,transform:"rotate(45deg)",flexShrink:0}}/>
 );
 const Lbl = ({ t }) => (
-  <div className="menu-heading" style={{fontSize:11,fontWeight:600,letterSpacing:.7,textTransform:"uppercase",color:P.muted,margin:"2px 0 8px"}}>{t}</div>
+  <div className="menu-heading" style={{fontSize:13,fontWeight:600,color:P.text,margin:"6px 0 8px"}}>{t}</div>
 )
 
 // Animates a displayed number toward its new value (SSR-safe: effects only)
@@ -4132,7 +4225,7 @@ const Bar = ({ val, max=100, color, h=4 }) => (
 
 const MiniStat = ({ l, v, c=P.text }) => (
   <div style={{background:P.card,borderRadius:0,padding:"7px 10px",border:`1px solid ${P.border}`}}>
-    <div style={{fontSize:10,color:P.muted,marginBottom:3,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',textTransform:"uppercase",letterSpacing:0.3}}>{l}</div>
+    <div style={{fontSize:10,color:P.muted,marginBottom:3,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',letterSpacing:0.3}}>{l}</div>
     <div style={{fontSize:16,fontWeight:700,color:c,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{v}</div>
   </div>
 );
@@ -4214,6 +4307,20 @@ const Trend = ({ t }) => !t ? null : (
   </span>
 );
 
+// A row of compact facts. The icon says what each one is, the text says how
+// much; the full name sits in the tooltip and is read out by screen readers.
+const Facts = ({ items, size=12, style }) => (
+  <div className="facts" style={style}>
+    {items.filter(Boolean).map((f, i) => (
+      <span key={i} className="fact" title={f.tip||undefined} style={f.color ? {color:f.color} : undefined}>
+        <Icon name={f.i} size={size} color={f.color || P.muted}/>
+        <span>{f.t}</span>
+        {f.tip && <span className="sr">{f.tip}</span>}
+      </span>
+    ))}
+  </div>
+);
+
 function LeftPanel({ gs, dispatch }) {
   const trends = statTrends(gs);
   const tBudget = useTicker(gs.budget||0), tMembers = useTicker(gs.members||0);
@@ -4229,48 +4336,43 @@ function LeftPanel({ gs, dispatch }) {
   const decay    = [2,3,4,5,6,8][gs.stage] ?? 2;
 
   return (
-    <div style={{width:215,flexShrink:0,display:"flex",flexDirection:"column",gap:7,padding:"10px 8px 10px 10px",overflowY:"auto",background:P.panel,borderRight:`1px solid ${P.border}`}}>
-      {/* Sector + Stage */}
-      <div style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${stage.color}44`}}>
-        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
-          <Icon name={gs.sector?.icon||"display"} size={20} color={gs.sector?.color||P.text}/>
-          <div>
-            <div style={{fontSize:11,fontWeight:700,color:gs.sector?.color||P.text,lineHeight:1.1}}>{gs.sector?.name||""}{(gs.stage||0)>=2 && <span title="As a national body your cluster spans every industrial ecosystem" style={{marginLeft:6,fontSize:8,fontWeight:700,padding:"1px 6px",borderRadius:0,border:`1px solid ${P.gold}`,background:"transparent",color:P.goldText,letterSpacing:.4,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',verticalAlign:"middle"}}>CROSS-ECOSYSTEM</span>}</div>
-            <div style={{fontSize:9,color:P.muted}}>{gs.region||""}{gs.regionNuts?` · ${gs.regionNuts}`:""}</div>
-            <div style={{fontSize:10,color:P.muted,marginTop:1}}>Regional Innovation Scoreboard: {gs.regionRis||"not rated"} · {gs.s3Aligned?<span style={{color:P.green,display:"inline-flex",alignItems:"center",gap:3}}><Icon name="bullseye" size={9} color={P.green}/> Smart Specialisation aligned</span>:<span style={{color:P.orange}}>outside Smart Specialisation</span>}</div>
-          </div>
-        </div>
-        <div style={{padding:"4px 8px",borderRadius:0,background:`${stage.color}18`,border:`1px solid ${stage.color}33`,display:"inline-flex",alignItems:"center",gap:5}}>
-          <span style={{width:5,height:5,borderRadius:"50%",background:stage.color,display:"inline-block"}}/>
-          <span style={{fontSize:9,fontWeight:700,color:stage.color,letterSpacing:.5}}>{stage.name}</span>
-        </div>
+    <div style={{width:215,flexShrink:0,display:"flex",flexDirection:"column",gap:0,padding:"6px 14px 14px 14px",overflowY:"auto",background:P.panel}}>
+      {/* Where the cluster stands */}
+      <div style={{padding:"12px 6px 14px"}}>
+        <div style={{fontSize:15,fontWeight:600,color:P.text,lineHeight:1.25,marginBottom:8}}>{stage.name}</div>
+        <Facts items={[
+          {i:"location-dot", t:`${gs.region||""}${gs.regionNuts ? `, ${gs.regionNuts}` : ""}`, tip:"Home region"},
+          {i:"chart-line", t:(gs.regionRis||"not rated").toLowerCase(), tip:"Regional innovation tier"},
+          {i:"bullseye", t:gs.s3Aligned ? "priority" : "not a priority", tip:"Is your ecosystem a smart-specialisation priority here?", color:gs.s3Aligned?P.greenText:undefined},
+          (gs.stage||0)>=2 && {i:"circle-nodes", t:"cross-ecosystem", tip:"As a national body you work across ecosystems"},
+        ]} style={{flexDirection:"column",gap:6}}/>
       </div>
 
       {/* Budget */}
-      <div className={pBudget} style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${P.border}`}}>
+      <div className={pBudget} style={{padding:"14px 6px 12px",borderTop:`1px solid ${P.border}`}}>
         <Lbl t="Treasury"/>
-        <div style={{fontSize:22,fontWeight:700,color:(gs.budget||0)<20000?P.red:P.accent,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{fmt(Math.round(tBudget))}</div>
-        <div style={{fontSize:9,color:P.muted,marginTop:3}}>
-          <span style={{color:(gs.qNet||0)>=0?P.accent:P.red}}>{(gs.qNet||0)>=0?"+":""}{fmt(gs.qNet||0)}/quarter</span>
-          {" · "}runway: <span style={{color:runway<3?P.red:runway<6?P.orange:P.green}}>{runway>=99?"∞":`${runway}Q`}</span>
-          {(gs.rivals||[]).filter(r=>r.stage>gs.stage).length>0 && (
-            <span style={{color:P.red}}>{" · "}rival pressure -{Math.min(3,(gs.rivals||[]).filter(r=>r.stage>gs.stage).length)*6}% income</span>
-          )}
+        <div className="tnum" style={{fontSize:26,fontWeight:600,letterSpacing:-.5,color:(gs.budget||0)<20000?P.redText:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{fmt(Math.round(tBudget))}</div>
+        <div style={{fontSize:12,color:P.muted,marginTop:2}}>
+          <span style={{color:(gs.qNet||0)>=0?P.greenText:P.redText}}>{(gs.qNet||0)>=0?"+":"−"}{fmt(Math.abs(gs.qNet||0))}</span> a quarter{runway>=99 ? "" : `, ${runway} quarters of runway`}
         </div>
-        <div style={{marginTop:6,display:"grid",gridTemplateColumns:"1fr 1fr",gap:4,fontSize:9,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
-          <div style={{color:P.accent}}>+{fmt(gs.qMember||0)}<div style={{color:P.muted}}>members</div></div>
-          <div style={{color:(gs.qProj||0)>0?P.blue:P.muted}}>+{fmt(gs.qProj||0)}<div style={{color:P.muted}}>projects</div></div>
-          <div style={{color:P.red}}>-{fmt(gs.qStaff||0)}<div style={{color:P.muted}}>staff</div></div>
-          <div style={{color:P.orange}}>-{fmt(gs.qOverhead||0)}<div style={{color:P.muted}}>overhead</div></div>
-          {(gs.qDelivery||0) > 0 && <div style={{color:P.purple,gridColumn:"1 / -1"}}>-{fmt(gs.qDelivery||0)}<div style={{color:P.muted}}>delivery costs ({fmt(gs.qInterim||0)} covered by interim payments)</div></div>}
-        </div>
+        {(gs.rivals||[]).filter(r=>r.stage>gs.stage).length>0 && (
+          <div style={{fontSize:12,color:P.redText,marginTop:2}}>Rivals ahead of you cut income by {Math.min(3,(gs.rivals||[]).filter(r=>r.stage>gs.stage).length)*6}%</div>
+        )}
+        <dl className="rows">
+          <dt><Icon name="users" size={11} color={P.muted}/> Fees</dt><dd>+{fmt(gs.qMember||0)}</dd>
+          <dt><Icon name="folder-open" size={11} color={P.muted}/> Projects</dt><dd>+{fmt(gs.qProj||0)}</dd>
+          <dt><Icon name="user-tie" size={11} color={P.muted}/> Salaries</dt><dd>−{fmt(gs.qStaff||0)}</dd>
+          <dt><Icon name="city" size={11} color={P.muted}/> Overheads</dt><dd>−{fmt(gs.qOverhead||0)}</dd>
+          <dt><Icon name="handshake" size={11} color={P.muted}/> Servicing</dt><dd>−{fmt(gs.qServicing||0)}</dd>
+          {(gs.qDelivery||0) > 0 && <><dt><Icon name="hourglass-half" size={11} color={P.muted}/> Delivery</dt><dd>−{fmt(Math.max(0,(gs.qDelivery||0)-(gs.qInterim||0)))}</dd></>}
+        </dl>
       </div>
 
       {/* Members */}
-      <div className={pMembers} style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${P.border}`}}>
+      <div className={pMembers} style={{padding:"14px 6px 12px",borderTop:`1px solid ${P.border}`}}>
         <div style={{display:"flex",alignItems:"center"}}><Lbl t="Members"/><InfoDot label="Members trend" text={trendTitle(trends?.members, "Plus rival poaching, defections and event effects.")}/></div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
-          <span style={{fontSize:22,fontWeight:700,color:P.gold,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.round(tMembers)}</span>
+          <span className="tnum" style={{fontSize:26,fontWeight:600,letterSpacing:-.5,color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.round(tMembers)}</span>
           <Trend t={trends?.members}/>
         </div>
         <div style={{fontSize:9,color:P.muted}}>fee {fmt(memberFee(gs.stage))}/quarter · mix ×{(Math.round(feeMult(gs)*100)/100).toFixed(2)}</div>
@@ -4304,16 +4406,16 @@ function LeftPanel({ gs, dispatch }) {
       </div>
 
       {/* Influence + Political Integration */}
-      <div className={pInfl} style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${P.border}`}}>
+      <div className={pInfl} style={{padding:"14px 6px 12px",borderTop:`1px solid ${P.border}`}}>
         <div style={{display:"flex",alignItems:"center"}}><Lbl t="Influence"/><InfoDot label="Influence trend" text={trendTitle(trends?.influence, "Plus one-off effects: project deliveries, events, coups.")}/></div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
           <span style={{fontSize:20,fontWeight:700,color:P.purple,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.round(tInfl)}</span>
           <span style={{display:"inline-flex",alignItems:"baseline",gap:8}}><Trend t={trends?.influence}/><span style={{fontSize:9,color:P.muted}}>/ 100</span></span>
         </div>
         <Bar val={gs.prestige||0} color={P.purple}/>
-        <div style={{fontSize:9,color:P.muted,marginTop:4}}>political standing with public authorities · fades -{decay}/quarter at stage {gs.stage}</div>
+        <div style={{fontSize:12,color:P.muted,marginTop:4}} title="Your political standing with public authorities. It fades each quarter unless you keep earning it.">Fades {decay} a quarter</div>
         <div style={{marginTop:8,paddingTop:8,borderTop:`1px solid ${P.border}`}}>
-          <div style={{fontSize:8,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.6,marginBottom:5}}>Political Integration</div>
+          <div style={{fontSize:8,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:5}}>Political Integration</div>
           <div style={{display:"flex",gap:4}}>
             {seatStatus(gs).map(st => {
               const rvColor = st.heldBy ? ((gs.rivals||[]).find(r=>r.id===st.heldBy)?.color || P.red) : null;
@@ -4342,7 +4444,7 @@ function LeftPanel({ gs, dispatch }) {
       </div>
 
       {/* Staff summary */}
-      <div style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${P.border}`}}>
+      <div style={{padding:"14px 6px 12px",borderTop:`1px solid ${P.border}`}}>
         <Lbl t="Staff"/>
         <div style={{fontSize:18,fontWeight:700,color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{staffTotal(gs.roster)}</div>
         <div style={{fontSize:9,color:P.muted}}>cost {fmt(staffCostQ(gs.roster, gs.turn))}/quarter · salaries +1%/Q</div>
@@ -4351,7 +4453,7 @@ function LeftPanel({ gs, dispatch }) {
 
       {/* Evolution requirements */}
       {gs.stage < 5 && (
-        <div style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${P.border}`}}>
+        <div style={{padding:"14px 6px 12px",borderTop:`1px solid ${P.border}`}}>
           <Lbl t={<>{STAGES[Math.min(5,gs.stage+1)]?.name||""}</>}/>
           {reqs.map((r,i) => (
             <div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:9,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',lineHeight:1.9,color:r.ok?P.green:P.muted}}>
@@ -4364,7 +4466,7 @@ function LeftPanel({ gs, dispatch }) {
       )}
 
       {/* Network */}
-      <div style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${P.border}`}}>
+      <div style={{padding:"14px 6px 12px",borderTop:`1px solid ${P.border}`}}>
         <Lbl t="Network"/>
         <div style={{fontSize:9,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.blue}}>{(gs.countries||[]).length} countr{(gs.countries||[]).length===1?"y":"ies"}</div>
         <div style={{fontSize:9,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.teal}}>{(gs.regions||[]).length} region{(gs.regions||[]).length!==1?"s":""}</div>
@@ -4388,7 +4490,7 @@ function LeftPanel({ gs, dispatch }) {
 
       {/* Rival race */}
       {(gs.rivals||[]).length > 0 && (
-        <div style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${P.border}`}}>
+        <div style={{padding:"14px 6px 12px",borderTop:`1px solid ${P.border}`}}>
           <Lbl t={<>Rival Race · first to Pan-European Cluster Network</>}/>
           {(gs.rivals||[]).map(rv => (
             <div key={rv.id} style={{marginBottom:7}}>
@@ -4419,7 +4521,7 @@ function RightPanel({ gs, compact }) {
     <div style={{width:compact?"auto":230,height:compact?212:"auto",flexShrink:0,display:"flex",flexDirection:"column",background:P.panel,borderLeft:compact?"none":`1px solid ${P.border}`,borderTop:compact?`1px solid ${P.border}`:"none",overflow:"hidden"}}>
       {/* Active projects */}
       <div style={{padding:compact?"8px 10px 6px":"10px 10px 8px",borderBottom:`1px solid ${P.border}`,flexShrink:0,maxHeight:compact?96:"none",overflowY:compact?"auto":"visible"}}>
-        <Lbl t={`Active Projects (${active.length})`}/>
+        <Lbl t={`Active projects (${active.length})`}/>
         {active.length===0 && <div style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>No active projects</div>}
         {active.map((p, i) => {
           if (!p) return null;
@@ -4445,10 +4547,9 @@ function RightPanel({ gs, compact }) {
 
       {/* Event log */}
       <div style={{flex:1,overflowY:"auto",padding:"8px 10px"}}>
-        <Lbl t="Event Log"/>
+        <Lbl t="Event log"/>
         {log.slice(0,40).map((e, i) => (
-          <div key={`log-${i}-${(e?.txt||"").slice(0,18)}`} className={i===0?"log-in":undefined} style={{fontSize:10,lineHeight:1.5,marginBottom:5,paddingBottom:5,borderBottom:`1px solid ${P.border}`,color:logColors[e?.t]||P.text,display:"flex",gap:5,alignItems:"flex-start"}}>
-            <Icon name={LOG_ICON[e?.t]||"circle-info"} size={10} color={logColors[e?.t]||P.muted} style={{marginTop:2}}/>
+          <div key={`log-${i}-${(e?.txt||"").slice(0,18)}`} className={i===0?"log-in":undefined} style={{fontSize:12,lineHeight:1.5,padding:"6px 0 6px 10px",borderLeft:`2px solid ${logColors[e?.t]||P.border}`,marginBottom:4,color:P.text}}>
             <span>{e?.txt||""}</span>
           </div>
         ))}
@@ -4512,55 +4613,45 @@ function ProjCard({ p, gs, failRate, onStart }) {
   const contest = gs ? projContest(p, gs) : { rivals:[], failPen:0, marginMul:1 };
   const shownFail = Math.min(90, failRate + Math.round(contest.failPen*100));
   return (
-    <div style={{background:P.card,borderRadius:0,padding:14,border:`1px solid ${cc}33`}}>
-      {/* required specialist for this category */}
-      <div style={{display:"flex",gap:5,marginBottom:7,flexWrap:"wrap",alignItems:"center"}}>
-        {[
-          {t:p.cat.toUpperCase(), c:cc},
-          {t:p.fund.toUpperCase(), c:fc},
-          {t:`${p.dur}Q`, c:P.muted},
-          {t:`${p.sr}+ staff`, c:P.muted},
-          {t:`${shownFail}% fail`, c:shownFail>25?P.red:shownFail>15?P.orange:P.green},
-          ...(contest.rivals.length>0 ? [{t:`CONTESTED by ${contest.rivals.map(r=>r.name.split(" ")[0]).join(", ")}`, c:P.red}] : []),
-          {t:`MARGIN ≈${Math.round(margin*100)}%`, c:P.green},
-        ].map((x,i) => (
-          <span key={i} style={{fontSize:9,padding:"2px 7px",borderRadius:0,border:`1px solid ${x.c}44`,background:`${x.c}14`,color:x.c,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{x.t}</span>
-        ))}
-        {reqDef && (
-          <span style={{display:"inline-flex",alignItems:"center",gap:4,fontSize:9,padding:"2px 7px",borderRadius:0,border:`1px solid ${cc}44`,background:`${cc}14`,color:cc,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
-            <Icon name={reqDef.icon} size={9} color={cc}/> needs {reqDef.name}
-          </span>
-        )}
-      </div>
-      <div style={{fontWeight:700,fontSize:15,marginBottom:3,color:P.text}}>{p.name}</div>
-      <div style={{fontSize:11,color:P.muted,marginBottom:8,lineHeight:1.5}}>{p.desc}</div>
+    <div className="proj" style={{padding:"16px 0",borderTop:`1px solid ${P.border}`}}>
+      <div style={{fontWeight:600,fontSize:15,color:P.text,lineHeight:1.3}}>{p.name}</div>
+      <Facts style={{marginTop:6}} items={[
+        {i:({research:"magnifying-glass-chart",comms:"bullhorn",training:"graduation-cap",lobbying:"landmark",network:"circle-nodes"}[p.cat]||"folder-open"), t:({research:"Research",comms:"Communications",training:"Training",lobbying:"Lobbying",network:"Networking"}[p.cat]||p.cat), tip:"Type of project"},
+        {i:p.fund==="eu"?"earth-europe":"building-columns", t:({local:"Local",regional:"Regional",national:"National",eu:"EU"}[p.fund]||p.fund), tip:"Who funds it"},
+        {i:"hourglass-half", t:`${p.dur} q`, tip:`Runs for ${p.dur} quarter${p.dur===1?"":"s"}`},
+        reqDef && {i:reqDef.icon||"user-tie", t:reqDef.name, tip:"Specialist who runs it"},
+      ]}/>
+      <div style={{fontSize:12.5,color:P.text,marginTop:8,lineHeight:1.5,maxWidth:"62ch"}}>{p.desc}</div>
+      <dl className="figs">
+        <div><dt><Icon name="coins" size={11} color={P.muted}/> Volume</dt><dd>{fmt(budget)}</dd></div>
+        <div><dt><Icon name="arrow-trend-up" size={11} color={P.muted}/> Margin</dt><dd style={{color:P.greenText}}>{Math.round(margin*100)}%</dd></div>
+        <div><dt><Icon name="triangle-exclamation" size={11} color={P.muted}/> Risk</dt><dd style={{color:shownFail>25?P.redText:P.text}}>{shownFail}%</dd></div>
+      </dl>
+      {contest.rivals.length>0 && <div style={{fontSize:12,color:P.redText,marginTop:4}}>Contested by {contest.rivals.map(r=>r.name).join(" and ")}, which raises the risk.</div>}
       {conds.length > 0 && (
-        <div style={{display:"flex",gap:5,marginBottom:8,flexWrap:"wrap"}}>
-          {conds.map((c,i) => (
-            <span key={i} style={{display:"inline-flex",alignItems:"center",gap:3,fontSize:10,padding:"2px 7px",borderRadius:0,border:`1px solid ${(c.ok?P.green:P.red)}55`,background:`${c.ok?P.green:P.red}10`,color:c.ok?P.greenText:P.redText,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
-              <Icon name={c.ok?"check":"xmark"} size={9} color={c.ok?P.greenText:P.redText}/>{c.l}
-            </span>
-          ))}
-        </div>
+        <ul className="conds">
+          {conds.map((c,i) => <li key={i} className={c.ok?"met":"unmet"}>{c.l}</li>)}
+        </ul>
       )}
-      <div style={{display:"flex",gap:12,fontSize:10,color:P.muted,marginBottom:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
-        <span>minimum {p.mem} members</span>
-        {(p.part||0)>0 && <span>{partners} partners</span>}
-        <span>+{p.pres} influence</span>
-        <span>+{p.mg} members</span>
-      </div>
+      <Facts style={{marginTop:8}} items={[
+        {i:"landmark", t:`+${p.pres}`, tip:"Influence gained on delivery"},
+        {i:"user-plus", t:`+${p.mg}`, tip:"Members gained on delivery"},
+        {i:"users", t:`min ${p.mem}`, tip:"Members needed to apply"},
+        p.sr>0 && {i:"user-tie", t:`min ${p.sr}`, tip:"Staff needed to apply"},
+      ]}/>
       {(p.part||0) > 0 && (
-        <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}>
-          <span style={{fontSize:10,color:P.muted,whiteSpace:"nowrap"}}>Partners: {partners}</span>
-          <input type="range" min={p.part} max={(p.part||0)+10} value={partners} onChange={e => setPartners(Number(e.target.value))}/>
-          <span style={{fontSize:14,fontWeight:700,color:P.accent,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',whiteSpace:"nowrap"}}>{fmt(budget)} <span style={{fontSize:9,color:P.muted,fontWeight:400}}>volume</span></span>
-        </div>
+        <label className="partners">
+          <span>Partners</span>
+          <input type="range" min={p.part} max={(p.part||0)+10} value={partners} onChange={e => setPartners(Number(e.target.value))} aria-label="Number of partners"/>
+          <span className="tnum">{partners}</span>
+        </label>
       )}
-      {(p.part||0)===0 && <div style={{fontSize:14,fontWeight:700,color:P.accent,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',marginBottom:6}}>{fmt(budget)} <span style={{fontSize:9,color:P.muted,fontWeight:400}}>volume</span></div>}
-      <div style={{fontSize:10,color:P.muted,marginBottom:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',lineHeight:1.6}}>
-        Delivery costs <span style={{color:P.redText}}>{fmt(spendQ)}/Q for {p.dur}Q</span>, of which interim payments reimburse {Math.round(INTERIM_RATE*100)}% as you go · success pays the balance plus <span style={{color:P.greenText}}>≈{fmt(expGain)} margin</span> · failure is audited down to {Math.round(FAIL_RECOVERY*100)}% of costs (clawback)
+      <div style={{display:"flex",alignItems:"center",gap:6,marginTop:8}}>
+        <button className="btn act" style={{marginTop:0}} disabled={gs && (gs.budget||0) < need} onClick={() => onStart(p, partners)}>
+          {gs && (gs.budget||0) < need ? `Needs ${fmt(need)} to start` : `Start project, ${fmt(spendQ)} a quarter`}
+        </button>
+        <InfoDot label="How payment works" text={`You pay ${fmt(spendQ)} a quarter for ${p.dur} quarter${p.dur===1?"":"s"}; interim payments return ${Math.round(INTERIM_RATE*100)}% as you go.\n\nSuccess pays the balance plus about ${fmt(expGain)}. A failed project is clawed back to ${Math.round(FAIL_RECOVERY*100)}% of its costs.`}/>
       </div>
-      <button className="btn" disabled={gs && (gs.budget||0) < need} onClick={() => onStart(p, partners)} style={{padding:"6px 14px",borderRadius:0,border:"none",background:cc,color:P.onAccent,fontWeight:700,fontSize:12,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Launch · invest {fmt(spendQ)}/Q <Icon name="arrow-right" size={11} color={P.accent} style={{marginLeft:5}}/></button>
     </div>
   );
 }
@@ -4575,11 +4666,13 @@ function ProjectsModal({ gs, dispatch, onClose, panel }) {
   const atCap    = (gs.activeProjects||[]).length >= cap;
   const body = (
     <>
-      <div style={{fontSize:11,color:P.muted,marginBottom:14,display:"flex",gap:16,flexWrap:"wrap"}}>
-        <span>Failure risk: <strong style={{color:failRate>25?P.red:failRate>15?P.orange:P.green}}>{failRate}%</strong></span>
-        <span>PM -12%/hire · Legal -8%/hire · risk rises with stage & network size</span>
-        <span style={{color:atCap?P.orange:P.muted}}>capacity {(gs.activeProjects||[]).length}/{cap} · +1 per PM, max {1+(gs.stage||0)} at this stage</span>
-        <span>{(gs.activeProjects||[]).length} running · {(gs.completedProjects||[]).length} completed</span>
+      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
+        <Facts items={[
+          {i:"triangle-exclamation", t:`${failRate}% risk`, tip:"Failure risk for a new project", color:failRate>25?P.redText:undefined},
+          {i:"folder-open", t:`${(gs.activeProjects||[]).length} of ${cap} slots`, tip:"Projects running, out of the slots you have", color:atCap?P.redText:undefined},
+          {i:"check-double", t:`${(gs.completedProjects||[]).length} done`, tip:"Projects completed"},
+        ]}/>
+        <InfoDot label="How project risk and slots work" text={`Each Project Manager cuts failure risk by 12%, each Legal Counsel by 8%. Risk rises with your stage and the size of your network.\n\nEach Project Manager adds a slot, up to ${1+(gs.stage||0)} at this stage.`}/>
       </div>
       {avail.length===0 && (
         <div style={{textAlign:"center",padding:32,color:P.muted}}>
@@ -4596,7 +4689,7 @@ function ProjectsModal({ gs, dispatch, onClose, panel }) {
       </div>
       {locked.length > 0 && (
         <>
-          <div style={{margin:"14px 0 8px",fontSize:10,color:P.muted,fontWeight:700,textTransform:"uppercase",letterSpacing:.6,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Calls not yet within reach · unmet enabling conditions</div>
+          <div style={{margin:"14px 0 8px",fontSize:10,color:P.muted,fontWeight:700,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Calls not yet within reach · unmet enabling conditions</div>
           <div style={{display:"grid",gap:6}}>
             {locked.map(p => (
               <div key={p.id} style={{background:P.card,borderRadius:0,padding:"8px 12px",border:`1px solid ${P.border}`,opacity:.78}}>
@@ -4741,7 +4834,7 @@ function RivalsModal({ gs, dispatch, onClose, panel }) {
         </div>
       )}
       <div style={{background:P.card,borderRadius:0,padding:"8px 12px",border:`1px solid ${P.border}`,marginBottom:12}}>
-        <div style={{fontSize:9,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.5,marginBottom:5}}>Member market in your territory · {Math.round(share*100)}% claimed</div>
+        <div style={{fontSize:9,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:5}}>Member market in your territory · {Math.round(share*100)}% claimed</div>
         <div style={{display:"flex",height:8,borderRadius:0,overflow:"hidden",border:`1px solid ${P.border}`}}>
           <div style={{width:`${youPct}%`,background:gs.sector?.color||P.accent}} title={`You: ${gs.members||0} members`}/>
           <div style={{width:`${rvPct}%`,background:P.red,opacity:.7}} title="Rival pressure"/>
@@ -5041,7 +5134,7 @@ function EventModal({ ev, onDismiss }) {
   return (
     <div className="backdrop-in" style={{position:"fixed",inset:0,background:THEME_DARK?"rgba(2,6,16,.72)":"rgba(15,30,60,.55)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:2000,padding:20}}>
       <div className="event-in menu-scope glass" style={{padding:"26px 30px 28px",maxWidth:520,width:"100%"}}>
-        <div style={{display:"flex",alignItems:"center",gap:6,fontSize:9,fontWeight:700,color:col,textTransform:"uppercase",letterSpacing:3,marginBottom:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}><span className={headAnim} style={{display:"inline-flex"}}><Icon name={headingIcon} size={11} color={col}/></span>{heading}</div>
+        <div style={{display:"flex",alignItems:"center",gap:6,fontSize:9,fontWeight:700,color:col,letterSpacing:0,marginBottom:10,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}><span className={headAnim} style={{display:"inline-flex"}}><Icon name={headingIcon} size={11} color={col}/></span>{heading}</div>
         <h2 className="title-caps" style={{fontSize:21,marginBottom:10,lineHeight:1.25}}>{ev.n}</h2>
         <p style={{fontSize:13,color:P.muted,lineHeight:1.75,marginBottom:16}}>{ev.d}</p>
         {!isChoice && lines.length > 0 && (
@@ -5097,7 +5190,7 @@ function StatsModal({ gs, onClose, dispatch }) {
   const decay    = [2,3,4,5,6,8][gs.stage] ?? 2;
   const next     = STAGES[Math.min(5,gs.stage+1)];
 
-  const Card = ({children, title}) => <div title={title||undefined} style={{background:P.card,borderRadius:0,padding:"12px 14px",border:`1px solid ${P.border}`,borderRadius:10,cursor:title?"help":"default"}}>{children}</div>;
+  const Card = ({children, title}) => <div title={title||undefined} style={{background:"transparent",padding:"14px 0",border:"none",borderTop:`1px solid ${P.border}`,borderRadius:0,cursor:title?"help":"default"}}>{children}</div>;
 
   return (
     <Modal title="Cluster Dashboard" icon="gauge-high" iconColor={P.accent} onClose={onClose} width={560}>
@@ -5123,7 +5216,7 @@ function StatsModal({ gs, onClose, dispatch }) {
         )}
         {(gs.activeProjects||[]).length > 0 && (
           <Card>
-            <Lbl t={`Active Projects (${gs.activeProjects.length})`}/>
+            <Lbl t={`Active projects (${gs.activeProjects.length})`}/>
             {gs.activeProjects.map((p, i) => {
               if (!p) return null;
               const prog = Math.min(1, 1 - ((p.endTurn||0)-(gs.turn||0)) / Math.max(1,p.dur||1));
@@ -5148,7 +5241,7 @@ function StatsModal({ gs, onClose, dispatch }) {
           <Card title={trendTitle(statTrends(gs)?.members, "Plus rival poaching, defections and events.")}>
             <Lbl t="Members"/>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
-              <span style={{fontSize:22,fontWeight:700,color:P.gold,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{gs.members||0}</span>
+              <span className="tnum" style={{fontSize:26,fontWeight:600,letterSpacing:-.5,color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{gs.members||0}</span>
               <Trend t={statTrends(gs)?.members}/>
             </div>
             <div style={{fontSize:10,color:P.muted}}>fee {fmt(memberFee(gs.stage))}/quarter · mix ×{(Math.round(feeMult(gs)*100)/100).toFixed(2)}</div>
@@ -5205,13 +5298,13 @@ function StatsModal({ gs, onClose, dispatch }) {
           <Bar val={gs.prestige||0} color={P.purple}/>
           <div style={{fontSize:10,color:P.muted,marginTop:6,lineHeight:1.5}}>Your political standing with regional, national and EU authorities. Earned by delivering projects and by communications, policy and research staff; it fades every quarter without visibility work. Gatekeeps calls, evolution and political seats.</div>
           <div style={{marginTop:10,paddingTop:10,borderTop:`1px solid ${P.border}`}}>
-            <div style={{fontSize:10,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.6,marginBottom:8}}>Political Integration · seats in policy bodies</div>
+            <div style={{fontSize:10,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:8}}>Political Integration · seats in policy bodies</div>
             {seatStatus(gs).map(st => (
               <div key={st.id} style={{marginBottom:9,padding:"8px 10px",borderRadius:0,border:`1px solid ${st.held?`${P.gold}66`:P.border}`,background:st.held?`${P.gold}0d`:"transparent"}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8}}>
                   <span style={{fontSize:11,fontWeight:700,color:st.held?P.goldText:P.text}}>{st.label}</span>
-                  {st.held && <span style={{fontSize:8.5,fontWeight:700,color:P.goldText,letterSpacing:.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>SEAT HELD</span>}
-                  {!st.held && st.heldBy && <span style={{fontSize:8.5,fontWeight:700,color:P.redText,letterSpacing:.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>CHAIRED BY {String(st.holderName||"").toUpperCase()}</span>}
+                  {st.held && <span style={{fontSize:8.5,fontWeight:700,color:P.goldText,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>SEAT HELD</span>}
+                  {!st.held && st.heldBy && <span style={{fontSize:8.5,fontWeight:700,color:P.redText,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>CHAIRED BY {String(st.holderName||"").toUpperCase()}</span>}
                 </div>
                 <div style={{fontSize:9,color:P.muted,margin:"3px 0 6px"}}>{st.effects}</div>
                 {!st.held && (
@@ -5286,7 +5379,7 @@ function StatsModal({ gs, onClose, dispatch }) {
    SETUP SCREEN
 ═══════════════════════════════════════════════════════════ */
 function RulesModal({ onClose }) {
-  const H = ({t}) => <div style={{fontSize:12,fontWeight:700,color:P.blue,textTransform:"uppercase",letterSpacing:.8,margin:"16px 0 6px",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{t}</div>;
+  const H = ({t}) => <div style={{fontSize:12,fontWeight:700,color:P.blue,letterSpacing:0,margin:"16px 0 6px",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{t}</div>;
   const T = ({children}) => <div style={{fontSize:11.5,color:P.text,lineHeight:1.65,marginBottom:6}}>{children}</div>;
   const B = ({children}) => <strong style={{color:P.blue}}>{children}</strong>;
   return (
@@ -5324,6 +5417,26 @@ function RulesModal({ onClose }) {
         <T><B>Junior</B> softens failure odds, margins, seed capital and rival pressure; <B>Officer</B> is a fair fight; <B>Expert</B> is the unforgiving original calibration. Old saves play on Expert.</T>
       </div>
     </Modal>
+  );
+}
+
+// The setup map: Europe in outline, your country and region lit up as you choose them.
+function SetupMap({ country, region }) {
+  const iso = country ? isoToNuts(NAME_TO_ISO[country] || "") : null;
+  const rec = country && region ? (REGION_RECORDS[country]||[]).find(r => r.name === region) : null;
+  const regionCodes = rec && rec.nuts ? Object.keys(NUTS2_PATHS).filter(k => nutsMatch(k, rec.nuts)) : [];
+  return (
+    <svg viewBox="-40 -30 690 680" preserveAspectRatio="xMidYMid meet" role="img" aria-label={country ? `Map with ${region || country} highlighted` : "Map of Europe"}
+      style={{width:"100%",height:"100%",display:"block"}}>
+      <path d={NEIGHBOUR_LAND} fill={THEME_DARK ? "#16244A" : "#E6EBF2"} stroke="none"/>
+      <path d={CANDIDATE_LAND} fill={THEME_DARK ? "#1A2A55" : "#DCE4F1"} stroke="none"/>
+      {NUTS0_KEYS.map(k => (
+        <path key={k} d={NUTS0_PATHS[k]} fill={k === iso ? `${P.accent}30` : (THEME_DARK ? "#0F1B3D" : "#FFFFFF")}
+          stroke={k === iso ? P.accent : (THEME_DARK ? "#2C3D70" : "#C6D0DE")} strokeWidth={k === iso ? 1.4 : 0.6} strokeLinejoin="round"
+          style={{transition:"fill .25s ease"}}/>
+      ))}
+      {regionCodes.map(k => <path key={k} d={NUTS2_PATHS[k]} fill={P.accent} stroke={P.accent} strokeWidth={0.6}/>)}
+    </svg>
   );
 }
 
@@ -5411,71 +5524,84 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
   };
 
   const sel = (active, col=P.accent) => ({
-    padding:"6px 11px", borderRadius:0, border:`1px solid ${active?col:P.border}`,
-    background:active?`${col}14`:P.card, color:active?col:P.text,
+    padding:"9px 12px", borderRadius:8, border:`1px solid ${active?P.accent:P.border}`,
+    background:active?`${P.accent}0F`:P.panel, color:P.text, boxShadow:active?`inset 0 0 0 1px ${P.accent}`:"none",
     cursor:"pointer", fontSize:13, fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',
     fontWeight:500, textAlign:"left", transition:"all .1s", width:"100%", display:"block",
   });
 
   return (
-    <div style={{height:"100dvh",background:P.bg,display:"flex",padding:mobile?16:24,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.text,overflowY:"auto",overflowX:"hidden"}}>
-      <div style={{maxWidth:740,width:"100%",margin:"auto",paddingBottom:8}}>
-        <div style={{textAlign:"center",marginBottom:mobile?22:"clamp(14px,3vh,32px)"}}>
-          <div style={{fontSize:11,letterSpacing:1.5,fontWeight:600,color:P.muted,textTransform:"uppercase",marginBottom:"clamp(6px,1.2vh,12px)",display:"inline-flex",alignItems:"center",gap:8}}>
+    <div className="setup" style={{height:"100dvh",background:P.bg,display:"flex",padding:mobile?16:28,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.text,overflowY:"auto",overflowX:"hidden"}}>
+      <div style={{width:"100%",maxWidth:1120,margin:"auto",display:"grid",gridTemplateColumns:mobile?"1fr":"minmax(0,1fr) minmax(0,520px)",gap:mobile?18:40,alignItems:"center"}}>
+      {!mobile && (
+        <div style={{position:"sticky",top:0,alignSelf:"start",height:"min(calc(100dvh - 56px), 760px)",borderRadius:16,overflow:"hidden",background:THEME_DARK?"#081131":"#DCE6F2"}}>
+          <SetupMap country={country} region={region}/>
+          <div style={{position:"absolute",left:20,bottom:18,fontSize:13,color:P.muted}}>
+            {country ? <><span style={{color:P.text,fontWeight:600}}>{region || country}</span>{region ? `, ${country}` : ""}</> : "Choose where your cluster starts"}
+          </div>
+        </div>
+      )}
+      <div style={{width:"100%",paddingBottom:8}}>
+        <div style={{textAlign:"left",marginBottom:mobile?18:24}}>
+          <div style={{fontSize:11,letterSpacing:0,fontWeight:600,color:P.muted,marginBottom:"clamp(6px,1.2vh,12px)",display:"inline-flex",alignItems:"center",gap:8}}>
             <span aria-hidden="true" style={{color:"#FFCC00",fontSize:14,lineHeight:1}}>★</span>EU industrial strategy simulation</div>
-          <h1 className="brand-title" style={{fontSize:mobile?40:"clamp(34px,6.5vh,54px)",fontWeight:700,lineHeight:1,marginBottom:"clamp(6px,1.2vh,10px)",letterSpacing:-2}}>CLUSTER<br/>MANAGER</h1>
-          <div style={{fontSize:12,color:P.muted,marginBottom:14}}>From a local cluster initiative to a Pan-European Cluster Network</div>
+          <h1 className="brand-title" style={{fontSize:mobile?38:48,fontWeight:700,lineHeight:1,margin:"0 0 10px",letterSpacing:-2}}>Cluster Manager</h1>
+          <div style={{fontSize:15,color:P.muted,lineHeight:1.45,maxWidth:"40ch"}}>Grow a regional cluster into a network that spans Europe.</div>
           {canResume && (
             <div style={{marginTop:16}}>
-              <button className="btn" onClick={onResume} style={{padding:"12px 28px",borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent",color:P.accent,fontWeight:700,fontSize:15,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
-                <Icon name="play" size={11} color="currentColor" style={{marginRight:7}}/> Continue Saved Game
+              <button className="btn" onClick={onResume} style={{padding:"12px 24px",borderRadius:8,border:"none",background:P.accent,color:P.onAccent,fontWeight:700,fontSize:15,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
+                <Icon name="play" size={11} color="currentColor" style={{marginRight:8}}/> Continue saved game
               </button>
-              <div style={{fontSize:10,color:P.muted,marginTop:8}}>or start a new game below</div>
+              <div style={{fontSize:12,color:P.muted,marginTop:8}}>or start a new game</div>
             </div>
           )}
           {onOpenSlots && (
             <div style={{marginTop:canResume?4:16}}>
-              <button className="btn" onClick={onOpenSlots} style={{padding:"8px 18px",borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.muted,fontWeight:700,fontSize:12,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',display:"inline-flex",alignItems:"center",gap:6}}>
-                <Icon name="floppy-disk" size={11} color={P.muted}/> Load from a save slot
+              <button className="btn" onClick={onOpenSlots} style={{padding:"8px 14px",borderRadius:8,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontWeight:700,fontSize:12,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',display:"inline-flex",alignItems:"center",gap:6}}>
+                <Icon name="floppy-disk" size={12} color={P.muted}/> Load a saved slot
               </button>
             </div>
           )}
         </div>
 
-        <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,marginBottom:"clamp(10px,2.2vh,22px)"}}>
-          {["Country","Region","Ecosystem"].map((l,i) => (
+        <div style={{display:"flex",alignItems:"center",justifyContent:"flex-start",gap:10,marginBottom:16}}>
+          {[["Country","location-dot"],["Region","map-location-dot"],["Ecosystem","industry"]].map(([l,ic],i) => (
             <div key={i} style={{display:"flex",alignItems:"center",gap:8}}>
-              <div style={{width:22,height:22,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,background:i<step?P.accent:"transparent",border:`1.5px solid ${i<=step?P.accent:P.border}`,color:i<step?P.bg:i===step?P.accent:P.muted}}>{i<step?<Icon name="check" size={10} color={P.bg}/>:(i+1)}</div>
-              <span style={{fontSize:11,color:i===step?P.accent:P.muted}}>{l}</span>
-              {i<2 && <div style={{width:18,height:1,background:P.border}}/>}
+              <span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:26,height:26,borderRadius:"50%",background:i<=step?P.accent:"transparent",border:`1px solid ${i<=step?P.accent:P.border}`}}><Icon name={ic} size={12} color={i<=step?P.onAccent:P.muted}/></span>
+              <span style={{fontSize:13,fontWeight:i===step?600:400,color:i===step?P.text:P.muted}}>{l}</span>
+              {i<2 && <div style={{width:28,height:1,background:P.border}}/>}
             </div>
           ))}
         </div>
 
-        <div style={{background:P.panel,borderRadius:0,padding:24,border:`1px solid ${P.border}`}}>
+        <div style={{background:P.panel,borderRadius:12,padding:mobile?18:24,border:`1px solid ${P.border}`,boxShadow:"0 1px 0 rgba(11,27,63,.04),0 10px 30px rgba(11,27,63,.08)"}}>
           {step===0 && (
             <>
-              <div style={{marginBottom:8,padding:"11px 13px",borderRadius:0,border:`1px solid ${P.border}`,background:P.card}}>
-                <div style={{fontSize:10,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>Scenario</div>
-                <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+              <div style={{marginBottom:18}}>
+                <div style={{fontSize:13,fontWeight:600,marginBottom:8}}>Scenario</div>
+                <div style={{display:"grid",gridTemplateColumns:"repeat(4,minmax(0,1fr))",gap:8}}>
                   {SCENARIOS.map(sc => (
                     <button key={sc.id} className="btn" onClick={() => setScenario(sc.id)} aria-pressed={scenario===sc.id} title={sc.desc}
-                      style={{padding:"6px 11px",borderRadius:0,border:`1.5px solid ${scenario===sc.id?P.gold:P.border}`,background:scenario===sc.id?`${P.gold}0f`:P.panel,color:scenario===sc.id?P.goldText:P.text,fontWeight:700,fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
+                      style={{...sel(scenario===sc.id),display:"flex",flexDirection:"column",alignItems:"flex-start",gap:8,padding:"11px 12px",fontSize:12.5,fontWeight:500}}>
+                      <Icon name={({classic:"flag",rescue:"hand-holding-dollar",late:"hourglass-half",merger:"circle-nodes"})[sc.id]||"flag"} size={16} color={scenario===sc.id?P.accent:P.muted}/>
                       {sc.name}
                     </button>
                   ))}
                 </div>
-                <div style={{fontSize:10,color:P.muted,marginTop:5,minHeight:24,lineHeight:1.4}}>{SCENARIOS.find(x=>x.id===scenario)?.desc}</div>
+                <div style={{fontSize:12,color:P.muted,marginTop:8,minHeight:34,lineHeight:1.45}}>{SCENARIOS.find(x=>x.id===scenario)?.desc}</div>
+                <details style={{marginTop:6}} open={!!challengeApplied || !!seed}>
+                  <summary style={{fontSize:12.5,color:P.accent,cursor:"pointer",userSelect:"none"}}>Seed or challenge code</summary>
                 <div style={{display:"flex",gap:6,marginTop:8,alignItems:"center",flexWrap:"wrap"}}>
                   <input value={seed} onChange={e=>setSeed(e.target.value)} placeholder="Seed (optional)" aria-label="Optional seed for a reproducible campaign" title="Any text: two players with the same seed, scenario and difficulty get an identical campaign start"
                     style={{flex:"1 1 120px",minWidth:0,padding:"6px 9px",borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',outline:"none"}}/>
                   <input value={challengeIn} onChange={e=>{ setChallengeIn(e.target.value); applyChallenge(e.target.value); }} placeholder="Paste challenge code…" aria-label="Paste a friend's challenge code" title="A friend's CM1 code sets seed, difficulty and scenario automatically"
                     style={{flex:"1 1 150px",minWidth:0,padding:"6px 9px",borderRadius:0,border:`1px dashed ${P.border}`,background:P.panel,color:P.text,fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',outline:"none"}}/>
                 </div>
+                </details>
                 {challengeApplied && <div style={{fontSize:10,color:P.greenText,marginTop:5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>✓ Challenge loaded: {DIFFICULTIES[diff]?.label} · {SCENARIOS.find(x=>x.id===scenario)?.name} · pick your country to match</div>}
               </div>
-              <div style={{marginBottom:10,padding:"11px 13px",borderRadius:0,border:`1px solid ${P.border}`,background:P.card}}>
-                <div style={{fontSize:10,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>Take the helm of a real cluster</div>
+              <div style={{marginBottom:18}}>
+                <div style={{fontSize:13,fontWeight:600,marginBottom:8}}>Start as a real cluster</div>
                 <input value={nameQuery} onChange={e=>setNameQuery(e.target.value)} placeholder="Search 1,400+ real clusters by name or city…" aria-label="Search real cluster organisations"
                   style={{width:"100%",boxSizing:"border-box",padding:"7px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:12,outline:"none"}}/>
                 {registryMatches.length > 0 && (
@@ -5493,13 +5619,13 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                   <div style={{fontSize:10.5,color:P.muted,marginTop:6}}>No registry match. Keep typing, or just pick a country below and name the cluster yourself.</div>
                 )}
                 <div style={{fontSize:9.5,color:P.muted,marginTop:7,lineHeight:1.45}}>
-                  Names come from the European Cluster Collaboration Platform. Picking one sets its country and ecosystem; everything that happens afterwards is fiction.
+                  Names from the European Cluster Collaboration Platform. Picking one sets its country and ecosystem; what happens next is fiction.
                 </div>
               </div>
 
-              <div style={{marginBottom:2,fontSize:14,fontWeight:700}}>Or select your country</div>
-              <div style={{marginBottom:12,fontSize:11,color:P.muted}}>Where your cluster is based. You can expand into other countries later.</div>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(128px,1fr))",gap:5,maxHeight:290,overflowY:"auto",paddingRight:4}}>
+              <div style={{marginBottom:2,fontSize:13,fontWeight:600}}>Or pick a country</div>
+              <div style={{marginBottom:10,fontSize:12,color:P.muted}}>You can expand into other countries later.</div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(140px,1fr))",gap:6,maxHeight:290,overflowY:"auto",paddingRight:4}}>
                 {Object.keys(EU_COUNTRIES).sort().map(c => (
                   <button key={c} className="btn" style={sel(country===c)} onClick={() => { setCountry(c); setStep(1); }}>{c}</button>
                 ))}
@@ -5538,16 +5664,16 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                     style={{marginTop:6,padding:"4px 9px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:10,fontWeight:700}}>Start over instead</button>
                 </div>
               )}
-              <div style={{marginBottom:2,fontSize:14,fontWeight:700}}>Industrial Ecosystem</div>
+              <div style={{marginBottom:2,fontSize:13,fontWeight:600}}>Industrial ecosystem</div>
               <div style={{marginBottom:12,fontSize:11,color:P.muted,display:"flex",alignItems:"flex-start",gap:5}}><Icon name="bullseye" size={11} color={P.accent} style={{marginTop:2,flexShrink:0}}/><span>marks a real Smart Specialisation priority of <span style={{color:P.accent}}>{region}</span> · choosing it gives a lasting bonus. Other sectors are harder to grow here.</span></div>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(230px,1fr))",gap:5,maxHeight:280,overflowY:"auto",paddingRight:4}}>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:6,maxHeight:280,overflowY:"auto",paddingRight:4}}>
                 {[...ECOSYSTEMS].map(e => {
                   const rec = getRegion(country, region);
                   const aligned = rec ? ecosystemAligns(rec, e.name) : false;
                   return (
                     <button key={e.id} className="btn" style={{...sel(sector?.id===e.id, e.color), display:"flex", alignItems:"center", gap:9, padding:"7px 10px"}} onClick={() => setSector(e)}>
                       <Icon name={e.icon} size={18} color={e.color}/>
-                      <span style={{flex:1,color:sector?.id===e.id?e.color:P.text,fontSize:12}}>{e.name}</span>
+                      <span style={{flex:1,color:P.text,fontSize:12.5}}>{e.name}</span>
                       {aligned && <Icon name="bullseye" size={11} color={P.green} style={{flexShrink:0}}/>}
                     </button>
                   );
@@ -5556,19 +5682,19 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
               {sector && (
                 <>
                   <div style={{marginTop:16}}>
-                    <div style={{fontSize:10,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.6,marginBottom:6}}>Difficulty</div>
+                    <div style={{fontSize:13,fontWeight:600,marginBottom:8}}>Difficulty</div>
                     <div style={{display:"flex",gap:6}}>
                       {Object.values(DIFFICULTIES).map(d => (
                         <button key={d.id} className="btn" onClick={() => setDiff(d.id)} aria-pressed={diff===d.id}
-                          style={{flex:1,padding:"8px 6px",borderRadius:0,border:`1.5px solid ${diff===d.id?P.accent:P.border}`,background:diff===d.id?`${P.accent}0d`:P.card,color:diff===d.id?P.accent:P.text,fontWeight:700,fontSize:12,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
-                          {d.label}
+                          style={{...sel(diff===d.id),flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:7,fontWeight:500}}>
+                          <Icon name={({junior:"seedling",officer:"user-tie",expert:"chess-knight"})[d.id]||"user-tie"} size={13} color={diff===d.id?P.accent:P.muted}/>{d.label}
                         </button>
                       ))}
                     </div>
-                    <div style={{fontSize:10,color:P.muted,marginTop:5,minHeight:26,lineHeight:1.4}}>{DIFFICULTIES[diff].desc}</div>
+                    <div style={{fontSize:12,color:P.muted,marginTop:8,minHeight:34,lineHeight:1.45}}>{DIFFICULTIES[diff].desc}</div>
                   </div>
                   <div style={{marginTop:14}}>
-                    <div style={{fontSize:10,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.6,marginBottom:6}}>Home region</div>
+                    <div style={{fontSize:10,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:6}}>Home region</div>
                     <select value={region} onChange={e=>setRegion(e.target.value)} aria-label="Change your home region"
                       style={{width:"100%",boxSizing:"border-box",padding:"8px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:12,outline:"none"}}>
                       {(REGIONS_BY_COUNTRY[country]||[]).map(r => (
@@ -5584,7 +5710,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                     </div>
                   </div>
                   <div style={{marginTop:14}}>
-                    <div style={{fontSize:10,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.6,marginBottom:6}}>Cluster name</div>
+                    <div style={{fontSize:10,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:6}}>Cluster name</div>
                     <input value={clusterName} onChange={e=>setClusterName(e.target.value)} maxLength={70}
                       placeholder={`e.g. ${region} ${sector.name} Cluster`} aria-label="Name your cluster organisation"
                       style={{width:"100%",boxSizing:"border-box",padding:"8px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:12,outline:"none"}}/>
@@ -5607,8 +5733,9 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
             <Icon name="circle-question" size={12} color={P.blue}/> How to Play · Game Rules
           </button>
         </div>
-        <div style={{textAlign:"center",marginTop:10,fontSize:9,color:P.muted,opacity:.65,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',letterSpacing:.5}}>vibecoded by DDE</div>
+        <div style={{textAlign:"center",marginTop:10,fontSize:9,color:P.muted,opacity:.65,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',letterSpacing:0}}>vibecoded by DDE</div>
         {showRules && <RulesModal onClose={() => setShowRules(false)}/>}
+      </div>
       </div>
     </div>
   );
@@ -5633,7 +5760,7 @@ function MapLegend({ gs }) {
       {open ? (
         <div className="event-in glass" style={{padding:"9px 11px",minWidth:172}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
-            <span style={{fontSize:9,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.8,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Map key</span>
+            <span style={{fontSize:9,fontWeight:700,color:P.muted,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Map key</span>
             <button className="btn" onClick={()=>setOpen(false)} aria-label="Close map key" style={{border:"none",background:"none",color:P.muted,fontSize:13,lineHeight:1,cursor:"pointer",padding:0,width:16,height:16}}>×</button>
           </div>
           <Item swatch={box(`${P.gold}B0`, P.gold)} label="Home region"/>
@@ -5691,11 +5818,11 @@ function DigestCard({ gs, digestOn, reopenTick, onDigestToggle }) {
     );
   };
   return (
-    <div className="event-in glass" style={{position:"absolute",top:8,right:8,zIndex:40,width:expanded?250:210,maxWidth:"calc(100% - 16px)",background:P.panel,border:`1px solid ${d.evolved?P.gold:P.border}`,borderRadius:0,boxShadow:"none",overflow:"hidden"}}>
+    <div className="event-in glass digest-card" style={{position:"absolute",top:8,right:8,zIndex:40,width:expanded?250:210,maxWidth:"calc(100% - 16px)",background:P.panel,border:`1px solid ${d.evolved?P.gold:P.border}`,borderRadius:0,boxShadow:"none",overflow:"hidden"}}>
       <button className="btn" onClick={() => setExpanded(e=>!e)} aria-expanded={expanded} style={{width:"100%",textAlign:"left",background:"none",border:"none",padding:"8px 26px 8px 10px",cursor:"pointer",display:"block"}}>
         <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:5,paddingRight:18}}>
           <Icon name="clipboard-check" size={11} color={P.accent}/>
-          <span style={{fontSize:9,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.8,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Q{((d.turn-1)%4)+1} {2024+Math.floor((d.turn-1)/4)} review</span>
+          <span style={{fontSize:9,fontWeight:700,color:P.muted,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Q{((d.turn-1)%4)+1} {2024+Math.floor((d.turn-1)/4)} review</span>
           <span style={{marginLeft:"auto",fontSize:9,color:P.muted}}>{expanded?"▲":"▼"}</span>
         </div>
         {d.evolved && <div style={{fontSize:11,fontWeight:700,color:P.goldText,marginBottom:4}}>⭐ Evolved to {d.evolved}!</div>}
@@ -5708,7 +5835,7 @@ function DigestCard({ gs, digestOn, reopenTick, onDigestToggle }) {
       </button>
       {expanded && (
         <div style={{padding:"0 10px 10px",borderTop:`1px solid ${P.border}`}}>
-          <div style={{fontSize:8.5,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.8,margin:"7px 0 3px",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Cashflow</div>
+          <div style={{fontSize:8.5,fontWeight:700,color:P.muted,letterSpacing:0,margin:"7px 0 3px",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Cashflow</div>
           <Row label="Membership fees" val={d.qMember} fmtFn={v=>fmt(v)} good={true}/>
           <Row label="Project income" val={d.qProj} fmtFn={v=>fmt(v)} good={true}/>
           <Row label="Salaries" val={-d.qStaff} fmtFn={v=>fmt(Math.abs(v))} good={false}/>
@@ -5717,7 +5844,7 @@ function DigestCard({ gs, digestOn, reopenTick, onDigestToggle }) {
           <Row label="Delivery costs" val={-d.qDelivery} fmtFn={v=>fmt(Math.abs(v))} good={false}/>
           {d.events.length > 0 && (
             <>
-              <div style={{fontSize:8.5,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:.8,margin:"7px 0 3px",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>This quarter</div>
+              <div style={{fontSize:8.5,fontWeight:700,color:P.muted,letterSpacing:0,margin:"7px 0 3px",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>This quarter</div>
               {d.events.map((e,i) => (
                 <div key={i} style={{fontSize:10,lineHeight:1.4,color:P.text,display:"flex",gap:5,alignItems:"flex-start",marginBottom:2}}>
                   <Icon name={e.t==="good"?"circle-check":"circle-exclamation"} size={9} color={e.t==="good"?P.green:P.red} style={{marginTop:2,flexShrink:0}}/>
@@ -5748,7 +5875,7 @@ function StageBanner({ banner, sector }) {
     <div key={banner.key} style={{position:"fixed",inset:0,zIndex:2900,display:"flex",alignItems:"center",justifyContent:"center",pointerEvents:"none"}} aria-hidden="true">
       <div style={{position:"absolute",inset:0,background:`radial-gradient(circle at 50% 45%, ${sc}22, transparent 60%)`,animation:"fadeIn .4s ease both, floatUp 3.2s ease-in forwards"}}/>
       <div className="stage-pop" style={{textAlign:"center"}}>
-        <div style={{fontSize:11,fontWeight:700,letterSpacing:3,textTransform:"uppercase",color:sc,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',marginBottom:8}}>Cluster evolved</div>
+        <div style={{fontSize:11,fontWeight:700,letterSpacing:0,color:sc,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',marginBottom:8}}>Cluster evolved</div>
         <div style={{display:"flex",alignItems:"center",gap:14,justifyContent:"center"}}>
           <span style={{fontSize:14,color:"#94a3b8",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',fontWeight:700,textDecoration:"line-through",opacity:.6}}>{STAGES[banner.from]?.name}</span>
           <Icon name="arrow-up-right-dots" size={22} color={sc}/>
@@ -5787,7 +5914,7 @@ function Tutorial({ gs }) {
   const st = TUT_STEPS[step];
   return (
     <div className="event-in" style={{position:"fixed",left:14,bottom:76,zIndex:2600,maxWidth:300,background:P.panel,border:`2px solid ${P.accent}`,borderRadius:0,padding:"12px 14px",boxShadow:"none"}}>
-      <div style={{fontSize:9,fontWeight:700,color:P.accent,textTransform:"uppercase",letterSpacing:1.5,marginBottom:4,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Tutorial {step>0?`· ${step}/${TUT_STEPS.length-2}`:""}</div>
+      <div style={{fontSize:9,fontWeight:700,color:P.accent,letterSpacing:0,marginBottom:4,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Tutorial {step>0?`· ${step}/${TUT_STEPS.length-2}`:""}</div>
       <div style={{fontSize:12,fontWeight:700,color:P.text,marginBottom:4}}>{st.t}</div>
       <div style={{fontSize:10.5,color:P.muted,lineHeight:1.55,marginBottom:8}}>{st.d}</div>
       <div style={{display:"flex",gap:6,justifyContent:"flex-end"}}>
@@ -5803,6 +5930,8 @@ function Tutorial({ gs }) {
 // What still wants a decision this quarter, as plates laid over the map. Flag
 // yellow marks what will cost you if ignored; blue marks an opening. Each plate
 // goes straight to the panel that deals with it.
+const ATTN_ICON = { event:"circle-exclamation", gm:"user-tie", runway:"coins", board:"shield-halved",
+  evolve:"arrow-up-right-dots", projects:"folder-open", staff:"user-plus", region:"map-location-dot" };
 function AttentionQueue({ items, onGo, compact }) {
   if (!items || !items.length) return null;
   const shown = items.slice(0, compact ? 6 : 5);
@@ -5812,7 +5941,7 @@ function AttentionQueue({ items, onGo, compact }) {
         {shown.map(it => (
           <button key={it.id} role="listitem" className="btn" onClick={()=>onGo(it.go)}
             style={{flexShrink:0,maxWidth:240,textAlign:"left",padding:"6px 9px 6px 8px",border:`1px solid ${P.border}`,borderLeft:`3px solid ${it.urgent?P.red:P.accent}`,borderRadius:8,background:P.card,color:P.text,fontSize:10.5,fontWeight:it.urgent?700:400,lineHeight:1.3,whiteSpace:"normal"}}>
-            {it.text}
+            <span style={{display:"inline-flex",alignItems:"center",gap:7}}><Icon name={ATTN_ICON[it.id]||"circle-info"} size={12} color={it.urgent?P.redText:P.accent}/>{it.text}</span>
           </button>
         ))}
       </div>
@@ -5820,11 +5949,11 @@ function AttentionQueue({ items, onGo, compact }) {
   }
   return (
     <div role="list" aria-label="Things that could use your attention" style={{position:"absolute",top:10,left:10,zIndex:44,width:268,display:"flex",flexDirection:"column",gap:4}}>
-      <div style={{fontSize:11,fontWeight:600,letterSpacing:.7,textTransform:"uppercase",color:P.muted,padding:"0 2px 2px"}}>Before you end the quarter</div>
+      <div style={{fontSize:11,fontWeight:600,letterSpacing:0,color:P.muted,padding:"0 2px 2px"}}>Before you end the quarter</div>
       {shown.map(it => (
         <button key={it.id} role="listitem" className="btn" onClick={()=>onGo(it.go)}
           style={{textAlign:"left",padding:"9px 12px 9px 11px",border:`1px solid ${P.border}`,borderLeft:`3px solid ${it.urgent?P.red:P.accent}`,borderRadius:10,background:P.panel,boxShadow:"0 1px 2px rgba(16,24,40,.05),0 4px 12px rgba(16,24,40,.06)",color:P.text,fontSize:12,fontWeight:it.urgent?600:400,lineHeight:1.35}}>
-          {it.text}
+          <span style={{display:"flex",alignItems:"center",gap:9}}><Icon name={ATTN_ICON[it.id]||"circle-info"} size={13} color={it.urgent?P.redText:P.accent}/>{it.text}</span>
         </button>
       ))}
       {items.length > shown.length && <div style={{fontSize:10,color:P.muted,padding:"0 2px"}}>and {items.length - shown.length} more</div>}
@@ -5919,11 +6048,11 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
   const dockW = vw>=1440?420:vw>=1150?372:320;
   const goTo = id => { if (id==="event") return; if (!phone && ["projects","staff","network","rivals"].includes(id)) { setDockOpen(true); setRightTab(id); } else setModal(id); };
   const TopStat = ({ l, v, c=P.text, icon, tip, trend }) => (
-    <div title={tip||undefined} style={{display:"flex",flexDirection:"column",alignItems:"flex-end",cursor:tip?"help":"default"}}>
-      <span style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:P.muted,textTransform:"uppercase",letterSpacing:.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
-        {icon && <Icon name={icon} size={9} color={P.muted}/>}{l}
-      </span>
-      <span style={{fontSize:15,fontWeight:700,color:c,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{v}{trend!=null && <span style={{fontSize:9,marginLeft:4,color:trend>0.05?P.greenText:trend<-0.05?P.redText:P.muted}}>{trend>0.05?"▲":trend<-0.05?"▼":"■"}{trend>=0?"+":""}{Math.round(trend*10)/10}</span>}</span>
+    <div title={tip ? `${l}\n${tip}` : l} style={{display:"flex",alignItems:"center",gap:8,cursor:"help"}}>
+      {icon && <Icon name={icon} size={15} color={P.muted}/>}
+      <span className="sr">{l}</span>
+      <span className="tnum" style={{fontSize:21,fontWeight:600,letterSpacing:-.4,lineHeight:1,color:c}}>{v}</span>
+      {trend!=null && Math.abs(trend) > 0.05 && <span className="tnum" style={{fontSize:11,fontWeight:600,color:trend>0?P.greenText:P.redText}}>{trend>0?"+":"−"}{Math.abs(Math.round(trend*10)/10)}</span>}
     </div>
   );
 
@@ -5981,11 +6110,11 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
           </div>
           {/* Stat strip */}
           <div style={{display:"flex",gap:10,marginTop:8,overflowX:"auto",paddingBottom:2}}>
-            <TopStat l="Period" v={<span key={gs.turn} className="flip-in">{`Q${gs.quarter} ${gs.year}`}</span>} c={P.blue} icon="map"/>
-            <TopStat l="Treasury" v={fmt(gs.budget||0)} c={(gs.budget||0)<20000?P.red:P.accent} icon="sack-dollar" trend={trends?.budget?.delta} tip={trendTitle(trends?.budget)}/>
-            <TopStat l="Members" v={gs.members||0} c={P.gold} icon="users" trend={trends?.members?.delta} tip={trendTitle(trends?.members,"Plus rival poaching, defections and events.")}/>
-            <TopStat l="Influence" v={Math.round(gs.prestige||0)} c={P.purple} icon="star" trend={trends?.influence?.delta} tip={trendTitle(trends?.influence,"Plus project deliveries, events, coups.")}/>
-            <TopStat l="Board Confidence" v={`${Math.round(gs.boardConf||0)}`} c={(gs.boardConf||0)<30?P.red:(gs.boardConf||0)<55?P.orange:P.green} icon="shield-halved" trend={trends?.board?.delta} tip={trendTitle(trends?.board,"Plus completions +3, failures −8..−15, events.")}/>
+            <TopStat l="Period" v={<span key={gs.turn} className="flip-in">{`Q${gs.quarter} ${gs.year}`}</span>} c={P.text} icon="calendar-days"/>
+            <TopStat l="Treasury" v={fmt(gs.budget||0)} c={(gs.budget||0)<20000?P.redText:P.text} icon="coins" trend={trends?.budget?.delta} tip={trendTitle(trends?.budget)}/>
+            <TopStat l="Members" v={gs.members||0} c={P.text} icon="users" trend={trends?.members?.delta} tip={trendTitle(trends?.members,"Plus rival poaching, defections and events.")}/>
+            <TopStat l="Influence" v={Math.round(gs.prestige||0)} c={P.text} icon="landmark" trend={trends?.influence?.delta} tip={trendTitle(trends?.influence,"Plus project deliveries, events, coups.")}/>
+            <TopStat l="Board" v={`${Math.round(gs.boardConf||0)}`} c={(gs.boardConf||0)<30?P.redText:P.text} icon="shield-halved" trend={trends?.board?.delta} tip={trendTitle(trends?.board,"Plus completions +3, failures −8..−15, events.")}/>
             <TopStat l="Net Income" v={`${(gs.qNet||0)>=0?"+":""}${fmtN(gs.qNet||0)}`} c={(gs.qNet||0)>=0?P.accent:P.red} icon="chart-line" tip={trendTitle(trends?.budget,"Last quarter's actual cashflow.")}/>
           </div>
         </div>
@@ -6022,7 +6151,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
 
         {/* Evolve banner when ready */}
         {ok && (
-          <button className="btn" onClick={()=>setModal("evolve")} style={{flexShrink:0,padding:"10px",border:"none",background:`${P.gold}`,color:P.text,fontWeight:700,fontSize:14,letterSpacing:.5}}>
+          <button className="btn" onClick={()=>setModal("evolve")} style={{flexShrink:0,padding:"10px",border:"none",background:`${P.gold}`,color:P.text,fontWeight:700,fontSize:14,letterSpacing:0}}>
             READY TO EVOLVE <Icon name="arrow-right" size={12} color={P.bg} style={{margin:"0 6px"}}/> {STAGES[Math.min(5,gs.stage+1)].name}
           </button>
         )}
@@ -6039,7 +6168,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
             </button>
           ) : (
             <>
-              <button className="btn cut" onClick={()=>dispatch({type:"nextTurn"})} style={{flex:1,padding:"13px",borderRadius:0,border:"none",background:`${P.accent}`,color:P.bg,fontWeight:700,fontSize:15,letterSpacing:.5}}>
+              <button className="btn cut" onClick={()=>dispatch({type:"nextTurn"})} style={{flex:1,padding:"13px",borderRadius:0,border:"none",background:`${P.accent}`,color:P.bg,fontWeight:700,fontSize:15,letterSpacing:0}}>
                 {byRole(gs.roster,"manager")<1 ? "No General Manager — hire one" : <>Next Quarter</>}
               </button>
               <button className="btn" onClick={()=>setAuto(a=>!a)} style={{padding:"13px 16px",borderRadius:0,border:`1px solid ${auto?P.accent:P.border}`,background:auto?`${P.accent}22`:P.card,color:auto?P.accent:P.text,fontWeight:700,fontSize:15}}>
@@ -6075,51 +6204,46 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
 
       {/* TOP BAR */}
       <div className="glass-flat" style={{background:P.panel,borderBottom:`1px solid ${P.border}`,padding:"8px 16px",display:"flex",alignItems:"center",gap:14,flexShrink:0,flexWrap:"wrap"}}>
-        <div style={{display:"flex",alignItems:"center",gap:8}}>
-          <Icon name={gs.sector?.icon||"display"} size={18} color={gs.sector?.color||P.text}/>
+        <div style={{display:"flex",alignItems:"center",gap:8,marginRight:6}}>
           <div>
-            <div title={gs.clusterName || gs.sector?.name || ""} style={{fontSize:12,fontWeight:700,color:gs.sector?.color||P.text,maxWidth:280,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName || gs.sector?.name || ""}</div>
-            <div style={{fontSize:10,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{gs.clusterName ? `${gs.sector?.name||""} · ` : ""}{gs.region||""} · {gs.country||""}</div>
+            <div title={gs.clusterName || gs.sector?.name || ""} style={{fontSize:14,fontWeight:600,color:P.text,maxWidth:280,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName || gs.sector?.name || ""}</div>
+            <div style={{fontSize:12,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{stage.name}, {gs.region||""}</div>
           </div>
         </div>
-        <div style={{padding:"3px 10px",borderRadius:0,background:`${stage.color}18`,border:`1px solid ${stage.color}44`,display:"flex",alignItems:"center",gap:5,flexShrink:0}}>
-          <span style={{width:5,height:5,borderRadius:"50%",background:stage.color,display:"inline-block"}}/>
-          <span style={{fontSize:9,fontWeight:700,color:stage.color,letterSpacing:.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{stage.name}</span>
-        </div>
-        <button className="btn" onClick={()=>setModal("rules")} title="Game rules" style={{padding:"4px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:10,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5,flexShrink:0}}>
-          <Icon name="circle-question" size={12} color={P.muted}/> Rules
+        <button className="btn" onClick={()=>setModal("rules")} title="Game rules" style={{padding:"4px 10px",borderRadius:6,border:"1px solid transparent",background:"transparent",color:P.muted,fontSize:10,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5,flexShrink:0}}>
+          Rules
         </button>
-        <button className="btn" onClick={onTheme} title={dark?"Switch to light mode":"Switch to dark mode"} style={{padding:"4px 9px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
+        <button className="btn" onClick={onTheme} title={dark?"Switch to light mode":"Switch to dark mode"} style={{padding:"4px 9px",borderRadius:6,border:"1px solid transparent",background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
           <Icon name={dark?"sun":"moon"} size={12} color={P.muted}/>
         </button>
-        <button className="btn" onClick={onSnd} title={snd?"Mute sound":"Enable sound"} style={{padding:"4px 9px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
+        <button className="btn" onClick={onSnd} title={snd?"Mute sound":"Enable sound"} style={{padding:"4px 9px",borderRadius:6,border:"1px solid transparent",background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
           <Icon name={snd?"volume-high":"volume-xmark"} size={12} color={P.muted}/>
         </button>
-        <button className="btn" onClick={onTextScale} aria-pressed={textBig} title={textBig?"Normal text size":"Larger text size"} style={{padding:"4px 9px",borderRadius:0,border:`1px solid ${textBig?P.accent:P.border}`,background:textBig?`${P.accent}0d`:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
+        <button className="btn" onClick={onTextScale} aria-pressed={textBig} title={textBig?"Normal text size":"Larger text size"} style={{padding:"4px 9px",borderRadius:6,border:"1px solid transparent",background:textBig?`${P.accent}0d`:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
           <Icon name="text-height" size={12} color={textBig?P.accent:P.muted}/>
         </button>
-        <button className="btn" onClick={() => gs.digest ? setDigestReopen(t=>t+1) : null} title="Show the latest quarter review" style={{padding:"4px 9px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
+        <button className="btn" onClick={() => gs.digest ? setDigestReopen(t=>t+1) : null} title="Show the latest quarter review" style={{padding:"4px 9px",borderRadius:6,border:"1px solid transparent",background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
           <Icon name="clipboard-check" size={12} color={P.muted}/>
         </button>
-        <button className="btn" onClick={()=>setModal("slots")} title="Save slots" style={{padding:"4px 9px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
+        <button className="btn" onClick={()=>setModal("slots")} title="Save slots" style={{padding:"4px 9px",borderRadius:6,border:"1px solid transparent",background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
           <Icon name="floppy-disk" size={12} color={P.muted}/>
         </button>
         {canUndo && (
-          <button className="btn" onClick={onUndo} title="Undo last quarter (U) — once per quarter, Junior & Officer only" style={{padding:"4px 10px",borderRadius:0,border:`1px solid ${P.gold}`,background:"transparent",color:P.goldText,fontSize:10,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5,flexShrink:0}}>
-            <Icon name="rotate-left" size={11} color={P.goldText}/> Undo
+          <button className="btn" onClick={onUndo} title="Undo last quarter (U) — once per quarter, Junior & Officer only" style={{padding:"4px 10px",borderRadius:6,border:"1px solid transparent",background:"transparent",color:P.aoldText,fontSize:10,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5,flexShrink:0}}>
+            Undo
           </button>
         )}
         {gs.pendingEvent && (
-          <div style={{fontSize:10,padding:"5px 10px",borderRadius:0,background:"transparent",border:`1px solid ${P.orange}`,color:P.orange,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',animation:"pulse 1s infinite"}}>
-            EVENT PENDING
+          <div style={{fontSize:10,padding:"5px 10px",borderRadius:0,background:"transparent",border:"none",color:P.redText,fontWeight:600,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
+            An event is waiting
           </div>
         )}
-        <div style={{marginLeft:"auto",display:"flex",gap:16,alignItems:"center",flexWrap:"wrap"}}>
-          <TopStat l="Period"   v={<span key={gs.turn} className="flip-in">{`Q${gs.quarter} ${gs.year}`}</span>}        c={P.blue} icon="map"/>
-          <TopStat l="Treasury" v={fmt(gs.budget||0)}                   c={(gs.budget||0)<20000?P.red:P.accent} icon="sack-dollar"/>
-          <TopStat l="Members"  v={gs.members||0}                       c={P.gold} icon="users" trend={trends?.members?.delta} tip={trendTitle(trends?.members,"Plus rival poaching, defections and events.")}/>
-          <TopStat l="Influence" v={Math.round(gs.prestige||0)}          c={P.purple} icon="star" trend={trends?.influence?.delta} tip={trendTitle(trends?.influence,"Plus project deliveries, events, coups.")}/>
-          <TopStat l="Board Confidence" v={`${Math.round(gs.boardConf||0)}%`} c={(gs.boardConf||0)<30?P.red:(gs.boardConf||0)<55?P.orange:P.green} icon="shield-halved" trend={trends?.board?.delta} tip={trendTitle(trends?.board,"Plus completions +3, failures −8..−15, events.")}/>
+        <div style={{marginLeft:"auto",display:"flex",gap:28,alignItems:"flex-end",flexWrap:"wrap"}}>
+          <TopStat l="Period"   v={<span key={gs.turn} className="flip-in">{`Q${gs.quarter} ${gs.year}`}</span>}        c={P.text} icon="calendar-days"/>
+          <TopStat l="Treasury" v={fmt(gs.budget||0)}                   c={(gs.budget||0)<20000?P.redText:P.text} icon="coins"/>
+          <TopStat l="Members"  v={gs.members||0}                       c={P.text} icon="users" trend={trends?.members?.delta} tip={trendTitle(trends?.members,"Plus rival poaching, defections and events.")}/>
+          <TopStat l="Influence" v={Math.round(gs.prestige||0)}          c={P.text} icon="landmark" trend={trends?.influence?.delta} tip={trendTitle(trends?.influence,"Plus project deliveries, events, coups.")}/>
+          <TopStat l="Board" v={`${Math.round(gs.boardConf||0)}%`} c={(gs.boardConf||0)<30?P.redText:P.text} icon="shield-halved" trend={trends?.board?.delta} tip={trendTitle(trends?.board,"Plus completions +3, failures −8..−15, events.")}/>
         </div>
       </div>
 
@@ -6127,7 +6251,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
       <div className="map-sea" style={{flex:1,position:"relative",overflow:"hidden"}}>
         {/* The map and its overlays live in the space the open panels leave free,
             so nothing of Europe is hidden and the map recentres as panels fold. */}
-        <div style={{position:"absolute",top:0,bottom:0,left:leftOpen?231:0,right:dockOpen?dockW+16:0,transition:"left .18s ease,right .18s ease"}}>
+        <div style={{position:"absolute",top:0,bottom:0,left:leftOpen?216:0,right:dockOpen?dockW+1:0,transition:"left .18s ease,right .18s ease"}}>
           <EUMap gs={gs} sel={sel} setSel={setSel} lift={150} dispatch={dispatch}/>
           <DigestCard gs={gs} digestOn={digestOn} reopenTick={digestReopen} onDigestToggle={onDigestToggle}/>
           <MapLegend gs={gs}/>
@@ -6159,16 +6283,16 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
           </div>
         </div>
 
-        <div className="glass glass-left" style={{position:"absolute",left:8,top:8,bottom:8,zIndex:60,overflow:"hidden",display:leftOpen?"flex":"none"}}>
+        <div className="sheet sheet-left" style={{position:"absolute",left:0,top:0,bottom:0,zIndex:60,overflow:"hidden",display:leftOpen?"flex":"none"}}>
           <LeftPanel gs={gs} dispatch={dispatch}/>
         </div>
         <button className="btn" onClick={()=>setLeftOpen(o=>!o)} aria-expanded={leftOpen} aria-label={leftOpen?"Hide the cluster summary":"Show the cluster summary"} title={leftOpen?"Hide the cluster summary":"Show the cluster summary"}
-          style={{position:"absolute",left:leftOpen?225:0,top:"50%",transform:"translateY(-50%)",zIndex:61,width:18,height:58,padding:0,border:`1px solid ${P.border}`,borderRadius:"0 6px 6px 0",background:P.panel,color:P.accent,fontSize:13,transition:"left .18s ease"}}>{leftOpen?"‹":"›"}</button>
+          style={{position:"absolute",left:leftOpen?216:0,top:"50%",transform:"translateY(-50%)",zIndex:61,width:18,height:58,padding:0,border:`1px solid ${P.border}`,borderRadius:"0 6px 6px 0",background:P.panel,color:P.accent,fontSize:13,transition:"left .18s ease"}}>{leftOpen?"‹":"›"}</button>
         <button className="btn" onClick={()=>setDockOpen(o=>!o)} aria-expanded={dockOpen} aria-label={dockOpen?"Hide the management panel":"Show the management panel"} title={dockOpen?"Hide the management panel":"Show the management panel"}
-          style={{position:"absolute",right:dockOpen?dockW+10:0,top:"50%",transform:"translateY(-50%)",zIndex:61,width:18,height:58,padding:0,border:`1px solid ${P.border}`,borderRadius:"6px 0 0 6px",background:P.panel,color:P.accent,fontSize:13,transition:"right .18s ease"}}>{dockOpen?"›":"‹"}</button>
+          style={{position:"absolute",right:dockOpen?dockW+1:0,top:"50%",transform:"translateY(-50%)",zIndex:61,width:18,height:58,padding:0,border:`1px solid ${P.border}`,borderRadius:"6px 0 0 6px",background:P.panel,color:P.accent,fontSize:13,transition:"right .18s ease"}}>{dockOpen?"›":"‹"}</button>
 
         {/* RIGHT DOCK: Projects / Staff / Network tabs + compact activity & log */}
-        <div className="glass" style={{position:"absolute",right:8,top:8,bottom:8,zIndex:60,width:dockW,display:dockOpen?"flex":"none",flexDirection:"column",background:P.panel,borderLeft:`1px solid ${P.border}`,overflow:"hidden"}}>
+        <div className="sheet sheet-right" style={{position:"absolute",right:0,top:0,bottom:0,zIndex:60,width:dockW,display:dockOpen?"flex":"none",flexDirection:"column",background:P.panel,borderLeft:`1px solid ${P.border}`,overflow:"hidden"}}>
           <div className="menu-tabs" role="tablist" style={{display:"flex",flexShrink:0,background:"transparent",borderBottom:`1px solid ${P.border}`}}>
             {[["projects","folder-open","Projects",P.blue],["staff","users","Staff",P.purple],["network","earth-europe","Network",P.teal],["rivals","chess-knight","Rivals",P.red]].map(([id,icon,lbl,col]) => (
               <button key={id} className="btn" onClick={()=>setRightTab(id)} aria-pressed={rightTab===id}
@@ -6252,7 +6376,7 @@ function GameOver({ gs, onRestart }) {
           ].map(([v,l,c]) => (
             <div key={l} style={{background:P.panel,borderRadius:0,padding:"14px 12px",border:`1px solid ${P.border}`}}>
               <div style={{fontSize:18,fontWeight:700,color:c,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{v}</div>
-              <div style={{fontSize:9,color:P.muted,marginTop:4,textTransform:"uppercase",letterSpacing:.5}}>{l}</div>
+              <div style={{fontSize:9,color:P.muted,marginTop:4,letterSpacing:0}}>{l}</div>
             </div>
           ))}
         </div>
@@ -6261,7 +6385,7 @@ function GameOver({ gs, onRestart }) {
           <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:10}}>
             <div style={{fontSize:44,fontWeight:800,color:gradeCol,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',lineHeight:1}}>{grade}</div>
             <div>
-              <div style={{fontSize:9,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:1.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Campaign Report Card</div>
+              <div style={{fontSize:9,fontWeight:700,color:P.muted,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Campaign Report Card</div>
               <div style={{fontSize:16,fontWeight:700,color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{fmtN(score)} points</div>
               <div style={{fontSize:9.5,color:P.muted}}>{scen.name} · {DIFFICULTIES[gs.difficulty]?.label||gs.difficulty}{gs.seedStr?` · seed "${gs.seedStr}"`:""}</div>
             </div>
@@ -6276,7 +6400,7 @@ function GameOver({ gs, onRestart }) {
               ))}
             </div>
           )}
-          <div style={{fontSize:9,fontWeight:700,color:P.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Achievements · {Object.keys(achvAll).length}/{ACHIEVEMENTS.length}</div>
+          <div style={{fontSize:9,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Achievements · {Object.keys(achvAll).length}/{ACHIEVEMENTS.length}</div>
           <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:12}}>
             {ACHIEVEMENTS.map(a => {
               const got = !!achvAll[a.id];

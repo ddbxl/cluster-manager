@@ -177,7 +177,7 @@ const click = (el) => act(() => {
   render(React.createElement(G.EUMap, { gs, sel: null, setSel: () => {} }));
   const svgText = qsa("svg")[0].innerHTML;
   ok(!/Quarter \d/.test(svgText), "the stage watermark is an overlay, so zooming doesn't magnify it");
-  ok(/Quarter \d/.test(text()), "the watermark is still shown");
+  ok(/difficulty/.test(text()), "the watermark is still shown");
 }
 
 /* ── political seats appear on the map when held ──────────── */
@@ -342,7 +342,7 @@ const click = (el) => act(() => {
   ok(/\.btn:focus-visible/.test(G.CSS), "keyboard focus stays visible");
 
   // Colour: deep flag-blue glass, with flag yellow for actions and titles.
-  ok(G.P.accent.toLowerCase() === "#1d4ed8", `actions carry one blue (${G.P.accent})`);
+  ok(G.P.accent.toLowerCase() === "#1f4bd8", `actions carry one blue (${G.P.accent})`);
   ok(!/#ffcc00/i.test(Object.values(G.P).join(" ")), "yellow is kept out of the interface palette");
   const rgbOf = hex => { const n = hex.replace("#", ""); return [0,2,4].map(i => parseInt(n.slice(i,i+2),16)); };
   const lum = hex => { const [r,g,b] = rgbOf(hex).map(v => { v/=255; return v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055,2.4); }); return 0.2126*r+0.7152*g+0.0722*b; };
@@ -412,7 +412,7 @@ const click = (el) => act(() => {
   ok(/\.menu-scope \.btn:disabled\{[^}]*text-decoration:none/.test(css), "a disabled button does not underline");
   ok(css.includes('.menu-scope .btn[style*="color:#FFFFFF"]') && css.includes('.menu-scope .btn[style*="color: rgb(255, 255, 255)"]'),
      "text that sat on a fill takes the action colour, so it cannot vanish");
-  ok(css.includes(".card-btn{") && /\.card-btn:hover[^{]*\{[^}]*border-color:#1D4ED8/.test(css), "option rows are framed, and the frame turns blue under the pointer");
+  ok(css.includes(".card-btn{") && /\.card-btn:hover[^{]*\{[^}]*border-color:#1F4BD8/.test(css), "option rows are framed, and the frame turns blue under the pointer");
 
   // every kind of menu is inside the scope
   const sector = { id:"digital", name:"Digital", color:"#38bdf8", icon:"display" };
@@ -442,7 +442,8 @@ const click = (el) => act(() => {
   const g0 = G.initState("Austria", "Steiermark", sector);
   render(null);
   render(React.createElement(G.Game, { gs: g0, dispatch: () => {}, vw: 1280, onRestart: () => {} }));
-  ok(qsa(".glass").length >= 3, `the side panels and map furniture are glass (${qsa(".glass").length})`);
+  ok(qsa(".sheet").length === 2, "the side panels are flat sheets attached to the screen edges");
+  ok(qsa(".glass").length >= 1, "things floating over the map are lifted cards");
   ok(qsa(".glass-flat").length >= 1, "the top bar is a glass strip");
   const orb = qsa("button.orb")[0];
   ok(!!orb && !orb.disabled, "the medallion ends the quarter");
@@ -473,6 +474,86 @@ const click = (el) => act(() => {
   ok(!/small-caps/.test(G.CSS), "headings are plain sentence case, without small capitals");
 }
 
+/* ── hovering a country: a label that fits whatever it holds ── */
+{
+  const sector = { id:"digital", name:"Digital", color:"#38bdf8", icon:"display" };
+  const g0 = G.initState("Austria", "Styria", sector);
+  const longName = "Association for the Promotion of Advanced Manufacturing and Industrial Digitalisation";
+  const g1 = { ...g0, rivals: [{ ...g0.rivals[0], name: longName, countries: ["Germany"], country: "Germany" }] };
+  render(null);
+  render(React.createElement(G.EUMap, { gs: g1, sel: null, setSel: () => {}, dispatch: () => {} }));
+  const svg = qsa("svg")[0];
+  svg.getBoundingClientRect = () => ({ left:0, top:0, width:900, height:700, right:900, bottom:700 });
+  const de = qsa("path").find(p => (p.getAttribute("data-nuts")||"").startsWith("DE"));
+  act(() => { de.dispatchEvent(new dom.window.MouseEvent("mouseover", { bubbles:true, clientX:400, clientY:300 })); });
+  const label = qsa(".map-hover")[0];
+  ok(!!label, "hovering a country shows a label");
+  ok(label && label.textContent.includes(longName), "a long rival name appears in full, never clipped");
+  ok(G.CSS.includes(".map-hover{") && /\.map-hover\{[^}]*max-width:240px/.test(G.CSS), "the label wraps at a fixed width");
+  ok(label && /Click for options/.test(label.textContent), "it tells you clicking does more");
+  ok(!qsa("svg text").some(t => /HOME COUNTRY|UNEXPLORED/.test(t.textContent)), "the old in-map tooltip that scaled with zoom is gone");
+}
+
+/* ── contemporary conventions hold across the interface ──── */
+{
+  ok(!/textTransform:"uppercase"/.test(require("fs").readFileSync(require("path").join(__dirname, "..", "src", "ClusterManagerSimulator.jsx"), "utf8")),
+     "no label is forced into capitals");
+  ok(/\.sheet\{[^}]*border-radius:0/.test(G.CSS) && /\.glass\{[^}]*border-radius:6px/.test(G.CSS),
+     "fixed sheets are square and floating cards are rounded, so the radius tells them apart");
+  render(null);
+  const sector = { id:"digital", name:"Digital", color:"#38bdf8", icon:"display" };
+  const g0 = { ...G.initState("Austria", "Styria", sector), budget: 3_000_000 };
+  render(React.createElement(G.ProjectsModal, { gs: G.reducer(G.reducer(g0,{type:"hire",roleId:"comms"}),{type:"hire",roleId:"pm"}), dispatch: () => {}, onClose: () => {}, panel: true }));
+  const entry = qsa(".proj")[0];
+  ok(!!entry, "projects are listed as plain entries");
+  ok(entry && entry.querySelectorAll("dl.figs dd").length === 3, "each entry shows volume, margin and risk as aligned figures");
+  ok(entry && /Start project|Needs/.test(entry.textContent), "the action says what it does");
+}
+
+/* ── icons carry categories, numbers carry values ─────────── */
+{
+  for (const n of ["hourglass-half","calendar-days","arrow-trend-up","map-location-dot","location-dot","user-plus","circle-nodes","seedling","hand-holding-dollar"])
+    ok(Array.isArray(G.ICON_PATHS[n]) && G.ICON_PATHS[n].length === 3, `the ${n} icon is embedded`);
+  render(null);
+  render(React.createElement(G.Facts, { items: [{ i:"hourglass-half", t:"2 q", tip:"Runs for 2 quarters" }, false, { i:"coins", t:"€151k" }] }));
+  const facts = qsa(".fact");
+  ok(facts.length === 2, "facts skip empty entries");
+  ok(facts[0].querySelector("svg") && /2 q/.test(facts[0].textContent), "each fact is an icon with a short value");
+  ok(facts[0].getAttribute("title") === "Runs for 2 quarters", "the full meaning is in the tooltip");
+  ok(/Runs for 2 quarters/.test(facts[0].querySelector(".sr")?.textContent || ""), "and is read out to screen readers");
+
+  // the top bar shows icon and figure, with the name kept for tooltips and screen readers
+  const sector = { id:"digital", name:"Digital", color:"#38bdf8", icon:"display" };
+  render(null);
+  render(React.createElement(G.Game, { gs: G.initState("Austria", "Styria", sector), dispatch: () => {}, vw: 1280, onRestart: () => {} }));
+  const treasury = qsa("div[title]").find(d => /^Treasury/.test(d.getAttribute("title")));
+  ok(!!treasury && !!treasury.querySelector("svg"), "the treasury figure carries an icon");
+  ok(treasury && /Treasury/.test(treasury.querySelector(".sr")?.textContent || ""), "its name stays available to screen readers");
+
+  // attention plates lead with an icon
+  let g = { ...G.initState("Austria", "Styria", sector), budget: 3_000_000 };
+  g = G.reducer(G.reducer(g, { type:"hire", roleId:"comms" }), { type:"hire", roleId:"pm" });
+  render(null);
+  render(React.createElement(G.AttentionQueue, { items: G.attentionItems(g), onGo: () => {} }));
+  ok(qsa('[role="listitem"]').every(b => b.querySelector("svg")), "every attention plate leads with an icon");
+  ok(qsa('[role="listitem"]').every(b => b.textContent.length < 45), "and its text is short");
+}
+
+/* ── the setup screen ─────────────────────────────────────── */
+{
+  render(null);
+  render(React.createElement(G.Setup, { onStart: () => {}, canResume: true, onResume: () => {}, onOpenSlots: () => {}, mobile: false }));
+  ok(qsa(".setup").length === 1, "setup uses the shared control styling");
+  ok(/Cluster Manager/.test(qsa("h1")[0]?.textContent || ""), "the title is set in title case");
+  ok(qsa("svg[aria-label]").some(s => /Map/.test(s.getAttribute("aria-label"))), "a map of Europe sits beside the setup");
+  ok(qsa("details summary").some(s => /Seed or challenge code/.test(s.textContent)), "seed and challenge codes fold away");
+  const scen = qsa("button").filter(b => b.getAttribute("aria-pressed") !== null && b.querySelector("svg"));
+  ok(scen.length >= 4, "scenarios are tiles with icons");
+  render(null);
+  render(React.createElement(G.SetupMap, { country: "Austria", region: "Styria" }));
+  ok(/Styria/.test(qsa("svg")[0].getAttribute("aria-label")), "choosing a region lights it up on the map");
+}
+
 /* ── clicking a region on the map ─────────────────────────── */
 {
   const sector = { id:"digital", name:"Digital", color:"#38bdf8", icon:"display" };
@@ -488,7 +569,7 @@ const click = (el) => act(() => {
   click(nuts(otherCode));
   const card = qsa(".region-card")[0];
   ok(!!card, "clicking a region opens its card");
-  const open = card && [...card.querySelectorAll("button")].find(b => /Open office/.test(b.textContent));
+  const open = card && [...card.querySelectorAll("button")].find(b => /Open an office for €/.test(b.textContent));
   ok(!!open && !open.disabled, "the card offers to open an office there, with its price");
   if (open) { click(open); ok(sent.length === 1 && sent[0].type === "expandRegion", "pressing it expands into that region"); }
 
@@ -501,7 +582,7 @@ const click = (el) => act(() => {
   click(nuts(deCode));
   const deCard = qsa(".region-card")[0];
   ok(deCard && /open up at/.test(deCard.textContent), "a country you cannot enter yet explains why");
-  ok(deCard && ![...deCard.querySelectorAll("button")].some(b => /Enter|Open office/.test(b.textContent)), "and offers nothing to press");
+  ok(deCard && ![...deCard.querySelectorAll("button")].some(b => /Enter|Open an office/.test(b.textContent)), "and offers nothing to press");
 
   // the close control and open water both dismiss the card
   const x = qsa("button").find(b => b.getAttribute("aria-label") === "Close region card");
@@ -608,7 +689,7 @@ const click = (el) => act(() => {
     qMember:50000, qProj:120000, qStaff:40000, qOverhead:8000, qServicing:12000,
     qDelivery:0, qInterim:0, events:[{ t:"good", txt:"Project delivered" }] };
   const gs5 = { ...G.initState("Austria", "Steiermark", sector), turn:5, digest };
-  const reviewShowing = () => /Member servicing|Overheads/i.test(text());
+  const reviewShowing = () => qsa(".digest-card").length > 0;
 
   for (const vw of [1200, 500]) {
     const where = vw >= 820 ? "desktop" : "mobile";
