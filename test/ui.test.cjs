@@ -589,6 +589,14 @@ const click = (el) => act(() => {
   ok(G.regionFromLabel("Germany", "Somewhere", "Generic Cluster") === "", "a cluster with no regional clue is not guessed into a region");
   ok(G.regionFromLabel("Latvia", "", "Anything") === "Latvia", "a single-region country takes its only region");
   ok(G.countryRegionShapes("Germany").length === 16, "every German region has a shape to click");
+  // most real clusters are placed in a region from their city's location
+  const R = G.REGIONS_BY_COUNTRY;
+  const euClusters = G.ECCP_CLUSTERS.filter(c => R[G.ISO_TO_NAME[c.c]]);
+  const placed = euClusters.filter(c => c.r || G.regionFromLabel(G.ISO_TO_NAME[c.c], c.y, c.n));
+  ok(placed.length / euClusters.length > 0.8, `most clusters appear on the map (${placed.length} of ${euClusters.length})`);
+  ok(euClusters.filter(c => c.r).every(c => (G.EU_COUNTRIES[G.ISO_TO_NAME[c.c]]||[]).includes(c.r)), "every stored region belongs to the cluster's own country");
+  const munich = G.ECCP_CLUSTERS.filter(c => c.c === "DE" && /m(ü|ue|u)nchen|munich/i.test(c.y || ""));
+  ok(munich.length > 0 && munich.every(c => c.r === "Bavaria"), "a cluster based in Munich is placed in Bavaria");
 
   let picked = null;
   render(null);

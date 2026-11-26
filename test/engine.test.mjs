@@ -565,7 +565,7 @@ const fresh = (country = "Austria", region = "Steiermark") =>
 
   // no personal data may ever reach the bundle
   const fields = new Set(G.ECCP_CLUSTERS.flatMap(c => Object.keys(c)));
-  t.ok([...fields].every(f => ["n", "c", "e", "y"].includes(f)),
+  t.ok([...fields].every(f => ["n", "c", "e", "y", "r"].includes(f)),
        `the registry carries organisational fields only (${[...fields].join(", ")})`);
   const blob = JSON.stringify(G.ECCP_CLUSTERS);
   t.ok(!/@[a-z0-9.-]+\.[a-z]{2,}/i.test(blob), "no contact email survived into the registry");
