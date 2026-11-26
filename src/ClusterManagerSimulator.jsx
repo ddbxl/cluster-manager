@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useLayoutEffect, useRef, useMemo } from "react";
+import { createPortal } from "react-dom";
 
 // ─────────────────────────────────────────────────────────────
 // EU regional reference data
@@ -129,6 +130,83 @@ html.dark .seg{background:#16244A}
 html.dark .seg .btn{color:#9AA8C8 !important}
 .seg .btn[aria-pressed="true"]{background:#FFFFFF !important;color:#0B1B3F !important;box-shadow:0 1px 2px rgba(11,27,63,.12)}
 html.dark .seg .btn[aria-pressed="true"]{background:#0F1B3D !important;color:#EEF2FA !important}
+.btn.link{display:inline-flex;align-items:center;gap:7px;background:transparent;border:none;padding:4px 0;color:#1F4BD8;font-size:13px;font-weight:500;text-underline-offset:3px}
+.btn.link:hover:not(:disabled){text-decoration:underline;filter:none}
+html.dark .btn.link{color:#7C9BFF}
+/* Staff */
+.team{list-style:none;margin:0 0 4px;padding:0}
+.team li{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:7px 0;border-top:1px solid #D9DFEA;font-size:12.5px}
+.team .nm{color:#0B1B3F}.team .mu{color:#5A6785}
+html.dark .team li{border-top-color:#243461} html.dark .team .nm{color:#EEF2FA} html.dark .team .mu{color:#9AA8C8}
+.menu-scope .btn.fire{color:#B00E28 !important;font-size:12px;padding:2px 0 !important}
+.hire-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.btn.hire-tile{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;padding:11px 10px !important;min-height:96px;border:1px solid #D9DFEA !important;border-radius:8px !important;background:#FFFFFF !important;text-decoration:none !important}
+.btn.hire-tile:hover:not(:disabled),.btn.hire-tile:focus-visible{border-color:#1F4BD8 !important;background:#F2F5FD !important}
+.btn.hire-tile:disabled{opacity:.55}
+.hire-tile .nm{font-size:12px;font-weight:500;color:#0B1B3F;line-height:1.25}
+.hire-tile .pr{font-size:12px;color:#5A6785;margin-top:auto}
+.hire-tile .cnt{position:absolute;top:8px;right:9px;font-size:11px;font-weight:600;color:#1F4BD8}
+html.dark .btn.hire-tile{background:#0F1B3D !important;border-color:#243461 !important}
+html.dark .btn.hire-tile:hover:not(:disabled){background:#16244A !important;border-color:#7C9BFF !important}
+html.dark .hire-tile .nm{color:#EEF2FA} html.dark .hire-tile .pr{color:#9AA8C8}
+.hire-detail{margin-top:10px;min-height:74px;padding:10px 12px;border-radius:8px;background:#F5F7FA;font-size:12px;line-height:1.5;color:#5A6785}
+html.dark .hire-detail{background:#16244A;color:#9AA8C8}
+/* Next stage */
+.evo-head{display:flex;align-items:center;gap:16px;padding:4px 0 16px;border-bottom:1px solid #D9DFEA}
+.evo-head .mu{font-size:11.5px;color:#5A6785}.evo-head .st{font-size:16px;font-weight:600;color:#0B1B3F;margin-top:2px}
+.evo-reqs{list-style:none;margin:6px 0 16px;padding:0}
+.evo-reqs li{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center;padding:10px 0;border-bottom:1px solid #EEF2F7;font-size:12.5px}
+.evo-reqs .nm{color:#0B1B3F}.evo-reqs .v{color:#5A6785}
+.evo-reqs .bar{grid-column:2 / 4;height:4px;border-radius:2px;background:#EEF2F7;overflow:hidden}
+.evo-reqs .bar span{display:block;height:100%;border-radius:2px}
+.btn.evo-go{width:100%;height:48px;border:none;border-radius:6px;background:#1F4BD8;color:#FFFFFF;font-size:14px;font-weight:600}
+.btn.evo-go:hover:not(:disabled){background:#1A40BA;filter:none}
+.btn.evo-go:disabled{background:#EEF2F7;color:#5A6785}
+html.dark .evo-head{border-bottom-color:#243461} html.dark .evo-head .st,html.dark .evo-reqs .nm{color:#EEF2FA}
+html.dark .evo-head .mu,html.dark .evo-reqs .v{color:#9AA8C8}
+html.dark .evo-reqs li{border-bottom-color:#16244A} html.dark .evo-reqs .bar{background:#16244A}
+html.dark .btn.evo-go{background:#7C9BFF;color:#0A1430} html.dark .btn.evo-go:disabled{background:#16244A;color:#9AA8C8}
+.menu-scope .btn.evo-go{background:#1F4BD8 !important;color:#FFFFFF !important;padding:0 16px !important;text-decoration:none !important}
+.menu-scope .btn.evo-go:disabled{background:#EEF2F7 !important;color:#5A6785 !important}
+html.dark .menu-scope .btn.evo-go{background:#7C9BFF !important;color:#0A1430 !important}
+.menu-scope .btn.hire-tile{text-decoration:none !important}
+/* Rivals */
+.mkt{display:flex;height:6px;border-radius:3px;overflow:hidden;background:#EEF2F7}
+html.dark .mkt{background:#16244A}
+.rival{padding:14px 0;border-top:1px solid #D9DFEA}
+html.dark .rival{border-top-color:#243461}
+.rv-head{display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:start}
+.rv-head .sw{width:10px;height:10px;border-radius:3px;margin-top:4px}
+.rv-head .nm{font-size:13.5px;font-weight:600;color:#0B1B3F;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+html.dark .rv-head .nm{color:#EEF2FA}
+.rv-head .tag{font-size:11.5px;font-weight:600;white-space:nowrap;margin-top:2px}
+.rv-bars{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:9px}
+.rv-bars > span{display:flex;align-items:center;gap:7px}
+.rv-bars .bar{flex:1;height:4px;border-radius:2px;background:#EEF2F7;overflow:hidden}
+html.dark .rv-bars .bar{background:#16244A}
+.rv-bars .bar span{display:block;height:100%}
+.ops{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.btn.op{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px !important;border:1px solid #D9DFEA !important;border-radius:6px !important;background:#FFFFFF !important;font-size:12px;color:#0B1B3F !important;text-decoration:none !important}
+.btn.op:hover:not(:disabled){border-color:#1F4BD8 !important;background:#F2F5FD !important}
+.btn.op:disabled{color:#5A6785 !important;opacity:.6}
+html.dark .btn.op{background:#0F1B3D !important;border-color:#243461 !important;color:#EEF2FA !important}
+/* Network */
+.net-list{list-style:none;margin:12px 0 0;padding:0}
+.net-list li{display:grid;grid-template-columns:auto minmax(0,1fr) 72px auto;gap:10px;align-items:center;padding:7px 0;border-top:1px solid #D9DFEA;font-size:12.5px}
+.net-list .nm{color:#0B1B3F;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.net-list .mu{color:#5A6785}
+.net-list .bar{height:4px;border-radius:2px;background:#EEF2F7;overflow:hidden}
+.net-list .bar span{display:block;height:100%;background:#1F4BD8}
+html.dark .net-list li{border-top-color:#243461} html.dark .net-list .nm{color:#EEF2FA} html.dark .net-list .bar{background:#16244A}
+/* End screen */
+.end-figs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 24px;margin:0 0 26px;text-align:left}
+.end-figs dt{display:flex;align-items:center;gap:6px;font-size:12px;color:#5A6785;margin:0}
+.end-figs dd{margin:3px 0 0;font-size:18px;font-weight:600;color:#0B1B3F;font-variant-numeric:tabular-nums}
+html.dark .end-figs dt{color:#9AA8C8} html.dark .end-figs dd{color:#EEF2FA}
+.ach{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#5A6785;margin:0 14px 6px 0}
+.ach.got{color:#0B1B3F;font-weight:600}
+html.dark .ach{color:#9AA8C8} html.dark .ach.got{color:#EEF2FA}
+.seg .btn{text-decoration:none !important}
+.btn.evo-go:disabled{opacity:1}
 /* The hover label on the map: sized to its content, wraps long names. */
 .map-hover{position:absolute;z-index:47;pointer-events:none;max-width:240px;padding:9px 11px;background:#FFFFFF;border:1px solid #D9DFEA;border-radius:6px;box-shadow:0 6px 20px rgba(11,27,63,.12);font-size:12px;line-height:1.45;color:#0B1B3F}
 html.dark .map-hover{background:#0F1B3D;border-color:#243461;color:#EEF2FA}
@@ -136,8 +214,8 @@ html.dark .map-hover{background:#0F1B3D;border-color:#243461;color:#EEF2FA}
 /* Inside a menu a button is plain text: no box, no fill. Hovering, focusing or
    pressing it draws an underline. The rules are forced because each button
    still carries its old box styling inline; this strips it in one place. */
-.menu-scope .btn:not(.dot):not(.card-btn){background:transparent !important;border-color:transparent !important;box-shadow:none !important;clip-path:none !important;padding-left:2px !important;padding-right:2px !important;text-underline-offset:3px;text-decoration-thickness:1.5px}
-.menu-scope .btn:not(.dot):not(.card-btn):hover:not(:disabled),.menu-scope .btn:not(.dot):not(.card-btn):focus-visible,.menu-scope .btn:not(.dot):not(.card-btn):active:not(:disabled){text-decoration:underline;filter:none}
+.menu-scope .btn:not(.dot):not(.card-btn):not(.hire-tile):not(.evo-go):not(.op){background:transparent !important;border-color:transparent !important;box-shadow:none !important;clip-path:none !important;padding-left:2px !important;padding-right:2px !important;text-underline-offset:3px;text-decoration-thickness:1.5px}
+.menu-scope .btn:not(.dot):not(.card-btn):not(.hire-tile):not(.evo-go):not(.op):hover:not(:disabled),.menu-scope .btn:not(.dot):not(.card-btn):not(.hire-tile):not(.evo-go):not(.op):focus-visible,.menu-scope .btn:not(.dot):not(.card-btn):not(.hire-tile):not(.evo-go):not(.op):active:not(:disabled){text-decoration:underline;filter:none}
 .menu-scope .btn:disabled{cursor:not-allowed;text-decoration:none}
 .menu-scope .btn:focus-visible{outline:none}
 /* a chosen option stays underlined */
@@ -270,6 +348,12 @@ const darkHex = (h, f=0.5) => {
    Path data is embedded so the game makes no external request.
 ═══════════════════════════════════════════════════════════ */
 const ICON_PATHS = {
+  "file-csv":[512,512,"M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 144-208 0c-35.3 0-64 28.7-64 64l0 144-48 0c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128zM200 352l16 0c22.1 0 40 17.9 40 40l0 8c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-8c0-4.4-3.6-8-8-8l-16 0c-4.4 0-8 3.6-8 8l0 80c0 4.4 3.6 8 8 8l16 0c4.4 0 8-3.6 8-8l0-8c0-8.8 7.2-16 16-16s16 7.2 16 16l0 8c0 22.1-17.9 40-40 40l-16 0c-22.1 0-40-17.9-40-40l0-80c0-22.1 17.9-40 40-40zm133.1 0l34.9 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-34.9 0c-7.2 0-13.1 5.9-13.1 13.1c0 5.2 3 9.9 7.8 12l37.4 16.6c16.3 7.2 26.8 23.4 26.8 41.2c0 24.9-20.2 45.1-45.1 45.1L304 512c-8.8 0-16-7.2-16-16s7.2-16 16-16l42.9 0c7.2 0 13.1-5.9 13.1-13.1c0-5.2-3-9.9-7.8-12l-37.4-16.6c-16.3-7.2-26.8-23.4-26.8-41.2c0-24.9 20.2-45.1 45.1-45.1zm98.9 0c8.8 0 16 7.2 16 16l0 31.6c0 23 5.5 45.6 16 66c10.5-20.3 16-42.9 16-66l0-31.6c0-8.8 7.2-16 16-16s16 7.2 16 16l0 31.6c0 34.7-10.3 68.7-29.6 97.6l-5.1 7.7c-3 4.5-8 7.1-13.3 7.1s-10.3-2.7-13.3-7.1l-5.1-7.7c-19.3-28.9-29.6-62.9-29.6-97.6l0-31.6c0-8.8 7.2-16 16-16z"],
+  "link":[640,512,"M579.8 267.7c56.5-56.5 56.5-148 0-204.5c-50-50-128.8-56.5-186.3-15.4l-1.6 1.1c-14.4 10.3-17.7 30.3-7.4 44.6s30.3 17.7 44.6 7.4l1.6-1.1c32.1-22.9 76-19.3 103.8 8.6c31.5 31.5 31.5 82.5 0 114L422.3 334.8c-31.5 31.5-82.5 31.5-114 0c-27.9-27.9-31.5-71.8-8.6-103.8l1.1-1.6c10.3-14.4 6.9-34.4-7.4-44.6s-34.4-6.9-44.6 7.4l-1.1 1.6C206.5 251.2 213 330 263 380c56.5 56.5 148 56.5 204.5 0L579.8 267.7zM60.2 244.3c-56.5 56.5-56.5 148 0 204.5c50 50 128.8 56.5 186.3 15.4l1.6-1.1c14.4-10.3 17.7-30.3 7.4-44.6s-30.3-17.7-44.6-7.4l-1.6 1.1c-32.1 22.9-76 19.3-103.8-8.6C74 372 74 321 105.5 289.5L217.7 177.2c31.5-31.5 82.5-31.5 114 0c27.9 27.9 31.5 71.8 8.6 103.9l-1.1 1.6c-10.3 14.4-6.9 34.4 7.4 44.6s34.4 6.9 44.6-7.4l1.1-1.6C433.5 260.8 427 182 377 132c-56.5-56.5-148-56.5-204.5 0L60.2 244.3z"],
+  "building":[384,512,"M48 0C21.5 0 0 21.5 0 48L0 464c0 26.5 21.5 48 48 48l96 0 0-80c0-26.5 21.5-48 48-48s48 21.5 48 48l0 80 96 0c26.5 0 48-21.5 48-48l0-416c0-26.5-21.5-48-48-48L48 0zM64 240c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32zm112-16l32 0c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32zM80 96l32 0c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16l32 0c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32zM272 96l32 0c8.8 0 16 7.2 16 16l0 32c0 8.8-7.2 16-16 16l-32 0c-8.8 0-16-7.2-16-16l0-32c0-8.8 7.2-16 16-16z"],
+  "heart-pulse":[512,512,"M228.3 469.1L47.6 300.4c-4.2-3.9-8.2-8.1-11.9-12.4l87 0c22.6 0 43-13.6 51.7-34.5l10.5-25.2 49.3 109.5c3.8 8.5 12.1 14 21.4 14.1s17.8-5 22-13.3L320 253.7l1.7 3.4c9.5 19 28.9 31 50.1 31l104.5 0c-3.7 4.3-7.7 8.5-11.9 12.4L283.7 469.1c-7.5 7-17.4 10.9-27.7 10.9s-20.2-3.9-27.7-10.9zM503.7 240l-132 0c-3 0-5.8-1.7-7.2-4.4l-23.2-46.3c-4.1-8.1-12.4-13.3-21.5-13.3s-17.4 5.1-21.5 13.3l-41.4 82.8L205.9 158.2c-3.9-8.7-12.7-14.3-22.2-14.1s-18.1 5.9-21.8 14.8l-31.8 76.3c-1.2 3-4.2 4.9-7.4 4.9L16 240c-2.6 0-5 .4-7.3 1.1C3 225.2 0 208.2 0 190.9l0-5.8c0-69.9 50.5-129.5 119.4-141C165 36.5 211.4 51.4 244 84l12 12 12-12c32.6-32.6 79-47.5 124.6-39.9C461.5 55.6 512 115.2 512 185.1l0 5.8c0 16.9-2.8 33.5-8.3 49.1z"],
+  "sitemap":[576,512,"M208 80c0-26.5 21.5-48 48-48l64 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-8 0 0 40 152 0c30.9 0 56 25.1 56 56l0 32 8 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-64 0c-26.5 0-48-21.5-48-48l0-64c0-26.5 21.5-48 48-48l8 0 0-32c0-4.4-3.6-8-8-8l-152 0 0 40 8 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-64 0c-26.5 0-48-21.5-48-48l0-64c0-26.5 21.5-48 48-48l8 0 0-40-152 0c-4.4 0-8 3.6-8 8l0 32 8 0c26.5 0 48 21.5 48 48l0 64c0 26.5-21.5 48-48 48l-64 0c-26.5 0-48-21.5-48-48l0-64c0-26.5 21.5-48 48-48l8 0 0-32c0-30.9 25.1-56 56-56l152 0 0-40-8 0c-26.5 0-48-21.5-48-48l0-64z"],
+  "user-minus":[640,512,"M96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM0 482.3C0 383.8 79.8 304 178.3 304l91.4 0C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7L29.7 512C13.3 512 0 498.7 0 482.3zM472 200l144 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-144 0c-13.3 0-24-10.7-24-24s10.7-24 24-24z"],
   "hourglass-half":[384,512,"M32 0C14.3 0 0 14.3 0 32S14.3 64 32 64l0 11c0 42.4 16.9 83.1 46.9 113.1L146.7 256 78.9 323.9C48.9 353.9 32 394.6 32 437l0 11c-17.7 0-32 14.3-32 32s14.3 32 32 32l32 0 256 0 32 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l0-11c0-42.4-16.9-83.1-46.9-113.1L237.3 256l67.9-67.9c30-30 46.9-70.7 46.9-113.1l0-11c17.7 0 32-14.3 32-32s-14.3-32-32-32L320 0 64 0 32 0zM96 75l0-11 192 0 0 11c0 19-5.6 37.4-16 53L112 128c-10.3-15.6-16-34-16-53zm16 309c3.5-5.3 7.6-10.3 12.1-14.9L192 301.3l67.9 67.9c4.6 4.6 8.6 9.6 12.1 14.9L112 384z"],
   "calendar-days":[448,512,"M128 0c17.7 0 32 14.3 32 32l0 32 128 0 0-32c0-17.7 14.3-32 32-32s32 14.3 32 32l0 32 48 0c26.5 0 48 21.5 48 48l0 48L0 160l0-48C0 85.5 21.5 64 48 64l48 0 0-32c0-17.7 14.3-32 32-32zM0 192l448 0 0 272c0 26.5-21.5 48-48 48L48 512c-26.5 0-48-21.5-48-48L0 192zm64 80l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16zm128 0l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16zm144-16c-8.8 0-16 7.2-16 16l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0zM64 400l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16zm144-16c-8.8 0-16 7.2-16 16l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0zm112 16l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16z"],
   "arrow-trend-up":[576,512,"M384 160c-17.7 0-32-14.3-32-32s14.3-32 32-32l160 0c17.7 0 32 14.3 32 32l0 160c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-82.7L342.6 374.6c-12.5 12.5-32.8 12.5-45.3 0L192 269.3 54.6 406.6c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3l160-160c12.5-12.5 32.8-12.5 45.3 0L320 306.7 466.7 160 384 160z"],
@@ -4252,6 +4336,7 @@ const MiniStat = ({ l, v, c=P.text }) => (
 // Tap-or-hover popover: makes the hover-only tooltips reachable on touch screens
 function InfoDot({ text, label, children, style }) {
   const [open, setOpen] = useState(false);
+  const [pinned, setPinned] = useState(false); // opened by a click: stays open when the pointer leaves
   const [pos, setPos] = useState(null); // viewport coordinates, once measured
   const ref = useRef(null);
   const btnRef = useRef(null);
@@ -4259,7 +4344,7 @@ function InfoDot({ text, label, children, style }) {
 
   useEffect(() => {
     if (!open) return;
-    const away = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const away = e => { if (ref.current && !ref.current.contains(e.target)) { setOpen(false); setPinned(false); } };
     window.addEventListener("pointerdown", away);
     return () => window.removeEventListener("pointerdown", away);
   }, [open]);
@@ -4298,10 +4383,10 @@ function InfoDot({ text, label, children, style }) {
     <span ref={ref} style={{position:"relative",display:"inline-flex",alignItems:"center",...style}}>
       {children}
       <button ref={btnRef} className="btn dot" aria-label={label||"More information"} aria-expanded={open}
-        onClick={e => { e.stopPropagation(); setOpen(o=>!o); }}
-        onMouseEnter={()=>setOpen(true)} onMouseLeave={()=>setOpen(false)}
+        onClick={e => { e.stopPropagation(); if (pinned) { setPinned(false); setOpen(false); } else { setPinned(true); setOpen(true); } }}
+        onMouseEnter={()=>setOpen(true)} onMouseLeave={()=>{ if (!pinned) setOpen(false); }}
         style={{marginLeft:4,width:14,height:14,minWidth:14,borderRadius:"50%",border:`1px solid ${P.border}`,background:P.card,color:P.muted,fontSize:11,fontWeight:700,lineHeight:1,padding:0,display:"inline-flex",alignItems:"center",justifyContent:"center",cursor:"help",flexShrink:0}}>i</button>
-      {open && (
+      {open && (typeof document !== "undefined" ? createPortal(
         <span ref={tipRef} role="tooltip"
           style={{position:"fixed",
             left: pos ? pos.left : 0, top: pos ? pos.top : 0,
@@ -4311,8 +4396,7 @@ function InfoDot({ text, label, children, style }) {
             padding:"8px 10px",borderRadius:0,background:THEME_DARK?"#0b1220":"#1B2740",color:"#fff",
             fontSize:11.5,lineHeight:1.5,fontWeight:400,whiteSpace:"pre-wrap",overflowWrap:"anywhere",
             boxShadow:"none",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',textAlign:"left",
-            pointerEvents:"none"}}>{text}</span>
-      )}
+            pointerEvents:"none"}}>{text}</span>, document.body) : null)}
     </span>
   );
 }
@@ -4698,10 +4782,20 @@ function ProjectsModal({ gs, dispatch, onClose, panel }) {
       </div>
       {avail.length===0 && (
         <div style={{textAlign:"center",padding:32,color:P.muted}}>
-          <div style={{marginBottom:8,display:"flex",justifyContent:"center"}}><Icon name="magnifying-glass" size={24} color={P.muted}/></div>
+          <div style={{marginBottom:10,display:"flex",justifyContent:"center"}}><Icon name="folder-open" size={22} color={P.muted}/></div>
           {atCap
             ? `All ${cap} project slot${cap!==1?"s":""} in use, or recent calls are on cooldown. Hire Project Managers (up to the stage cap) and wait for new call rounds.`
-            : "Each category needs a specialist on staff (research → Analyst, comms → Communications Director, training → Training Coordinator, lobbying → Lobbyist, network → General Manager) and every call has its own enabling conditions. Hire, grow influence and members, expand, or evolve to unlock projects."}
+            : <>
+                <div style={{fontSize:13,color:P.text,fontWeight:600,marginBottom:10}}>No call is open to you yet</div>
+                <div style={{fontSize:12,marginBottom:10}}>Each kind of project needs its specialist:</div>
+                <Facts style={{justifyContent:"center",gap:"8px 16px"}} items={[
+                  {i:"magnifying-glass-chart", t:"Analyst", tip:"Research projects"},
+                  {i:"bullhorn", t:"Communications", tip:"Communications projects"},
+                  {i:"graduation-cap", t:"Training", tip:"Training projects"},
+                  {i:"landmark", t:"Lobbyist", tip:"Lobbying projects"},
+                  {i:"circle-nodes", t:"General Manager", tip:"Networking projects"},
+                ]}/>
+              </>}
         </div>
       )}
       <div style={{display:"grid",gap:10,maxHeight:panel?"none":"52vh",overflowY:panel?"visible":"auto",paddingRight:panel?0:4}}>
@@ -4749,57 +4843,50 @@ function StaffModal({ gs, dispatch, onClose, panel }) {
   const churnPct = Math.max(1, Math.round((6 - train*0.8 - hr*1)*10)/10);
   const infl     = Math.round((salaryInfl(gs.turn)-1)*100);
 
+  const [hoverRole, setHoverRole] = useState(null);
+  const detailRole = STAFF_ROLES.find(r => r.id === hoverRole);
   const body = (
     <>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:16}}>
-        <MiniStat l="Total Staff"    v={staffTotal(roster)}              c={P.purple}/>
-        <MiniStat l="Quarterly Cost" v={`-${fmt(staffCostQ(roster, gs.turn))}`}  c={P.red}/>
-        <MiniStat l="Churn Rate"     v={`${churnPct}%/quarter`}             c={P.blue}/>
-        <MiniStat l="Fail Risk"      v={`${failRate}%`}                 c={P.orange}/>
+      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+        <Facts items={[
+          {i:"users", t:`${staffTotal(roster)}`, tip:"Staff on the payroll"},
+          {i:"coins", t:`−${fmt(staffCostQ(roster, gs.turn))}/q`, tip:"Salaries a quarter"},
+          {i:"sitemap", t:`${visibleStaff(roster)}/${staffSpan(roster)}`, tip:"Management capacity: staff led, out of the most your managers can lead", color:visibleStaff(roster)>=staffSpan(roster)?P.redText:undefined},
+          {i:"user-minus", t:`${churnPct}%`, tip:"Members lost each quarter"},
+          {i:"triangle-exclamation", t:`${failRate}%`, tip:"Project failure risk"},
+        ]}/>
+        <InfoDot label="How staffing works" text={`Salaries are up ${infl}% since founding and rise 1% every quarter, for new hires and the whole payroll.\n\nThe General Manager leads 7 people; each Executive Director adds 7. At most 2 of each role, and exactly one General Manager.`}/>
       </div>
-      <div style={{fontSize:11.5,color:P.muted,marginBottom:6,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Salary inflation: labour costs are up {infl}% since founding and rise +1% every quarter, for new hires and the whole payroll.</div>
-      <div style={{fontSize:11.5,color:visibleStaff(roster)>=staffSpan(roster)?P.redText:P.muted,marginBottom:14,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Management capacity: {visibleStaff(roster)}/{staffSpan(roster)} (the GM manages 7; each Executive Director adds 7) · balance rule: max {roleCap(roster)} per role · exactly one General Manager.</div>
 
-      {visibleStaff(roster) <= 1 && (
-        <div style={{marginBottom:14}}><EmptyState icon="users" title="Just you and your General Manager" hint="Hire specialists below to unlock projects and grow: a Communications Director recruits members, a Project Manager cuts delivery risk, an Analyst runs research bids. The GM can supervise 7 people."/></div>
-      )}
       {roster.length > 0 && (
         <>
-          <Lbl t={`Current Team (${roster.length})`}/>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(230px,1fr))",gap:6,marginBottom:16}}>
+          <Lbl t={`Team (${roster.length})`}/>
+          <ul className="team">
             {STAFF_ROLES.filter(def => byRole(roster, def.id) > 0).map(def => {
               const idxs = roster.map((r,i)=>({r,i})).filter(x => x.r?.role === def.id);
               const count = idxs.length;
               // Firing releases the most recent hire of that role (cheapest severance first)
               const newest = idxs.reduce((a,b) => ((b.r.hiredTurn||0) >= (a.r.hiredTurn||0) ? b : a), idxs[0]);
-              const senior = ((gs.turn||0) - (newest.r.hiredTurn||0)) >= 12;
-              const sev = Math.round(roleCost(def, gs.turn) * (senior ? 2 : 1));
-              const seniors = idxs.filter(x => ((gs.turn||0) - (x.r.hiredTurn||0)) >= 12).length;
               return (
-                <div key={`team-${def.id}`} style={{background:P.card,borderRadius:0,padding:"9px 12px",border:`1px solid ${P.border}`,display:"flex",justifyContent:"space-between",alignItems:"center",gap:8}}>
-                  <div>
-                    <div style={{fontSize:12,fontWeight:700,color:P.text,display:"flex",alignItems:"center",gap:6}}>
-                      {def.icon && <Icon name={def.icon} size={13} color={P.purple}/>} {def.name}{count>1 && <span style={{color:P.accent,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>×{count}</span>}
-                      {seniors>0 && <span style={{display:"inline-flex",alignItems:"center",gap:2,fontSize:11,color:P.goldText,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}><Icon name="star" size={9} color={P.gold}/>{seniors}</span>}
-                    </div>
-                    <div style={{fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>-{fmt(roleCost(def, gs.turn)*count)}/quarter{count>1?" total":""}</div>
-                    <div title={idxs.map(x => `${x.r.name||"—"} · level ${skillOf(x.r)}`).join("\n")} style={{fontSize:11,color:P.muted,marginTop:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:210}}>
-                      {idxs.slice(0,2).map(x => `${(x.r.name||"—").split(" ")[0]} L${skillOf(x.r)}`).join(" · ")}{count>2?` · +${count-2} more`:""}
-                      {idxs.some(x=>skillOf(x.r)>=4) && <Icon name="star" size={8} color={P.gold} style={{marginLeft:4}}/>}
-                    </div>
-                  </div>
-                  {def.hidden
-                    ? <span style={{fontSize:11,padding:"3px 8px",borderRadius:0,border:`1px solid ${P.border}`,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>mandatory</span>
-                    : <button className="btn" title={count>1?"Releases the most recent hire (lowest severance)":""} onClick={() => dispatch({type:"fire",idx:newest.i})} style={{padding:"3px 9px",borderRadius:0,border:`1px solid ${P.red}`,background:"transparent",color:P.red,fontSize:11.5,whiteSpace:"nowrap"}}>Fire {count>1?"one ":""}-{fmt(sev)}</button>}
-                </div>
+                <li key={`team-${def.id}`} title={idxs.map(x => `${x.r.name||"—"}, level ${skillOf(x.r)}`).join("\n")}>
+                  <Icon name={def.icon||"user"} size={13} color={P.accent}/>
+                  <span className="nm">{def.name}{count>1 ? ` ×${count}` : ""}</span>
+                  <span className="tnum mu">−{fmt(roleCost(def, gs.turn)*count)}/q</span>
+                  {def.hidden || def.id === "manager"
+                    ? <span className="mu" style={{fontSize:11.5}}>required</span>
+                    : <button className="btn fire" onClick={() => dispatch({type:"fire",idx:newest.i})} title="Release the most recent hire">Release</button>}
+                </li>
               );
             })}
-          </div>
+          </ul>
         </>
       )}
 
-      <Lbl t="Hire Staff"/>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:10,maxHeight:panel?"none":"40vh",overflowY:panel?"visible":"auto"}}>
+      <div style={{display:"flex",alignItems:"baseline",justifyContent:"space-between",marginTop:18}}>
+        <Lbl t="Hire"/>
+        <span style={{fontSize:11.5,color:P.muted}}>Point at a role for details</span>
+      </div>
+      <div className="hire-grid" onMouseLeave={() => setHoverRole(null)}>
         {STAFF_ROLES.filter(r => !r.hidden).map(staffRole => {
           const price   = roleCost(staffRole, gs.turn);
           const blockReason = hireBlockReason(gs, staffRole.id);
@@ -4808,28 +4895,35 @@ function StaffModal({ gs, dispatch, onClose, panel }) {
           // Capture roleId in a stable variable so the handler dispatches the right role.
           const roleId  = staffRole.id;
           return (
-            <div key={`hire-${roleId}`} style={{background:P.card,borderRadius:0,padding:12,border:`1px solid ${P.border}`}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
-                <div><Icon name={staffRole.icon} size={17} color={P.purple}/></div>
-                {count > 0 && <span style={{fontSize:11,padding:"2px 7px",borderRadius:0,background:"transparent",color:P.purple,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{count}×</span>}
-              </div>
-              <div style={{fontWeight:700,fontSize:13,marginBottom:3,color:P.text}}>{staffRole.name}</div>
-              <div style={{fontSize:11.5,color:P.muted,marginBottom:8,lineHeight:1.5}}>{staffRole.desc}{blockReason && <span style={{display:"block",fontSize:11,color:P.redText,marginTop:4,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{blockReason}</span>}</div>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                <span style={{fontSize:13,fontWeight:700,color:P.red,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>-{fmt(price)}/quarter</span>
-                <button
-                  className="btn"
-                  disabled={!afford}
-                  onClick={() => dispatch({type:"hire",roleId})}
-                  style={{padding:"5px 12px",borderRadius:0,border:"none",background:afford?P.accent:P.bright,color:afford?P.card:P.muted,fontWeight:700,fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}
-                >
-                  Hire
-                </button>
-              </div>
-            </div>
+            <button key={`hire-${roleId}`} className="btn hire-tile" disabled={!afford}
+              onMouseEnter={() => setHoverRole(roleId)} onFocus={() => setHoverRole(roleId)}
+              onClick={() => dispatch({type:"hire",roleId})}
+              aria-label={`Hire ${staffRole.name} for ${fmt(price)} a quarter${blockReason ? `. ${blockReason}` : ""}`}>
+              {count > 0 && <span className="cnt">{count}</span>}
+              <Icon name={staffRole.icon} size={18} color={afford?P.accent:P.muted}/>
+              <span className="nm">{staffRole.name}</span>
+              <span className="tnum pr">{fmt(price)}/q</span>
+            </button>
           );
         })}
       </div>
+      {detailRole && <div className="hire-detail" aria-live="polite">
+        {(() => {
+          const why = hireBlockReason(gs, detailRole.id);
+          const price = roleCost(detailRole, gs.turn);
+          return (
+            <>
+              <div style={{display:"flex",justifyContent:"space-between",gap:8}}>
+                <span style={{fontWeight:600,color:P.text}}>{detailRole.name}</span>
+                <span className="tnum" style={{color:P.text,fontWeight:600}}>{fmt(price)} a quarter</span>
+              </div>
+              <div style={{marginTop:4}}>{detailRole.desc}</div>
+              {why ? <div style={{marginTop:4,color:P.redText}}>{why}</div>
+                : (gs.budget||0) < price*3 ? <div style={{marginTop:4,color:P.redText}}>Not enough money yet</div> : null}
+            </>
+          );
+        })()}
+      </div>}
     </>
   );
   if (panel) return <div style={{padding:"12px 14px 18px"}}>{body}</div>;
@@ -4848,91 +4942,82 @@ function RivalsModal({ gs, dispatch, onClose, panel }) {
   const rvPct  = Math.min(100-youPct, Math.round((rivalPressure(gs)/Math.max(1,marketPool(gs)))*100));
   const body = (
     <>
-      <div style={{fontSize:11.5,color:P.muted,marginBottom:10,lineHeight:1.5}}>Rival clusters race you to the Pan-European Cluster Network. Contain them, out-politick them, or buy them out: if every rival folds, you win by <strong style={{color:P.text}}>market consolidation</strong> — but collapsed rivals are eventually replaced by new entrants.</div>
+      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+        <span style={{fontSize:13,fontWeight:600,color:P.text}}>Member market</span>
+        <InfoDot label="How the rivalry works" text="Rival clusters race you to the Pan-European Cluster Network. Contain them, outmanoeuvre them politically, or buy them out. If every rival folds you win by market consolidation. Collapsed rivals are eventually replaced by new entrants.\n\nRecruitment slows as the member pool in your territory empties; expanding grows the pool."/>
+      </div>
       {(gs.coalitionUntil||0) > (gs.turn||0) && (
-        <div style={{background:"transparent",border:`1.5px solid ${P.red}`,borderRadius:0,padding:"8px 12px",marginBottom:10,display:"flex",gap:8,alignItems:"center"}}>
-          <span className="wiggle" style={{display:"inline-flex"}}><Icon name="triangle-exclamation" size={13} color={P.red}/></span>
-          <div style={{fontSize:11.5,color:P.redText,lineHeight:1.5}}><strong>RIVAL COALITION</strong> active for {(gs.coalitionUntil||0)-(gs.turn||0)} more quarters: their progress +10%, poaching +25%. Signing a consortium pact with any rival breaks it.</div>
+        <div style={{fontSize:12.5,color:P.redText,margin:"4px 0 8px",display:"flex",gap:7,alignItems:"center"}}>
+          <Icon name="triangle-exclamation" size={12} color={P.redText}/> Rivals have formed a coalition for {(gs.coalitionUntil||0)-(gs.turn||0)} more quarters
         </div>
       )}
-      <div style={{background:P.card,borderRadius:0,padding:"8px 12px",border:`1px solid ${P.border}`,marginBottom:12}}>
-        <div style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:5}}>Member market in your territory · {Math.round(share*100)}% claimed</div>
-        <div style={{display:"flex",height:8,borderRadius:0,overflow:"hidden",border:`1px solid ${P.border}`}}>
-          <div style={{width:`${youPct}%`,background:gs.sector?.color||P.accent}} title={`You: ${gs.members||0} members`}/>
-          <div style={{width:`${rvPct}%`,background:P.red,opacity:.7}} title="Rival pressure"/>
-          <div style={{flex:1,background:P.bg}} title="Untapped market"/>
-        </div>
-        <div style={{fontSize:11,color:P.muted,marginTop:4,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>you {youPct}% · rivals {rvPct}% · open {Math.max(0,100-youPct-rvPct)}% — recruitment slows as the pool empties; expansion grows the pool</div>
+      <div className="mkt" title={`You ${youPct}%, rivals ${rvPct}%, open ${Math.max(0,100-youPct-rvPct)}%`}>
+        <span style={{width:`${youPct}%`,background:P.accent}}/><span style={{width:`${rvPct}%`,background:P.red,opacity:.75}}/>
       </div>
-      {(gs.rivals||[]).length===0 && <div style={{textAlign:"center",padding:24,color:P.goldText,fontWeight:700}}>No rivals remain. The market is yours.</div>}
-      <div style={{display:"grid",gap:10}}>
+      <Facts style={{marginTop:6}} items={[
+        {i:"users", t:`you ${youPct}%`, tip:"Share of the member market you hold"},
+        {i:"chess-knight", t:`rivals ${rvPct}%`, tip:"Share pressed by rivals"},
+        {i:"seedling", t:`open ${Math.max(0,100-youPct-rvPct)}%`, tip:"Members nobody has recruited yet"},
+      ]}/>
+      {(gs.rivals||[]).length===0 && <div style={{padding:"24px 0",color:P.accent,fontWeight:600}}>No rivals remain. The market is yours.</div>}
+      <div style={{marginTop:14}}>
         {(gs.rivals||[]).map(rv => {
           const arch = archOf(rv);
           const shared = sharedCountries(gs, rv);
           const truce = (rv.truce||0) > (gs.turn||0);
-          const seatsHeldByRv = SEATS.filter(st => (gs.rivalSeats||{})[st.id]===rv.id);
           const hp = Math.max(0, Math.min(100, rv.health ?? 70));
-          // Threat: rival is at/above your stage, or close behind and near a stage-up, or contests you
+          // Threat: rival is at/above your stage, or close behind and near a stage-up
           const rvRank = (rv.stage||0)*100 + (rv.progress||0);
           const myRank = (gs.stage||0)*100 + (gs.stageProgress||0);
           const ahead = rvRank >= myRank;
           const closing = !ahead && (rv.stage||0) >= (gs.stage||0) && (rv.progress||0) >= 75;
-          const threat = !truce && (ahead || closing || shared.length > 0);
-          const threatBorder = threat ? (ahead ? P.red : P.orange) : `${rv.color}44`;
+          const status = truce ? ["Truce", P.greenText] : ahead ? ["Ahead of you", P.redText] : closing ? ["Closing in", P.orange] : null;
           return (
-            <div key={rv.id} className={threat ? "threat-pulse" : undefined} style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${threatBorder}`,"--threat":threat?(ahead?P.red:P.orange):"transparent"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,flexWrap:"wrap"}}>
-                <div style={{display:"flex",alignItems:"center",gap:7}}>
-                  <span style={{width:9,height:9,borderRadius:0,background:rv.color,display:"inline-block"}}/>
-                  <span style={{fontWeight:700,fontSize:13,color:P.text}}>{rv.name}</span>
-                  <span style={{fontSize:11,padding:"2px 7px",borderRadius:0,border:`1px solid ${rv.color}55`,color:rv.color,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{arch.label}</span>
-                  {truce && <span style={{fontSize:11,padding:"2px 7px",borderRadius:0,border:`1px solid ${P.green}`,background:"transparent",color:P.greenText,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>TRUCE until Q{rv.truce}</span>}
-                  {threat && !truce && <span className="wiggle" style={{fontSize:11,padding:"2px 7px",borderRadius:0,border:`1px solid ${ahead?P.red:P.orange}`,background:`${ahead?P.red:P.orange}12`,color:ahead?P.redText:P.orange,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',display:"inline-flex",alignItems:"center",gap:3}}><Icon name="triangle-exclamation" size={8} color={ahead?P.red:P.orange}/>{ahead?"AHEAD OF YOU":"THREAT"}</span>}
-                </div>
-                <span style={{fontSize:11,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{STAGES[rv.stage]?.name} · {rv.members||0} members · {(rv.countries||[]).length} countr{(rv.countries||[]).length===1?"y":"ies"}</span>
+            <section key={rv.id} className="rival">
+              <div className="rv-head">
+                <span className="sw" style={{background:rv.color}}/>
+                <span className="nm" title={rv.name}>{rv.name}</span>
+                {status && <span className="tag" style={{color:status[1]}}>{status[0]}</span>}
               </div>
-              <div style={{fontSize:11,color:P.muted,margin:"4px 0 7px"}}>{arch.blurb}{shared.length>0 && <> · <span style={{color:P.redText}}>contests you in {shared.join(", ")}</span></>}{seatsHeldByRv.length>0 && <> · <span style={{color:P.goldText}}>holds: {seatsHeldByRv.map(s=>s.label).join(", ")}</span></>}</div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
-                <div>
-                  <div style={{fontSize:11,color:P.muted,marginBottom:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>progress to next stage</div>
-                  <div style={{height:5,background:P.bg,borderRadius:0,overflow:"hidden"}}><div style={{width:`${Math.min(100,rv.progress||0)}%`,height:"100%",background:rv.color}}/></div>
-                </div>
-                <div>
-                  <div style={{fontSize:11,color:P.muted,marginBottom:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>health {Math.round(hp)}{hp<=25 && <span style={{color:P.redText}}> · collapsing — acquirable</span>}</div>
-                  <div style={{height:5,background:P.bg,borderRadius:0,overflow:"hidden"}}><div style={{width:`${hp}%`,height:"100%",background:hp>60?P.green:hp>30?P.orange:P.red}}/></div>
-                </div>
+              <Facts style={{marginTop:6}} items={[
+                {i:"chess-knight", t:arch.label, tip:arch.blurb},
+                {i:"flag", t:STAGES[rv.stage]?.name, tip:"Stage"},
+                {i:"users", t:`${rv.members||0}`, tip:"Members"},
+                {i:"earth-europe", t:`${(rv.countries||[]).length}`, tip:"Countries"},
+                shared.length>0 && {i:"triangle-exclamation", t:shared.map(c=>NAME_TO_ISO[c]||c).join(", "), tip:`Contests you in ${shared.join(", ")}`, color:P.redText},
+              ]}/>
+              <div className="rv-bars">
+                <span title={`Progress to their next stage: ${Math.round(rv.progress||0)}%`}><Icon name="arrow-up-right-dots" size={11} color={P.muted}/><span className="bar"><span style={{width:`${Math.min(100,rv.progress||0)}%`,background:rv.color}}/></span></span>
+                <span title={`Health ${Math.round(hp)}${hp<=25?", weak enough to buy out":""}`}><Icon name="heart-pulse" size={11} color={P.muted}/><span className="bar"><span style={{width:`${hp}%`,background:hp>60?P.green:hp>30?P.orange:P.red}}/></span></span>
               </div>
-              {(rv.scoutedUntil||0) > (gs.turn||0) && (() => {
-                const owned = new Set(rv.countries||[]);
-                const target = (NUTS_BORDERS[NAME_TO_ISO[rv.country]]||[]).map(iso => ISO_TO_NAME[iso]).find(n => n && !owned.has(n));
-                return (
-                  <div style={{fontSize:11,color:P.tealText||P.blue,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',margin:"4px 0",padding:"4px 8px",background:"transparent",borderRadius:0,border:`1px dashed ${P.blue}44`}}>
-                    <Icon name="magnifying-glass-chart" size={9} color={P.blue}/> INTEL ({(rv.scoutedUntil||0)-(gs.turn||0)}Q): progress {Math.round(rv.progress||0)}% to {STAGES[Math.min(5,(rv.stage||0)+1)]?.name} · next target: {target||"consolidating home market"} · poaching blunted −15%
-                  </div>
-                );
-              })()}
-              <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+              {(rv.scoutedUntil||0) > (gs.turn||0) && (
+                <div style={{fontSize:12,color:P.muted,marginTop:6}}>
+                  <Icon name="magnifying-glass-chart" size={11} color={P.muted}/> Intel for {(rv.scoutedUntil||0)-(gs.turn||0)} q: {Math.round(rv.progress||0)}% to {STAGES[Math.min(5,(rv.stage||0)+1)]?.name}
+                </div>
+              )}
+              <div className="ops">
                 {Object.entries(RIVAL_OPS).map(([opId, op]) => {
                   const cost = op.cost(gs, rv);
                   const ready = opReady(gs, rv.id, opId);
                   const cdLeft = Math.max(0, ((gs.rivalOps||{})[`${rv.id}:${opId}`]||0) - (gs.turn||0));
-                  const blocked = !ready ? `available in ${cdLeft}Q`
-                    : (gs.budget||0) < cost ? "insufficient funds"
+                  const blocked = !ready ? `available in ${cdLeft} quarters`
+                    : (gs.budget||0) < cost ? "not enough money"
                     : opId==="pact" && (gs.prestige||0) < 50 ? "needs influence 50+"
                     : opId==="pact" && truce ? "truce already active"
-                    : opId==="acquire" && hp > 25 ? "target too healthy (health ≤ 25)"
+                    : opId==="acquire" && hp > 25 ? "only when their health is 25 or less"
                     : null;
                   const type = { raid:"rivalRaid", pr:"rivalPR", pact:"rivalPact", acquire:"rivalAcquire", scout:"rivalScout" }[opId];
                   return (
-                    <button key={opId} className="btn" disabled={!!blocked} title={blocked || op.desc}
-                      onClick={() => dispatch({type, rid:rv.id})}
-                      style={{padding:"5px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:blocked?P.muted:P.text,fontSize:11.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',display:"inline-flex",alignItems:"center",gap:5}}>
-                      <Icon name={op.icon} size={10} color={blocked?P.muted:P.text}/>{op.label} · {fmt(cost)}
+                    <button key={opId} className="btn op" disabled={!!blocked} title={`${op.label}: ${blocked || op.desc}`}
+                      aria-label={`${op.label}, ${fmt(cost)}${blocked ? `, ${blocked}` : ""}`}
+                      onClick={() => dispatch({type, rid:rv.id})}>
+                      <Icon name={op.icon} size={13} color={blocked?P.muted:P.accent}/>
+                      <span className="tnum">{fmt(cost)}</span>
                     </button>
                   );
                 })}
               </div>
-            </div>
+            </section>
           );
         })}
       </div>
@@ -4940,7 +5025,7 @@ function RivalsModal({ gs, dispatch, onClose, panel }) {
   );
   if (panel) return <div style={{padding:"12px 14px 18px"}}>{body}</div>;
   return (
-    <Modal title="Rival Clusters" icon="chess-knight" iconColor={P.red} onClose={onClose} width={700}>{body}</Modal>
+    <Modal title="Rivals" icon="chess-knight" onClose={onClose} width={700}>{body}</Modal>
   );
 }
 
@@ -4976,33 +5061,40 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
 
   const body = (
     <>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:16}}>
-        <div style={{background:P.card,borderRadius:0,padding:12,border:`1px solid ${P.border}`,gridColumn:"1 / -1"}}>
-          <Lbl t={`Your Network · ${(gs.regions||[]).length} regions in ${(gs.countries||[]).length}/${countryCap(gs)} countries`}/>
-          <div style={{display:"flex",flexWrap:"wrap",gap:4,maxHeight:120,overflowY:"auto"}}>
-            {(gs.countries||[]).map(c => {
-              const total  = (EU_COUNTRIES[c]||[]).length;
-              const active = (EU_COUNTRIES[c]||[]).filter(n => (gs.regions||[]).includes(regionLabelFor(gs, c, n))).length;
-              const full   = (gs.fullCountries||[]).includes(c);
-              const home   = c === gs.country;
-              const col    = full ? P.goldText : home ? P.goldText : darkHex(sc);
-              const bg     = full ? `${P.gold}20` : home ? `${P.gold}12` : `${sc}14`;
-              return (
-                <span key={c} title={`${c}: ${active}/${total} regions active${full?" · fully covered":""}`}
-                  style={{fontSize:11.5,padding:"2px 8px",borderRadius:0,background:bg,border:`1px solid ${full?P.gold:home?`${P.gold}66`:`${sc}33`}`,color:col,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
-                  {NAME_TO_ISO[c]||c} {active}/{total}{full && " ●"}{home && <Icon name="star" size={8} color={P.goldText} style={{marginLeft:3}}/>}
-                </span>
-              );
-            })}
-          </div>
-          <div style={{fontSize:11,color:P.muted,marginTop:5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>● fully covered · ★ home country · activate every region of a country for a national coverage bonus</div>
-        </div>
+      <Facts items={[
+        {i:"location-dot", t:`${(gs.regions||[]).length} regions`, tip:"Regions with an office"},
+        {i:"earth-europe", t:`${(gs.countries||[]).length}/${countryCap(gs)} countries`, tip:"Countries held, out of the most your stage allows"},
+        gs.stage >= 1 && {i:"building", t:`${fmt(rCost)}/office`, tip:"Cost of a new regional office"},
+        gs.stage >= 2 && {i:"flag", t:`${fmt(cCost)}/country`, tip:"Cost of entering a new country"},
+      ]}/>
+      <div style={{fontSize:12,color:P.muted,margin:"8px 0 2px",display:"flex",alignItems:"center",gap:7}}>
+        <Icon name="map-location-dot" size={12} color={P.accent}/> Or click any region on the map
       </div>
 
+      <ul className="net-list">
+        {(gs.countries||[]).map(c => {
+          const total  = (EU_COUNTRIES[c]||[]).length;
+          const active = (EU_COUNTRIES[c]||[]).filter(n => (gs.regions||[]).includes(regionLabelFor(gs, c, n))).length;
+          const full   = (gs.fullCountries||[]).includes(c);
+          const home   = c === gs.country;
+          return (
+            <li key={c} title={full ? "Every region held: national coverage bonus" : "Hold every region for a national coverage bonus"}>
+              <Icon name={home ? "star" : full ? "check" : "location-dot"} size={11} color={home||full ? P.accent : P.muted}/>
+              <span className="nm">{c}</span>
+              <span className="bar"><span style={{width:`${total ? active/total*100 : 0}%`}}/></span>
+              <span className="tnum mu">{active}/{total}</span>
+            </li>
+          );
+        })}
+      </ul>
+
       {gs.stage >= 1 && avR.length > 0 && (
-        <div style={{marginBottom:16}}>
-          <div style={{fontWeight:700,fontSize:13,marginBottom:4,color:P.text}}>Expand to New Region · <span style={{color:P.red}}>{fmt(rCost)}</span>{(gs.seats||{}).regional && <span style={{fontSize:11,color:P.goldText,marginLeft:6}}>−25% S3 Committee seat</span>}</div>
-          <div style={{fontSize:11.5,color:P.muted,marginBottom:8}}>Cost scales with influence · Stage 1+ required · every new region hires a mandatory Regional Coordinator ({fmt(coordSalary)}/quarter) and adds +4% coordination overhead.</div>
+        <div style={{marginTop:18}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+            <span style={{fontSize:13,fontWeight:600,color:P.text}}>Open an office</span>
+            <span className="tnum" style={{fontSize:12,color:P.muted}}>{fmt(rCost)}</span>
+            <InfoDot label="About regional offices" text={`Cost rises with influence. Each new region adds a Regional Coordinator at ${fmt(coordSalary)} a quarter.${(gs.seats||{}).regional ? "\n\nYour Regional seat gives 25% off." : ""}`}/>
+          </div>
           {(() => {
             const byCountry = {};
             avR.forEach(o => { (byCountry[o.c] = byCountry[o.c] || []).push(o); });
@@ -5011,18 +5103,18 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
             return (
               <>
                 {cs.length > 1 && (
-                  <div style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:8}}>
+                  <div className="seg" role="group" aria-label="Country" style={{gridTemplateColumns:`repeat(${Math.min(cs.length,4)},1fr)`,marginBottom:8}}>
                     {cs.map(c => (
-                      <button key={c} className="btn" onClick={() => setRegCountry(c)} aria-pressed={selC===c}
-                        style={{padding:"3px 9px",borderRadius:0,fontSize:11.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',border:`1px solid ${selC===c?P.accent:P.border}`,background:selC===c?`${P.accent}0d`:"transparent",color:selC===c?P.accent:P.muted}}>
-                        {NAME_TO_ISO[c]||c} · {byCountry[c].length}
-                      </button>
+                      <button key={c} className="btn" onClick={() => setRegCountry(c)} aria-pressed={selC===c}>{c}</button>
                     ))}
                   </div>
                 )}
-                <div style={{display:"flex",flexWrap:"wrap",gap:6,maxHeight:150,overflowY:"auto"}}>
+                <div className="ops">
                   {(byCountry[selC]||[]).map(o => (
-                    <button key={`${o.c}-${o.n}`} className="btn" disabled={budget<rCost} onClick={() => dispatch({type:"expandRegion",region:regionLabel(o),cost:rCost})} style={{padding:"5px 12px",borderRadius:0,border:`1px solid ${sc}44`,background:"transparent",color:budget<rCost?P.muted:darkHex(sc),fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>+ {o.n}</button>
+                    <button key={`${o.c}-${o.n}`} className="btn op" disabled={budget<rCost} title={budget<rCost ? `Needs ${fmt(rCost)}` : `Open an office in ${o.n}`}
+                      onClick={() => dispatch({type:"expandRegion",region:regionLabel(o),cost:rCost})}>
+                      <Icon name="plus" size={10} color={budget<rCost?P.muted:P.accent}/>{o.n}
+                    </button>
                   ))}
                 </div>
               </>
@@ -5032,33 +5124,44 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
       )}
 
       {gs.stage >= 2 && avC.length > 0 && (
-        <div>
-          <div style={{fontWeight:700,fontSize:13,marginBottom:4,color:P.text}}>Expand to New Country · <span style={{color:P.red}}>{fmt(cCost)}</span>{(gs.seats||{}).national && <span style={{fontSize:11,color:P.goldText,marginLeft:6}}>−20% National Platform seat</span>}</div>
-          <div style={{fontSize:11.5,color:P.muted,marginBottom:8}}>Cost scales with influence · Stage 2+ required · only countries <strong style={{color:P.text}}>bordering your network</strong> (incl. ferry links) are open · international reach {String((gs.countries||[]).length)}/{capC} at this stage · every new country hires a mandatory Country Manager ({fmt(mgrSalary)}/quarter) and raises failure & event risk.</div>
-          <div style={{display:"flex",flexWrap:"wrap",gap:6,maxHeight:200,overflowY:"auto"}}>
+        <div style={{marginTop:18}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+            <span style={{fontSize:13,fontWeight:600,color:P.text}}>Enter a country</span>
+            <span className="tnum" style={{fontSize:12,color:P.muted}}>{fmt(cCost)}</span>
+            <InfoDot label="About entering a country" text={`Only countries bordering your network, including ferry links. Each adds a Country Manager to the payroll. Countries where a rival operates cost half as much again.${(gs.seats||{}).national ? "\n\nYour National seat gives 20% off." : ""}`}/>
+          </div>
+          <div className="ops">
             {avC.map(c => {
               const contested = occupied.has(c);
               const cost = contested ? Math.round(cCost*1.5) : cCost;
               return (
-                <button key={c} className="btn" disabled={budget<cost} onClick={() => dispatch({type:"expandCountry",country:c,cost})} style={{display:"inline-flex",alignItems:"center",gap:5,padding:"5px 12px",borderRadius:0,border:`1px solid ${contested?P.red:P.gold}44`,background:"transparent",color:budget<cost?P.muted:contested?P.redText:P.goldText,fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>+ {c}{contested && <Icon name="chess-knight" size={10} color={P.orange} title="Rival present: cost ×1.5"/>}</button>
+                <button key={c} className="btn op" disabled={budget<cost} onClick={() => dispatch({type:"expandCountry",country:c,cost})}
+                  title={`${c}: ${fmt(cost)}${contested ? ", contested by a rival" : ""}`}>
+                  <Icon name={contested ? "triangle-exclamation" : "plus"} size={10} color={budget<cost ? P.muted : contested ? P.redText : P.accent}/>{c}
+                  {contested && <span className="tnum" style={{color:P.muted}}>{fmt(cost)}</span>}
+                </button>
               );
             })}
           </div>
         </div>
       )}
-
       {gs.stage >= 2 && atCap && (gs.countries||[]).length < 27 && (
-        <div style={{fontSize:11.5,color:P.goldText,marginTop:6,fontWeight:600}}>International reach {String((gs.countries||[]).length)}/{capC}: a {STAGES[gs.stage]?.name} can credibly operate in at most {capC} countries — evolve to expand further.</div>
+        <div style={{fontSize:12,color:P.muted,marginTop:12,display:"flex",gap:7,alignItems:"center"}}><Icon name="lock" size={11} color={P.muted}/> Your stage allows {capC} countries; evolve to hold more</div>
       )}
       {gs.stage >= 2 && !atCap && avC.length===0 && Object.keys(EU_COUNTRIES).some(c => !(gs.countries||[]).includes(c)) && (
-        <div style={{fontSize:11.5,color:P.muted,marginTop:6}}>No unclaimed country currently borders your network.</div>
+        <div style={{fontSize:12,color:P.muted,marginTop:12}}>No unclaimed country borders your network yet.</div>
       )}
-      {gs.stage < 1 && <div style={{textAlign:"center",padding:28,color:P.muted}}>Reach Cluster Organisation (Stage 1) to expand geographically.</div>}
+      {gs.stage < 1 && (
+        <div style={{textAlign:"center",padding:"28px 8px",color:P.muted,fontSize:12.5}}>
+          <div style={{marginBottom:8}}><Icon name="lock" size={18} color={P.muted}/></div>
+          Expansion opens at {STAGES[1].name}
+        </div>
+      )}
     </>
   );
   if (panel) return <div style={{padding:"12px 14px 18px"}}>{body}</div>;
   return (
-    <Modal title="Geographic Network" icon="earth-europe" iconColor={P.teal} onClose={onClose} width={680}>{body}</Modal>
+    <Modal title="Network" icon="earth-europe" onClose={onClose} width={680}>{body}</Modal>
   );
 }
 
@@ -5072,33 +5175,36 @@ function EvolveModal({ gs, dispatch, onClose }) {
   const cost  = evolveCost(gs.stage);
   const stage = STAGES[gs.stage] || STAGES[0];
   const next  = STAGES[Math.min(5, gs.stage+1)];
+  const met   = reqs.filter(r => r.ok).length;
+  const num   = v => typeof v === "number" ? v : parseFloat(v) || 0;
   return (
-    <Modal title="Stage Evolution" icon="rocket" iconColor={P.gold} onClose={onClose} width={520}>
-      <div style={{textAlign:"center",marginBottom:20}}>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:16}}>
-          <div style={{padding:"8px 16px",borderRadius:0,background:`${stage.color}18`,border:`1px solid ${stage.color}44`,color:stage.color,fontSize:14,fontWeight:700}}>{stage.name}</div>
-          <Icon name="arrow-right" size={20} color={P.muted}/>
-          <div style={{padding:"8px 16px",borderRadius:0,background:`${next.color}18`,border:`1px solid ${next.color}44`,color:next.color,fontSize:14,fontWeight:700}}>{next.name}</div>
-        </div>
+    <Modal title="Next stage" icon="arrow-up-right-dots" onClose={onClose} width={520}>
+      <div className="evo-head">
+        <div><div className="mu">Now</div><div className="st">{stage.name}</div></div>
+        <Icon name="arrow-right" size={16} color={P.muted}/>
+        <div><div className="mu">Next</div><div className="st" style={{color:P.accent}}>{next.name}</div></div>
+        <div style={{marginLeft:"auto",textAlign:"right"}}><div className="mu">Goals met</div><div className="st tnum">{met}/{reqs.length}</div></div>
       </div>
-      <Lbl t="Requirements"/>
-      <div style={{display:"grid",gap:6,marginBottom:16}}>
-        {reqs.map((r,i) => (
-          <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 12px",borderRadius:0,background:r.ok?`${P.green}12`:`${P.red}10`,border:`1px solid ${r.ok?P.green:P.red}44`}}>
-            <span style={{fontSize:12,color:r.ok?P.green:P.red,display:"inline-flex",alignItems:"center",gap:5}}><Icon name={r.ok?"check":"xmark"} size={11} color={r.ok?P.green:P.red}/> {r.l}</span>
-            <span style={{fontSize:12,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:r.ok?P.green:P.red}}>{r.money?fmt(r.cur):r.cur} / {r.money?fmt(r.req):r.req}</span>
-          </div>
-        ))}
-      </div>
-      <div style={{padding:"10px 14px",borderRadius:0,background:P.card,border:`1px solid ${P.border}`,marginBottom:16,fontSize:11,color:P.muted}}>
-        Evolution cost: <strong style={{color:P.red}}>{fmt(cost)}</strong>
-      </div>
-      <button className="btn" disabled={!ok} onClick={() => { dispatch({type:"evolve"}); onClose(); }} style={{width:"100%",padding:13,borderRadius:0,border:"none",background:ok?`linear-gradient(135deg,${stage.color},${next.color})`:P.bright,color:ok?"#fff":P.muted,fontWeight:700,fontSize:15,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
-        {ok ? <><Icon name="rocket" size={15} color={P.onAccent} style={{marginRight:7}}/>Evolve Now</> : "Requirements Not Met"}
+      <ul className="evo-reqs">
+        {reqs.map((r,i) => {
+          const pct = r.ok ? 100 : Math.max(0, Math.min(100, num(r.req) > 0 ? num(r.cur) / num(r.req) * 100 : 0));
+          return (
+            <li key={i} className={r.ok ? "ok" : ""}>
+              <Icon name={r.ok ? "check" : "circle"} size={11} color={r.ok ? P.greenText : P.muted}/>
+              <span className="nm">{r.l}</span>
+              <span className="tnum v">{r.money ? fmt(r.cur) : r.cur} / {r.money ? fmt(r.req) : r.req}</span>
+              <span className="bar"><span style={{width:`${pct}%`,background:r.ok ? P.green : P.accent}}/></span>
+            </li>
+          );
+        })}
+      </ul>
+      <button className="btn evo-go" disabled={!ok} onClick={() => { dispatch({type:"evolve"}); onClose(); }}>
+        {ok ? `Become ${next.name} for ${fmt(cost)}` : `Costs ${fmt(cost)} once every goal is met`}
       </button>
     </Modal>
   );
 }
+
 
 /* ═══════════════════════════════════════════════════════════
    LOG MODAL
@@ -5416,7 +5522,7 @@ function RulesModal({ onClose }) {
         <T>Publicly funded projects don't hand you their volume — <B>you finance the delivery</B> in equal quarterly instalments. Interim payments reimburse 70% as you go; on success the final payment settles the balance <B>plus a margin</B> (local ~15% → EU ~32%, improved by seats, PMs, S3 alignment and difficulty). On failure an audit claws you back to 60% of costs — a real loss. Every call shows its cash-flow deal and enabling conditions (members, influence, board, liquidity…) before you commit. Membership fees are your steady income; salaries inflate +1% every quarter.</T>
 
         <H t="Team rules"/>
-        <T><B>One General Manager</B>, always. The GM manages up to 7 staff; each <B>Executive Director adds 7</B> (span of control). Balance rule: no role may exceed a third of the visible team. Legal Counsel is required to evolve past Stage 2 (1/2/3). Expanding hires <B>mandatory office staff</B> — a Regional Coordinator per region, a Country Manager per country — who can never be dismissed while the office exists.</T>
+        <T><B>One General Manager</B>, always. The GM manages up to 7 staff; each <B>Executive Director adds 7</B> (span of control). Balance rule: no role may exceed a third of the visible team. Legal Counsel is required to evolve past Stage 2 (1/2/3). Expanding hires <B>mandatory office staff</B> — a Regional Coordinator per region, a Country Manager per country — who can never be dismissed while the office exists. To hire, you need <B>three quarters of the new salary</B> in the treasury.</T>
 
         <H t="Network & geography"/>
         <T>Expand region by region across a real NUTS-2 map. New countries must <B>border your network</B> (ferry links count), and international reach is capped by maturity: a National Association manages <B>3</B> countries, a Cross-Border Metacluster <B>9</B>, an EU Platform <B>19</B>. Activating every region of a country earns a <B>national coverage bonus</B> (halved while a rival operates there). Each office adds coordination overhead and risk.</T>
@@ -5747,15 +5853,15 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
             </>
           )}
         </div>
-        <div style={{textAlign:"center",marginTop:12,display:"flex",justifyContent:"center",gap:8}}>
-          <button className="btn" onClick={onTheme} title="Toggle dark mode" style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,display:"inline-flex",alignItems:"center"}}>
-            <Icon name={dark?"sun":"moon"} size={12} color={P.muted}/>
+        {/* Quiet links under the setup card: how to play, and the theme */}
+        <div style={{display:"flex",alignItems:"center",gap:20,marginTop:16,paddingLeft:2}}>
+          <button className="btn link" onClick={() => setShowRules(true)}>
+            <Icon name="circle-question" size={13} color={P.accent}/> How to play
           </button>
-          <button className="btn" onClick={() => setShowRules(true)} style={{padding:"6px 16px",borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.blue,fontSize:11,fontWeight:700,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',display:"inline-flex",alignItems:"center",gap:6}}>
-            <Icon name="circle-question" size={12} color={P.blue}/> How to Play · Game Rules
+          <button className="btn link" onClick={onTheme} aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}>
+            <Icon name={dark?"sun":"moon"} size={13} color={P.accent}/> {dark ? "Light mode" : "Dark mode"}
           </button>
         </div>
-        <div style={{textAlign:"center",marginTop:10,fontSize:11,color:P.muted,opacity:.65,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',letterSpacing:0}}>vibecoded by DDE</div>
         {showRules && <RulesModal onClose={() => setShowRules(false)}/>}
       </div>
       </div>
@@ -6372,42 +6478,39 @@ function GameOver({ gs, onRestart }) {
   return (
     <div style={{height:"100vh",background:P.bg,display:"flex",alignItems:"center",justifyContent:"center",color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',padding:20,overflowY:"auto"}}>
       <div style={{textAlign:"center",maxWidth:620,maxHeight:"100%",overflowY:"auto",padding:"20px 4px"}}>
-        <div style={{marginBottom:16,display:"flex",justifyContent:"center"}}><Icon name={won?"trophy":rival?"flag":"money-bill-wave"} size={64} color={won?P.gold:rival?P.red:P.muted}/></div>
-        {gs.clusterName ? <div style={{fontSize:13,fontWeight:700,color:P.muted,marginBottom:6}}>{gs.clusterName}</div> : null}
-        <h1 style={{fontSize:44,fontWeight:700,color:won?P.accent:P.red,marginBottom:12,letterSpacing:-1}}>
-          {won ? (gs.winType==="consolidation" ? "Market Consolidation!" : "Pan-European Cluster Network!") : rival ? `Outpaced by ${rival}` : "Cluster Dissolved"}
+        <div style={{marginBottom:14,display:"flex",justifyContent:"center"}}><Icon name={won?"trophy":rival?"flag":"money-bill-wave"} size={40} color={won?P.accent:P.muted}/></div>
+        {gs.clusterName ? <div style={{fontSize:13,fontWeight:500,color:P.muted,marginBottom:6}}>{gs.clusterName}</div> : null}
+        <h1 style={{fontSize:34,fontWeight:700,color:P.text,margin:"0 0 10px",letterSpacing:-1,lineHeight:1.1}}>
+          {won ? (gs.winType==="consolidation" ? "Market consolidated" : "Pan-European Cluster Network") : rival ? `Outpaced by ${rival}` : "Cluster dissolved"}
         </h1>
-        <p style={{fontSize:14,color:P.muted,marginBottom:30,lineHeight:1.7}}>
+        <p style={{fontSize:14,color:P.muted,margin:"0 auto 26px",lineHeight:1.6,maxWidth:"48ch"}}>
           {won
             ? `You unified all EU clusters after ${gs.turn} quarters (${yrs} years). The ${gs.sector?.name||""} sector now speaks with one European voice.`
             : rival
             ? `${rival} formed a Pan-European Cluster Network after ${gs.turn} quarters while you reached ${STAGES[gs.stage]?.name||""}. Europe consolidated without you.`
             : `Your cluster ran out of resources after ${gs.turn} quarters. Final stage: ${STAGES[gs.stage]?.name||""}.`}
         </p>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:30}}>
+        <dl className="end-figs">
           {[
-            [fmt(gs.budget||0),           "Final Budget",     P.accent],
-            [fmtN(gs.members||0),         "Members",          P.gold],
-            [STAGES[gs.stage]?.name||"",  "Final Stage",      STAGES[gs.stage]?.color||P.text],
-            [(gs.completedProjects||[]).length+"","Projects Done",P.blue],
-            [(gs.countries||[]).length+" countries","Network", P.teal],
-            [gs.turn+"Q / "+yrs+"yrs",    "Total Time",       P.muted],
-            [fmt(gs.peak?.budget||gs.budget||0), "Peak Treasury", P.green],
-            [(gs.rivalsGone||0)+"",       "Rivals Eliminated", P.red],
-            [seatsHeld(gs)+" / 3",        "Seats Held",       P.purple],
-          ].map(([v,l,c]) => (
-            <div key={l} style={{background:P.panel,borderRadius:0,padding:"14px 12px",border:`1px solid ${P.border}`}}>
-              <div style={{fontSize:18,fontWeight:700,color:c,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{v}</div>
-              <div style={{fontSize:11,color:P.muted,marginTop:4,letterSpacing:0}}>{l}</div>
-            </div>
+            ["coins",            fmt(gs.budget||0),                   "Final treasury"],
+            ["users",            fmtN(gs.members||0),                 "Members"],
+            ["flag",             STAGES[gs.stage]?.name||"",          "Final stage"],
+            ["check-double",     (gs.completedProjects||[]).length+"", "Projects done"],
+            ["earth-europe",     (gs.countries||[]).length+"",         "Countries"],
+            ["hourglass-half",   `${yrs} years`,                      `${gs.turn} quarters`],
+            ["arrow-trend-up",   fmt(gs.peak?.budget||gs.budget||0),  "Peak treasury"],
+            ["chess-knight",     (gs.rivalsGone||0)+"",               "Rivals gone"],
+            ["landmark",         seatsHeld(gs)+"/3",                  "Seats held"],
+          ].map(([ic,v,l]) => (
+            <div key={l}><dt><Icon name={ic} size={12} color={P.muted}/>{l}</dt><dd>{v}</dd></div>
           ))}
-        </div>
+        </dl>
         {/* ── REPORT CARD ── */}
-        <div className="modal-in" style={{background:P.panel,border:`2px solid ${gradeCol}`,borderRadius:0,padding:"14px 18px",marginBottom:18,textAlign:"left"}}>
+        <div className="modal-in glass" style={{padding:"18px 20px",marginBottom:22,textAlign:"left"}}>
           <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:10}}>
             <div style={{fontSize:44,fontWeight:800,color:gradeCol,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',lineHeight:1}}>{grade}</div>
             <div>
-              <div style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Campaign Report Card</div>
+              <div style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Report card</div>
               <div style={{fontSize:16,fontWeight:700,color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{fmtN(score)} points</div>
               <div style={{fontSize:11,color:P.muted}}>{scen.name} · {DIFFICULTIES[gs.difficulty]?.label||gs.difficulty}{gs.seedStr?` · seed "${gs.seedStr}"`:""}</div>
             </div>
@@ -6422,45 +6525,45 @@ function GameOver({ gs, onRestart }) {
               ))}
             </div>
           )}
-          <div style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Achievements · {Object.keys(achvAll).length}/{ACHIEVEMENTS.length}</div>
+          <div style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Achievements {Object.keys(achvAll).length}/{ACHIEVEMENTS.length}</div>
           <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:12}}>
             {ACHIEVEMENTS.map(a => {
               const got = !!achvAll[a.id];
-              return <span key={a.id} title={`${a.name}: ${a.desc}`} style={{fontSize:11,padding:"3px 8px",borderRadius:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',border:`1px solid ${got?P.gold+"88":P.border}`,background:got?`${P.gold}14`:"transparent",color:got?P.goldText:P.muted,opacity:got?1:0.55}}>{got?"★ ":""}{a.name}</span>;
+              return <span key={a.id} className={`ach${got?" got":""}`} title={`${a.name}: ${a.desc}`}><Icon name={got?"star":"lock"} size={10} color={got?P.accent:P.muted}/>{a.name}</span>;
             })}
           </div>
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-            <button className="btn" onClick={shareNative} title="Share your result, with a link that loads this exact starting position"
-              style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.green}`,background:"transparent",color:P.greenText,fontSize:11,fontWeight:700}}>
+            <button className="btn link" onClick={shareNative} title="Share your result, with a link that loads this exact starting position">
+              <Icon name="bullhorn" size={12} color={P.accent}/>
               Share result
             </button>
-            <button className="btn" onClick={copyResult} title="Copies a short summary of how the run went"
-              style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11,fontWeight:700}}>
+            <button className="btn link" onClick={copyResult} title="Copies a short summary of how the run went">
+              <Icon name="clipboard-list" size={12} color={P.accent}/>
               Copy summary
             </button>
             {gs.seedStr && (
-              <button className="btn" onClick={copyLink} title="A link that opens the game with this challenge already loaded"
-                style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent",color:P.accent,fontSize:11,fontWeight:700}}>
+              <button className="btn link" onClick={copyLink} title="A link that opens the game with this challenge already loaded">
+              <Icon name="link" size={12} color={P.accent}/>
                 Copy challenge link
               </button>
             )}
-            <button className="btn" onClick={copyChallenge} title="Copies a CM1|… code: a friend can paste it on the setup screen and play the identical campaign, then compare report cards"
-              style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent",color:P.accent,fontSize:11.5,fontWeight:700,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
+            <button className="btn link" onClick={copyChallenge} title="Copies a CM1|… code: a friend can paste it on the setup screen and play the identical campaign, then compare report cards">
+              <Icon name="chess-knight" size={12} color={P.accent}/>
               Copy challenge code
             </button>
             {gs.seedStr ? null : (
               <span style={{fontSize:11.5,color:P.muted,alignSelf:"center"}}>Start a seeded campaign to share a replayable challenge.</span>
             )}
             {hist.length >= 2 && (
-              <button className="btn" onClick={() => downloadCSV(gs)} style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:11.5,fontWeight:700,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Export run as CSV ⬇</button>
+              <button className="btn link" onClick={() => downloadCSV(gs)}><Icon name="file-csv" size={12} color={P.accent}/> Export run as CSV ⬇</button>
             )}
           </div>
           {shareMsg && (
-            <div role="status" style={{marginTop:9,fontSize:11,color:P.greenText,background:"transparent",border:`1px solid ${P.green}`,borderRadius:0,padding:"6px 10px"}}>{shareMsg}</div>
+            <div role="status" style={{marginTop:10,fontSize:12,color:P.greenText}}>{shareMsg}</div>
           )}
         </div>
-        <button className="btn cut" onClick={onRestart} style={{padding:"14px 48px",borderRadius:0,border:"none",background:`${P.accent}`,color:P.bg,fontWeight:700,fontSize:18,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
-          Play Again
+        <button className="btn orb" onClick={onRestart} style={{margin:"0 auto"}}>
+          Play again
         </button>
       </div>
     </div>

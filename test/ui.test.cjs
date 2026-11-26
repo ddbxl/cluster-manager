@@ -217,7 +217,7 @@ const click = (el) => act(() => {
     rivals: [{ ...gs.rivals[0], stage: 4, progress: 80, countries: ["Austria"], truce: 0 }],
   };
   render(React.createElement(G.RivalsModal, { gs: threatened, dispatch: () => {}, onClose: () => {}, panel: true }));
-  ok(qsa(".threat-pulse").length >= 1, "a rival ahead of you is visually flagged as a threat");
+  ok(qsa(".rv-head .tag").some(t => /Ahead of you/.test(t.textContent)), "a rival ahead of you is flagged as a threat");
   ok(/ahead of you|threat/i.test(text()), "the threat is named in words, not just colour");
 }
 
@@ -405,10 +405,10 @@ const click = (el) => act(() => {
 /* ── inside a menu, a button is text that underlines on hover ── */
 {
   const css = G.CSS;
-  ok(/\.menu-scope \.btn:not\(\.dot\):not\(\.card-btn\)\{[^}]*background:transparent !important/.test(css), "menu buttons carry no fill");
-  ok(/\.menu-scope \.btn:not\(\.dot\):not\(\.card-btn\)\{[^}]*border-color:transparent !important/.test(css), "menu buttons carry no box");
-  ok(/\.menu-scope \.btn:not\(\.dot\):not\(\.card-btn\):hover:not\(:disabled\)[^{]*\{[^}]*text-decoration:underline/.test(css), "hovering a menu button underlines it");
-  ok(/\.menu-scope \.btn:not\(\.dot\):not\(\.card-btn\):focus-visible/.test(css), "keyboard focus underlines it too");
+  ok(/\.menu-scope \.btn:not\(\.dot\):not\(\.card-btn\):not\(\.hire-tile\):not\(\.evo-go\):not\(\.op\)\{[^}]*background:transparent !important/.test(css), "menu buttons carry no fill");
+  ok(/\.menu-scope \.btn:not\(\.dot\):not\(\.card-btn\):not\(\.hire-tile\):not\(\.evo-go\):not\(\.op\)\{[^}]*border-color:transparent !important/.test(css), "menu buttons carry no box");
+  ok(/\.menu-scope \.btn:not\(\.dot\):not\(\.card-btn\):not\(\.hire-tile\):not\(\.evo-go\):not\(\.op\):hover:not\(:disabled\)[^{]*\{[^}]*text-decoration:underline/.test(css), "hovering a menu button underlines it");
+  ok(/\.menu-scope \.btn:not\(\.dot\):not\(\.card-btn\):not\(\.hire-tile\):not\(\.evo-go\):not\(\.op\):focus-visible/.test(css), "keyboard focus underlines it too");
   ok(/\.menu-scope \.btn:disabled\{[^}]*text-decoration:none/.test(css), "a disabled button does not underline");
   ok(css.includes('.menu-scope .btn[style*="color:#FFFFFF"]') && css.includes('.menu-scope .btn[style*="color: rgb(255, 255, 255)"]'),
      "text that sat on a fill takes the action colour, so it cannot vanish");
@@ -537,6 +537,49 @@ const click = (el) => act(() => {
   render(React.createElement(G.AttentionQueue, { items: G.attentionItems(g), onGo: () => {} }));
   ok(qsa('[role="listitem"]').every(b => b.querySelector("svg")), "every attention plate leads with an icon");
   ok(qsa('[role="listitem"]').every(b => b.textContent.length < 45), "and its text is short");
+}
+
+/* ── staff, rivals, network, next stage, info buttons ─────── */
+{
+  const sector = { id:"digital", name:"Digital", color:"#38bdf8", icon:"display" };
+  let g = { ...G.initState("Austria", "Styria", sector), budget: 3_000_000 };
+  render(null); render(React.createElement(G.StaffModal, { gs: g, dispatch: () => {}, onClose: () => {}, panel: true }));
+  const tiles = qsa(".hire-tile");
+  ok(tiles.length >= 6, "hiring is a grid of tiles");
+  ok(tiles.every(t => t.querySelector("svg") && /€/.test(t.textContent)), "each tile shows an icon and a salary");
+  ok(tiles.every(t => t.textContent.length < 50), "tiles carry no descriptions, so the grid fits without scrolling");
+  ok(qsa(".hire-detail").length === 0, "no note sits under the roles until you point at one");
+  act(() => { tiles[1].dispatchEvent(new dom.window.MouseEvent("mouseover", { bubbles:true })); });
+  ok(qsa(".hire-detail").length === 1 && qsa(".hire-detail")[0].textContent.length > 20, "pointing at a role shows its description");
+  ok(!/three quarters/i.test(text()), "the staff panel does not restate the hiring rule");
+  render(null); render(React.createElement(G.RulesModal, { onClose: () => {} }));
+  ok(/three quarters of the new salary/.test(text()), "the hiring rule is explained in How to play");
+
+  render(null); render(React.createElement(G.RivalsModal, { gs: g, dispatch: () => {}, onClose: () => {}, panel: true }));
+  ok(qsa(".rival").length === g.rivals.length, "each rival is a plain section");
+  ok(qsa(".btn.op").every(b => b.querySelector("svg") && /€/.test(b.textContent) && b.getAttribute("title")), "rival actions are icon and price, named in the tooltip");
+
+  render(null); render(React.createElement(G.NetworkModal, { gs: { ...g, stage: 2 }, dispatch: () => {}, onClose: () => {}, panel: true }));
+  ok(qsa(".net-list li").length === 1, "your countries are listed with their coverage");
+  ok(/click any region on the map/i.test(text()), "the panel points to expanding from the map");
+
+  render(null); render(React.createElement(G.EvolveModal, { gs: g, dispatch: () => {}, onClose: () => {} }));
+  ok(qsa(".evo-reqs li").length === G.evolveReqs(g).length, "each goal for the next stage is a row");
+  ok(qsa(".evo-reqs .bar").length === G.evolveReqs(g).length, "with a bar showing how close you are");
+  ok(qsa(".btn.evo-go")[0]?.disabled === !G.canEvolve(g), "the action is available only when every goal is met");
+
+  // regression: inside an animated panel the (i) explanation opened out of sight
+  render(null);
+  render(React.createElement("div", { className: "panel-fade menu-scope" }, React.createElement(G.InfoDot, { text: "Why this works", label: "Explain" })));
+  const dot = qsa("button.dot")[0];
+  click(dot);
+  const tip = document.body.querySelector('[role="tooltip"]');
+  ok(!!tip && tip.parentElement === document.body, "the explanation renders at the page root, where no animated panel can hide it");
+  ok(/Why this works/.test(tip?.textContent || ""), "and shows its text");
+  act(() => { dot.dispatchEvent(new dom.window.MouseEvent("mouseout", { bubbles:true })); });
+  ok(!!document.body.querySelector('[role="tooltip"]'), "a clicked explanation stays open when the pointer leaves");
+  click(dot);
+  ok(!document.body.querySelector('[role="tooltip"]'), "clicking again closes it");
 }
 
 /* ── dark mode and back again ─────────────────────────────── */
