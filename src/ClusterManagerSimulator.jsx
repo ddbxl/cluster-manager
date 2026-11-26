@@ -207,6 +207,11 @@ html.dark .end-figs dt{color:#9AA8C8} html.dark .end-figs dd{color:#EEF2FA}
 html.dark .ach{color:#9AA8C8} html.dark .ach.got{color:#EEF2FA}
 .seg .btn{text-decoration:none !important}
 .btn.evo-go:disabled{opacity:1}
+.btn.real-pick{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:8px 10px !important;border-radius:8px !important;border:1px solid transparent !important;background:#FFFFFF !important}
+.btn.real-pick:hover{border-color:#1F4BD8 !important;filter:none}
+.real-pick .nm{font-size:12.5px;font-weight:500;color:#0B1B3F}
+.real-pick .mu{font-size:11.5px;color:#5A6785;display:inline-flex;align-items:center;gap:5px}
+html.dark .btn.real-pick{background:#0F1B3D !important} html.dark .real-pick .nm{color:#EEF2FA} html.dark .real-pick .mu{color:#9AA8C8}
 /* The hover label on the map: sized to its content, wraps long names. */
 .map-hover{position:absolute;z-index:47;pointer-events:none;max-width:240px;padding:9px 11px;background:#FFFFFF;border:1px solid #D9DFEA;border-radius:6px;box-shadow:0 6px 20px rgba(11,27,63,.12);font-size:12px;line-height:1.45;color:#0B1B3F}
 html.dark .map-hover{background:#0F1B3D;border-color:#243461;color:#EEF2FA}
@@ -5549,24 +5554,133 @@ function RulesModal({ onClose }) {
 }
 
 // The setup map: Europe in outline, your country and region lit up as you choose them.
-function SetupMap({ country, region }) {
+// The region a real cluster is based in, only when its name or city says so
+// (directly or through a local-language name). Unmatched clusters return "".
+function regionFromLabel(countryName, city, clusterLabel) {
+  const regs = REGIONS_BY_COUNTRY[countryName] || [];
+  if (regs.length === 1) return regs[0].name;
+  const hay = `${clusterLabel || ""} ${city || ""}`.toLowerCase();
+  const named = regs.find(r => {
+    const n = r.name.toLowerCase();
+    if (hay.includes(n)) return true;
+    const stem = n.split(/[ -]/)[0];
+    return stem.length >= 5 && hay.includes(stem);
+  });
+  if (named) return named.name;
+  const viaAlias = Object.keys(REGION_ALIASES).find(al => hay.includes(al));
+  const hit = viaAlias && regs.find(r => r.name === REGION_ALIASES[viaAlias]);
+  return hit ? hit.name : "";
+}
+// Number-pair extraction for bounding boxes of SVG path strings.
+const pathBox = d => {
+  const n = String(d).match(/-?\d+\.?\d*/g) || [];
+  let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
+  for (let i=0;i+1<n.length;i+=2){ const x=+n[i], y=+n[i+1]; if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y; }
+  return { x0, y0, x1, y1, cx:(x0+x1)/2, cy:(y0+y1)/2 };
+};
+// NUTS-2 polygons of each region record in a country; far-flung outliers (overseas
+// territories) are left out of the zoom frame so the mainland fills the view.
+function countryRegionShapes(country) {
+  return (REGION_RECORDS[country]||[]).map(rec => {
+    const codes = rec.nuts ? Object.keys(NUTS2_PATHS).filter(k => nutsMatch(k, rec.nuts)) : [];
+    const boxes = codes.map(k => pathBox(NUTS2_PATHS[k]));
+    const box = boxes.reduce((m,b) => ({x0:Math.min(m.x0,b.x0),y0:Math.min(m.y0,b.y0),x1:Math.max(m.x1,b.x1),y1:Math.max(m.y1,b.y1)}), {x0:Infinity,y0:Infinity,x1:-Infinity,y1:-Infinity});
+    return { rec, codes, box, cx:(box.x0+box.x1)/2, cy:(box.y0+box.y1)/2 };
+  }).filter(r => r.codes.length);
+}
+function frameFor(shapes) {
+  if (!shapes.length) return null;
+  const xs = shapes.map(s=>s.cx).sort((a,b)=>a-b), ys = shapes.map(s=>s.cy).sort((a,b)=>a-b);
+  const mx = xs[Math.floor(xs.length/2)], my = ys[Math.floor(ys.length/2)];
+  const near = shapes.filter(s => Math.hypot(s.cx-mx, s.cy-my) < 140);
+  const use = near.length ? near : shapes;
+  const x0=Math.min(...use.map(s=>s.box.x0)), y0=Math.min(...use.map(s=>s.box.y0));
+  const x1=Math.max(...use.map(s=>s.box.x1)), y1=Math.max(...use.map(s=>s.box.y1));
+  const pad = Math.max(12, Math.max(x1-x0, y1-y0) * 0.14);
+  return [x0-pad, y0-pad, (x1-x0)+pad*2, (y1-y0)+pad*2];
+}
+const EUROPE_VIEW = [-40, -30, 690, 680];
+
+// The setup map is also a picker: click a country to zoom in, then click a
+// region. Each region shows how many real clusters are based there.
+function SetupMap({ country, region, counts, onCountry, onRegion, onEurope }) {
   const iso = country ? isoToNuts(NAME_TO_ISO[country] || "") : null;
-  const rec = country && region ? (REGION_RECORDS[country]||[]).find(r => r.name === region) : null;
-  const regionCodes = rec && rec.nuts ? Object.keys(NUTS2_PATHS).filter(k => nutsMatch(k, rec.nuts)) : [];
+  const shapes = useMemo(() => country ? countryRegionShapes(country) : [], [country]);
+  const target = useMemo(() => (country && frameFor(shapes)) || EUROPE_VIEW, [country, shapes]);
+  const [vb, setVb] = useState(target);
+  const [hov, setHov] = useState(null);
+  const vbRef = useRef(vb);
+  useEffect(() => {
+    const from = vbRef.current, to = target, t0 = (typeof performance !== "undefined" ? performance.now() : 0);
+    if (typeof requestAnimationFrame === "undefined") { vbRef.current = to; setVb(to); return; }
+    let raf;
+    const step = now => {
+      const t = Math.min(1, (now - t0) / 420), e = 1 - Math.pow(1 - t, 3);
+      const cur = from.map((v,i) => v + (to[i]-v)*e);
+      vbRef.current = cur; setVb(cur);
+      if (t < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [target]);
+  const k = vb[2] / 560;                    // map units per screen pixel, roughly
+  const zoomed = !!country;
+  const label = hov || region || country;
   return (
-    <svg viewBox="-40 -30 690 680" preserveAspectRatio="xMidYMid meet" role="img" aria-label={country ? `Map with ${region || country} highlighted` : "Map of Europe"}
-      style={{width:"100%",height:"100%",display:"block"}}>
-      <path d={NEIGHBOUR_LAND} fill={THEME_DARK ? "#16244A" : "#E6EBF2"} stroke="none"/>
-      <path d={CANDIDATE_LAND} fill={THEME_DARK ? "#1A2A55" : "#DCE4F1"} stroke="none"/>
-      {NUTS0_KEYS.map(k => (
-        <path key={k} d={NUTS0_PATHS[k]} fill={k === iso ? `${P.accent}30` : (THEME_DARK ? "#0F1B3D" : "#FFFFFF")}
-          stroke={k === iso ? P.accent : (THEME_DARK ? "#2C3D70" : "#C6D0DE")} strokeWidth={k === iso ? 1.4 : 0.6} strokeLinejoin="round"
-          style={{transition:"fill .25s ease"}}/>
-      ))}
-      {regionCodes.map(k => <path key={k} d={NUTS2_PATHS[k]} fill={P.accent} stroke={P.accent} strokeWidth={0.6}/>)}
-    </svg>
+    <div style={{position:"relative",width:"100%",height:"100%"}}>
+      <svg viewBox={vb.join(" ")} preserveAspectRatio="xMidYMid meet" role="img"
+        aria-label={country ? `Map with ${region || country} highlighted` : "Map of Europe"}
+        style={{width:"100%",height:"100%",display:"block"}}>
+        <path d={NEIGHBOUR_LAND} fill={THEME_DARK ? "#16244A" : "#E6EBF2"} stroke="none"/>
+        <path d={CANDIDATE_LAND} fill={THEME_DARK ? "#1A2A55" : "#DCE4F1"} stroke="none"/>
+        {NUTS0_KEYS.map(k0 => {
+          const name = ISO_TO_NAME[nutsToIso(k0)];
+          const pickable = !zoomed && name && REGION_RECORDS[name];
+          const isSel = k0 === iso;
+          return (
+            <path key={k0} d={NUTS0_PATHS[k0]} data-country={name}
+              fill={isSel ? (zoomed ? (THEME_DARK ? "#0F1B3D" : "#FFFFFF") : `${P.accent}30`) : hov && hov === name ? `${P.accent}22` : (THEME_DARK ? "#0F1B3D" : "#FFFFFF")}
+              stroke={isSel ? P.accent : (THEME_DARK ? "#2C3D70" : "#C6D0DE")} strokeWidth={isSel ? 1.4 : 0.7} vectorEffect="non-scaling-stroke" strokeLinejoin="round"
+              opacity={zoomed && !isSel ? 0.55 : 1}
+              style={{cursor:pickable ? "pointer" : "default",transition:"fill .2s ease, opacity .3s ease"}}
+              onMouseEnter={pickable ? () => setHov(name) : undefined} onMouseLeave={pickable ? () => setHov(null) : undefined}
+              onClick={pickable && onCountry ? () => onCountry(name) : undefined}/>
+          );
+        })}
+        {zoomed && shapes.map(sh => {
+          const isSel = sh.rec.name === region, isHov = sh.rec.name === hov;
+          return (
+            <g key={sh.rec.name} data-region={sh.rec.name} style={{cursor:"pointer"}}
+              onMouseEnter={() => setHov(sh.rec.name)} onMouseLeave={() => setHov(null)}
+              onClick={() => onRegion && onRegion(sh.rec.name)}>
+              {sh.codes.map(c => (
+                <path key={c} d={NUTS2_PATHS[c]} fill={isSel ? P.accent : isHov ? `${P.accent}33` : (THEME_DARK ? "#13224A" : "#F7F9FC")}
+                  stroke={isSel || isHov ? P.accent : (THEME_DARK ? "#3A4E86" : "#B9C5D8")} strokeWidth={isSel ? 1.6 : 0.8} vectorEffect="non-scaling-stroke" strokeLinejoin="round"/>
+              ))}
+            </g>
+          );
+        })}
+        {zoomed && counts && shapes.filter(sh => counts[sh.rec.name] > 0).map(sh => (
+          <g key={`n-${sh.rec.name}`} pointerEvents="none">
+            <circle cx={sh.cx} cy={sh.cy} r={9*k} fill={sh.rec.name === region ? "#FFFFFF" : P.accent} stroke="#FFFFFF" strokeWidth={1.5} vectorEffect="non-scaling-stroke"/>
+            <text x={sh.cx} y={sh.cy + 3.6*k} textAnchor="middle" fontSize={10*k} fontWeight="700" fontFamily="Helvetica, Arial, sans-serif" fill={sh.rec.name === region ? P.accent : "#FFFFFF"}>{counts[sh.rec.name]}</text>
+          </g>
+        ))}
+      </svg>
+      {zoomed && onEurope && (
+        <button className="btn link" onClick={onEurope} style={{position:"absolute",top:14,left:16}}>
+          <Icon name="chevron-left" size={11} color={P.accent}/> Europe
+        </button>
+      )}
+      <div style={{position:"absolute",left:20,bottom:18,fontSize:13,color:P.muted,pointerEvents:"none"}}>
+        {label ? <span style={{color:P.text,fontWeight:600}}>{label}</span> : "Click a country to start"}
+        {zoomed && !hov && !region ? <span>: click a region</span> : null}
+        {zoomed && counts && (hov || region) && counts[hov || region] > 0 ? <span>, {counts[hov || region]} real cluster{counts[hov || region]===1?"":"s"}</span> : null}
+      </div>
+    </div>
   );
 }
+
 
 function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlots }) {
   const [showRules, setShowRules] = useState(false);
@@ -5639,6 +5753,20 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
     const aligned = regs.find(r => ecosystemAligns(r, ecoName));
     return (aligned || regs[0]).name;
   };
+  // Real clusters per region of the chosen country, for the map badges and the region list.
+  const regionCounts = useMemo(() => {
+    const counts = {}, byRegion = {};
+    if (!country) return { counts, byRegion };
+    const iso = NAME_TO_ISO[country];
+    ECCP_CLUSTERS.forEach(c => {
+      if (c.c !== iso || !c.e) return;
+      const r = regionFromLabel(country, c.y, c.n);
+      if (!r) return;
+      counts[r] = (counts[r]||0) + 1;
+      (byRegion[r] = byRegion[r] || []).push(c);
+    });
+    return { counts, byRegion };
+  }, [country]);
   const adoptCluster = c => {
     const cn = ISO_TO_NAME[c.c];
     const eco = ECOSYSTEMS.find(e => e.id === c.e);
@@ -5663,10 +5791,10 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
       <div style={{width:"100%",maxWidth:1120,margin:"auto",display:"grid",gridTemplateColumns:mobile?"1fr":"minmax(0,1fr) minmax(0,520px)",gap:mobile?18:40,alignItems:"center"}}>
       {!mobile && (
         <div style={{position:"sticky",top:0,alignSelf:"start",height:"min(calc(100dvh - 56px), 760px)",borderRadius:16,overflow:"hidden",background:THEME_DARK?"#081131":"#DCE6F2"}}>
-          <SetupMap country={country} region={region}/>
-          <div style={{position:"absolute",left:20,bottom:18,fontSize:13,color:P.muted}}>
-            {country ? <><span style={{color:P.text,fontWeight:600}}>{region || country}</span>{region ? `, ${country}` : ""}</> : "Choose where your cluster starts"}
-          </div>
+          <SetupMap country={country} region={region} counts={regionCounts.counts}
+            onCountry={c => { setCountry(c); setRegion(""); setStep(1); }}
+            onRegion={r => { setRegion(r); setStep(1); }}
+            onEurope={() => { setCountry(""); setRegion(""); setStep(0); }}/>
         </div>
       )}
       <div style={{width:"100%",paddingBottom:8}}>
@@ -5765,11 +5893,34 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
               <button className="btn" onClick={() => setStep(0)} style={{background:"none",border:"none",color:P.accent,fontSize:13,marginBottom:12,padding:0,fontFamily:"inherit",cursor:"pointer",display:"inline-flex",alignItems:"center",gap:5}}><Icon name="arrow-left" size={11} color={P.accent}/> Back</button>
               <div style={{marginBottom:2,fontSize:14,fontWeight:700}}>Region in <span style={{color:P.accent}}>{country}</span></div>
               <div style={{marginBottom:12,fontSize:11,color:P.muted,display:"flex",alignItems:"flex-start",gap:5}}><Icon name="star" size={11} color={P.gold} style={{marginTop:2,flexShrink:0}}/><span>{(REGION_RECORDS[country]||[]).length} regions. The star icon marks a stronger Regional Innovation Scoreboard tier, meaning more budget and members at the start.</span></div>
+              {region && (
+                <div className="region-pick" style={{marginBottom:14,padding:"12px 14px",borderRadius:10,background:P.bright}}>
+                  <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10}}>
+                    <span style={{fontSize:14,fontWeight:600}}>{region}</span>
+                    <button className="btn" onClick={() => setStep(2)} style={{padding:"8px 14px",borderRadius:8,border:"none",background:P.accent,color:P.onAccent,fontSize:12.5,fontWeight:600}}>
+                      Start my own cluster here
+                    </button>
+                  </div>
+                  {(regionCounts.byRegion[region]||[]).length > 0 && (
+                    <>
+                      <div style={{fontSize:12,color:P.muted,margin:"10px 0 6px"}}>Or take over a real cluster based here</div>
+                      <div style={{display:"grid",gap:4,maxHeight:180,overflowY:"auto"}}>
+                        {regionCounts.byRegion[region].map((c,i) => (
+                          <button key={`${c.n}-${i}`} className="btn real-pick" onClick={() => { adoptCluster(c); setRegion(region); }}>
+                            <span className="nm">{c.n}</span>
+                            <span className="mu"><Icon name={(ECOSYSTEMS.find(e=>e.id===c.e)||{}).icon||"industry"} size={11} color={P.muted}/> {(ECOSYSTEMS.find(e=>e.id===c.e)||{}).name||""}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(190px,1fr))",gap:5,maxHeight:300,overflowY:"auto",paddingRight:4}}>
                 {(REGION_RECORDS[country]||[]).map(rec => {
                   const strong = /Leader|Strong/.test(rec.ris||"");
                   return (
-                    <button key={rec.name} className="btn" style={{...sel(region===rec.name), display:"flex", flexDirection:"column", alignItems:"flex-start", gap:2, padding:"7px 11px"}} onClick={() => { setRegion(rec.name); setStep(2); }}>
+                    <button key={rec.name} className="btn" style={{...sel(region===rec.name), display:"flex", flexDirection:"column", alignItems:"flex-start", gap:2, padding:"7px 11px"}} onClick={() => { setRegion(rec.name); setStep(1); }}>
                       <span style={{fontWeight:600,display:"inline-flex",alignItems:"center",gap:4}}>{strong && <Icon name="star" size={10} color={P.gold}/>}{rec.name}</span>
                       <span style={{fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{rec.nuts} · Innovation tier: {rec.ris||"not rated"}{rec.coh ? ` · ${rec.coh}` : ""} · {(rec.ecos||[]).filter(e=>e!=="Cross-ecosystem").length} ecosystems</span>
                     </button>

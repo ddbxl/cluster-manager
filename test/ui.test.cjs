@@ -582,6 +582,44 @@ const click = (el) => act(() => {
   ok(!document.body.querySelector('[role="tooltip"]'), "clicking again closes it");
 }
 
+/* ── choosing where to start on the map ───────────────────── */
+{
+  // strict matching: only a name or city that points to a region counts
+  ok(G.regionFromLabel("France", "Lannion", "Photonics Bretagne") === "Brittany", "a cluster named in the local language maps to its region");
+  ok(G.regionFromLabel("Germany", "Somewhere", "Generic Cluster") === "", "a cluster with no regional clue is not guessed into a region");
+  ok(G.regionFromLabel("Latvia", "", "Anything") === "Latvia", "a single-region country takes its only region");
+  ok(G.countryRegionShapes("Germany").length === 16, "every German region has a shape to click");
+
+  let picked = null;
+  render(null);
+  render(React.createElement(G.SetupMap, { country: "", region: "", onCountry: c => { picked = c; } }));
+  const de = qsa('path[data-country="Germany"]')[0];
+  ok(!!de, "countries on the setup map can be clicked");
+  click(de);
+  ok(picked === "Germany", "clicking a country picks it");
+
+  let reg = null;
+  render(null);
+  render(React.createElement(G.SetupMap, { country: "Germany", region: "", counts: { Bavaria: 5 }, onRegion: r => { reg = r; }, onEurope: () => {} }));
+  const groups = qsa("g[data-region]");
+  ok(groups.length === 16, "zooming into a country shows its regions");
+  click(groups.find(g => g.getAttribute("data-region") === "Bavaria"));
+  ok(reg === "Bavaria", "clicking a region picks it");
+  ok(qsa("svg text").some(t => t.textContent === "5"), "regions show how many real clusters are based there");
+  ok(qsa("button").some(b => /Europe/.test(b.textContent)), "a control zooms back out to Europe");
+
+  // the full flow: pick on the map, then take over a real cluster or start your own
+  render(null);
+  render(React.createElement(G.Setup, { onStart: () => {}, canResume: false, onResume: () => {}, mobile: false }));
+  click(qsa('path[data-country="Germany"]')[0]);
+  ok(/Region in/.test(text()), "picking a country on the map moves setup to the region step");
+  click(qsa('g[data-region="Bavaria"]')[0]);
+  ok(/Start my own cluster here/.test(text()), "picking a region offers to start your own cluster there");
+  const realPick = qsa(".real-pick")[0];
+  ok(!!realPick, "and lists the real clusters based in it");
+  if (realPick) { click(realPick); ok(/Industrial ecosystem/.test(text()), "taking one over moves on with its ecosystem set"); }
+}
+
 /* ── dark mode and back again ─────────────────────────────── */
 {
   // Regression: switching back to light mode referenced a palette that no longer
