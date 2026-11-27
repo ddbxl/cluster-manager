@@ -687,6 +687,19 @@ const click = (el) => act(() => {
   ok(parseFloat(qsa(".sheet-left")[0].style.width) === 215, "double-clicking the handle resets the width");
 }
 
+/* ── the setup map matches the column beside it ───────────── */
+{
+  render(null);
+  render(React.createElement(G.Setup, { onStart: () => {}, canResume: false, onResume: () => {}, mobile: false }));
+  const frame = qsa(".setup-map")[0];
+  ok(!!frame && frame.style.alignSelf === "stretch" && !frame.style.height, "the map frame stretches to the height of the setup column");
+  ok(frame && frame.parentElement.style.alignItems === "stretch", "the grid stretches both columns to the same height");
+  const links = qsa("button").filter(b => /How to play|Dark mode|Light mode/.test(b.textContent));
+  ok(links.length === 2 && links.every(b => b.parentElement.style.gridColumn === "2"), "the footer links sit below the grid, so map and card end together");
+  const ys = [...G.NEIGHBOUR_LAND.matchAll(/[ML]-?\d+\.?\d*,(-?\d+\.?\d*)/g)].map(m => parseFloat(m[1]));
+  ok(Math.min(...ys) < -300 && Math.max(...ys) > 900, "surrounding land extends far enough that a tall frame shows no cut edges");
+}
+
 /* ── dark mode and back again ─────────────────────────────── */
 {
   // Regression: switching back to light mode referenced a palette that no longer
