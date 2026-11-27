@@ -54,6 +54,7 @@ You win by reaching Stage 5 before your rivals, or by clearing the field of them
 - A painted map: the Union's neighbours are drawn around it, candidate countries are tinted pale blue, and banners on the map show how much of each country you hold and where each rival is based
 - Choose where to start on the map: click a country to zoom in, then a region; each region shows how many real clusters are based there, placed from the location of each cluster's city, and you can take one over or start your own
 - Click any region on the map to see what it offers: open an office in a country you already hold, or enter a bordering country at that region. If it is out of reach, the card says why
+- Drag the edges of the side panels, and the line above the projects and log, to resize them; double-click to reset
 - The map owns the screen: the side panels float over it and fold away, and the turn controls sit on the map itself
 - An attention queue lists what could still use a decision before you end the quarter, such as an idle project slot, spare staff capacity or a stage you can now reach, and each entry opens the panel that deals with it
 - Trend indicators on each stat, with tap or hover breakdowns that name each contributing factor

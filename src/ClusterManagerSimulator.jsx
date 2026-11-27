@@ -212,6 +212,29 @@ html.dark .ach{color:#9AA8C8} html.dark .ach.got{color:#EEF2FA}
 .real-pick .nm{font-size:12.5px;font-weight:500;color:#0B1B3F}
 .real-pick .mu{font-size:11.5px;color:#5A6785;display:inline-flex;align-items:center;gap:5px}
 html.dark .btn.real-pick{background:#0F1B3D !important} html.dark .real-pick .nm{color:#EEF2FA} html.dark .real-pick .mu{color:#9AA8C8}
+/* Running projects */
+.ap-row{padding:10px 0;border-top:1px solid #D9DFEA}
+.ap-row:first-of-type{border-top:none}
+html.dark .ap-row{border-top-color:#243461}
+.ap-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.ap-top .nm{font-size:13px;font-weight:500;color:#0B1B3F;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html.dark .ap-top .nm{color:#EEF2FA}
+.ap-top .st{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;white-space:nowrap}
+.ap-top .dot{width:7px;height:7px;border-radius:50%}
+.ap-bar{height:4px;border-radius:2px;background:#EEF2F7;margin-top:8px;overflow:hidden}
+html.dark .ap-bar{background:#16244A}
+.ap-bar span{display:block;height:100%;border-radius:2px;transition:width .4s}
+.seat-full{padding:8px 0;border-top:1px solid #EEF2F7}
+html.dark .seat-full{border-top-color:#16244A}
+/* Resize handles between panels */
+.resizer{position:absolute;z-index:62;touch-action:none}
+.resizer.col{top:0;bottom:0;width:8px;cursor:col-resize}
+.resizer.row{left:0;right:0;height:8px;cursor:row-resize}
+.resizer::after{content:"";position:absolute;background:transparent;transition:background .15s}
+.resizer.col::after{top:0;bottom:0;left:3px;width:2px}
+.resizer.row::after{left:0;right:0;top:3px;height:2px}
+.resizer:hover::after,.resizer.on::after{background:#1F4BD8}
+html.dark .resizer:hover::after,html.dark .resizer.on::after{background:#7C9BFF}
 /* The hover label on the map: sized to its content, wraps long names. */
 .map-hover{position:absolute;z-index:47;pointer-events:none;max-width:240px;padding:9px 11px;background:#FFFFFF;border:1px solid #D9DFEA;border-radius:6px;box-shadow:0 6px 20px rgba(11,27,63,.12);font-size:12px;line-height:1.45;color:#0B1B3F}
 html.dark .map-hover{background:#0F1B3D;border-color:#243461;color:#EEF2FA}
@@ -4442,7 +4465,7 @@ function LeftPanel({ gs, dispatch }) {
   const decay    = [2,3,4,5,6,8][gs.stage] ?? 2;
 
   return (
-    <div style={{width:215,flexShrink:0,display:"flex",flexDirection:"column",gap:0,padding:"6px 14px 14px 14px",overflowY:"auto",background:P.panel}}>
+    <div style={{width:"100%",flexShrink:0,display:"flex",flexDirection:"column",gap:0,padding:"6px 14px 14px 14px",overflowY:"auto",background:P.panel}}>
       {/* Where the cluster stands */}
       <div style={{padding:"12px 6px 14px"}}>
         <div style={{fontSize:15,fontWeight:600,color:P.text,lineHeight:1.25,marginBottom:8}}>{stage.name}</div>
@@ -4623,37 +4646,41 @@ function LeftPanel({ gs, dispatch }) {
    RIGHT PANEL
 ═══════════════════════════════════════════════════════════ */
 const LOG_ICON = { project:"diagram-project", good:"circle-check", bad:"triangle-exclamation" };
-function RightPanel({ gs, compact }) {
+// One running project: name and status, a slim progress bar, then time left and volume.
+function ActiveProjectRow({ p, gs }) {
+  const left = Math.max(0, (p.endTurn||0) - (gs.turn||0));
+  const prog = Math.min(1, 1 - left / Math.max(1, p.dur||1));
+  const st = projectStatus(p, gs);
+  return (
+    <div className="ap-row">
+      <div className="ap-top">
+        <span className="nm" title={p.name}>{p.name||""}</span>
+        <span className="st" style={{color:st.color}}><span className="dot" style={{background:st.color}}/>{st.label}</span>
+      </div>
+      <div className="ap-bar"><span style={{width:`${prog*100}%`,background:st.color}}/></div>
+      <Facts style={{marginTop:6}} size={11} items={[
+        {i:"hourglass-half", t:`${left} q left`, tip:"Quarters until delivery"},
+        {i:"coins", t:fmt(projBudget(p, p.partners||0)), tip:"Project volume"},
+      ]}/>
+    </div>
+  );
+}
+
+function RightPanel({ gs, compact, height }) {
   if (!gs) return null;
   const logColors = { project:P.blue, good:P.green, bad:P.red };
   const active = gs.activeProjects || [];
   const log    = gs.log || [];
 
   return (
-    <div style={{width:compact?"auto":230,height:compact?212:"auto",flexShrink:0,display:"flex",flexDirection:"column",background:P.panel,borderLeft:compact?"none":`1px solid ${P.border}`,borderTop:compact?`1px solid ${P.border}`:"none",overflow:"hidden"}}>
+    <div style={{width:compact?"auto":230,height:compact?(height||212):"auto",flexShrink:0,display:"flex",flexDirection:"column",background:P.panel,borderLeft:compact?"none":`1px solid ${P.border}`,borderTop:compact?`1px solid ${P.border}`:"none",overflow:"hidden"}}>
       {/* Active projects */}
-      <div style={{padding:compact?"8px 10px 6px":"10px 10px 8px",borderBottom:`1px solid ${P.border}`,flexShrink:0,maxHeight:compact?96:"none",overflowY:compact?"auto":"visible"}}>
+      <div style={{padding:compact?"10px 14px 6px":"10px 10px 8px",borderBottom:`1px solid ${P.border}`,flexShrink:0,maxHeight:compact?"45%":"none",overflowY:compact?"auto":"visible"}}>
         <Lbl t={`Active projects (${active.length})`}/>
-        {active.length===0 && <div style={{fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>No active projects</div>}
+        {active.length===0 && <div style={{fontSize:12,color:P.muted}}>None running</div>}
         {active.map((p, i) => {
           if (!p) return null;
-          const prog = Math.min(1, 1 - ((p.endTurn||0)-(gs.turn||0)) / Math.max(1,p.dur||1));
-          const st = projectStatus(p, gs);
-          return (
-            <div key={`ap-${i}`} style={{marginBottom:8,padding:"7px 8px",background:P.card,borderRadius:0,border:`1px solid ${P.border}`}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:6,marginBottom:4}}>
-                <div style={{fontSize:11.5,fontWeight:700,lineHeight:1.3}}>{p.name||""}</div>
-                <span style={{flexShrink:0,fontSize:11,fontWeight:600,color:st.color,whiteSpace:"nowrap",display:"inline-flex",alignItems:"center",gap:4}}><Icon name="circle" size={7} color={st.color}/> {st.label}</span>
-              </div>
-              <div style={{height:2.5,background:P.bright,borderRadius:0}}>
-                <div style={{width:`${prog*100}%`,height:"100%",background:st.color,borderRadius:0,transition:"width .4s"}}/>
-              </div>
-              <div style={{display:"flex",justifyContent:"space-between",marginTop:3,fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
-                <span style={{color:st.color}}>{Math.max(0,(p.endTurn||0)-(gs.turn||0))}Q left</span>
-                <span>{fmt(projBudget(p,p.partners||0))}</span>
-              </div>
-            </div>
-          );
+          return <ActiveProjectRow key={`ap-${i}`} p={p} gs={gs}/>;
         })}
       </div>
 
@@ -5346,28 +5373,12 @@ function StatsModal({ gs, onClose, dispatch }) {
         </Card>
 
         {(gs.activeProjects||[]).length === 0 && (
-          <Card><EmptyState icon="folder-open" title="No active projects" hint="Open the Projects tab to launch a call. Projects pre-finance in instalments, interim payments cover 70% as you deliver, and success pays a margin on top."/></Card>
+          <Card><EmptyState icon="folder-open" title="No project running" hint=""/></Card>
         )}
         {(gs.activeProjects||[]).length > 0 && (
           <Card>
             <Lbl t={`Active projects (${gs.activeProjects.length})`}/>
-            {gs.activeProjects.map((p, i) => {
-              if (!p) return null;
-              const prog = Math.min(1, 1 - ((p.endTurn||0)-(gs.turn||0)) / Math.max(1,p.dur||1));
-              const pst = projectStatus(p, gs);
-              return (
-                <div key={`spr-${i}`} style={{display:"flex",alignItems:"center",gap:10,marginBottom:9}}>
-                  <ProgressRing pct={prog} color={pst.color} label={`${Math.round(prog*100)}%`}/>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:2,gap:6}}>
-                      <span style={{fontWeight:600,color:P.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.name}</span>
-                      <span style={{color:pst.color,fontWeight:600,whiteSpace:"nowrap",display:"inline-flex",alignItems:"center",gap:4}}><Icon name="circle" size={7} color={pst.color}/> {pst.label}</span>
-                    </div>
-                    <div style={{fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.max(0,(p.endTurn||0)-(gs.turn||0))}Q left · {fmt(projBudget(p,p.partners||0))}</div>
-                  </div>
-                </div>
-              );
-            })}
+            {gs.activeProjects.map((p, i) => p ? <ActiveProjectRow key={`spr-${i}`} p={p} gs={gs}/> : null)}
           </Card>
         )}
 
@@ -5432,24 +5443,18 @@ function StatsModal({ gs, onClose, dispatch }) {
           <Bar val={gs.prestige||0} color={P.purple}/>
           
           <div style={{marginTop:10,paddingTop:10,borderTop:`1px solid ${P.border}`}}>
-            <div style={{fontSize:11.5,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:8}}>Seats in policy bodies</div>
+            <div style={{fontSize:13,fontWeight:600,color:P.text,marginBottom:4}}>Seats</div>
             {seatStatus(gs).map(st => (
-              <div key={st.id} style={{marginBottom:9,padding:"8px 10px",borderRadius:0,border:`1px solid ${st.held?`${P.gold}66`:P.border}`,background:st.held?`${P.gold}0d`:"transparent"}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8}}>
-                  <span style={{fontSize:11,fontWeight:700,color:st.held?P.goldText:P.text}}>{st.label}</span>
-                  {st.held && <span style={{fontSize:11,fontWeight:700,color:P.goldText,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>SEAT HELD</span>}
-                  {!st.held && st.heldBy && <span style={{fontSize:11,fontWeight:700,color:P.redText,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>CHAIRED BY {String(st.holderName||"").toUpperCase()}</span>}
+              <div key={st.id} className="seat-full">
+                <div className="seat-row" style={{cursor:"default"}}>
+                  <Icon name={({regional:"building-columns",national:"landmark",eu:"earth-europe"})[st.id]||"landmark"} size={13} color={st.held?P.accent:P.muted}/>
+                  <span style={{flex:1,color:P.text,fontWeight:500}}>{st.label}</span>
+                  {st.held ? <span style={{color:P.accent,fontWeight:600}}>Yours</span>
+                    : st.heldBy ? <span style={{color:P.redText,fontWeight:600,maxWidth:150,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{st.holderName}</span>
+                    : <span style={{color:P.muted}}>Open</span>}
                 </div>
-                <div style={{fontSize:11,color:P.muted,margin:"3px 0 6px"}}>{st.effects}</div>
-                {!st.held && (
-                  <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
-                    {st.reqs.map((c,i) => (
-                      <span key={i} style={{display:"inline-flex",alignItems:"center",gap:3,fontSize:11,padding:"2px 7px",borderRadius:0,border:`1px solid ${(c.ok?P.green:P.red)}55`,background:`${c.ok?P.green:P.red}10`,color:c.ok?P.greenText:P.redText,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
-                        <Icon name={c.ok?"check":"xmark"} size={8} color={c.ok?P.greenText:P.redText}/>{c.l}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                <div style={{fontSize:12,color:P.muted,margin:"0 0 0 21px"}}>{String(st.effects||"").replace(/ · /g, ", ")}</div>
+                {!st.held && <ul className="conds" style={{margin:"6px 0 0 21px"}}>{st.reqs.map((c,i) => <li key={i} className={c.ok?"met":"unmet"}>{c.l}</li>)}</ul>}
               </div>
             ))}
           </div>
@@ -6232,6 +6237,22 @@ function AttentionQueue({ items, onGo, compact }) {
 function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo, snd, onSnd, textBig, onTextScale, digestOn, onDigestToggle }) {
   const [digestReopen, setDigestReopen] = useState(0);
   const [leftOpen, setLeftOpen] = useState(true);   // desktop: cluster summary panel
+  // Panel sizes, set by dragging the edges and remembered between visits.
+  const savedLayout = (() => { try { return JSON.parse(localStorage.getItem("cm_layout")||"{}"); } catch (e) { return {}; } })();
+  const [leftW, setLeftW] = useState(savedLayout.leftW || 215);
+  const [dockWSet, setDockWSet] = useState(savedLayout.dockW || null);
+  const [logH, setLogH] = useState(savedLayout.logH || 212);
+  const [dragging, setDragging] = useState(null);
+  useEffect(() => { try { localStorage.setItem("cm_layout", JSON.stringify({ leftW, dockW: dockWSet, logH })); } catch (e) {} }, [leftW, dockWSet, logH]);
+  // Drag from a handle: report the pointer's travel until release.
+  const startDrag = (kind, e, onMove) => {
+    e.preventDefault();
+    const x0 = e.clientX, y0 = e.clientY;
+    setDragging(kind);
+    const move = ev => onMove(ev.clientX - x0, ev.clientY - y0);
+    const up = () => { setDragging(null); window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); };
+    window.addEventListener("pointermove", move); window.addEventListener("pointerup", up);
+  };
   const [dockOpen, setDockOpen] = useState(true);   // desktop: projects / staff / network / rivals
   // sound cues
   const sndRef = useRef({ turn: gs.turn, stage: gs.stage, won: !!gs.gameWon, ev: !!gs.pendingEvent, seats: seatsHeld(gs) });
@@ -6313,7 +6334,9 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
 
   const trends = statTrends(gs);
   const attention = attentionItems(gs);
-  const dockW = vw>=1440?420:vw>=1150?372:320;
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const dockW = clamp(dockWSet || (vw>=1440?420:vw>=1150?372:320), 300, Math.max(320, Math.min(680, vw*0.45)));
+  const leftWc = clamp(leftW, 190, 380);
   const goTo = id => { if (id==="event") return; if (!phone && ["projects","staff","network","rivals"].includes(id)) { setDockOpen(true); setRightTab(id); } else setModal(id); };
   const TopStat = ({ l, v, c=P.text, icon, tip, trend }) => (
     <div title={tip ? `${l}\n${tip}` : l} style={{display:"flex",alignItems:"center",gap:8,cursor:"help"}}>
@@ -6519,7 +6542,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
       <div className="map-sea" style={{flex:1,position:"relative",overflow:"hidden"}}>
         {/* The map and its overlays live in the space the open panels leave free,
             so nothing of Europe is hidden and the map recentres as panels fold. */}
-        <div style={{position:"absolute",top:0,bottom:0,left:leftOpen?216:0,right:dockOpen?dockW+1:0,transition:"left .18s ease,right .18s ease"}}>
+        <div style={{position:"absolute",top:0,bottom:0,left:leftOpen?leftWc+1:0,right:dockOpen?dockW+1:0,transition:dragging?"none":"left .18s ease,right .18s ease"}}>
           <EUMap gs={gs} sel={sel} setSel={setSel} lift={150} dispatch={dispatch}/>
           <DigestCard gs={gs} digestOn={digestOn} reopenTick={digestReopen} onDigestToggle={onDigestToggle}/>
           <MapLegend gs={gs}/>
@@ -6551,15 +6574,21 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
           </div>
         </div>
 
-        <div className="sheet sheet-left" style={{position:"absolute",left:0,top:0,bottom:0,zIndex:60,overflow:"hidden",display:leftOpen?"flex":"none"}}>
+        <div className="sheet sheet-left" style={{position:"absolute",left:0,top:0,bottom:0,zIndex:60,width:leftWc,overflow:"hidden",display:leftOpen?"flex":"none"}}>
           <LeftPanel gs={gs} dispatch={dispatch}/>
         </div>
+        {leftOpen && <div className={`resizer col${dragging==="left"?" on":""}`} role="separator" aria-orientation="vertical" aria-label="Resize the summary panel" title="Drag to resize, double-click to reset"
+          style={{left:leftWc-3}} onDoubleClick={() => setLeftW(215)}
+          onPointerDown={e => { const w0 = leftWc; startDrag("left", e, dx => setLeftW(clamp(w0 + dx, 190, 380))); }}/>}
         <button className="btn" onClick={()=>setLeftOpen(o=>!o)} aria-expanded={leftOpen} aria-label={leftOpen?"Hide the cluster summary":"Show the cluster summary"} title={leftOpen?"Hide the cluster summary":"Show the cluster summary"}
-          style={{position:"absolute",left:leftOpen?216:0,top:"50%",transform:"translateY(-50%)",zIndex:61,width:18,height:58,padding:0,border:`1px solid ${P.border}`,borderRadius:"0 6px 6px 0",background:P.panel,color:P.accent,fontSize:13,transition:"left .18s ease"}}>{leftOpen?"‹":"›"}</button>
+          style={{position:"absolute",left:leftOpen?leftWc+1:0,top:"50%",transform:"translateY(-50%)",zIndex:61,width:18,height:58,padding:0,border:`1px solid ${P.border}`,borderRadius:"0 6px 6px 0",background:P.panel,color:P.accent,fontSize:13,transition:"left .18s ease"}}>{leftOpen?"‹":"›"}</button>
         <button className="btn" onClick={()=>setDockOpen(o=>!o)} aria-expanded={dockOpen} aria-label={dockOpen?"Hide the management panel":"Show the management panel"} title={dockOpen?"Hide the management panel":"Show the management panel"}
           style={{position:"absolute",right:dockOpen?dockW+1:0,top:"50%",transform:"translateY(-50%)",zIndex:61,width:18,height:58,padding:0,border:`1px solid ${P.border}`,borderRadius:"6px 0 0 6px",background:P.panel,color:P.accent,fontSize:13,transition:"right .18s ease"}}>{dockOpen?"›":"‹"}</button>
 
         {/* RIGHT DOCK: Projects / Staff / Network tabs + compact activity & log */}
+        {dockOpen && <div className={`resizer col${dragging==="dock"?" on":""}`} role="separator" aria-orientation="vertical" aria-label="Resize the management panel" title="Drag to resize, double-click to reset"
+          style={{right:dockW-5}} onDoubleClick={() => setDockWSet(null)}
+          onPointerDown={e => { const w0 = dockW; startDrag("dock", e, dx => setDockWSet(clamp(w0 - dx, 300, Math.min(680, vw*0.45)))); }}/>}
         <div className="sheet sheet-right" style={{position:"absolute",right:0,top:0,bottom:0,zIndex:60,width:dockW,display:dockOpen?"flex":"none",flexDirection:"column",background:P.panel,borderLeft:`1px solid ${P.border}`,overflow:"hidden"}}>
           <div className="menu-tabs" role="tablist" style={{display:"flex",flexShrink:0,background:"transparent",borderBottom:`1px solid ${P.border}`}}>
             {[["projects","folder-open","Projects",P.blue],["staff","users","Staff",P.purple],["network","earth-europe","Network",P.teal],["rivals","chess-knight","Rivals",P.red]].map(([id,icon,lbl,col]) => (
@@ -6577,7 +6606,12 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
               {rightTab==="rivals"   && <RivalsModal   gs={gs} dispatch={dispatch} onClose={()=>{}} panel/>}
             </div>
           </div>
-          <RightPanel gs={gs} compact/>
+          <div style={{position:"relative",flexShrink:0}}>
+            <div className={`resizer row${dragging==="log"?" on":""}`} role="separator" aria-orientation="horizontal" aria-label="Resize the projects and log area" title="Drag to resize, double-click to reset"
+              style={{top:-4}} onDoubleClick={() => setLogH(212)}
+              onPointerDown={e => { const h0 = logH; startDrag("log", e, (dx, dy) => setLogH(clamp(h0 - dy, 110, 560))); }}/>
+          </div>
+          <RightPanel gs={gs} compact height={logH}/>
         </div>
       </div>
     </div>

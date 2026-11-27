@@ -654,6 +654,39 @@ const click = (el) => act(() => {
   ok(qsa("button.orb").some(b => /Start in Brittany/.test(b.textContent)), "the start button names where you begin");
 }
 
+/* ── running projects, dashboard seats, resizable panels ──── */
+{
+  const sector = { id:"digital", name:"Digital", color:"#38bdf8", icon:"display" };
+  const g0 = G.initState("Austria", "Styria", sector);
+  const proj = { id:"x", name:"Networking Event Series", dur:2, endTurn:(g0.turn||0)+1, partners:0, cat:"comms", fund:"local", base:20000, pb:0 };
+  render(null); render(React.createElement(G.ActiveProjectRow, { p: proj, gs: g0 }));
+  ok(qsa(".ap-row").length === 1 && qsa(".ap-bar span").length === 1, "a running project is a plain row with a progress bar");
+  ok(qsa(".fact").length === 2 && /1 q left/.test(text()), "with time left and volume as icon facts");
+
+  render(null); render(React.createElement(G.StatsModal, { gs: g0, onClose: () => {}, dispatch: () => {} }));
+  ok(qsa(".seat-full").length === 3, "the dashboard lists the three seats as rows");
+  ok(qsa(".seat-full .conds li").length >= 3, "each open seat lists what it needs");
+  ok(!/SEAT HELD|CHAIRED BY/.test(text()), "no capitalised status labels remain");
+
+  // panels resize by dragging their edges
+  render(null); render(React.createElement(G.Game, { gs: g0, dispatch: () => {}, vw: 1400, onRestart: () => {} }));
+  const handles = ["Resize the summary panel", "Resize the management panel", "Resize the projects and log area"]
+    .map(l => qsa(`[aria-label="${l}"]`)[0]);
+  ok(handles.every(Boolean), "both side panels and the log split have a resize handle");
+  const left = qsa(".sheet-left")[0];
+  const w0 = parseFloat(left.style.width);
+  const fire = (el, type, x, y) => act(() => {
+    const ev = new dom.window.MouseEvent(type, { bubbles: true, clientX: x, clientY: y });
+    (type === "pointerdown" ? el : dom.window).dispatchEvent(ev);
+  });
+  fire(handles[0], "pointerdown", 200, 300); fire(handles[0], "pointermove", 280, 300); fire(handles[0], "pointerup", 280, 300);
+  ok(parseFloat(qsa(".sheet-left")[0].style.width) === w0 + 80, `dragging the edge widens the summary panel (${w0} → ${qsa(".sheet-left")[0].style.width})`);
+  fire(handles[0], "pointerdown", 200, 300); fire(handles[0], "pointermove", 900, 300); fire(handles[0], "pointerup", 900, 300);
+  ok(parseFloat(qsa(".sheet-left")[0].style.width) <= 380, "the panel cannot be dragged wider than its limit");
+  act(() => { handles[0].dispatchEvent(new dom.window.MouseEvent("dblclick", { bubbles: true })); });
+  ok(parseFloat(qsa(".sheet-left")[0].style.width) === 215, "double-clicking the handle resets the width");
+}
+
 /* ── dark mode and back again ─────────────────────────────── */
 {
   // Regression: switching back to light mode referenced a palette that no longer
