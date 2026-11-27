@@ -149,8 +149,8 @@ html.dark .team li{border-top-color:#243461} html.dark .team .nm{color:#EEF2FA} 
 html.dark .btn.hire-tile{background:#0F1B3D !important;border-color:#243461 !important}
 html.dark .btn.hire-tile:hover:not(:disabled){background:#16244A !important;border-color:#7C9BFF !important}
 html.dark .hire-tile .nm{color:#EEF2FA} html.dark .hire-tile .pr{color:#9AA8C8}
-.hire-detail{margin-top:10px;min-height:74px;padding:10px 12px;border-radius:8px;background:#F5F7FA;font-size:12px;line-height:1.5;color:#5A6785}
-html.dark .hire-detail{background:#16244A;color:#9AA8C8}
+.role-pop{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:12.5px;line-height:1.45;position:fixed;z-index:2100;pointer-events:none;padding:12px 14px;border-radius:8px;background:#FFFFFF;border:1px solid #D9DFEA;box-shadow:0 8px 24px rgba(11,27,63,.16);font-size:12.5px;line-height:1.5;color:#5A6785}
+html.dark .role-pop{background:#0F1B3D;border-color:#243461;color:#9AA8C8}
 /* Next stage */
 .evo-head{display:flex;align-items:center;gap:16px;padding:4px 0 16px;border-bottom:1px solid #D9DFEA}
 .evo-head .mu{font-size:11.5px;color:#5A6785}.evo-head .st{font-size:16px;font-weight:600;color:#0B1B3F;margin-top:2px}
@@ -358,6 +358,17 @@ function applyTextScale(big) {
   root.style.zoom = (big && wide) ? "1.12" : "";
   document.documentElement.classList.toggle("text-lg", !!(big && wide));
 }
+/* Language. English is written inline; FR maps each English string to French and
+   anything missing falls back to English. {name} placeholders are filled from vars. */
+let LANG = "en";
+let FR = {"{d} difficulty": "Niveau {d}", "a quarter": "par trimestre", ", {n} quarters of runway": ", {n} trimestres de réserve", "fee {m}/quarter, mix ×{x}": "cotisation {m}/trimestre, mix ×{x}", "market {n}% claimed (you and rivals)": "marché pris à {n} % (vous et les rivaux)", "Regional": "Régional", "National": "National", "EU": "UE", "{n}% risk": "{n} % de risque", "{a} of {b} slots": "{a} créneau(x) sur {b}", "{n} done": "{n} terminé(s)", "Needs {x}": "Il faut {x}", "Balanced": "Équilibré", "SME drive": "Priorité PME", "Corporate": "Grandes entreprises", "Research": "Recherche", "Key": "Légende", "not rated": "non classé", "Strong": "Fort", "Moderate": "Modéré", "Leader": "Leader", "Emerging": "Émergent", "Strong, Leader": "Fort, leader", "Moderate, Strong": "Modéré, fort", "Moderate, Strong, Leader": "Modéré, fort, leader","Switch to light mode":"Passer en mode clair","Switch to dark mode":"Passer en mode sombre","Open a regional office here":"Ouvrir un bureau régional ici","Needs {m}; you have {b}":"Il faut {m} ; vous avez {b}","Other countries open up at {s}":"D'autres pays s'ouvrent à l'étape {s}","Your stage allows 1 country; evolve to hold more":"Votre étape permet 1 pays ; évoluez pour en tenir plus","Your stage allows {n} countries; evolve to hold more":"Votre étape permet {n} pays ; évoluez pour en tenir plus","Out of reach: hold a neighbouring country first":"Hors de portée : tenez d'abord un pays voisin","Enter {c} with an office here":"Entrer en {c} avec un bureau ici","Language":"Langue","EU industrial strategy simulation":"Simulation de stratégie industrielle européenne","Cluster Manager":"Cluster Manager","Grow a regional cluster into an EU-wide cluster network.":"Faites d'un cluster régional un réseau de clusters à l'échelle de l'UE.","Load a saved slot":"Charger une sauvegarde","Continue saved game":"Reprendre la partie","Country":"Pays","Region":"Région","Ecosystem":"Écosystème","Back":"Retour","Scenario":"Scénario","Seed or challenge code":"Graine ou code de défi","Seed (optional)":"Graine (facultatif)","Paste challenge code…":"Coller un code de défi…","Start as a real cluster":"Commencer avec un vrai cluster","Search 1,400+ real clusters by name or city…":"Rechercher parmi plus de 1 400 clusters, par nom ou ville…","Search real cluster organisations":"Rechercher de vrais clusters","No match":"Aucun résultat","Names: European Cluster Collaboration Platform. Events are fiction.":"Noms : European Cluster Collaboration Platform. Les événements sont fictifs.","Or pick a country":"Ou choisissez un pays","Region in {c}":"Région en {c}","Start my own cluster here":"Créer mon cluster ici","Or take over":"Ou reprendre","Industrial ecosystem":"Écosystème industriel","Priority in {r}":"Priorité en {r}","Difficulty":"Difficulté","Home region":"Région d'origine","Change your home region":"Changer de région d'origine","Cluster name":"Nom du cluster","Name your cluster organisation":"Nommez votre cluster","Start in {r}":"Commencer en {r}","How to play":"Comment jouer","Light mode":"Mode clair","Dark mode":"Mode sombre","Click a country to start":"Cliquez sur un pays pour commencer",": click a region":" : cliquez sur une région","Optional seed for a reproducible campaign":"Graine facultative pour une partie reproductible","Any text: two players with the same seed, scenario and difficulty get an identical campaign start":"Tout texte : deux joueurs avec la même graine, le même scénario et la même difficulté démarrent la même partie","A friend's CM1 code sets seed, difficulty and scenario automatically":"Le code CM1 d'un ami règle automatiquement graine, difficulté et scénario","Paste a friend's challenge code":"Collez le code de défi d'un ami","Period":"Période","Treasury":"Trésorerie","Members":"Membres","Influence":"Influence","Board":"Conseil","Rules":"Règles","Undo":"Annuler","Toggle dark mode":"Mode sombre","Toggle sound":"Son","Save slots":"Sauvegardes","Save Slots":"Sauvegardes","Show the latest quarter review":"Afficher le dernier bilan trimestriel","Undo last quarter (U) — once per quarter, Junior & Officer only":"Annuler le dernier trimestre (U), une fois par trimestre, niveaux Junior et Officier","An event is waiting":"Un événement attend","Game rules":"Règles du jeu","Before you end the quarter":"Avant de finir le trimestre","Actions you can complete":"Actions possibles","Next quarter":"Trimestre suivant","Next Quarter":"Trimestre suivant","Resolve event first":"Réglez d'abord l'événement","Hire a General Manager":"Recrutez un directeur général","1 action can be completed":"1 action possible","{n} actions can be completed":"{n} actions possibles","Nothing pending":"Rien en attente","Pause":"Pause","Auto":"Auto","Advance quarters automatically until something needs you":"Avancer automatiquement jusqu'à ce qu'une décision soit nécessaire","What the next stage requires":"Ce qu'exige l'étape suivante","Evolve now":"Évoluer","Final stage":"Dernière étape","Stage goals {a}/{b}":"Objectifs d'étape {a}/{b}","Click to see options":"Cliquez pour voir les options","Your home country":"Votre pays d'origine","Fully covered":"Entièrement couvert","You hold {a} of {b} regions":"Vous tenez {a} régions sur {b}","Not in your network":"Hors de votre réseau","Close region card":"Fermer la fiche région","Open an office for {m}":"Ouvrir un bureau pour {m}","Enter {c} for {m}":"Entrer en {c} pour {m}","{e} is a smart-specialisation priority here":"{e} est une priorité de spécialisation intelligente ici","{e} is not a priority here":"{e} n'est pas une priorité ici","Your office is here":"Votre bureau est ici","Map key":"Légende","Show map key":"Afficher la légende","Close map key":"Fermer la légende","Unexplored":"Inexploré","Candidate country":"Pays candidat","Outside the Union":"Hors de l'Union","Rival territory":"Territoire rival","Active region":"Région active","Full national coverage":"Couverture nationale complète","Political seat":"Siège politique","Zoom in":"Zoom avant","Zoom out":"Zoom arrière","Zoom in on the map":"Agrandir la carte","Zoom out of the map":"Réduire la carte","Fit the whole map":"Voir toute la carte","Reset the map to fit the whole of Europe":"Recadrer la carte sur toute l'Europe","Resize the summary panel":"Redimensionner le panneau de synthèse","Resize the management panel":"Redimensionner le panneau de gestion","Resize the projects and log area":"Redimensionner la zone projets et journal","Drag to resize, double-click to reset":"Faites glisser pour redimensionner, double-cliquez pour réinitialiser","An event needs a decision":"Un événement demande une décision","Hire a General Manager to continue":"Recrutez un directeur général pour continuer","Cash for under {n} quarters":"Trésorerie pour moins de {n} trimestres","Board confidence at {n}%":"Confiance du conseil à {n} %","Ready to become {s}":"Prêt à devenir {s}","the next stage":"l'étape suivante","No project running, 1 call open":"Aucun projet en cours, 1 appel ouvert","No project running, {n} calls open":"Aucun projet en cours, {n} appels ouverts","A project slot is free":"Un créneau de projet est libre","Room for {n} more staff":"Place pour {n} employés de plus","Next stage needs more regions":"L'étape suivante exige plus de régions","Fees":"Cotisations","Projects":"Projets","Salaries":"Salaires","Overheads":"Frais généraux","Servicing":"Services aux membres","Delivery":"Réalisation","Regional innovation tier":"Niveau d'innovation régional","priority":"priorité","not a priority":"pas une priorité","Is your ecosystem a smart-specialisation priority here?":"Votre écosystème est-il une priorité de spécialisation intelligente ici ?","cross-ecosystem":"inter-écosystèmes","As a national body you work across ecosystems":"En tant qu'organisme national, vous travaillez sur plusieurs écosystèmes","Small and medium firms":"PME","Large companies":"Grandes entreprises","Research organisations":"Organismes de recherche","Recruitment focus":"Priorité de recrutement","Fades {n} a quarter":"Baisse de {n} par trimestre","Your political standing with public authorities. It fades each quarter unless you keep earning it.":"Votre poids auprès des pouvoirs publics. Il baisse chaque trimestre si vous ne l'entretenez pas.","Seats":"Sièges","Yours":"À vous","Open":"Libre","Board confidence":"Confiance du conseil","Board confidence trend":"Évolution de la confiance du conseil","Influence trend":"Évolution de l'influence","Members trend":"Évolution des membres","Crisis: +3% extra churn":"Crise : +3 % de départs","Crisis: +3% extra member churn":"Crise : +3 % de départs de membres","Staff":"Équipe","Network":"Réseau","Rivals":"Rivaux","Failure risk for a new project":"Risque d'échec d'un nouveau projet","Projects running, out of the slots you have":"Projets en cours, sur vos créneaux disponibles","Projects completed":"Projets terminés","How project risk and slots work":"Fonctionnement du risque et des créneaux","No call is open to you yet":"Aucun appel ne vous est encore ouvert","Each kind of project needs its specialist:":"Chaque type de projet demande son spécialiste :","Analyst":"Analyste","Communications":"Communication","Training":"Formation","Lobbyist":"Lobbyiste","Research projects":"Projets de recherche","Communications projects":"Projets de communication","Training projects":"Projets de formation","Lobbying projects":"Projets de lobbying","Networking projects":"Projets de réseau","Not yet available":"Pas encore disponible","Why some calls are locked":"Pourquoi certains appels sont verrouillés","Type of project":"Type de projet","Who funds it":"Financeur","Specialist who runs it":"Spécialiste responsable","Volume":"Volume","Margin":"Marge","Risk":"Risque","Partners":"Partenaires","Number of partners":"Nombre de partenaires","Influence gained on delivery":"Influence gagnée à la livraison","Members gained on delivery":"Membres gagnés à la livraison","Members needed to apply":"Membres requis pour postuler","Staff needed to apply":"Personnel requis pour postuler","Needs {m} to start":"Il faut {m} pour commencer","Start project, {m} a quarter":"Lancer le projet, {m} par trimestre","How payment works":"Fonctionnement du paiement","Active projects ({n})":"Projets en cours ({n})","None running":"Aucun en cours","No project running":"Aucun projet en cours","{n} q left":"{n} trim. restants","Quarters until delivery":"Trimestres avant la livraison","Project volume":"Volume du projet","Event log":"Journal","Staff on the payroll":"Personnel salarié","Salaries a quarter":"Salaires par trimestre","Management capacity: staff led, out of the most your managers can lead":"Capacité d'encadrement : personnes encadrées, sur le maximum possible","Members lost each quarter":"Membres perdus par trimestre","Project failure risk":"Risque d'échec des projets","How staffing works":"Fonctionnement du recrutement","Team ({n})":"Équipe ({n})","required":"obligatoire","Release":"Licencier","Release the most recent hire":"Licencier la dernière recrue","Hire":"Recruter","Point at a role for details":"Survolez un rôle pour le détail","Not enough money yet":"Pas encore assez d'argent","Regions with an office":"Régions avec un bureau","Countries held, out of the most your stage allows":"Pays tenus, sur le maximum autorisé à votre étape","Cost of a new regional office":"Coût d'un nouveau bureau régional","Cost of entering a new country":"Coût d'entrée dans un nouveau pays","Open an office":"Ouvrir un bureau","About regional offices":"À propos des bureaux régionaux","Enter a country":"Entrer dans un pays","About entering a country":"À propos de l'entrée dans un pays","No unclaimed country borders your network yet.":"Aucun pays libre ne borde encore votre réseau.","Member market":"Marché des membres","How the rivalry works":"Fonctionnement de la rivalité","Share of the member market you hold":"Votre part du marché des membres","Share pressed by rivals":"Part prise par les rivaux","Members nobody has recruited yet":"Membres que personne n'a encore recrutés","No rivals remain. The market is yours.":"Il ne reste aucun rival. Le marché est à vous.","Ahead of you":"Devant vous","Closing in":"Se rapproche","Truce":"Trêve","Countries":"Pays","Stage":"Étape","Next stage":"Étape suivante","Now":"Actuelle","Next":"Suivante","Goals met":"Objectifs atteints","Become {s} for {m}":"Devenir {s} pour {m}","Costs {m} once every goal is met":"Coûte {m} une fois tous les objectifs atteints","Cluster Dashboard":"Tableau de bord","Report card":"Bilan","Share result":"Partager le résultat","Copy summary":"Copier le résumé","Copy challenge link":"Copier le lien du défi","Copy challenge code":"Copier le code du défi","Play again":"Rejouer","Start a seeded campaign to share a replayable challenge.":"Lancez une partie avec graine pour partager un défi rejouable.","Share your result, with a link that loads this exact starting position":"Partagez votre résultat, avec un lien vers la même position de départ","Copies a short summary of how the run went":"Copie un court résumé de la partie","A link that opens the game with this challenge already loaded":"Un lien qui ouvre le jeu avec ce défi déjà chargé","Copies a CM1|… code: a friend can paste it on the setup screen and play the identical campaign, then compare report cards":"Copie un code CM1|… : un ami peut le coller à l'écran de départ, jouer la même partie et comparer les bilans","Export run as CSV ⬇":"Exporter la partie en CSV ⬇","Export the full run history as CSV":"Exporter tout l'historique en CSV","CSV ⬇":"CSV ⬇","Event History":"Historique","Advance quarters to see history.":"Avancez de quelques trimestres pour voir l'historique.","Cashflow":"Flux de trésorerie","Membership fees":"Cotisations","Project income":"Revenus des projets","Member servicing":"Services aux membres","Delivery costs":"Coûts de réalisation","Net Income":"Résultat net","This quarter":"Ce trimestre","Show automatically each quarter":"Afficher à chaque trimestre","Dismiss quarter review":"Fermer le bilan trimestriel","Cluster evolved":"Le cluster a évolué","Stage 5 unlocked":"Étape 5 débloquée","Project income +10%":"Revenus des projets +10 %","Rival Race · first to Pan-European Cluster Network":"Course des rivaux : premier au réseau paneuropéen de clusters","Rival Race · first to a Pan-European Cluster Network":"Course des rivaux : premier à un réseau paneuropéen de clusters","Staff Management":"Gestion de l'équipe","Available Projects":"Projets disponibles","Save here":"Sauvegarder ici","Load":"Charger","Copy":"Copier","Loading…":"Chargement…","Move a run between devices":"Transférer une partie entre appareils","Restore from a code or file":"Restaurer depuis un code ou un fichier","Restore this run":"Restaurer cette partie","Paste a save code here…":"Collez un code de sauvegarde ici…","Paste a save code to restore a run":"Collez un code de sauvegarde pour restaurer une partie","Your save code — copy all of it":"Votre code de sauvegarde, copiez-le en entier","Close":"Fermer","Skip":"Passer","Watch":"Suivre","Got it, let's go":"Compris, c'est parti","Quick orientation":"Repères","Cost:":"Coût :","Evolution cost:":"Coût de l'évolution :","Evolve":"Évoluer","Stats ▾":"Statistiques ▾","General Manager":"Directeur général","Cluster Initiative":"Initiative de cluster","Cluster Organisation":"Organisation de cluster","National Association":"Association nationale","Cross-Border Metacluster":"Métacluster transfrontalier","EU Platform":"Plateforme européenne","Pan-European Cluster Network":"Réseau paneuropéen de clusters","Energy-Renewables":"Énergies renouvelables","Agri-food":"Agroalimentaire","Mobility, Transport, Automotive":"Mobilité, transport, automobile","Digital":"Numérique","Health":"Santé","Energy Intensive Industries":"Industries à forte intensité énergétique","Tourism":"Tourisme","Construction":"Construction","Creative and Cultural Industries":"Industries culturelles et créatives","Electronics":"Électronique","Aerospace and Defence":"Aérospatiale et défense","Proximity and Social Economy":"Économie sociale et de proximité","Textiles":"Textile","Retail":"Commerce de détail","Classic Campaign":"Campagne classique","Rescue Mission":"Mission de sauvetage","Late Entrant":"Arrivée tardive","Merger Aftermath":"Après la fusion","The standard start: a young initiative, three rivals, an open map.":"Le départ standard : une jeune initiative, trois rivaux, une carte ouverte.","Take over a collapsing cluster: board at 25, thin reserves, restless members — but an established base.":"Reprenez un cluster en difficulté : conseil à 25, réserves minces, membres nerveux, mais une base établie.","The race started without you: every rival is already established at Stage 2. Extra seed capital is your only edge.":"La course a commencé sans vous : chaque rival est déjà à l'étape 2. Un capital de départ plus élevé est votre seul atout.","Two clusters just became one. Plenty of members and a corporate-heavy roll, but a duplicated payroll, a sceptical board and integration nobody has actually done yet.":"Deux clusters viennent de fusionner. Beaucoup de membres, surtout des grandes entreprises, mais une masse salariale en double, un conseil sceptique et une intégration à faire.","Junior":"Junior","Officer":"Officier","Expert":"Expert","Learn the ropes: fewer failures, richer margins, more seed capital, gentler rivals.":"Pour apprendre : moins d'échecs, de meilleures marges, plus de capital, des rivaux plus doux.","A fair fight with a modest safety net. Recommended first campaign.":"Un combat équilibré avec un léger filet de sécurité. Recommandé pour commencer.","No safety net: rivals at full strength, delivery risk is real, and nobody is waiting for you.":"Sans filet : rivaux à pleine puissance, risque réel et personne ne vous attend.","Communications Director":"Directeur de la communication","Policy Lobbyist":"Chargé des affaires publiques","Training Coordinator":"Coordinateur de formation","Project Manager":"Chef de projet","Research Analyst":"Analyste de recherche","Finance Director":"Directeur financier","Legal Counsel":"Juriste","Human Resources Manager":"Responsable des ressources humaines","Executive Director":"Directeur exécutif","Regional Coordinator":"Coordinateur régional","Country Manager":"Directeur pays","THE boss: the cluster cannot operate a single quarter without its General Manager, and there is never more than one. -0.5% churn. Unlocks network projects and EU lobbying.":"Le patron : le cluster ne peut fonctionner un seul trimestre sans son directeur général, et il n'y en a jamais qu'un. -0,5 % de départs. Débloque les projets de réseau et le lobbying européen.","+4 members/quarter, +2 influence/quarter. Slows influence decay. Needed for the Regional S3 Committee seat.":"+4 membres/trimestre, +2 influence/trimestre. Ralentit la baisse d'influence. Requis pour le siège au comité régional S3.","+3 influence/quarter. Bad events weakened by 55%. Opens political seats (national: 1, EU: 2). 2 required to evolve to EU Platform.":"+3 influence/trimestre. Événements négatifs atténués de 55 %. Ouvre les sièges politiques (national : 1, UE : 2). 2 requis pour devenir Plateforme européenne.","+5 members/quarter. Churn -0.8%/quarter per hire.":"+5 membres/trimestre. Départs -0,8 %/trimestre par recrue.","+18% project income. Project failure risk -14% per hire.":"+18 % de revenus des projets. Risque d'échec -14 % par recrue.","+4 influence/quarter. Unlocks Horizon Europe RIA/KIC. 1 required to evolve to National Association.":"+4 influence/trimestre. Débloque les RIA/KIC d'Horizon Europe. 1 requis pour devenir Association nationale.","Overhead -20%. Unlocks the largest EU calls. 1 required to evolve to Cross-Border Metacluster.":"Frais généraux -20 %. Débloque les plus grands appels européens. 1 requis pour devenir Métacluster transfrontalier.","Failure risk -8% per hire. Audit events negated. Evolution demands 1/2/3 Legal Counsel from Stage 3 up.":"Risque d'échec -8 % par recrue. Annule les événements d'audit. L'évolution exige 1/2/3 juristes à partir de l'étape 3.","Churn -1%/quarter. Salary inflation events negated.":"Départs -1 %/trimestre. Annule les événements d'inflation salariale.","Governance role. Extends management capacity by +7 staff (span of control). Board +4/quarter (first hire), +2/quarter each extra. Halves the board penalty from failed projects. Income +10%. 2 required for Stage 5.":"Rôle de gouvernance. Augmente la capacité d'encadrement de 7 personnes. Conseil +4/trimestre (première recrue), +2/trimestre ensuite. Divise par deux la pénalité du conseil en cas d'échec. Revenus +10 %. 2 requis pour l'étape 5.","Runs one regional office. Hired automatically with every regional expansion and cannot be dismissed while the office is open.":"Dirige un bureau régional. Recruté automatiquement à chaque expansion régionale, il ne peut être licencié tant que le bureau est ouvert.","Leads a national office. Hired automatically with every country expansion and cannot be dismissed while the office is open.":"Dirige un bureau national. Recruté automatiquement à chaque nouveau pays, il ne peut être licencié tant que le bureau est ouvert.","The Poacher":"Le Braconnier","The Brussels Insider":"L'Initié de Bruxelles","The Expansionist":"L'Expansionniste","The Deliverer":"Le Méthodique","The Discounter":"Le Casseur de prix","Talent Raid":"Débauchage","PR Campaign":"Campagne de communication","Joint Consortium":"Consortium commun","Acquire Rival":"Racheter le rival","Scout":"Surveiller"};
+const t = (str, vars) => {
+  let out = (LANG === "fr" && FR[str]) || str;
+  if (vars) out = String(out).replace(/\{(\w+)\}/g, (m, k) => (vars[k] != null ? vars[k] : m));
+  return out;
+};
+function applyLang(lang) { LANG = lang === "fr" ? "fr" : "en"; try { document.documentElement.lang = LANG; } catch (e) {} }
+
 function applyTheme(dark) {
   THEME_DARK = !!dark;
   Object.assign(P, dark ? P_DARK : P_LIGHT);
@@ -2889,22 +2900,22 @@ function attentionItems(gs) {
   const add = (id, urgent, text, go) => items.push({ id, urgent, text, go });
   const roster = gs.roster || [];
 
-  if (gs.pendingEvent) add("event", true, "An event needs a decision", "event");
-  if (byRole(roster, "manager") < 1) add("gm", true, "Hire a General Manager to continue", "staff");
+  if (gs.pendingEvent) add("event", true, t("An event needs a decision"), "event");
+  if (byRole(roster, "manager") < 1) add("gm", true, t("Hire a General Manager to continue"), "staff");
 
   const burn = (gs.qStaff||0) + (gs.qOverhead||0) + (gs.qServicing||0) + Math.max(0, (gs.qDelivery||0) - (gs.qInterim||0));
   if ((gs.turn||0) > 0 && burn > 0 && (gs.budget||0) / burn < 3 && (gs.qNet||0) < 0)
-    add("runway", true, `Cash for under ${Math.max(1, Math.ceil((gs.budget||0) / burn))} quarters`, "stats");
-  if ((gs.boardConf||0) < 35) add("board", true, `Board confidence at ${Math.round(gs.boardConf||0)}%`, "stats");
+    add("runway", true, t("Cash for under {n} quarters", {n: Math.max(1, Math.ceil((gs.budget||0) / burn))}), "stats");
+  if ((gs.boardConf||0) < 35) add("board", true, t("Board confidence at {n}%", {n: Math.round(gs.boardConf||0)}), "stats");
 
-  if (canEvolve(gs)) add("evolve", false, `Ready to become ${STAGES[(gs.stage||0)+1]?.name || "the next stage"}`, "evolve");
+  if (canEvolve(gs)) add("evolve", false, t("Ready to become {s}", {s: t(STAGES[(gs.stage||0)+1]?.name || "the next stage")}), "evolve");
 
   const calls = availableProjects(gs);
   if (calls.length) {
     const running = (gs.activeProjects||[]).length;
     add("projects", running === 0, running === 0
-      ? `No project running, ${calls.length} call${calls.length===1?"":"s"} open`
-      : `A project slot is free`, "projects");
+      ? t(calls.length===1 ? "No project running, 1 call open" : "No project running, {n} calls open", {n: calls.length})
+      : t("A project slot is free"), "projects");
   }
 
   // Unused management capacity only counts when a hire is comfortably affordable.
@@ -2912,7 +2923,7 @@ function attentionItems(gs) {
   if (room > 0 && byRole(roster, "manager") >= 1) {
     const cheapest = Math.min(...STAFF_ROLES.filter(r => !r.hidden && r.id !== "manager" && !hireBlockReason(gs, r.id)).map(r => roleCost(r, gs.turn||0)).concat([Infinity]));
     if (Number.isFinite(cheapest) && (gs.budget||0) - cheapest > staffCostQ(roster, gs.turn||0) * 3 + 40000)
-      add("staff", false, `Room for ${room} more staff`, "staff");
+      add("staff", false, t("Room for {n} more staff", {n: room}), "staff");
   }
 
   // A region gate is the usual thing holding back the next stage.
@@ -2920,7 +2931,7 @@ function attentionItems(gs) {
   if (needRegion) {
     const cost = Math.round((gs.prestige||0) * 1400 + 30000);
     if ((gs.budget||0) - cost > staffCostQ(roster, gs.turn||0) * 3)
-      add("region", false, `Next stage needs more regions`, "network");
+      add("region", false, t("Next stage needs more regions"), "network");
   }
   return items.sort((a, b) => (b.urgent?1:0) - (a.urgent?1:0));
 }
@@ -3013,22 +3024,22 @@ function expansionOption(gs, country, regionName) {
   if (!gs || !country || !(EU_COUNTRIES[country]||[]).includes(regionName)) return { state:"none" };
   const label = regionLabelFor(gs, country, regionName);
   if ((gs.regions||[]).includes(label) || (country===gs.country && regionName===gs.region))
-    return { state:"held", text:"Your office is here" };
+    return { state:"held", text:t("Your office is here") };
   const budget = gs.budget||0;
   if ((gs.countries||[]).includes(country)) {
     const cost = regionExpansionCost(gs);
     return { state: budget >= cost ? "region" : "short", cost, kind:"region",
-      text: budget >= cost ? "Open a regional office here" : `Needs ${fmt(cost)}; you have ${fmt(budget)}`,
+      text: budget >= cost ? t("Open a regional office here") : t("Needs {m}; you have {b}", {m: fmt(cost), b: fmt(budget)}),
       action: { type:"expandRegion", region: label, cost } };
   }
-  if ((gs.stage||0) < 2) return { state:"blocked", text:`Other countries open up at ${STAGES[2].name}` };
+  if ((gs.stage||0) < 2) return { state:"blocked", text:t("Other countries open up at {s}", {s: t(STAGES[2].name)}) };
   if ((gs.countries||[]).length >= countryCap(gs))
-    return { state:"blocked", text:`Your stage allows ${countryCap(gs)} countr${countryCap(gs)===1?"y":"ies"}; evolve to hold more` };
+    return { state:"blocked", text:t(countryCap(gs)===1 ? "Your stage allows 1 country; evolve to hold more" : "Your stage allows {n} countries; evolve to hold more", {n: countryCap(gs)}) };
   if (!reachableCountries(gs).has(country))
-    return { state:"blocked", text:"Out of reach: hold a neighbouring country first" };
+    return { state:"blocked", text:t("Out of reach: hold a neighbouring country first") };
   const cost = countryExpansionCost(gs, country);
   return { state: budget >= cost ? "country" : "short", cost, kind:"country",
-    text: budget >= cost ? `Enter ${country} with an office here` : `Needs ${fmt(cost)}; you have ${fmt(budget)}`,
+    text: budget >= cost ? t("Enter {c} with an office here", {c: country}) : t("Needs {m}; you have {b}", {m: fmt(cost), b: fmt(budget)}),
     action: { type:"expandCountry", country, region: regionName, cost } };
 }
 // The playable region a NUTS-2 polygon belongs to (some countries plan at a coarser level).
@@ -3393,11 +3404,11 @@ function advanceTurn(prev) {
         s.rivalSeats = { ...(s.rivalSeats||{}) }; delete s.rivalSeats[st.id];
         s.rivals = (s.rivals||[]).map(rv => rv.id===holder ? { ...rv, health:(rv.health??70)-10 } : rv);
         s.seats = { ...(s.seats||{}), [st.id]: true };
-        s.log = [{t:"good",txt:`POLITICAL COUP: you displaced ${rvName} from the ${st.label} · ${st.effects}`}, ...s.log].slice(0,120);
+        s.log = [{t:"good",txt:`POLITICAL COUP: you displaced ${rvName} from the ${t(st.label)} · ${st.effects}`}, ...s.log].slice(0,120);
       }
     } else {
       s.seats = { ...(s.seats||{}), [st.id]: true };
-      s.log = [{t:"good",txt:`POLITICAL SEAT: your cluster now sits on the ${st.label} · ${st.effects}`}, ...s.log].slice(0, 120);
+      s.log = [{t:"good",txt:`POLITICAL SEAT: your cluster now sits on the ${t(st.label)} · ${st.effects}`}, ...s.log].slice(0, 120);
     }
   }
 
@@ -3791,8 +3802,10 @@ function useMapView() {
         mid: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 },
       };
     }
-    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {}
+    // No pointer capture yet: capturing here would retarget the click to the
+    // map background, so a plain click on a region would never reach it.
   };
+  const capture = (e) => { try { svgRef.current && svgRef.current.setPointerCapture(e.pointerId); } catch (err) {} };
 
   const onPointerMove = (e) => {
     if (!pointers.current.has(e.pointerId)) return;
@@ -3808,6 +3821,7 @@ function useMapView() {
           const p = toSvg(mid.x, mid.y);
           setView((v) => zoomMapAt(v, factor, p.x, p.y));
           pinch.current = { dist, mid };
+          if (!dragged.current) capture(e);
           dragged.current = true;
         }
       }
@@ -3818,6 +3832,7 @@ function useMapView() {
       const dx = e.clientX - last.current.x;
       const dy = e.clientY - last.current.y;
       if (!dragged.current && Math.hypot(dx, dy) < DRAG_SLOP) return;
+      if (!dragged.current) capture(e);   // a real drag: keep the pointer even if it leaves the map
       dragged.current = true;
       const el = svgRef.current;
       if (!el) return;
@@ -3899,7 +3914,13 @@ function EUMap({ gs, sel, setSel, lift=0, dispatch }) {
   const [hovR, setHovR] = useState(null);   // NUTS-2 code under the pointer
   const [hovXY, setHovXY] = useState(null); // pointer position inside the map, for the hover label
   const track = e => { const r = map.svgRef.current && map.svgRef.current.getBoundingClientRect(); if (r) setHovXY({ x: e.clientX - r.left, y: e.clientY - r.top, w: r.width, h: r.height }); };
-  const choose = code => { const r = regionAt(code); setPick(r); if (r) setSel && setSel(null); };
+  const [pickXY, setPickXY] = useState(null);
+  const choose = (code, e) => {
+    const r = regionAt(code); setPick(r); if (r) setSel && setSel(null);
+    const box = map.svgRef.current && map.svgRef.current.getBoundingClientRect();
+    if (box && e && e.clientX != null) setPickXY({ x: e.clientX - box.left, y: e.clientY - box.top, w: box.width, h: box.height });
+    else setPickXY(null);
+  };
   const map = useMapView();
   const sc      = gs?.sector?.color || P.accent;
   const homeISO = NAME_TO_ISO[gs?.country] || "";
@@ -3952,7 +3973,7 @@ function EUMap({ gs, sel, setSel, lift=0, dispatch }) {
         {isA && <text x={tx+8} y={ty+42} fontSize={9} fill={P.muted} fontFamily="Helvetica, Arial, sans-serif">{rCnt} region{rCnt!==1?"s":""} active</text>}
         <text x={tx+8} y={isA?ty+53:ty+41} fontSize={9} fill={P.muted} fontFamily="Helvetica, Arial, sans-serif">{(EU_COUNTRIES[name]||[]).length} regions available</text>
         {rivHere.map((rv, k) => (
-          <text key={`rt-${rv.id}`} x={tx+20} y={(isA?ty+65:ty+53)+k*11} fontSize={9} fill={rv.color} fontFamily="Helvetica, Arial, sans-serif">{rv.name} · {STAGES[rv.stage]?.name}</text>
+          <text key={`rt-${rv.id}`} x={tx+20} y={(isA?ty+65:ty+53)+k*11} fontSize={9} fill={rv.color} fontFamily="Helvetica, Arial, sans-serif">{rv.name} · {t(STAGES[rv.stage]?.name)}</text>
         ))}
         {sel && (
           <g pointerEvents="auto" style={{cursor:"pointer"}} onClick={(e) => { e.stopPropagation(); setSel && setSel(null); }}>
@@ -3991,7 +4012,7 @@ function EUMap({ gs, sel, setSel, lift=0, dispatch }) {
           const pop    = popCode && nutsMatch(k, popCode);
           return <path key={k} d={d} fill={fill} data-nuts={k} style={{cursor:"pointer"}}
             onMouseEnter={(e)=>{ setHov(iso); setHovR(k); track(e); }} onMouseMove={track} onMouseLeave={()=>{ setHov(null); setHovR(null); setHovXY(null); }}
-            onClick={(e)=>{ e.stopPropagation(); choose(k); }}
+            onClick={(e)=>{ e.stopPropagation(); choose(k, e); }}
             className={pop ? "map-new" : isHome ? "map-home" : undefined}
             {...(pop || isHome ? {style:{cursor:"pointer",color: isHome ? P.gold : sc, stroke: isHome ? P.gold : "none"}} : {})}/>;
         })}
@@ -4110,7 +4131,7 @@ function EUMap({ gs, sel, setSel, lift=0, dispatch }) {
         const iso = nutsToIso(k);
         return <circle key={`hitc-${k}`} cx={c[0]} cy={c[1]} r={14} fill="transparent" style={{cursor:"pointer"}}
           onMouseEnter={()=>setHov(iso)} onMouseLeave={()=>setHov(null)}
-          onClick={(e)=>{ e.stopPropagation(); const code = Object.keys(NUTS2_PATHS).find(c => nutsMatch(c, k)); if (code) choose(code); }}/>;
+          onClick={(e)=>{ e.stopPropagation(); const code = Object.keys(NUTS2_PATHS).find(c => nutsMatch(c, k)); if (code) choose(code, e); }}/>;
       })}
 
 
@@ -4123,7 +4144,7 @@ function EUMap({ gs, sel, setSel, lift=0, dispatch }) {
       const held = recs.filter(rec => hasRegionActive(gs, name, rec.name)).length;
       const r = hovR && regionAt(hovR);
       const here = rivals.filter(rv => (rv.countries||[]).includes(name));
-      const status = hov === homeISO ? "Your home country" : fullSet.has(hov) ? "Fully covered" : activeSet.has(hov) ? `You hold ${held} of ${recs.length} regions` : "Not in your network";
+      const status = hov === homeISO ? t("Your home country") : fullSet.has(hov) ? t("Fully covered") : activeSet.has(hov) ? t("You hold {a} of {b} regions", {a: held, b: recs.length}) : t("Not in your network");
       const left = hovXY.x + 14 + 240 > hovXY.w ? Math.max(6, hovXY.x - 254) : hovXY.x + 14;
       const top  = Math.min(hovXY.y + 14, Math.max(6, hovXY.h - 140));
       return (
@@ -4136,7 +4157,7 @@ function EUMap({ gs, sel, setSel, lift=0, dispatch }) {
               <span>{rv.name}, {(STAGES[rv.stage]?.name || "").toLowerCase()}</span>
             </div>
           ))}
-          <div style={{color:P.muted,marginTop:4,fontSize:11}}>Click for options</div>
+          <div style={{color:P.accent,marginTop:4,fontSize:11.5}}>{t("Click to see options")}</div>
         </div>
       );
     })()}
@@ -4148,13 +4169,17 @@ function EUMap({ gs, sel, setSel, lift=0, dispatch }) {
       const go = opt.action && (opt.state === "region" || opt.state === "country");
       return (
         <div className="glass region-card" role="dialog" aria-label={`Region ${pick.name}`}
-          style={{position:"absolute",left:12,bottom:48,zIndex:46,width:"min(300px, calc(100% - 24px))",padding:"14px 16px 14px"}}>
-          <button className="btn" onClick={() => setPick(null)} aria-label="Close region card"
+          style={{position:"absolute",zIndex:46,width:"min(300px, calc(100% - 24px))",padding:"14px 16px 14px",
+            ...(pickXY ? {
+              left: Math.max(12, Math.min(pickXY.x + 16, pickXY.w - 312)),
+              top:  Math.max(12, Math.min(pickXY.y - 40, pickXY.h - 250)),
+            } : { left:12, bottom:48 })}}>
+          <button className="btn" onClick={() => setPick(null)} aria-label={t("Close region card")}
             style={{position:"absolute",top:8,right:8,background:"transparent",border:"none",padding:4,display:"flex"}}><Icon name="xmark" size={12} color={P.muted}/></button>
           <div className="title-caps" style={{fontSize:16,lineHeight:1.25,paddingRight:22}}>{pick.name}</div>
           <div style={{fontSize:12,color:P.muted,marginTop:2,lineHeight:1.45}}>{pick.country}, {rec.nuts || pick.code}{rec.ris ? `. Innovation: ${rec.ris.toLowerCase()}` : ""}{rec.coh ? `. Cohesion: ${rec.coh.toLowerCase()}` : ""}</div>
           <div style={{fontSize:11.5,marginTop:8,color:aligned?P.greenText:P.muted}}>
-            {aligned ? `${gs.sector?.name} is a smart-specialisation priority here` : `${gs.sector?.name} is not a priority here`}
+            {t(aligned ? "{e} is a smart-specialisation priority here" : "{e} is not a priority here", {e: t(gs.sector?.name)})}
           </div>
           {opt.state === "held" && <div style={{fontSize:12.5,fontWeight:600,color:P.accent,marginTop:10}}>{opt.text}</div>}
           {opt.state === "blocked" && <div style={{fontSize:12,color:P.muted,marginTop:10,lineHeight:1.45}}>{opt.text}</div>}
@@ -4162,7 +4187,7 @@ function EUMap({ gs, sel, setSel, lift=0, dispatch }) {
             <>
               <button className="btn" disabled={!go || !dispatch} onClick={() => dispatch && dispatch(opt.action)}
                 style={{marginTop:12,width:"100%",padding:"10px 12px",border:"none",borderRadius:6,background:go?P.accent:P.bright,color:go?P.onAccent:P.muted,fontSize:13,fontWeight:600}}>
-                {opt.kind === "country" ? `Enter ${pick.country} for ${fmt(opt.cost)}` : `Open an office for ${fmt(opt.cost)}`}
+                {opt.kind === "country" ? t("Enter {c} for {m}", {c: pick.country, m: fmt(opt.cost)}) : t("Open an office for {m}", {m: fmt(opt.cost)})}
               </button>
               <div style={{fontSize:11.5,color:P.muted,marginTop:6,lineHeight:1.45}}>
                 {opt.state === "short" ? opt.text
@@ -4177,18 +4202,18 @@ function EUMap({ gs, sel, setSel, lift=0, dispatch }) {
 
     {/* Watermark — HTML, not SVG, so zooming the map doesn't magnify it */}
     <div style={{position:"absolute",...(lift ? {left:"50%",transform:"translateX(-50%)"} : {right:8}),bottom:6,pointerEvents:"none",fontSize:11.5,color:P.muted,opacity:0.55,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',whiteSpace:"nowrap"}}>
-      {diffOf(gs).label} difficulty
+      {t("{d} difficulty", {d: t(diffOf(gs).label)})}
     </div>
 
     {/* Zoom controls: buttons matter for anyone who can't pinch (desktop, or
         assistive input), and give a visible way back to the full view. */}
     <div style={{position:"absolute",right:lift?12:8,bottom:26+lift,zIndex:36,display:"flex",flexDirection:"column",gap:4}}>
-      <button className="btn" onClick={()=>map.zoomBy(1.5)} title="Zoom in" aria-label="Zoom in on the map"
+      <button className="btn" onClick={()=>map.zoomBy(1.5)} title={t("Zoom in")} aria-label={t("Zoom in on the map")}
         style={{width:30,height:30,borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:15,fontWeight:700,lineHeight:1,boxShadow:"none",display:"flex",alignItems:"center",justifyContent:"center"}}>+</button>
-      <button className="btn" onClick={()=>map.zoomBy(1/1.5)} title="Zoom out" aria-label="Zoom out of the map"
+      <button className="btn" onClick={()=>map.zoomBy(1/1.5)} title={t("Zoom out")} aria-label={t("Zoom out of the map")}
         style={{width:30,height:30,borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:17,fontWeight:700,lineHeight:1,boxShadow:"none",display:"flex",alignItems:"center",justifyContent:"center"}}>−</button>
       {map.zoomed && (
-        <button className="btn" onClick={map.reset} title="Fit the whole map" aria-label="Reset the map to fit the whole of Europe"
+        <button className="btn" onClick={map.reset} title={t("Fit the whole map")} aria-label={t("Reset the map to fit the whole of Europe")}
           style={{width:30,height:30,borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent",color:P.accent,boxShadow:"none",display:"flex",alignItems:"center",justifyContent:"center"}}>
           <Icon name="rotate-left" size={12} color={P.accent}/>
         </button>
@@ -4468,43 +4493,43 @@ function LeftPanel({ gs, dispatch }) {
     <div style={{width:"100%",flexShrink:0,display:"flex",flexDirection:"column",gap:0,padding:"6px 14px 14px 14px",overflowY:"auto",background:P.panel}}>
       {/* Where the cluster stands */}
       <div style={{padding:"12px 6px 14px"}}>
-        <div style={{fontSize:15,fontWeight:600,color:P.text,lineHeight:1.25,marginBottom:8}}>{stage.name}</div>
+        <div style={{fontSize:15,fontWeight:600,color:P.text,lineHeight:1.25,marginBottom:8}}>{t(stage.name)}</div>
         <Facts items={[
-          {i:"location-dot", t:`${gs.region||""}${gs.regionNuts ? `, ${gs.regionNuts}` : ""}`, tip:"Home region"},
-          {i:"chart-line", t:(gs.regionRis||"not rated").toLowerCase(), tip:"Regional innovation tier"},
-          {i:"bullseye", t:gs.s3Aligned ? "priority" : "not a priority", tip:"Is your ecosystem a smart-specialisation priority here?", color:gs.s3Aligned?P.greenText:undefined},
-          (gs.stage||0)>=2 && {i:"circle-nodes", t:"cross-ecosystem", tip:"As a national body you work across ecosystems"},
+          {i:"location-dot", t:`${gs.region||""}${gs.regionNuts ? `, ${gs.regionNuts}` : ""}`, tip:t("Home region")},
+          {i:"chart-line", t:t(gs.regionRis||"not rated").toLowerCase(), tip:t("Regional innovation tier")},
+          {i:"bullseye", t:t(gs.s3Aligned ? "priority" : "not a priority"), tip:t("Is your ecosystem a smart-specialisation priority here?"), color:gs.s3Aligned?P.greenText:undefined},
+          (gs.stage||0)>=2 && {i:"circle-nodes", t:t("cross-ecosystem"), tip:t("As a national body you work across ecosystems")},
         ]} style={{flexDirection:"column",gap:6}}/>
       </div>
 
       {/* Budget */}
       <div className={pBudget} style={{padding:"14px 6px 12px",borderTop:`1px solid ${P.border}`}}>
-        <Lbl t="Treasury"/>
+        <Lbl t={t("Treasury")}/>
         <div className="tnum" style={{fontSize:26,fontWeight:600,letterSpacing:-.5,color:(gs.budget||0)<20000?P.redText:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{fmt(Math.round(tBudget))}</div>
         <div style={{fontSize:12,color:P.muted,marginTop:2}}>
-          <span style={{color:(gs.qNet||0)>=0?P.greenText:P.redText}}>{(gs.qNet||0)>=0?"+":"−"}{fmt(Math.abs(gs.qNet||0))}</span> a quarter{runway>=99 ? "" : `, ${runway} quarters of runway`}
+          <span style={{color:(gs.qNet||0)>=0?P.greenText:P.redText}}>{(gs.qNet||0)>=0?"+":"−"}{fmt(Math.abs(gs.qNet||0))}</span> {t("a quarter")}{runway>=99 ? "" : t(", {n} quarters of runway", {n: runway})}
         </div>
         {(gs.rivals||[]).filter(r=>r.stage>gs.stage).length>0 && (
           <div style={{fontSize:12,color:P.redText,marginTop:2}}>Rivals ahead of you cut income by {Math.min(3,(gs.rivals||[]).filter(r=>r.stage>gs.stage).length)*6}%</div>
         )}
         <dl className="rows">
-          <dt><Icon name="users" size={11} color={P.muted}/> Fees</dt><dd>+{fmt(gs.qMember||0)}</dd>
-          <dt><Icon name="folder-open" size={11} color={P.muted}/> Projects</dt><dd>+{fmt(gs.qProj||0)}</dd>
-          <dt><Icon name="user-tie" size={11} color={P.muted}/> Salaries</dt><dd>−{fmt(gs.qStaff||0)}</dd>
-          <dt><Icon name="city" size={11} color={P.muted}/> Overheads</dt><dd>−{fmt(gs.qOverhead||0)}</dd>
-          <dt><Icon name="handshake" size={11} color={P.muted}/> Servicing</dt><dd>−{fmt(gs.qServicing||0)}</dd>
-          {(gs.qDelivery||0) > 0 && <><dt><Icon name="hourglass-half" size={11} color={P.muted}/> Delivery</dt><dd>−{fmt(Math.max(0,(gs.qDelivery||0)-(gs.qInterim||0)))}</dd></>}
+          <dt><Icon name="users" size={11} color={P.muted}/> {t("Fees")}</dt><dd>+{fmt(gs.qMember||0)}</dd>
+          <dt><Icon name="folder-open" size={11} color={P.muted}/> {t("Projects")}</dt><dd>+{fmt(gs.qProj||0)}</dd>
+          <dt><Icon name="user-tie" size={11} color={P.muted}/> {t("Salaries")}</dt><dd>−{fmt(gs.qStaff||0)}</dd>
+          <dt><Icon name="city" size={11} color={P.muted}/> {t("Overheads")}</dt><dd>−{fmt(gs.qOverhead||0)}</dd>
+          <dt><Icon name="handshake" size={11} color={P.muted}/> {t("Servicing")}</dt><dd>−{fmt(gs.qServicing||0)}</dd>
+          {(gs.qDelivery||0) > 0 && <><dt><Icon name="hourglass-half" size={11} color={P.muted}/> {t("Delivery")}</dt><dd>−{fmt(Math.max(0,(gs.qDelivery||0)-(gs.qInterim||0)))}</dd></>}
         </dl>
       </div>
 
       {/* Members */}
       <div className={pMembers} style={{padding:"14px 6px 12px",borderTop:`1px solid ${P.border}`}}>
-        <div style={{display:"flex",alignItems:"center"}}><Lbl t="Members"/><InfoDot label="Members trend" text={trendTitle(trends?.members, "Plus rival poaching, defections and event effects.")}/></div>
+        <div style={{display:"flex",alignItems:"center"}}><Lbl t={t("Members")}/><InfoDot label={t("Members trend")} text={trendTitle(trends?.members, "Plus rival poaching, defections and event effects.")}/></div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
           <span className="tnum" style={{fontSize:26,fontWeight:600,letterSpacing:-.5,color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.round(tMembers)}</span>
           <Trend t={trends?.members}/>
         </div>
-        <div style={{fontSize:11,color:P.muted}}>fee {fmt(memberFee(gs.stage))}/quarter · mix ×{(Math.round(feeMult(gs)*100)/100).toFixed(2)}</div>
+        <div style={{fontSize:11,color:P.muted}}>{t("fee {m}/quarter, mix ×{x}", {m: fmt(memberFee(gs.stage)), x: (Math.round(feeMult(gs)*100)/100).toFixed(2)})}</div>
         {(() => { const mx = mixOf(gs), m = Math.max(1, gs.members||1); return (
           <div style={{marginTop:6}} title={`Member composition\nSMEs ${mx.sme} (fee ×0.8, volatile)\nCorporates ${mx.corp} (fee ×2.1, board +1 at 35%+)\nResearch ${mx.res} (fee ×0.5, research margins +2pp at 20%+)`}>
             <div style={{display:"flex",height:5,borderRadius:0,overflow:"hidden",border:`1px solid ${P.border}`}}>
@@ -4513,16 +4538,16 @@ function LeftPanel({ gs, dispatch }) {
               <div style={{flex:1,background:P.purple}}/>
             </div>
             <Facts style={{marginTop:6}} items={[
-              {i:"briefcase", t:`${Math.round(mx.sme/m*100)}%`, tip:"Small and medium firms"},
-              {i:"industry", t:`${Math.round(mx.corp/m*100)}%`, tip:"Large companies"},
-              {i:"graduation-cap", t:`${Math.round(mx.res/m*100)}%`, tip:"Research organisations"},
+              {i:"briefcase", t:`${Math.round(mx.sme/m*100)}%`, tip:t("Small and medium firms")},
+              {i:"industry", t:`${Math.round(mx.corp/m*100)}%`, tip:t("Large companies")},
+              {i:"graduation-cap", t:`${Math.round(mx.res/m*100)}%`, tip:t("Research organisations")},
             ]}/>
-            <div className="seg" role="group" aria-label="Recruitment focus" style={{marginTop:8}}>
+            <div className="seg" role="group" aria-label={t("Recruitment focus")} style={{marginTop:8}}>
               {Object.entries(MIX_FOCUS).map(([fid, fo]) => (
-                <button key={fid} className="btn" title={`Recruitment focus: ${fo.label} — new members join ${Math.round(fo.sme*100)}% SME / ${Math.round(fo.corp*100)}% corporate / ${Math.round(fo.res*100)}% research`}
+                <button key={fid} className="btn" title={`Recruitment focus: ${t(fo.label)} — new members join ${Math.round(fo.sme*100)}% SME / ${Math.round(fo.corp*100)}% corporate / ${Math.round(fo.res*100)}% research`}
                   onClick={() => dispatch({type:"setFocus", focus:fid})}
                   aria-pressed={(gs.focus||"balanced")===fid}>
-                  {fo.label}
+                  {t(fo.label)}
                 </button>
               ))}
             </div>
@@ -4534,33 +4559,33 @@ function LeftPanel({ gs, dispatch }) {
             <div style={{width:`${Math.min(100,Math.round((rivalPressure(gs)/Math.max(1,marketPool(gs)))*100))}%`,background:P.red,opacity:.6}}/>
             <div style={{flex:1,background:P.bg}}/>
           </div>
-          <div style={{fontSize:11,color:P.muted,marginTop:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>market {Math.round(marketShare(gs)*100)}% claimed (you + rivals)</div>
+          <div style={{fontSize:11,color:P.muted,marginTop:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{t("market {n}% claimed (you and rivals)", {n: Math.round(marketShare(gs)*100)})}</div>
         </div>
       </div>
 
       {/* Influence + Political Integration */}
       <div className={pInfl} style={{padding:"14px 6px 12px",borderTop:`1px solid ${P.border}`}}>
-        <div style={{display:"flex",alignItems:"center"}}><Lbl t="Influence"/><InfoDot label="Influence trend" text={trendTitle(trends?.influence, "Plus one-off effects: project deliveries, events, coups.")}/></div>
+        <div style={{display:"flex",alignItems:"center"}}><Lbl t={t("Influence")}/><InfoDot label={t("Influence trend")} text={trendTitle(trends?.influence, "Plus one-off effects: project deliveries, events, coups.")}/></div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
           <span style={{fontSize:20,fontWeight:700,color:P.purple,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.round(tInfl)}</span>
           <span style={{display:"inline-flex",alignItems:"baseline",gap:8}}><Trend t={trends?.influence}/><span style={{fontSize:11,color:P.muted}}>/ 100</span></span>
         </div>
         <Bar val={gs.prestige||0} color={P.purple}/>
-        <div style={{fontSize:12,color:P.muted,marginTop:4}} title="Your political standing with public authorities. It fades each quarter unless you keep earning it.">Fades {decay} a quarter</div>
+        <div style={{fontSize:12,color:P.muted,marginTop:4}} title={t("Your political standing with public authorities. It fades each quarter unless you keep earning it.")}>{t("Fades {n} a quarter", {n: decay})}</div>
         <div className="seats" style={{marginTop:12}}>
-          <div style={{fontSize:13,fontWeight:600,color:P.text,marginBottom:6}}>Seats</div>
+          <div style={{fontSize:13,fontWeight:600,color:P.text,marginBottom:6}}>{t("Seats")}</div>
           {seatStatus(gs).map(st => {
             const rv = st.heldBy ? (gs.rivals||[]).find(r=>r.id===st.heldBy) : null;
             const missing = st.reqs.filter(r=>!r.ok).map(r=>r.l).join(", ");
-            const tip = st.held ? `${st.label}: ${st.effects}` : rv ? `${st.label}, chaired by ${st.holderName}. Needs: ${missing || "displacement next quarter"}` : `${st.label}. Needs: ${missing}`;
+            const tip = st.held ? `${t(st.label)}: ${st.effects}` : rv ? `${t(st.label)}, chaired by ${st.holderName}. Needs: ${missing || "displacement next quarter"}` : `${t(st.label)}. Needs: ${missing}`;
             return (
               <div key={st.id} className="seat-row" title={tip}>
                 <Icon name={({regional:"building-columns",national:"landmark",eu:"earth-europe"})[st.id]||"landmark"} size={12} color={st.held?P.accent:P.muted}/>
-                <span style={{flex:1,color:P.text}}>{({regional:"Regional",national:"National",eu:"EU"})[st.id]||st.short}</span>
+                <span style={{flex:1,color:P.text}}>{t(({regional:"Regional",national:"National",eu:"EU"})[st.id]||st.short)}</span>
                 {st.held
-                  ? <span style={{color:P.accent,fontWeight:600}}>Yours</span>
+                  ? <span style={{color:P.accent,fontWeight:600}}>{t("Yours")}</span>
                   : rv ? <span style={{display:"inline-flex",alignItems:"center",gap:5,color:P.muted,maxWidth:110,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}><span style={{width:7,height:7,borderRadius:2,background:rv.color,flexShrink:0}}/>{rv.name}</span>
-                  : <span style={{color:P.muted}}>Open</span>}
+                  : <span style={{color:P.muted}}>{t("Open")}</span>}
               </div>
             );
           })}
@@ -4569,18 +4594,18 @@ function LeftPanel({ gs, dispatch }) {
 
       {/* Board Confidence */}
       <div className={pBoard} style={{padding:"14px 6px 12px",borderTop:`1px solid ${P.border}`}}>
-        <div style={{display:"flex",alignItems:"center"}}><Lbl t="Board confidence"/><InfoDot label="Board confidence trend" text={trendTitle(trends?.board, "Plus one-off effects: project completions +3, failures −8..−15, events.")}/></div>
+        <div style={{display:"flex",alignItems:"center"}}><Lbl t={t("Board confidence")}/><InfoDot label={t("Board confidence trend")} text={trendTitle(trends?.board, "Plus one-off effects: project completions +3, failures −8..−15, events.")}/></div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
           <span style={{fontSize:20,fontWeight:700,color:(gs.boardConf||0)<30?P.red:(gs.boardConf||0)<55?P.orange:P.green,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.round(tBoard)}</span>
           <span style={{display:"inline-flex",alignItems:"baseline",gap:8}}><Trend t={trends?.board}/><span style={{fontSize:11,color:P.muted}}>/ 100</span></span>
         </div>
         <Bar val={gs.boardConf||0} color={(gs.boardConf||0)<30?P.red:(gs.boardConf||0)<55?P.orange:P.green}/>
-        {(gs.boardConf||0)<30 && <div style={{display:"flex",alignItems:"center",gap:5,fontSize:11,color:P.red,marginTop:4}}><Icon name="triangle-exclamation" size={9} color={P.red}/>Crisis: +3% extra churn</div>}
+        {(gs.boardConf||0)<30 && <div style={{display:"flex",alignItems:"center",gap:5,fontSize:11,color:P.red,marginTop:4}}><Icon name="triangle-exclamation" size={9} color={P.red}/>{t("Crisis: +3% extra churn")}</div>}
       </div>
 
       {/* Staff summary */}
       <div style={{padding:"14px 6px 12px",borderTop:`1px solid ${P.border}`}}>
-        <Lbl t="Staff"/>
+        <Lbl t={t("Staff")}/>
         <div style={{fontSize:18,fontWeight:700,color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{staffTotal(gs.roster)}</div>
         <div style={{fontSize:11,color:P.muted}}>cost {fmt(staffCostQ(gs.roster, gs.turn))}/quarter · salaries +1%/Q</div>
         <div style={{fontSize:11,color:P.muted,marginTop:2}}>fail risk: <span style={{color:failRate>25?P.red:failRate>15?P.orange:P.green}}>{failRate}%</span></div>
@@ -4596,13 +4621,13 @@ function LeftPanel({ gs, dispatch }) {
               <span>{r.money?fmt(r.cur):r.cur}/{r.money?fmt(r.req):r.req}</span>
             </div>
           ))}
-          <div style={{marginTop:4,fontSize:11,color:P.muted}}>Cost: <span style={{color:P.red}}>{fmt(evolveCost(gs.stage))}</span></div>
+          <div style={{marginTop:4,fontSize:11,color:P.muted}}>{t("Cost:")} <span style={{color:P.red}}>{fmt(evolveCost(gs.stage))}</span></div>
         </div>
       )}
 
       {/* Network */}
       <div style={{padding:"14px 6px 12px",borderTop:`1px solid ${P.border}`}}>
-        <Lbl t="Network"/>
+        <Lbl t={t("Network")}/>
         <div style={{fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.blue}}>{(gs.countries||[]).length} countr{(gs.countries||[]).length===1?"y":"ies"}</div>
         <div style={{fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.teal}}>{(gs.regions||[]).length} region{(gs.regions||[]).length!==1?"s":""}</div>
         <div style={{fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.muted,marginTop:2}}>{(gs.completedProjects||[]).length} projects done</div>
@@ -4616,9 +4641,9 @@ function LeftPanel({ gs, dispatch }) {
           <div style={{fontSize:11.5,color:P.text,lineHeight:1.7}}>
             <div>Board +{4+(byRole(gs.roster,"director")-1)*2}/quarter</div>
             <div>Influence +{byRole(gs.roster,"director")*2}/quarter</div>
-            <div>Project income +10%</div>
+            <div>{t("Project income +10%")}</div>
             <div>Failure board hit reduced by {Math.min(8,byRole(gs.roster,"director")*4)}</div>
-            {byRole(gs.roster,"director")>=2 && <div style={{color:P.green,fontWeight:700,marginTop:2,display:"flex",alignItems:"center",gap:4}}><Icon name="check" size={10} color={P.green}/> Stage 5 unlocked</div>}
+            {byRole(gs.roster,"director")>=2 && <div style={{color:P.green,fontWeight:700,marginTop:2,display:"flex",alignItems:"center",gap:4}}><Icon name="check" size={10} color={P.green}/> {t("Stage 5 unlocked")}</div>}
           </div>
         </div>
       )}
@@ -4626,12 +4651,12 @@ function LeftPanel({ gs, dispatch }) {
       {/* Rival race */}
       {(gs.rivals||[]).length > 0 && (
         <div style={{padding:"14px 6px 12px",borderTop:`1px solid ${P.border}`}}>
-          <Lbl t={<>Rival Race · first to Pan-European Cluster Network</>}/>
+          <Lbl t={<>{t("Rival Race · first to Pan-European Cluster Network")}</>}/>
           {(gs.rivals||[]).map(rv => (
             <div key={rv.id} style={{marginBottom:7}}>
               <div style={{display:"flex",justifyContent:"space-between",fontSize:11.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
                 <span style={{color:rv.color,display:"inline-flex",alignItems:"center",gap:5}}><Icon name="square" size={7} color={rv.color}/> {rv.name} · {NAME_TO_ISO[rv.country]||""}</span>
-                <span style={{color:rv.stage>gs.stage?P.red:P.muted}}>{STAGES[rv.stage]?.name} · {rv.members} members</span>
+                <span style={{color:rv.stage>gs.stage?P.red:P.muted}}>{t(STAGES[rv.stage]?.name)} · {rv.members} members</span>
               </div>
               <Bar val={rv.stage*100+(rv.progress||0)} max={500} color={rv.color} h={3}/>
             </div>
@@ -4655,12 +4680,12 @@ function ActiveProjectRow({ p, gs }) {
     <div className="ap-row">
       <div className="ap-top">
         <span className="nm" title={p.name}>{p.name||""}</span>
-        <span className="st" style={{color:st.color}}><span className="dot" style={{background:st.color}}/>{st.label}</span>
+        <span className="st" style={{color:st.color}}><span className="dot" style={{background:st.color}}/>{t(st.label)}</span>
       </div>
       <div className="ap-bar"><span style={{width:`${prog*100}%`,background:st.color}}/></div>
       <Facts style={{marginTop:6}} size={11} items={[
-        {i:"hourglass-half", t:`${left} q left`, tip:"Quarters until delivery"},
-        {i:"coins", t:fmt(projBudget(p, p.partners||0)), tip:"Project volume"},
+        {i:"hourglass-half", t:t("{n} q left", {n: left}), tip:t("Quarters until delivery")},
+        {i:"coins", t:fmt(projBudget(p, p.partners||0)), tip:t("Project volume")},
       ]}/>
     </div>
   );
@@ -4676,8 +4701,8 @@ function RightPanel({ gs, compact, height }) {
     <div style={{width:compact?"auto":230,height:compact?(height||212):"auto",flexShrink:0,display:"flex",flexDirection:"column",background:P.panel,borderLeft:compact?"none":`1px solid ${P.border}`,borderTop:compact?`1px solid ${P.border}`:"none",overflow:"hidden"}}>
       {/* Active projects */}
       <div style={{padding:compact?"10px 14px 6px":"10px 10px 8px",borderBottom:`1px solid ${P.border}`,flexShrink:0,maxHeight:compact?"45%":"none",overflowY:compact?"auto":"visible"}}>
-        <Lbl t={`Active projects (${active.length})`}/>
-        {active.length===0 && <div style={{fontSize:12,color:P.muted}}>None running</div>}
+        <Lbl t={t("Active projects ({n})", {n: active.length})}/>
+        {active.length===0 && <div style={{fontSize:12,color:P.muted}}>{t("None running")}</div>}
         {active.map((p, i) => {
           if (!p) return null;
           return <ActiveProjectRow key={`ap-${i}`} p={p} gs={gs}/>;
@@ -4686,7 +4711,7 @@ function RightPanel({ gs, compact, height }) {
 
       {/* Event log */}
       <div style={{flex:1,overflowY:"auto",padding:"8px 10px"}}>
-        <Lbl t="Event log"/>
+        <Lbl t={t("Event log")}/>
         {log.slice(0,40).map((e, i) => (
           <div key={`log-${i}-${(e?.txt||"").slice(0,18)}`} className={i===0?"log-in":undefined} style={{fontSize:12,lineHeight:1.5,padding:"6px 0 6px 10px",borderLeft:`2px solid ${logColors[e?.t]||P.border}`,marginBottom:4,color:P.text}}>
             <span>{e?.txt||""}</span>
@@ -4714,7 +4739,7 @@ function Modal({ title, icon, iconColor, onClose, children, width=600 }) {
         {/* Header: the title on the left, close on the right, a hairline beneath */}
         <div className="menu-band" style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,padding:phone?"16px 16px 14px 18px":"18px 18px 14px 22px",borderBottom:`1px solid ${P.border}`,textAlign:"left",flexShrink:0}}>
           <div className="title-caps" style={{fontSize:phone?18:19,lineHeight:1.2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{title}</div>
-          <button className="btn" onClick={onClose} aria-label="Close" style={{background:"transparent",border:"none",borderRadius:8,color:P.muted,padding:"6px",display:"flex",alignItems:"center",flexShrink:0}}><Icon name="xmark" size={14} color={P.muted}/></button>
+          <button className="btn" onClick={onClose} aria-label={t("Close")} style={{background:"transparent",border:"none",borderRadius:8,color:P.muted,padding:"6px",display:"flex",alignItems:"center",flexShrink:0}}><Icon name="xmark" size={14} color={P.muted}/></button>
         </div>
         <div className="menu-scope" style={{padding:"16px 18px",overflowY:"auto",flex:1}}>{children}</div>
       </div>
@@ -4755,16 +4780,16 @@ function ProjCard({ p, gs, failRate, onStart }) {
     <div className="proj" style={{padding:"16px 0",borderTop:`1px solid ${P.border}`}}>
       <div style={{fontWeight:600,fontSize:15,color:P.text,lineHeight:1.3}}>{p.name}</div>
       <Facts style={{marginTop:6}} items={[
-        {i:({research:"magnifying-glass-chart",comms:"bullhorn",training:"graduation-cap",lobbying:"landmark",network:"circle-nodes"}[p.cat]||"folder-open"), t:({research:"Research",comms:"Communications",training:"Training",lobbying:"Lobbying",network:"Networking"}[p.cat]||p.cat), tip:"Type of project"},
-        {i:p.fund==="eu"?"earth-europe":"building-columns", t:({local:"Local",regional:"Regional",national:"National",eu:"EU"}[p.fund]||p.fund), tip:"Who funds it"},
+        {i:({research:"magnifying-glass-chart",comms:"bullhorn",training:"graduation-cap",lobbying:"landmark",network:"circle-nodes"}[p.cat]||"folder-open"), t:({research:"Research",comms:"Communications",training:"Training",lobbying:"Lobbying",network:"Networking"}[p.cat]||p.cat), tip:t("Type of project")},
+        {i:p.fund==="eu"?"earth-europe":"building-columns", t:({local:"Local",regional:"Regional",national:"National",eu:"EU"}[p.fund]||p.fund), tip:t("Who funds it")},
         {i:"hourglass-half", t:`${p.dur} q`, tip:`Runs for ${p.dur} quarter${p.dur===1?"":"s"}`},
-        reqDef && {i:reqDef.icon||"user-tie", t:reqDef.name, tip:"Specialist who runs it"},
+        reqDef && {i:reqDef.icon||"user-tie", t:reqDef.name, tip:t("Specialist who runs it")},
       ]}/>
       <div style={{fontSize:12.5,color:P.text,marginTop:8,lineHeight:1.5,maxWidth:"62ch"}}>{p.desc}</div>
       <dl className="figs">
-        <div><dt><Icon name="coins" size={11} color={P.muted}/> Volume</dt><dd>{fmt(budget)}</dd></div>
-        <div><dt><Icon name="arrow-trend-up" size={11} color={P.muted}/> Margin</dt><dd style={{color:P.greenText}}>{Math.round(margin*100)}%</dd></div>
-        <div><dt><Icon name="triangle-exclamation" size={11} color={P.muted}/> Risk</dt><dd style={{color:shownFail>25?P.redText:P.text}}>{shownFail}%</dd></div>
+        <div><dt><Icon name="coins" size={11} color={P.muted}/> {t("Volume")}</dt><dd>{fmt(budget)}</dd></div>
+        <div><dt><Icon name="arrow-trend-up" size={11} color={P.muted}/> {t("Margin")}</dt><dd style={{color:P.greenText}}>{Math.round(margin*100)}%</dd></div>
+        <div><dt><Icon name="triangle-exclamation" size={11} color={P.muted}/> {t("Risk")}</dt><dd style={{color:shownFail>25?P.redText:P.text}}>{shownFail}%</dd></div>
       </dl>
       {contest.rivals.length>0 && <div style={{fontSize:12,color:P.redText,marginTop:4}}>Contested by {contest.rivals.map(r=>r.name).join(" and ")}, which raises the risk.</div>}
       {conds.length > 0 && (
@@ -4773,23 +4798,23 @@ function ProjCard({ p, gs, failRate, onStart }) {
         </ul>
       )}
       <Facts style={{marginTop:8}} items={[
-        {i:"landmark", t:`+${p.pres}`, tip:"Influence gained on delivery"},
-        {i:"user-plus", t:`+${p.mg}`, tip:"Members gained on delivery"},
-        {i:"users", t:`min ${p.mem}`, tip:"Members needed to apply"},
-        p.sr>0 && {i:"user-tie", t:`min ${p.sr}`, tip:"Staff needed to apply"},
+        {i:"landmark", t:`+${p.pres}`, tip:t("Influence gained on delivery")},
+        {i:"user-plus", t:`+${p.mg}`, tip:t("Members gained on delivery")},
+        {i:"users", t:`min ${p.mem}`, tip:t("Members needed to apply")},
+        p.sr>0 && {i:"user-tie", t:`min ${p.sr}`, tip:t("Staff needed to apply")},
       ]}/>
       {(p.part||0) > 0 && (
         <label className="partners">
-          <span>Partners</span>
-          <input type="range" min={p.part} max={(p.part||0)+10} value={partners} onChange={e => setPartners(Number(e.target.value))} aria-label="Number of partners"/>
+          <span>{t("Partners")}</span>
+          <input type="range" min={p.part} max={(p.part||0)+10} value={partners} onChange={e => setPartners(Number(e.target.value))} aria-label={t("Number of partners")}/>
           <span className="tnum">{partners}</span>
         </label>
       )}
       <div style={{display:"flex",alignItems:"center",gap:6,marginTop:8}}>
         <button className="btn act" style={{marginTop:0}} disabled={gs && (gs.budget||0) < need} onClick={() => onStart(p, partners)}>
-          {gs && (gs.budget||0) < need ? `Needs ${fmt(need)} to start` : `Start project, ${fmt(spendQ)} a quarter`}
+          {gs && (gs.budget||0) < need ? t("Needs {m} to start", {m: fmt(need)}) : t("Start project, {m} a quarter", {m: fmt(spendQ)})}
         </button>
-        <InfoDot label="How payment works" text={`You pay ${fmt(spendQ)} a quarter for ${p.dur} quarter${p.dur===1?"":"s"}; interim payments return ${Math.round(INTERIM_RATE*100)}% as you go.\n\nSuccess pays the balance plus about ${fmt(expGain)}. A failed project is clawed back to ${Math.round(FAIL_RECOVERY*100)}% of its costs.`}/>
+        <InfoDot label={t("How payment works")} text={`You pay ${fmt(spendQ)} a quarter for ${p.dur} quarter${p.dur===1?"":"s"}; interim payments return ${Math.round(INTERIM_RATE*100)}% as you go.\n\nSuccess pays the balance plus about ${fmt(expGain)}. A failed project is clawed back to ${Math.round(FAIL_RECOVERY*100)}% of its costs.`}/>
       </div>
     </div>
   );
@@ -4807,11 +4832,11 @@ function ProjectsModal({ gs, dispatch, onClose, panel }) {
     <>
       <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
         <Facts items={[
-          {i:"triangle-exclamation", t:`${failRate}% risk`, tip:"Failure risk for a new project", color:failRate>25?P.redText:undefined},
-          {i:"folder-open", t:`${(gs.activeProjects||[]).length} of ${cap} slots`, tip:"Projects running, out of the slots you have", color:atCap?P.redText:undefined},
-          {i:"check-double", t:`${(gs.completedProjects||[]).length} done`, tip:"Projects completed"},
+          {i:"triangle-exclamation", t:t("{n}% risk", {n: failRate}), tip:t("Failure risk for a new project"), color:failRate>25?P.redText:undefined},
+          {i:"folder-open", t:t("{a} of {b} slots", {a: (gs.activeProjects||[]).length, b: cap}), tip:t("Projects running, out of the slots you have"), color:atCap?P.redText:undefined},
+          {i:"check-double", t:t("{n} done", {n: (gs.completedProjects||[]).length}), tip:t("Projects completed")},
         ]}/>
-        <InfoDot label="How project risk and slots work" text={`Each Project Manager cuts failure risk by 12%, each Legal Counsel by 8%. Risk rises with your stage and the size of your network.\n\nEach Project Manager adds a slot, up to ${1+(gs.stage||0)} at this stage.`}/>
+        <InfoDot label={t("How project risk and slots work")} text={`Each Project Manager cuts failure risk by 12%, each Legal Counsel by 8%. Risk rises with your stage and the size of your network.\n\nEach Project Manager adds a slot, up to ${1+(gs.stage||0)} at this stage.`}/>
       </div>
       {avail.length===0 && (
         <div style={{textAlign:"center",padding:32,color:P.muted}}>
@@ -4819,14 +4844,14 @@ function ProjectsModal({ gs, dispatch, onClose, panel }) {
           {atCap
             ? `All ${cap} project slot${cap!==1?"s":""} in use, or recent calls are on cooldown. Hire Project Managers (up to the stage cap) and wait for new call rounds.`
             : <>
-                <div style={{fontSize:13,color:P.text,fontWeight:600,marginBottom:10}}>No call is open to you yet</div>
-                <div style={{fontSize:12,marginBottom:10}}>Each kind of project needs its specialist:</div>
+                <div style={{fontSize:13,color:P.text,fontWeight:600,marginBottom:10}}>{t("No call is open to you yet")}</div>
+                <div style={{fontSize:12,marginBottom:10}}>{t("Each kind of project needs its specialist:")}</div>
                 <Facts style={{justifyContent:"center",gap:"8px 16px"}} items={[
-                  {i:"magnifying-glass-chart", t:"Analyst", tip:"Research projects"},
-                  {i:"bullhorn", t:"Communications", tip:"Communications projects"},
-                  {i:"graduation-cap", t:"Training", tip:"Training projects"},
-                  {i:"landmark", t:"Lobbyist", tip:"Lobbying projects"},
-                  {i:"circle-nodes", t:"General Manager", tip:"Networking projects"},
+                  {i:"magnifying-glass-chart", t:t("Analyst"), tip:t("Research projects")},
+                  {i:"bullhorn", t:t("Communications"), tip:t("Communications projects")},
+                  {i:"graduation-cap", t:t("Training"), tip:t("Training projects")},
+                  {i:"landmark", t:t("Lobbyist"), tip:t("Lobbying projects")},
+                  {i:"circle-nodes", t:t("General Manager"), tip:t("Networking projects")},
                 ]}/>
               </>}
         </div>
@@ -4839,8 +4864,8 @@ function ProjectsModal({ gs, dispatch, onClose, panel }) {
       {locked.length > 0 && (
         <>
           <div style={{display:"flex",alignItems:"center",gap:6,margin:"18px 0 4px"}}>
-            <span style={{fontSize:13,fontWeight:600,color:P.text}}>Not yet available</span>
-            <InfoDot label="Why some calls are locked" text="These calls exist at your stage, but you do not yet meet their conditions. The red line under each says what is missing."/>
+            <span style={{fontSize:13,fontWeight:600,color:P.text}}>{t("Not yet available")}</span>
+            <InfoDot label={t("Why some calls are locked")} text="These calls exist at your stage, but you do not yet meet their conditions. The red line under each says what is missing."/>
           </div>
           <ul className="locked">
             {locked.map(p => (
@@ -4850,7 +4875,7 @@ function ProjectsModal({ gs, dispatch, onClose, panel }) {
                 <span className="tnum" style={{color:P.muted,display:"inline-flex",alignItems:"center",gap:5}}>
                   <Icon name={p.fund==="eu"?"earth-europe":"building-columns"} size={11} color={P.muted}/>{fmt(projBudget(p, p.part||0))}
                 </span>
-                <span className="need">Needs {projectConditions(p, gs).filter(c => !c.ok).map(c => c.l).join(", ")}</span>
+                <span className="need">{t("Needs {x}", {x: projectConditions(p, gs).filter(c => !c.ok).map(c => c.l).join(", ")})}</span>
               </li>
             ))}
           </ul>
@@ -4860,7 +4885,7 @@ function ProjectsModal({ gs, dispatch, onClose, panel }) {
   );
   if (panel) return <div style={{padding:"12px 14px 18px"}}>{body}</div>;
   return (
-    <Modal title="Available Projects" icon="folder-open" iconColor={P.accent} onClose={onClose} width={720}>{body}</Modal>
+    <Modal title={t("Available Projects")} icon="folder-open" iconColor={P.accent} onClose={onClose} width={720}>{body}</Modal>
   );
 }
 
@@ -4877,23 +4902,25 @@ function StaffModal({ gs, dispatch, onClose, panel }) {
   const infl     = Math.round((salaryInfl(gs.turn)-1)*100);
 
   const [hoverRole, setHoverRole] = useState(null);
+  const [hoverRect, setHoverRect] = useState(null);   // where the pointed-at tile sits on screen
   const detailRole = STAFF_ROLES.find(r => r.id === hoverRole);
+  const point = (id, el) => { setHoverRole(id); setHoverRect(el ? el.getBoundingClientRect() : null); };
   const body = (
     <>
       <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
         <Facts items={[
-          {i:"users", t:`${staffTotal(roster)}`, tip:"Staff on the payroll"},
-          {i:"coins", t:`−${fmt(staffCostQ(roster, gs.turn))}/q`, tip:"Salaries a quarter"},
-          {i:"sitemap", t:`${visibleStaff(roster)}/${staffSpan(roster)}`, tip:"Management capacity: staff led, out of the most your managers can lead", color:visibleStaff(roster)>=staffSpan(roster)?P.redText:undefined},
-          {i:"user-minus", t:`${churnPct}%`, tip:"Members lost each quarter"},
-          {i:"triangle-exclamation", t:`${failRate}%`, tip:"Project failure risk"},
+          {i:"users", t:`${staffTotal(roster)}`, tip:t("Staff on the payroll")},
+          {i:"coins", t:`−${fmt(staffCostQ(roster, gs.turn))}/q`, tip:t("Salaries a quarter")},
+          {i:"sitemap", t:`${visibleStaff(roster)}/${staffSpan(roster)}`, tip:t("Management capacity: staff led, out of the most your managers can lead"), color:visibleStaff(roster)>=staffSpan(roster)?P.redText:undefined},
+          {i:"user-minus", t:`${churnPct}%`, tip:t("Members lost each quarter")},
+          {i:"triangle-exclamation", t:`${failRate}%`, tip:t("Project failure risk")},
         ]}/>
-        <InfoDot label="How staffing works" text={`Salaries are up ${infl}% since founding and rise 1% every quarter, for new hires and the whole payroll.\n\nThe General Manager leads 7 people; each Executive Director adds 7. At most 2 of each role, and exactly one General Manager.`}/>
+        <InfoDot label={t("How staffing works")} text={`Salaries are up ${infl}% since founding and rise 1% every quarter, for new hires and the whole payroll.\n\nThe General Manager leads 7 people; each Executive Director adds 7. At most 2 of each role, and exactly one General Manager.`}/>
       </div>
 
       {roster.length > 0 && (
         <>
-          <Lbl t={`Team (${roster.length})`}/>
+          <Lbl t={t("Team ({n})", {n: roster.length})}/>
           <ul className="team">
             {STAFF_ROLES.filter(def => byRole(roster, def.id) > 0).map(def => {
               const idxs = roster.map((r,i)=>({r,i})).filter(x => x.r?.role === def.id);
@@ -4903,11 +4930,11 @@ function StaffModal({ gs, dispatch, onClose, panel }) {
               return (
                 <li key={`team-${def.id}`} title={idxs.map(x => `${x.r.name||"—"}, level ${skillOf(x.r)}`).join("\n")}>
                   <Icon name={def.icon||"user"} size={13} color={P.accent}/>
-                  <span className="nm">{def.name}{count>1 ? ` ×${count}` : ""}</span>
+                  <span className="nm">{t(def.name)}{count>1 ? ` ×${count}` : ""}</span>
                   <span className="tnum mu">−{fmt(roleCost(def, gs.turn)*count)}/q</span>
                   {def.hidden || def.id === "manager"
-                    ? <span className="mu" style={{fontSize:11.5}}>required</span>
-                    : <button className="btn fire" onClick={() => dispatch({type:"fire",idx:newest.i})} title="Release the most recent hire">Release</button>}
+                    ? <span className="mu" style={{fontSize:11.5}}>{t("required")}</span>
+                    : <button className="btn fire" onClick={() => dispatch({type:"fire",idx:newest.i})} title={t("Release the most recent hire")}>{t("Release")}</button>}
                 </li>
               );
             })}
@@ -4916,10 +4943,10 @@ function StaffModal({ gs, dispatch, onClose, panel }) {
       )}
 
       <div style={{display:"flex",alignItems:"baseline",justifyContent:"space-between",marginTop:18}}>
-        <Lbl t="Hire"/>
-        <span style={{fontSize:11.5,color:P.muted}}>Point at a role for details</span>
+        <Lbl t={t("Hire")}/>
+        <span style={{fontSize:11.5,color:P.muted}}>{t("Point at a role for details")}</span>
       </div>
-      <div className="hire-grid" onMouseLeave={() => setHoverRole(null)}>
+      <div className="hire-grid" onMouseLeave={() => { setHoverRole(null); setHoverRect(null); }}>
         {STAFF_ROLES.filter(r => !r.hidden).map(staffRole => {
           const price   = roleCost(staffRole, gs.turn);
           const blockReason = hireBlockReason(gs, staffRole.id);
@@ -4929,39 +4956,47 @@ function StaffModal({ gs, dispatch, onClose, panel }) {
           const roleId  = staffRole.id;
           return (
             <button key={`hire-${roleId}`} className="btn hire-tile" disabled={!afford}
-              onMouseEnter={() => setHoverRole(roleId)} onFocus={() => setHoverRole(roleId)}
+              onMouseEnter={e => point(roleId, e.currentTarget)} onFocus={e => point(roleId, e.currentTarget)} onBlur={() => setHoverRole(null)}
               onClick={() => dispatch({type:"hire",roleId})}
-              aria-label={`Hire ${staffRole.name} for ${fmt(price)} a quarter${blockReason ? `. ${blockReason}` : ""}`}>
+              aria-label={`Hire ${t(staffRole.name)} for ${fmt(price)} a quarter${blockReason ? `. ${blockReason}` : ""}`}>
               {count > 0 && <span className="cnt">{count}</span>}
               <Icon name={staffRole.icon} size={18} color={afford?P.accent:P.muted}/>
-              <span className="nm">{staffRole.name}</span>
+              <span className="nm">{t(staffRole.name)}</span>
               <span className="tnum pr">{fmt(price)}/q</span>
             </button>
           );
         })}
       </div>
-      {detailRole && <div className="hire-detail" aria-live="polite">
-        {(() => {
+      {detailRole && hoverRect && typeof document !== "undefined" && createPortal((() => {
+        // Beside the tile: to its left when there is room (the panel sits on the right), else to its right.
+        const W = 280, M = 8, vw = window.innerWidth, vh = window.innerHeight;
+        const left = hoverRect.left - W - 10 >= M ? hoverRect.left - W - 10 : Math.min(vw - W - M, hoverRect.right + 10);
+        const top = Math.max(M, Math.min(hoverRect.top, vh - 170));
+        return (
+          <div className="role-pop" role="tooltip" style={{left, top, width:W}}>
+            {(() => {
           const why = hireBlockReason(gs, detailRole.id);
           const price = roleCost(detailRole, gs.turn);
           return (
             <>
               <div style={{display:"flex",justifyContent:"space-between",gap:8}}>
-                <span style={{fontWeight:600,color:P.text}}>{detailRole.name}</span>
-                <span className="tnum" style={{color:P.text,fontWeight:600}}>{fmt(price)} a quarter</span>
+                <span style={{fontWeight:600,color:P.text}}>{t(detailRole.name)}</span>
+                <span className="tnum" style={{color:P.text,fontWeight:600,whiteSpace:"nowrap"}}>{fmt(price)} {t("a quarter")}</span>
               </div>
-              <div style={{marginTop:4}}>{detailRole.desc}</div>
+              <div style={{marginTop:4}}>{t(detailRole.desc)}</div>
               {why ? <div style={{marginTop:4,color:P.redText}}>{why}</div>
-                : (gs.budget||0) < price*3 ? <div style={{marginTop:4,color:P.redText}}>Not enough money yet</div> : null}
+                : (gs.budget||0) < price*3 ? <div style={{marginTop:4,color:P.redText}}>{t("Not enough money yet")}</div> : null}
             </>
           );
         })()}
-      </div>}
+          </div>
+        );
+      })(), document.body)}
     </>
   );
   if (panel) return <div style={{padding:"12px 14px 18px"}}>{body}</div>;
   return (
-    <Modal title="Staff Management" icon="users" iconColor={P.purple} onClose={onClose} width={740}>{body}</Modal>
+    <Modal title={t("Staff Management")} icon="users" iconColor={P.purple} onClose={onClose} width={740}>{body}</Modal>
   );
 }
 
@@ -4976,8 +5011,8 @@ function RivalsModal({ gs, dispatch, onClose, panel }) {
   const body = (
     <>
       <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-        <span style={{fontSize:13,fontWeight:600,color:P.text}}>Member market</span>
-        <InfoDot label="How the rivalry works" text="Rival clusters race you to the Pan-European Cluster Network. Contain them, outmanoeuvre them politically, or buy them out. If every rival folds you win by market consolidation. Collapsed rivals are eventually replaced by new entrants.\n\nRecruitment slows as the member pool in your territory empties; expanding grows the pool."/>
+        <span style={{fontSize:13,fontWeight:600,color:P.text}}>{t("Member market")}</span>
+        <InfoDot label={t("How the rivalry works")} text="Rival clusters race you to the Pan-European Cluster Network. Contain them, outmanoeuvre them politically, or buy them out. If every rival folds you win by market consolidation. Collapsed rivals are eventually replaced by new entrants.\n\nRecruitment slows as the member pool in your territory empties; expanding grows the pool."/>
       </div>
       {(gs.coalitionUntil||0) > (gs.turn||0) && (
         <div style={{fontSize:12.5,color:P.redText,margin:"4px 0 8px",display:"flex",gap:7,alignItems:"center"}}>
@@ -4988,11 +5023,11 @@ function RivalsModal({ gs, dispatch, onClose, panel }) {
         <span style={{width:`${youPct}%`,background:P.accent}}/><span style={{width:`${rvPct}%`,background:P.red,opacity:.75}}/>
       </div>
       <Facts style={{marginTop:6}} items={[
-        {i:"users", t:`you ${youPct}%`, tip:"Share of the member market you hold"},
-        {i:"chess-knight", t:`rivals ${rvPct}%`, tip:"Share pressed by rivals"},
-        {i:"seedling", t:`open ${Math.max(0,100-youPct-rvPct)}%`, tip:"Members nobody has recruited yet"},
+        {i:"users", t:`you ${youPct}%`, tip:t("Share of the member market you hold")},
+        {i:"chess-knight", t:`rivals ${rvPct}%`, tip:t("Share pressed by rivals")},
+        {i:"seedling", t:`open ${Math.max(0,100-youPct-rvPct)}%`, tip:t("Members nobody has recruited yet")},
       ]}/>
-      {(gs.rivals||[]).length===0 && <div style={{padding:"24px 0",color:P.accent,fontWeight:600}}>No rivals remain. The market is yours.</div>}
+      {(gs.rivals||[]).length===0 && <div style={{padding:"24px 0",color:P.accent,fontWeight:600}}>{t("No rivals remain. The market is yours.")}</div>}
       <div style={{marginTop:14}}>
         {(gs.rivals||[]).map(rv => {
           const arch = archOf(rv);
@@ -5010,13 +5045,13 @@ function RivalsModal({ gs, dispatch, onClose, panel }) {
               <div className="rv-head">
                 <span className="sw" style={{background:rv.color}}/>
                 <span className="nm" title={rv.name}>{rv.name}</span>
-                {status && <span className="tag" style={{color:status[1]}}>{status[0]}</span>}
+                {status && <span className="tag" style={{color:status[1]}}>{t(status[0])}</span>}
               </div>
               <Facts style={{marginTop:6}} items={[
                 {i:"chess-knight", t:arch.label, tip:arch.blurb},
-                {i:"flag", t:STAGES[rv.stage]?.name, tip:"Stage"},
-                {i:"users", t:`${rv.members||0}`, tip:"Members"},
-                {i:"earth-europe", t:`${(rv.countries||[]).length}`, tip:"Countries"},
+                {i:"flag", t:STAGES[rv.stage]?.name, tip:t("Stage")},
+                {i:"users", t:`${rv.members||0}`, tip:t("Members")},
+                {i:"earth-europe", t:`${(rv.countries||[]).length}`, tip:t("Countries")},
                 shared.length>0 && {i:"triangle-exclamation", t:shared.map(c=>NAME_TO_ISO[c]||c).join(", "), tip:`Contests you in ${shared.join(", ")}`, color:P.redText},
               ]}/>
               <div className="rv-bars">
@@ -5025,7 +5060,7 @@ function RivalsModal({ gs, dispatch, onClose, panel }) {
               </div>
               {(rv.scoutedUntil||0) > (gs.turn||0) && (
                 <div style={{fontSize:12,color:P.muted,marginTop:6}}>
-                  <Icon name="magnifying-glass-chart" size={11} color={P.muted}/> Intel for {(rv.scoutedUntil||0)-(gs.turn||0)} q: {Math.round(rv.progress||0)}% to {STAGES[Math.min(5,(rv.stage||0)+1)]?.name}
+                  <Icon name="magnifying-glass-chart" size={11} color={P.muted}/> Intel for {(rv.scoutedUntil||0)-(gs.turn||0)} q: {Math.round(rv.progress||0)}% to {t(STAGES[Math.min(5,(rv.stage||0)+1)]?.name)}
                 </div>
               )}
               <div className="ops">
@@ -5041,8 +5076,8 @@ function RivalsModal({ gs, dispatch, onClose, panel }) {
                     : null;
                   const type = { raid:"rivalRaid", pr:"rivalPR", pact:"rivalPact", acquire:"rivalAcquire", scout:"rivalScout" }[opId];
                   return (
-                    <button key={opId} className="btn op" disabled={!!blocked} title={`${op.label}: ${blocked || op.desc}`}
-                      aria-label={`${op.label}, ${fmt(cost)}${blocked ? `, ${blocked}` : ""}`}
+                    <button key={opId} className="btn op" disabled={!!blocked} title={`${t(op.label)}: ${blocked || op.desc}`}
+                      aria-label={`${t(op.label)}, ${fmt(cost)}${blocked ? `, ${blocked}` : ""}`}
                       onClick={() => dispatch({type, rid:rv.id})}>
                       <Icon name={op.icon} size={13} color={blocked?P.muted:P.accent}/>
                       <span className="tnum">{fmt(cost)}</span>
@@ -5058,7 +5093,7 @@ function RivalsModal({ gs, dispatch, onClose, panel }) {
   );
   if (panel) return <div style={{padding:"12px 14px 18px"}}>{body}</div>;
   return (
-    <Modal title="Rivals" icon="chess-knight" onClose={onClose} width={700}>{body}</Modal>
+    <Modal title={t("Rivals")} icon="chess-knight" onClose={onClose} width={700}>{body}</Modal>
   );
 }
 
@@ -5095,10 +5130,10 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
   const body = (
     <>
       <Facts items={[
-        {i:"location-dot", t:`${(gs.regions||[]).length} regions`, tip:"Regions with an office"},
-        {i:"earth-europe", t:`${(gs.countries||[]).length}/${countryCap(gs)} countries`, tip:"Countries held, out of the most your stage allows"},
-        gs.stage >= 1 && {i:"building", t:`${fmt(rCost)}/office`, tip:"Cost of a new regional office"},
-        gs.stage >= 2 && {i:"flag", t:`${fmt(cCost)}/country`, tip:"Cost of entering a new country"},
+        {i:"location-dot", t:`${(gs.regions||[]).length} regions`, tip:t("Regions with an office")},
+        {i:"earth-europe", t:`${(gs.countries||[]).length}/${countryCap(gs)} countries`, tip:t("Countries held, out of the most your stage allows")},
+        gs.stage >= 1 && {i:"building", t:`${fmt(rCost)}/office`, tip:t("Cost of a new regional office")},
+        gs.stage >= 2 && {i:"flag", t:`${fmt(cCost)}/country`, tip:t("Cost of entering a new country")},
       ]}/>
       <div style={{fontSize:12,color:P.muted,margin:"8px 0 2px",display:"flex",alignItems:"center",gap:7}}>
         <Icon name="map-location-dot" size={12} color={P.accent}/> Or click any region on the map
@@ -5124,9 +5159,9 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
       {gs.stage >= 1 && avR.length > 0 && (
         <div style={{marginTop:18}}>
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
-            <span style={{fontSize:13,fontWeight:600,color:P.text}}>Open an office</span>
+            <span style={{fontSize:13,fontWeight:600,color:P.text}}>{t("Open an office")}</span>
             <span className="tnum" style={{fontSize:12,color:P.muted}}>{fmt(rCost)}</span>
-            <InfoDot label="About regional offices" text={`Cost rises with influence. Each new region adds a Regional Coordinator at ${fmt(coordSalary)} a quarter.${(gs.seats||{}).regional ? "\n\nYour Regional seat gives 25% off." : ""}`}/>
+            <InfoDot label={t("About regional offices")} text={`Cost rises with influence. Each new region adds a Regional Coordinator at ${fmt(coordSalary)} a quarter.${(gs.seats||{}).regional ? "\n\nYour Regional seat gives 25% off." : ""}`}/>
           </div>
           {(() => {
             const byCountry = {};
@@ -5136,7 +5171,7 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
             return (
               <>
                 {cs.length > 1 && (
-                  <div className="seg" role="group" aria-label="Country" style={{gridTemplateColumns:`repeat(${Math.min(cs.length,4)},1fr)`,marginBottom:8}}>
+                  <div className="seg" role="group" aria-label={t("Country")} style={{gridTemplateColumns:`repeat(${Math.min(cs.length,4)},1fr)`,marginBottom:8}}>
                     {cs.map(c => (
                       <button key={c} className="btn" onClick={() => setRegCountry(c)} aria-pressed={selC===c}>{c}</button>
                     ))}
@@ -5159,9 +5194,9 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
       {gs.stage >= 2 && avC.length > 0 && (
         <div style={{marginTop:18}}>
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
-            <span style={{fontSize:13,fontWeight:600,color:P.text}}>Enter a country</span>
+            <span style={{fontSize:13,fontWeight:600,color:P.text}}>{t("Enter a country")}</span>
             <span className="tnum" style={{fontSize:12,color:P.muted}}>{fmt(cCost)}</span>
-            <InfoDot label="About entering a country" text={`Only countries bordering your network, including ferry links. Each adds a Country Manager to the payroll. Countries where a rival operates cost half as much again.${(gs.seats||{}).national ? "\n\nYour National seat gives 20% off." : ""}`}/>
+            <InfoDot label={t("About entering a country")} text={`Only countries bordering your network, including ferry links. Each adds a Country Manager to the payroll. Countries where a rival operates cost half as much again.${(gs.seats||{}).national ? "\n\nYour National seat gives 20% off." : ""}`}/>
           </div>
           <div className="ops">
             {avC.map(c => {
@@ -5182,7 +5217,7 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
         <div style={{fontSize:12,color:P.muted,marginTop:12,display:"flex",gap:7,alignItems:"center"}}><Icon name="lock" size={11} color={P.muted}/> Your stage allows {capC} countries; evolve to hold more</div>
       )}
       {gs.stage >= 2 && !atCap && avC.length===0 && Object.keys(EU_COUNTRIES).some(c => !(gs.countries||[]).includes(c)) && (
-        <div style={{fontSize:12,color:P.muted,marginTop:12}}>No unclaimed country borders your network yet.</div>
+        <div style={{fontSize:12,color:P.muted,marginTop:12}}>{t("No unclaimed country borders your network yet.")}</div>
       )}
       {gs.stage < 1 && (
         <div style={{textAlign:"center",padding:"28px 8px",color:P.muted,fontSize:12.5}}>
@@ -5194,7 +5229,7 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
   );
   if (panel) return <div style={{padding:"12px 14px 18px"}}>{body}</div>;
   return (
-    <Modal title="Network" icon="earth-europe" onClose={onClose} width={680}>{body}</Modal>
+    <Modal title={t("Network")} icon="earth-europe" onClose={onClose} width={680}>{body}</Modal>
   );
 }
 
@@ -5211,12 +5246,12 @@ function EvolveModal({ gs, dispatch, onClose }) {
   const met   = reqs.filter(r => r.ok).length;
   const num   = v => typeof v === "number" ? v : parseFloat(v) || 0;
   return (
-    <Modal title="Next stage" icon="arrow-up-right-dots" onClose={onClose} width={520}>
+    <Modal title={t("Next stage")} icon="arrow-up-right-dots" onClose={onClose} width={520}>
       <div className="evo-head">
-        <div><div className="mu">Now</div><div className="st">{stage.name}</div></div>
+        <div><div className="mu">{t("Now")}</div><div className="st">{t(stage.name)}</div></div>
         <Icon name="arrow-right" size={16} color={P.muted}/>
-        <div><div className="mu">Next</div><div className="st" style={{color:P.accent}}>{next.name}</div></div>
-        <div style={{marginLeft:"auto",textAlign:"right"}}><div className="mu">Goals met</div><div className="st tnum">{met}/{reqs.length}</div></div>
+        <div><div className="mu">{t("Next")}</div><div className="st" style={{color:P.accent}}>{t(next.name)}</div></div>
+        <div style={{marginLeft:"auto",textAlign:"right"}}><div className="mu">{t("Goals met")}</div><div className="st tnum">{met}/{reqs.length}</div></div>
       </div>
       <ul className="evo-reqs">
         {reqs.map((r,i) => {
@@ -5232,7 +5267,7 @@ function EvolveModal({ gs, dispatch, onClose }) {
         })}
       </ul>
       <button className="btn evo-go" disabled={!ok} onClick={() => { dispatch({type:"evolve"}); onClose(); }}>
-        {ok ? `Become ${next.name} for ${fmt(cost)}` : `Costs ${fmt(cost)} once every goal is met`}
+        {ok ? t("Become {s} for {m}", {s: t(next.name), m: fmt(cost)}) : t("Costs {m} once every goal is met", {m: fmt(cost)})}
       </button>
     </Modal>
   );
@@ -5246,9 +5281,9 @@ function LogModal({ gs, onClose }) {
   if (!gs) return null;
   const cols = {project:P.blue, good:P.green, bad:P.red};
   return (
-    <Modal title="Event History" icon="clipboard-list" onClose={onClose} width={560}>
+    <Modal title={t("Event History")} icon="clipboard-list" onClose={onClose} width={560}>
       <div style={{maxHeight:"70vh",overflowY:"auto"}}>
-        {(gs.log||[]).length===0 && <div style={{textAlign:"center",padding:24,color:P.muted}}>Advance quarters to see history.</div>}
+        {(gs.log||[]).length===0 && <div style={{textAlign:"center",padding:24,color:P.muted}}>{t("Advance quarters to see history.")}</div>}
         {(gs.log||[]).map((e,i) => (
           <div key={i} style={{padding:"7px 10px",borderRadius:0,marginBottom:4,background:P.card,border:`1px solid ${(cols[e?.t]||P.border)}22`,display:"flex",gap:7,alignItems:"flex-start"}}>
             <Icon name={LOG_ICON[e?.t]||"circle-info"} size={11} color={cols[e?.t]||P.muted} style={{marginTop:2}}/>
@@ -5354,10 +5389,10 @@ function StatsModal({ gs, onClose, dispatch }) {
   const Card = ({children, title}) => <div title={title||undefined} style={{background:"transparent",padding:"14px 0",border:"none",borderTop:`1px solid ${P.border}`,borderRadius:0,cursor:title?"help":"default"}}>{children}</div>;
 
   return (
-    <Modal title="Cluster Dashboard" icon="gauge-high" iconColor={P.accent} onClose={onClose} width={560}>
+    <Modal title={t("Cluster Dashboard")} icon="gauge-high" iconColor={P.accent} onClose={onClose} width={560}>
       <div style={{display:"flex",flexDirection:"column",gap:10}}>
         <Card>
-          <Lbl t="Treasury"/>
+          <Lbl t={t("Treasury")}/>
           <div style={{fontSize:26,fontWeight:700,color:(gs.budget||0)<20000?P.red:P.accent,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{fmt(gs.budget||0)}</div>
           <div style={{fontSize:11,color:P.muted,marginTop:4}}>
             <span style={{color:(gs.qNet||0)>=0?P.accent:P.red}}>{(gs.qNet||0)>=0?"+":""}{fmt(gs.qNet||0)}/quarter</span>
@@ -5373,23 +5408,23 @@ function StatsModal({ gs, onClose, dispatch }) {
         </Card>
 
         {(gs.activeProjects||[]).length === 0 && (
-          <Card><EmptyState icon="folder-open" title="No project running" hint=""/></Card>
+          <Card><EmptyState icon="folder-open" title={t("No project running")} hint=""/></Card>
         )}
         {(gs.activeProjects||[]).length > 0 && (
           <Card>
-            <Lbl t={`Active projects (${gs.activeProjects.length})`}/>
+            <Lbl t={t("Active projects ({n})", {n: gs.activeProjects.length})}/>
             {gs.activeProjects.map((p, i) => p ? <ActiveProjectRow key={`spr-${i}`} p={p} gs={gs}/> : null)}
           </Card>
         )}
 
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
           <Card title={trendTitle(statTrends(gs)?.members, "Plus rival poaching, defections and events.")}>
-            <Lbl t="Members"/>
+            <Lbl t={t("Members")}/>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
               <span className="tnum" style={{fontSize:26,fontWeight:600,letterSpacing:-.5,color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{gs.members||0}</span>
               <Trend t={statTrends(gs)?.members}/>
             </div>
-            <div style={{fontSize:11.5,color:P.muted}}>fee {fmt(memberFee(gs.stage))}/quarter · mix ×{(Math.round(feeMult(gs)*100)/100).toFixed(2)}</div>
+            <div style={{fontSize:11.5,color:P.muted}}>{t("fee {m}/quarter, mix ×{x}", {m: fmt(memberFee(gs.stage)), x: (Math.round(feeMult(gs)*100)/100).toFixed(2)})}</div>
             {(() => { const mx = mixOf(gs), m = Math.max(1, gs.members||1); return (
               <div style={{marginTop:5}}>
                 <div style={{display:"flex",height:5,borderRadius:0,overflow:"hidden",border:`1px solid ${P.border}`}}>
@@ -5403,7 +5438,7 @@ function StatsModal({ gs, onClose, dispatch }) {
                     {Object.entries(MIX_FOCUS).map(([fid, fo]) => (
                       <button key={fid} className="btn" onClick={() => dispatch({type:"setFocus", focus:fid})}
                         aria-pressed={(gs.focus||"balanced")===fid}>
-                        {fo.label}
+                        {t(fo.label)}
                       </button>
                     ))}
                   </div>
@@ -5415,7 +5450,7 @@ function StatsModal({ gs, onClose, dispatch }) {
             <Card>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                 <Lbl t={`History · last ${Math.min(60,(gs.history||[]).length)} quarters`}/>
-                <button className="btn" onClick={() => downloadCSV(gs)} title="Export the full run history as CSV" style={{padding:"2px 8px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>CSV ⬇</button>
+                <button className="btn" onClick={() => downloadCSV(gs)} title={t("Export the full run history as CSV")} style={{padding:"2px 8px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.muted,fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{t("CSV ⬇")}</button>
               </div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:"6px 14px",marginTop:2}}>
                 {[["Treasury","b",P.accent],["Members","m",P.gold],["Influence","p",P.purple],["Board","bc",P.green]].map(([lbl,k,col]) => (
@@ -5428,14 +5463,14 @@ function StatsModal({ gs, onClose, dispatch }) {
             </Card>
           )}
           <Card>
-            <Lbl t="Staff"/>
+            <Lbl t={t("Staff")}/>
             <div style={{fontSize:22,fontWeight:700,color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{staffTotal(gs.roster)}</div>
             <div style={{fontSize:11.5,color:P.muted}}>fail risk <span style={{color:failRate>25?P.red:failRate>15?P.orange:P.green}}>{failRate}%</span></div>
           </Card>
         </div>
 
         <Card>
-          <Lbl t="Influence"/>
+          <Lbl t={t("Influence")}/>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
             <span style={{fontSize:22,fontWeight:700,color:P.purple,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.round(gs.prestige||0)}</span>
             <span style={{fontSize:11.5,color:P.muted}}>fades -{decay}/quarter</span>
@@ -5443,15 +5478,15 @@ function StatsModal({ gs, onClose, dispatch }) {
           <Bar val={gs.prestige||0} color={P.purple}/>
           
           <div style={{marginTop:10,paddingTop:10,borderTop:`1px solid ${P.border}`}}>
-            <div style={{fontSize:13,fontWeight:600,color:P.text,marginBottom:4}}>Seats</div>
+            <div style={{fontSize:13,fontWeight:600,color:P.text,marginBottom:4}}>{t("Seats")}</div>
             {seatStatus(gs).map(st => (
               <div key={st.id} className="seat-full">
                 <div className="seat-row" style={{cursor:"default"}}>
                   <Icon name={({regional:"building-columns",national:"landmark",eu:"earth-europe"})[st.id]||"landmark"} size={13} color={st.held?P.accent:P.muted}/>
-                  <span style={{flex:1,color:P.text,fontWeight:500}}>{st.label}</span>
-                  {st.held ? <span style={{color:P.accent,fontWeight:600}}>Yours</span>
+                  <span style={{flex:1,color:P.text,fontWeight:500}}>{t(st.label)}</span>
+                  {st.held ? <span style={{color:P.accent,fontWeight:600}}>{t("Yours")}</span>
                     : st.heldBy ? <span style={{color:P.redText,fontWeight:600,maxWidth:150,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{st.holderName}</span>
-                    : <span style={{color:P.muted}}>Open</span>}
+                    : <span style={{color:P.muted}}>{t("Open")}</span>}
                 </div>
                 <div style={{fontSize:12,color:P.muted,margin:"0 0 0 21px"}}>{String(st.effects||"").replace(/ · /g, ", ")}</div>
                 {!st.held && <ul className="conds" style={{margin:"6px 0 0 21px"}}>{st.reqs.map((c,i) => <li key={i} className={c.ok?"met":"unmet"}>{c.l}</li>)}</ul>}
@@ -5461,18 +5496,18 @@ function StatsModal({ gs, onClose, dispatch }) {
         </Card>
 
         <Card>
-          <Lbl t="Board confidence"/>
+          <Lbl t={t("Board confidence")}/>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
             <span style={{fontSize:22,fontWeight:700,color:(gs.boardConf||0)<30?P.red:(gs.boardConf||0)<55?P.orange:P.green,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.round(gs.boardConf||0)}</span>
             <span style={{fontSize:11.5,color:P.muted}}>/ 100</span>
           </div>
           <Bar val={gs.boardConf||0} color={(gs.boardConf||0)<30?P.red:(gs.boardConf||0)<55?P.orange:P.green}/>
-          {(gs.boardConf||0)<30 && <div style={{display:"flex",alignItems:"center",gap:5,fontSize:11.5,color:P.red,marginTop:4}}><Icon name="triangle-exclamation" size={10} color={P.red}/>Crisis: +3% extra member churn</div>}
+          {(gs.boardConf||0)<30 && <div style={{display:"flex",alignItems:"center",gap:5,fontSize:11.5,color:P.red,marginTop:4}}><Icon name="triangle-exclamation" size={10} color={P.red}/>{t("Crisis: +3% extra member churn")}</div>}
         </Card>
 
         {gs.stage < 5 && (
           <Card>
-            <Lbl t={<>Evolve <Icon name="arrow-right" size={10} color={P.muted} style={{margin:"0 4px"}}/>{next?.name||""}</>}/>
+            <Lbl t={<>{t("Evolve")} <Icon name="arrow-right" size={10} color={P.muted} style={{margin:"0 4px"}}/>{next?.name||""}</>}/>
             <div style={{display:"grid",gap:4,marginTop:2}}>
               {reqs.map((r,i)=>(
                 <div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:r.ok?P.green:P.muted}}>
@@ -5481,18 +5516,18 @@ function StatsModal({ gs, onClose, dispatch }) {
                 </div>
               ))}
             </div>
-            <div style={{marginTop:6,fontSize:11.5,color:P.muted}}>Evolution cost: <span style={{color:P.red}}>{fmt(evolveCost(gs.stage))}</span></div>
+            <div style={{marginTop:6,fontSize:11.5,color:P.muted}}>{t("Evolution cost:")} <span style={{color:P.red}}>{fmt(evolveCost(gs.stage))}</span></div>
           </Card>
         )}
 
         {(gs.rivals||[]).length > 0 && (
           <Card>
-            <Lbl t={<>Rival Race · first to a Pan-European Cluster Network</>}/>
+            <Lbl t={<>{t("Rival Race · first to a Pan-European Cluster Network")}</>}/>
             {(gs.rivals||[]).map(rv => (
               <div key={rv.id} style={{marginBottom:8}}>
                 <div style={{display:"flex",justifyContent:"space-between",fontSize:11.5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
                   <span style={{color:rv.color,display:"inline-flex",alignItems:"center",gap:5}}><Icon name="square" size={7} color={rv.color}/> {rv.name} · {NAME_TO_ISO[rv.country]||""}</span>
-                  <span style={{color:rv.stage>gs.stage?P.red:P.muted}}>{STAGES[rv.stage]?.name} · {rv.members} members</span>
+                  <span style={{color:rv.stage>gs.stage?P.red:P.muted}}>{t(STAGES[rv.stage]?.name)} · {rv.members} members</span>
                 </div>
                 <Bar val={rv.stage*100+(rv.progress||0)} max={500} color={rv.color} h={3}/>
               </div>
@@ -5501,7 +5536,7 @@ function StatsModal({ gs, onClose, dispatch }) {
         )}
 
         <Card>
-          <Lbl t="Network"/>
+          <Lbl t={t("Network")}/>
           <div style={{display:"flex",gap:16,fontSize:12,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
             <span style={{color:P.blue}}>{(gs.countries||[]).length} countries</span>
             <span style={{color:P.teal}}>{(gs.regions||[]).length} regions</span>
@@ -5679,8 +5714,8 @@ function SetupMap({ country, region, counts, onCountry, onRegion, onEurope }) {
         </button>
       )}
       <div style={{position:"absolute",left:20,bottom:18,fontSize:13,color:P.muted,pointerEvents:"none"}}>
-        {label ? <span style={{color:P.text,fontWeight:600}}>{label}</span> : "Click a country to start"}
-        {zoomed && !hov && !region ? <span>: click a region</span> : null}
+        {label ? <span style={{color:P.text,fontWeight:600}}>{label}</span> : t("Click a country to start")}
+        {zoomed && !hov && !region ? <span>{t(": click a region")}</span> : null}
         {zoomed && counts && (hov || region) && counts[hov || region] > 0 ? <span>, {counts[hov || region]} real cluster{counts[hov || region]===1?"":"s"}</span> : null}
       </div>
     </div>
@@ -5688,7 +5723,7 @@ function SetupMap({ country, region, counts, onCountry, onRegion, onEurope }) {
 }
 
 
-function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlots }) {
+function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlots, lang, onLang }) {
   const [showRules, setShowRules] = useState(false);
   const [diff, setDiff] = useState("officer");
   const [scenario, setScenario] = useState("classic");
@@ -5806,9 +5841,9 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
       <div style={{width:"100%",paddingBottom:8}}>
         <div style={{textAlign:"left",marginBottom:mobile?18:24}}>
           <div style={{fontSize:11,letterSpacing:0,fontWeight:600,color:P.muted,marginBottom:"clamp(6px,1.2vh,12px)",display:"inline-flex",alignItems:"center",gap:8}}>
-            <span aria-hidden="true" style={{color:"#FFCC00",fontSize:14,lineHeight:1}}>★</span>EU industrial strategy simulation</div>
-          <h1 className="brand-title" style={{fontSize:mobile?38:48,fontWeight:700,lineHeight:1,margin:"0 0 10px",letterSpacing:-2}}>Cluster Manager</h1>
-          <div style={{fontSize:15,color:P.muted,lineHeight:1.45,maxWidth:"40ch"}}>Grow a regional cluster into an EU-wide cluster network.</div>
+            <span aria-hidden="true" style={{color:"#FFCC00",fontSize:14,lineHeight:1}}>★</span>{t("EU industrial strategy simulation")}</div>
+          <h1 className="brand-title" style={{fontSize:mobile?38:48,fontWeight:700,lineHeight:1,margin:"0 0 10px",letterSpacing:-2}}>{t("Cluster Manager")}</h1>
+          <div style={{fontSize:15,color:P.muted,lineHeight:1.45,maxWidth:"40ch"}}>{t("Grow a regional cluster into an EU-wide cluster network.")}</div>
           {canResume && (
             <div style={{marginTop:16}}>
               <button className="btn" onClick={onResume} style={{padding:"12px 24px",borderRadius:8,border:"none",background:P.accent,color:P.onAccent,fontWeight:700,fontSize:15,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
@@ -5840,31 +5875,31 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
           {step===0 && (
             <>
               <div style={{marginBottom:18}}>
-                <div style={{fontSize:13,fontWeight:600,marginBottom:8}}>Scenario</div>
+                <div style={{fontSize:13,fontWeight:600,marginBottom:8}}>{t("Scenario")}</div>
                 <div style={{display:"grid",gridTemplateColumns:"repeat(4,minmax(0,1fr))",gap:8}}>
                   {SCENARIOS.map(sc => (
                     <button key={sc.id} className="btn" onClick={() => setScenario(sc.id)} aria-pressed={scenario===sc.id} title={sc.desc}
                       style={{...sel(scenario===sc.id),display:"flex",flexDirection:"column",alignItems:"flex-start",gap:8,padding:"11px 12px",fontSize:12.5,fontWeight:500}}>
                       <Icon name={({classic:"flag",rescue:"hand-holding-dollar",late:"hourglass-half",merger:"circle-nodes"})[sc.id]||"flag"} size={16} color={scenario===sc.id?P.accent:P.muted}/>
-                      {sc.name}
+                      {t(sc.name)}
                     </button>
                   ))}
                 </div>
                 
                 <details style={{marginTop:6}} open={!!challengeApplied || !!seed}>
-                  <summary style={{fontSize:12.5,color:P.accent,cursor:"pointer",userSelect:"none"}}>Seed or challenge code</summary>
+                  <summary style={{fontSize:12.5,color:P.accent,cursor:"pointer",userSelect:"none"}}>{t("Seed or challenge code")}</summary>
                 <div style={{display:"flex",gap:6,marginTop:8,alignItems:"center",flexWrap:"wrap"}}>
-                  <input value={seed} onChange={e=>setSeed(e.target.value)} placeholder="Seed (optional)" aria-label="Optional seed for a reproducible campaign" title="Any text: two players with the same seed, scenario and difficulty get an identical campaign start"
+                  <input value={seed} onChange={e=>setSeed(e.target.value)} placeholder={t("Seed (optional)")} aria-label={t("Optional seed for a reproducible campaign")} title={t("Any text: two players with the same seed, scenario and difficulty get an identical campaign start")}
                     style={{flex:"1 1 120px",minWidth:0,padding:"6px 9px",borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',outline:"none"}}/>
-                  <input value={challengeIn} onChange={e=>{ setChallengeIn(e.target.value); applyChallenge(e.target.value); }} placeholder="Paste challenge code…" aria-label="Paste a friend's challenge code" title="A friend's CM1 code sets seed, difficulty and scenario automatically"
+                  <input value={challengeIn} onChange={e=>{ setChallengeIn(e.target.value); applyChallenge(e.target.value); }} placeholder={t("Paste challenge code…")} aria-label={t("Paste a friend's challenge code")} title={t("A friend's CM1 code sets seed, difficulty and scenario automatically")}
                     style={{flex:"1 1 150px",minWidth:0,padding:"6px 9px",borderRadius:0,border:`1px dashed ${P.border}`,background:P.panel,color:P.text,fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',outline:"none"}}/>
                 </div>
                 </details>
                 {challengeApplied && <div style={{fontSize:11.5,color:P.greenText,marginTop:5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>✓ Challenge loaded: {DIFFICULTIES[diff]?.label} · {SCENARIOS.find(x=>x.id===scenario)?.name} · pick your country to match</div>}
               </div>
               <div style={{marginBottom:18}}>
-                <div style={{fontSize:13,fontWeight:600,marginBottom:8}}>Start as a real cluster</div>
-                <input value={nameQuery} onChange={e=>setNameQuery(e.target.value)} placeholder="Search 1,400+ real clusters by name or city…" aria-label="Search real cluster organisations"
+                <div style={{fontSize:13,fontWeight:600,marginBottom:8}}>{t("Start as a real cluster")}</div>
+                <input value={nameQuery} onChange={e=>setNameQuery(e.target.value)} placeholder={t("Search 1,400+ real clusters by name or city…")} aria-label={t("Search real cluster organisations")}
                   style={{width:"100%",boxSizing:"border-box",padding:"7px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:12,outline:"none"}}/>
                 {registryMatches.length > 0 && (
                   <div style={{maxHeight:168,overflowY:"auto",marginTop:6,border:`1px solid ${P.border}`,borderRadius:0}}>
@@ -5878,14 +5913,14 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                   </div>
                 )}
                 {nameQuery.trim().length >= 2 && registryMatches.length === 0 && (
-                  <div style={{fontSize:11.5,color:P.muted,marginTop:6}}>No match</div>
+                  <div style={{fontSize:11.5,color:P.muted,marginTop:6}}>{t("No match")}</div>
                 )}
                 <div style={{fontSize:11,color:P.muted,marginTop:7,lineHeight:1.45}}>
-                  Names: European Cluster Collaboration Platform. Events are fiction.
+                  {t("Names: European Cluster Collaboration Platform. Events are fiction.")}
                 </div>
               </div>
 
-              <div style={{marginBottom:2,fontSize:13,fontWeight:600}}>Or pick a country</div>
+              <div style={{marginBottom:2,fontSize:13,fontWeight:600}}>{t("Or pick a country")}</div>
               
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(140px,1fr))",gap:6,maxHeight:290,overflowY:"auto",paddingRight:4}}>
                 {Object.keys(EU_COUNTRIES).sort().map(c => (
@@ -5896,20 +5931,20 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
           )}
           {step===1 && (
             <>
-              <button className="btn" onClick={() => setStep(0)} style={{background:"none",border:"none",color:P.accent,fontSize:13,marginBottom:12,padding:0,fontFamily:"inherit",cursor:"pointer",display:"inline-flex",alignItems:"center",gap:5}}><Icon name="arrow-left" size={11} color={P.accent}/> Back</button>
-              <div style={{marginBottom:10,fontSize:13,fontWeight:600}}>Region in {country}</div>
+              <button className="btn" onClick={() => setStep(0)} style={{background:"none",border:"none",color:P.accent,fontSize:13,marginBottom:12,padding:0,fontFamily:"inherit",cursor:"pointer",display:"inline-flex",alignItems:"center",gap:5}}><Icon name="arrow-left" size={11} color={P.accent}/> {t("Back")}</button>
+              <div style={{marginBottom:10,fontSize:13,fontWeight:600}}>{t("Region in {c}", {c: country})}</div>
               
               {region && (
                 <div className="region-pick" style={{marginBottom:14,padding:"12px 14px",borderRadius:10,background:P.bright}}>
                   <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10}}>
                     <span style={{fontSize:14,fontWeight:600}}>{region}</span>
                     <button className="btn" onClick={() => setStep(2)} style={{padding:"8px 14px",borderRadius:8,border:"none",background:P.accent,color:P.onAccent,fontSize:12.5,fontWeight:600}}>
-                      Start my own cluster here
+                      {t("Start my own cluster here")}
                     </button>
                   </div>
                   {(regionCounts.byRegion[region]||[]).length > 0 && (
                     <>
-                      <div style={{fontSize:12,color:P.muted,margin:"10px 0 6px"}}>Or take over</div>
+                      <div style={{fontSize:12,color:P.muted,margin:"10px 0 6px"}}>{t("Or take over")}</div>
                       <div style={{display:"grid",gap:4,maxHeight:180,overflowY:"auto"}}>
                         {regionCounts.byRegion[region].map((c,i) => (
                           <button key={`${c.n}-${i}`} className="btn real-pick" onClick={() => { adoptCluster(c); setRegion(region); }}>
@@ -5928,7 +5963,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                   return (
                     <button key={rec.name} className="btn" style={{...sel(region===rec.name), display:"flex", flexDirection:"column", alignItems:"flex-start", gap:2, padding:"7px 11px"}} onClick={() => { setRegion(rec.name); setStep(1); }}>
                       <span style={{fontWeight:600,display:"inline-flex",alignItems:"center",gap:4}}>{strong && <Icon name="star" size={10} color={P.accent}/>}{rec.name}</span>
-                      <span style={{fontSize:12,color:P.muted}}>{(rec.ris||"not rated").toLowerCase()}</span>
+                      <span style={{fontSize:12,color:P.muted}}>{t(rec.ris||"not rated").toLowerCase()}</span>
                     </button>
                   );
                 })}
@@ -5937,9 +5972,9 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
           )}
           {step===2 && (
             <>
-              <button className="btn" onClick={() => setStep(1)} style={{background:"none",border:"none",color:P.accent,fontSize:13,marginBottom:12,padding:0,fontFamily:"inherit",cursor:"pointer",display:"inline-flex",alignItems:"center",gap:5}}><Icon name="arrow-left" size={11} color={P.accent}/> Back</button>
-              <div style={{marginBottom:2,fontSize:13,fontWeight:600}}>Industrial ecosystem</div>
-              <div style={{marginBottom:10,fontSize:12,color:P.muted,display:"flex",alignItems:"center",gap:6}}><Icon name="bullseye" size={11} color={P.green}/>Priority in {region}</div>
+              <button className="btn" onClick={() => setStep(1)} style={{background:"none",border:"none",color:P.accent,fontSize:13,marginBottom:12,padding:0,fontFamily:"inherit",cursor:"pointer",display:"inline-flex",alignItems:"center",gap:5}}><Icon name="arrow-left" size={11} color={P.accent}/> {t("Back")}</button>
+              <div style={{marginBottom:2,fontSize:13,fontWeight:600}}>{t("Industrial ecosystem")}</div>
+              <div style={{marginBottom:10,fontSize:12,color:P.muted,display:"flex",alignItems:"center",gap:6}}><Icon name="bullseye" size={11} color={P.green}/>{t("Priority in {r}", {r: region})}</div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:6,maxHeight:280,overflowY:"auto",paddingRight:4}}>
                 {[...ECOSYSTEMS].map(e => {
                   const rec = getRegion(country, region);
@@ -5947,7 +5982,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                   return (
                     <button key={e.id} className="btn" style={{...sel(sector?.id===e.id, e.color), display:"flex", alignItems:"center", gap:9, padding:"7px 10px"}} onClick={() => setSector(e)}>
                       <Icon name={e.icon} size={18} color={e.color}/>
-                      <span style={{flex:1,color:P.text,fontSize:12.5}}>{e.name}</span>
+                      <span style={{flex:1,color:P.text,fontSize:12.5}}>{t(e.name)}</span>
                       {aligned && <Icon name="bullseye" size={11} color={P.green} style={{flexShrink:0}}/>}
                     </button>
                   );
@@ -5956,20 +5991,20 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
               {sector && (
                 <>
                   <div style={{marginTop:16}}>
-                    <div style={{fontSize:13,fontWeight:600,marginBottom:8}}>Difficulty</div>
+                    <div style={{fontSize:13,fontWeight:600,marginBottom:8}}>{t("Difficulty")}</div>
                     <div style={{display:"flex",gap:6}}>
                       {Object.values(DIFFICULTIES).map(d => (
                         <button key={d.id} className="btn" onClick={() => setDiff(d.id)} aria-pressed={diff===d.id} title={d.desc}
                           style={{...sel(diff===d.id),flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:7,fontWeight:500}}>
-                          <Icon name={({junior:"seedling",officer:"user-tie",expert:"chess-knight"})[d.id]||"user-tie"} size={13} color={diff===d.id?P.accent:P.muted}/>{d.label}
+                          <Icon name={({junior:"seedling",officer:"user-tie",expert:"chess-knight"})[d.id]||"user-tie"} size={13} color={diff===d.id?P.accent:P.muted}/>{t(d.label)}
                         </button>
                       ))}
                     </div>
 
                   </div>
                   <div style={{marginTop:14}}>
-                    <div style={{fontSize:13,fontWeight:600,marginBottom:8}}>Home region</div>
-                    <select value={region} onChange={e=>setRegion(e.target.value)} aria-label="Change your home region"
+                    <div style={{fontSize:13,fontWeight:600,marginBottom:8}}>{t("Home region")}</div>
+                    <select value={region} onChange={e=>setRegion(e.target.value)} aria-label={t("Change your home region")}
                       style={{width:"100%",boxSizing:"border-box",padding:"10px 12px",borderRadius:8,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:13,outline:"none"}}>
                       {(REGIONS_BY_COUNTRY[country]||[]).map(r => (
                         <option key={r.nuts+r.name} value={r.name}>
@@ -5980,15 +6015,15 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
 
                   </div>
                   <div style={{marginTop:14}}>
-                    <div style={{fontSize:13,fontWeight:600,marginBottom:8}}>Cluster name</div>
+                    <div style={{fontSize:13,fontWeight:600,marginBottom:8}}>{t("Cluster name")}</div>
                     <input value={clusterName} onChange={e=>setClusterName(e.target.value)} maxLength={70}
-                      placeholder={`e.g. ${region} ${sector.name} Cluster`} aria-label="Name your cluster organisation"
+                      placeholder={`e.g. ${region} ${t(sector.name)} Cluster`} aria-label={t("Name your cluster organisation")}
                       style={{width:"100%",boxSizing:"border-box",padding:"10px 12px",borderRadius:8,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:13,outline:"none"}}/>
 
                   </div>
                   
                   <button className="btn orb" onClick={() => onStart(country, region, sector, diff, scenario, seed.trim(), clusterName.trim())} style={{marginTop:18,width:"100%"}}>
-                    Start in {region}
+                    {t("Start in {r}", {r: region})}
                   </button>
                 </>
               )}
@@ -6002,9 +6037,12 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
         <button className="btn link" onClick={() => setShowRules(true)}>
           <Icon name="circle-question" size={13} color={P.accent}/> How to play
         </button>
-        <button className="btn link" onClick={onTheme} aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}>
-          <Icon name={dark?"sun":"moon"} size={13} color={P.accent}/> {dark ? "Light mode" : "Dark mode"}
+        <button className="btn link" onClick={onTheme} aria-label={t(dark ? "Switch to light mode" : "Switch to dark mode")}>
+          <Icon name={dark?"sun":"moon"} size={13} color={P.accent}/> {t(dark ? "Light mode" : "Dark mode")}
         </button>
+        {onLang && <button className="btn link lang-switch" onClick={onLang} aria-label={t("Language")} title={t("Language")}>
+          <Icon name="globe" size={13} color={P.accent}/> {lang === "fr" ? "English" : "Français"}
+        </button>}
       </div>
       </div>
     </div>
@@ -6030,24 +6068,24 @@ function MapLegend({ gs }) {
       {open ? (
         <div className="event-in glass" style={{padding:"9px 11px",minWidth:172}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
-            <span style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Map key</span>
-            <button className="btn" onClick={()=>setOpen(false)} aria-label="Close map key" style={{border:"none",background:"none",color:P.muted,fontSize:13,lineHeight:1,cursor:"pointer",padding:0,width:16,height:16}}>×</button>
+            <span style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{t("Map key")}</span>
+            <button className="btn" onClick={()=>setOpen(false)} aria-label={t("Close map key")} style={{border:"none",background:"none",color:P.muted,fontSize:13,lineHeight:1,cursor:"pointer",padding:0,width:16,height:16}}>×</button>
           </div>
-          <Item swatch={box(`${P.gold}B0`, P.gold)} label="Home region"/>
-          <Item swatch={box(`${sc}A8`, sc)} label="Full national coverage"/>
-          <Item swatch={box(`${sc}66`, sc)} label="Active region"/>
-          <Item swatch={box(THEME_DARK?"#1F2A40":"#FFFFFF", "#C6D0DE")} label="Unexplored"/>
-          <Item swatch={box(THEME_DARK?"#1E2C48":"#E2EAF7", THEME_DARK?"#34466D":"#B8C8E2")} label="Candidate country"/>
-          <Item swatch={box(THEME_DARK?"#182234":"#EDF0F4", THEME_DARK?"#263247":"#D3D9E2")} label="Outside the Union"/>
+          <Item swatch={box(`${P.gold}B0`, P.gold)} label={t("Home region")}/>
+          <Item swatch={box(`${sc}A8`, sc)} label={t("Full national coverage")}/>
+          <Item swatch={box(`${sc}66`, sc)} label={t("Active region")}/>
+          <Item swatch={box(THEME_DARK?"#1F2A40":"#FFFFFF", "#C6D0DE")} label={t("Unexplored")}/>
+          <Item swatch={box(THEME_DARK?"#1E2C48":"#E2EAF7", THEME_DARK?"#34466D":"#B8C8E2")} label={t("Candidate country")}/>
+          <Item swatch={box(THEME_DARK?"#182234":"#EDF0F4", THEME_DARK?"#263247":"#D3D9E2")} label={t("Outside the Union")}/>
           {rivals.length > 0 && (
-            <Item swatch={<span style={{display:"inline-block",width:14,height:10,borderRadius:0,border:`1px solid ${rivals[0].color}`,background:`repeating-linear-gradient(45deg, ${rivals[0].color}44 0 2px, transparent 2px 4px)`}}/>} label="Rival territory"/>
+            <Item swatch={<span style={{display:"inline-block",width:14,height:10,borderRadius:0,border:`1px solid ${rivals[0].color}`,background:`repeating-linear-gradient(45deg, ${rivals[0].color}44 0 2px, transparent 2px 4px)`}}/>} label={t("Rival territory")}/>
           )}
-          <Item swatch={<span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:14,height:10}}><span style={{width:8,height:8,borderRadius:"50%",border:`1.5px solid ${P.purple}`,background:P.panel}}/></span>} label="Political seat"/>
+          <Item swatch={<span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:14,height:10}}><span style={{width:8,height:8,borderRadius:"50%",border:`1.5px solid ${P.purple}`,background:P.panel}}/></span>} label={t("Political seat")}/>
           
         </div>
       ) : (
-        <button className="btn" onClick={()=>setOpen(true)} title="Show map key" style={{display:"inline-flex",alignItems:"center",gap:5,background:P.panel,border:`1px solid ${P.border}`,borderRadius:0,padding:"5px 9px",fontSize:11.5,fontWeight:700,color:P.muted,boxShadow:"none"}}>
-          <Icon name="circle-info" size={11} color={P.muted}/> Key
+        <button className="btn" onClick={()=>setOpen(true)} title={t("Show map key")} style={{display:"inline-flex",alignItems:"center",gap:5,background:P.panel,border:`1px solid ${P.border}`,borderRadius:0,padding:"5px 9px",fontSize:11.5,fontWeight:700,color:P.muted,boxShadow:"none"}}>
+          <Icon name="circle-info" size={11} color={P.muted}/> {t("Key")}
         </button>
       )}
     </div>
@@ -6105,16 +6143,16 @@ function DigestCard({ gs, digestOn, reopenTick, onDigestToggle }) {
       </button>
       {expanded && (
         <div style={{padding:"0 10px 10px",borderTop:`1px solid ${P.border}`}}>
-          <div style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,margin:"7px 0 3px",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Cashflow</div>
-          <Row label="Membership fees" val={d.qMember} fmtFn={v=>fmt(v)} good={true}/>
-          <Row label="Project income" val={d.qProj} fmtFn={v=>fmt(v)} good={true}/>
-          <Row label="Salaries" val={-d.qStaff} fmtFn={v=>fmt(Math.abs(v))} good={false}/>
-          <Row label="Overheads" val={-d.qOverhead} fmtFn={v=>fmt(Math.abs(v))} good={false}/>
-          <Row label="Member servicing" val={-(d.qServicing||0)} fmtFn={v=>fmt(Math.abs(v))} good={false}/>
-          <Row label="Delivery costs" val={-d.qDelivery} fmtFn={v=>fmt(Math.abs(v))} good={false}/>
+          <div style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,margin:"7px 0 3px",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{t("Cashflow")}</div>
+          <Row label={t("Membership fees")} val={d.qMember} fmtFn={v=>fmt(v)} good={true}/>
+          <Row label={t("Project income")} val={d.qProj} fmtFn={v=>fmt(v)} good={true}/>
+          <Row label={t("Salaries")} val={-d.qStaff} fmtFn={v=>fmt(Math.abs(v))} good={false}/>
+          <Row label={t("Overheads")} val={-d.qOverhead} fmtFn={v=>fmt(Math.abs(v))} good={false}/>
+          <Row label={t("Member servicing")} val={-(d.qServicing||0)} fmtFn={v=>fmt(Math.abs(v))} good={false}/>
+          <Row label={t("Delivery costs")} val={-d.qDelivery} fmtFn={v=>fmt(Math.abs(v))} good={false}/>
           {d.events.length > 0 && (
             <>
-              <div style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,margin:"7px 0 3px",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>This quarter</div>
+              <div style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,margin:"7px 0 3px",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{t("This quarter")}</div>
               {d.events.map((e,i) => (
                 <div key={i} style={{fontSize:11.5,lineHeight:1.4,color:P.text,display:"flex",gap:5,alignItems:"flex-start",marginBottom:2}}>
                   <Icon name={e.t==="good"?"circle-check":"circle-exclamation"} size={9} color={e.t==="good"?P.green:P.red} style={{marginTop:2,flexShrink:0}}/>
@@ -6126,12 +6164,12 @@ function DigestCard({ gs, digestOn, reopenTick, onDigestToggle }) {
           {onDigestToggle && (
             <label style={{display:"flex",alignItems:"center",gap:6,marginTop:8,fontSize:11,color:P.muted,cursor:"pointer"}}>
               <input type="checkbox" checked={!!digestOn} onChange={onDigestToggle} style={{accentColor:P.accent,cursor:"pointer"}}/>
-              Show automatically each quarter
+              {t("Show automatically each quarter")}
             </label>
           )}
         </div>
       )}
-      <button className="btn" onClick={() => setShown(null)} aria-label="Dismiss quarter review" style={{position:"absolute",top:6,right:6,width:16,height:16,minWidth:16,padding:0,borderRadius:"50%",border:"none",background:"transparent",color:P.muted,fontSize:12,lineHeight:1,cursor:"pointer",display:"inline-flex",alignItems:"center",justifyContent:"center"}}>×</button>
+      <button className="btn" onClick={() => setShown(null)} aria-label={t("Dismiss quarter review")} style={{position:"absolute",top:6,right:6,width:16,height:16,minWidth:16,padding:0,borderRadius:"50%",border:"none",background:"transparent",color:P.muted,fontSize:12,lineHeight:1,cursor:"pointer",display:"inline-flex",alignItems:"center",justifyContent:"center"}}>×</button>
     </div>
   );
 }
@@ -6145,12 +6183,12 @@ function StageBanner({ banner, sector }) {
     <div key={banner.key} style={{position:"fixed",inset:0,zIndex:2900,display:"flex",alignItems:"center",justifyContent:"center",pointerEvents:"none"}} aria-hidden="true">
       <div style={{position:"absolute",inset:0,background:`radial-gradient(circle at 50% 45%, ${sc}22, transparent 60%)`,animation:"fadeIn .4s ease both, floatUp 3.2s ease-in forwards"}}/>
       <div className="stage-pop" style={{textAlign:"center"}}>
-        <div style={{fontSize:11,fontWeight:700,letterSpacing:0,color:sc,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',marginBottom:8}}>Cluster evolved</div>
+        <div style={{fontSize:11,fontWeight:700,letterSpacing:0,color:sc,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',marginBottom:8}}>{t("Cluster evolved")}</div>
         <div style={{display:"flex",alignItems:"center",gap:14,justifyContent:"center"}}>
-          <span style={{fontSize:14,color:"#94a3b8",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',fontWeight:700,textDecoration:"line-through",opacity:.6}}>{STAGES[banner.from]?.name}</span>
+          <span style={{fontSize:14,color:"#94a3b8",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',fontWeight:700,textDecoration:"line-through",opacity:.6}}>{t(STAGES[banner.from]?.name)}</span>
           <Icon name="arrow-up-right-dots" size={22} color={sc}/>
         </div>
-        <div style={{fontSize:30,fontWeight:800,color:sc,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',marginTop:6,textShadow:`0 4px 24px ${sc}66`}}>{STAGES[banner.to]?.name}</div>
+        <div style={{fontSize:30,fontWeight:800,color:sc,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',marginTop:6,textShadow:`0 4px 24px ${sc}66`}}>{t(STAGES[banner.to]?.name)}</div>
         <div style={{fontSize:11,color:"#64748b",marginTop:6,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Stage {banner.to} of 5</div>
       </div>
     </div>
@@ -6191,7 +6229,7 @@ function Tutorial({ gs }) {
       </div>
       <div style={{fontSize:12.5,color:P.muted,margin:"6px 0 12px 24px",lineHeight:1.45}}>{st.d}</div>
       <div style={{display:"flex",gap:16,justifyContent:"flex-end",alignItems:"center"}}>
-        <button className="btn link" style={{color:P.muted,fontSize:12.5}} onClick={() => setStep(finish())}>Skip</button>
+        <button className="btn link" style={{color:P.muted,fontSize:12.5}} onClick={() => setStep(finish())}>{t("Skip")}</button>
         {(step === 0 || step === TUT_STEPS.length-1) && (
           <button className="btn" onClick={() => step === 0 ? setStep(1) : setStep(finish())} style={{padding:"7px 14px",borderRadius:8,border:"none",background:P.accent,color:P.onAccent,fontSize:12.5,fontWeight:600}}>{step===0?"Start":"Done"}</button>
         )}
@@ -6210,7 +6248,7 @@ function AttentionQueue({ items, onGo, compact }) {
   const shown = items.slice(0, compact ? 6 : 5);
   if (compact) {
     return (
-      <div role="list" aria-label="Things that could use your attention" style={{flexShrink:0,display:"flex",gap:6,padding:"6px 10px",overflowX:"auto",background:P.panel,borderTop:`1px solid ${P.border}`}}>
+      <div role="list" aria-label={t("Actions you can complete")} style={{flexShrink:0,display:"flex",gap:6,padding:"6px 10px",overflowX:"auto",background:P.panel,borderTop:`1px solid ${P.border}`}}>
         {shown.map(it => (
           <button key={it.id} role="listitem" className="btn" onClick={()=>onGo(it.go)}
             style={{flexShrink:0,maxWidth:240,textAlign:"left",padding:"6px 9px 6px 8px",border:`1px solid ${P.border}`,borderLeft:`3px solid ${it.urgent?P.red:P.accent}`,borderRadius:8,background:P.card,color:P.text,fontSize:11.5,fontWeight:it.urgent?700:400,lineHeight:1.3,whiteSpace:"normal"}}>
@@ -6221,8 +6259,8 @@ function AttentionQueue({ items, onGo, compact }) {
     );
   }
   return (
-    <div role="list" aria-label="Things that could use your attention" style={{position:"absolute",top:10,left:10,zIndex:44,width:268,display:"flex",flexDirection:"column",gap:4}}>
-      <div style={{fontSize:11,fontWeight:600,letterSpacing:0,color:P.muted,padding:"0 2px 2px"}}>Before you end the quarter</div>
+    <div role="list" aria-label={t("Actions you can complete")} style={{position:"absolute",top:10,left:10,zIndex:44,width:268,display:"flex",flexDirection:"column",gap:4}}>
+      <div style={{fontSize:11,fontWeight:600,letterSpacing:0,color:P.muted,padding:"0 2px 2px"}}>{t("Before you end the quarter")}</div>
       {shown.map(it => (
         <button key={it.id} role="listitem" className="btn" onClick={()=>onGo(it.go)}
           style={{textAlign:"left",padding:"9px 12px 9px 11px",border:`1px solid ${P.border}`,borderLeft:`3px solid ${it.urgent?P.red:P.accent}`,borderRadius:10,background:P.panel,boxShadow:"0 1px 2px rgba(16,24,40,.05),0 4px 12px rgba(16,24,40,.06)",color:P.text,fontSize:12,fontWeight:it.urgent?600:400,lineHeight:1.35}}>
@@ -6234,7 +6272,7 @@ function AttentionQueue({ items, onGo, compact }) {
   );
 }
 
-function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo, snd, onSnd, textBig, onTextScale, digestOn, onDigestToggle }) {
+function Game({ lang, onLang, gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo, snd, onSnd, textBig, onTextScale, digestOn, onDigestToggle }) {
   const [digestReopen, setDigestReopen] = useState(0);
   const [leftOpen, setLeftOpen] = useState(true);   // desktop: cluster summary panel
   // Panel sizes, set by dragging the edges and remembered between visits.
@@ -6324,11 +6362,11 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
 
   const tipCard = false && (
     <div style={{position:"absolute",top:10,left:10,right:10,zIndex:50,maxWidth:380,margin:"0 auto",background:P.panel,borderRadius:0,border:`1px solid ${P.accent}`,boxShadow:"none",padding:"14px 16px",animation:"fadeUp .2s ease"}}>
-      <div style={{fontSize:13,fontWeight:700,marginBottom:8,color:P.text}}>Quick orientation</div>
-      <div style={{fontSize:11,color:P.muted,lineHeight:1.6,marginBottom:6}}>Watch <b style={{color:P.text}}>Treasury</b>, <b style={{color:P.text}}>Board</b> and the <b style={{color:P.text}}>rival race</b> each quarter. Any one hitting zero, or a rival finishing first, ends the run.</div>
+      <div style={{fontSize:13,fontWeight:700,marginBottom:8,color:P.text}}>{t("Quick orientation")}</div>
+      <div style={{fontSize:11,color:P.muted,lineHeight:1.6,marginBottom:6}}>{t("Watch")} <b style={{color:P.text}}>{t("Treasury")}</b>, <b style={{color:P.text}}>{t("Board")}</b> and the <b style={{color:P.text}}>rival race</b> each quarter. Any one hitting zero, or a rival finishing first, ends the run.</div>
       <div style={{fontSize:11,color:P.muted,lineHeight:1.6,marginBottom:6}}>• The project strip on screen shows each call's status live: green is on track, red is at risk of running out of cash before it finishes.</div>
       <div style={{fontSize:11,color:P.muted,lineHeight:1.6,marginBottom:10}}>• Hire the specialist a project needs before launching it, and tap any country on the map for details.</div>
-      <button className="btn" onClick={()=>setShowTip(false)} style={{width:"100%",padding:"9px",borderRadius:0,border:"none",background:P.accent,color:P.onAccent,fontWeight:700,fontSize:12}}>Got it, let's go <Icon name="arrow-right" size={11} color={P.onAccent} style={{marginLeft:5}}/></button>
+      <button className="btn" onClick={()=>setShowTip(false)} style={{width:"100%",padding:"9px",borderRadius:0,border:"none",background:P.accent,color:P.onAccent,fontWeight:700,fontSize:12}}>{t("Got it, let's go")} <Icon name="arrow-right" size={11} color={P.onAccent} style={{marginLeft:5}}/></button>
     </div>
   );
 
@@ -6385,28 +6423,29 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
           <div style={{display:"flex",alignItems:"center",gap:8}}>
             <Icon name={gs.sector?.icon||"display"} size={18} color={gs.sector?.color||P.text}/>
             <div style={{flex:1,minWidth:0}}>
-              <div title={gs.clusterName || gs.sector?.name} style={{fontSize:12,fontWeight:700,color:gs.sector?.color||P.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName || gs.sector?.name}</div>
-              <div style={{fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName ? `${stage.name} · ${gs.sector?.name}` : stage.name}</div>
+              <div title={gs.clusterName || t(gs.sector?.name)} style={{fontSize:12,fontWeight:700,color:gs.sector?.color||P.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName || t(gs.sector?.name)}</div>
+              <div style={{fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName ? `${t(stage.name)} · ${t(gs.sector?.name)}` : stage.name}</div>
             </div>
             {/* Re-opening the quarter review existed only in the desktop header,
                 which left no way back to it on a phone once it faded. */}
             <button className="btn" onClick={() => gs.digest ? setDigestReopen(t=>t+1) : null} disabled={!gs.digest}
-              title="Show the latest quarter review" aria-label="Show the latest quarter review"
+              title={t("Show the latest quarter review")} aria-label={t("Show the latest quarter review")}
               style={{padding:"5px 8px",borderRadius:0,border:`1px solid ${P.border}`,background:P.card,display:"inline-flex",opacity:gs.digest?1:0.4}}>
               <Icon name="clipboard-check" size={13} color={P.muted}/></button>
-            <button className="btn" onClick={onSnd} title="Toggle sound" style={{padding:"5px 8px",borderRadius:0,border:`1px solid ${P.border}`,background:P.card,display:"inline-flex"}}><Icon name={snd?"volume-high":"volume-xmark"} size={13} color={P.muted}/></button>
-            <button className="btn" onClick={onTheme} title="Toggle dark mode" style={{padding:"5px 8px",borderRadius:0,border:`1px solid ${P.border}`,background:P.card,display:"inline-flex"}}><Icon name={dark?"sun":"moon"} size={13} color={P.muted}/></button>
-            <button className="btn" onClick={()=>setModal("rules")} title="Game rules" style={{padding:"5px 8px",borderRadius:0,border:`1px solid ${P.border}`,background:P.card,color:P.text,display:"inline-flex"}}><Icon name="circle-question" size={13} color={P.muted}/></button>
-            <button className="btn" onClick={()=>setModal("stats")} style={{padding:"5px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:P.card,color:P.text,fontSize:11,fontWeight:700}}>Stats ▾</button>
+            <button className="btn" onClick={onSnd} title={t("Toggle sound")} style={{padding:"5px 8px",borderRadius:0,border:`1px solid ${P.border}`,background:P.card,display:"inline-flex"}}><Icon name={snd?"volume-high":"volume-xmark"} size={13} color={P.muted}/></button>
+            {onLang && <button className="btn lang-switch" onClick={onLang} title={t("Language")} aria-label={t("Language")} style={{padding:"4px 9px",borderRadius:6,border:"1px solid transparent",background:"transparent",color:P.muted,fontSize:12,fontWeight:600}}>{lang === "fr" ? "EN" : "FR"}</button>}
+        <button className="btn" onClick={onTheme} title={t("Toggle dark mode")} style={{padding:"5px 8px",borderRadius:0,border:`1px solid ${P.border}`,background:P.card,display:"inline-flex"}}><Icon name={dark?"sun":"moon"} size={13} color={P.muted}/></button>
+            <button className="btn" onClick={()=>setModal("rules")} title={t("Game rules")} style={{padding:"5px 8px",borderRadius:0,border:`1px solid ${P.border}`,background:P.card,color:P.text,display:"inline-flex"}}><Icon name="circle-question" size={13} color={P.muted}/></button>
+            <button className="btn" onClick={()=>setModal("stats")} style={{padding:"5px 10px",borderRadius:0,border:`1px solid ${P.border}`,background:P.card,color:P.text,fontSize:11,fontWeight:700}}>{t("Stats ▾")}</button>
           </div>
           {/* Stat strip */}
           <div style={{display:"flex",gap:10,marginTop:8,overflowX:"auto",paddingBottom:2}}>
-            <TopStat l="Period" v={<span key={gs.turn} className="flip-in">{`Q${gs.quarter} ${gs.year}`}</span>} c={P.text} icon="calendar-days"/>
-            <TopStat l="Treasury" v={fmt(gs.budget||0)} c={(gs.budget||0)<20000?P.redText:P.text} icon="coins" trend={trends?.budget?.delta} tip={trendTitle(trends?.budget)}/>
-            <TopStat l="Members" v={gs.members||0} c={P.text} icon="users" trend={trends?.members?.delta} tip={trendTitle(trends?.members,"Plus rival poaching, defections and events.")}/>
-            <TopStat l="Influence" v={Math.round(gs.prestige||0)} c={P.text} icon="landmark" trend={trends?.influence?.delta} tip={trendTitle(trends?.influence,"Plus project deliveries, events, coups.")}/>
-            <TopStat l="Board" v={`${Math.round(gs.boardConf||0)}`} c={(gs.boardConf||0)<30?P.redText:P.text} icon="shield-halved" trend={trends?.board?.delta} tip={trendTitle(trends?.board,"Plus completions +3, failures −8..−15, events.")}/>
-            <TopStat l="Net Income" v={`${(gs.qNet||0)>=0?"+":""}${fmtN(gs.qNet||0)}`} c={(gs.qNet||0)>=0?P.accent:P.red} icon="chart-line" tip={trendTitle(trends?.budget,"Last quarter's actual cashflow.")}/>
+            <TopStat l={t("Period")} v={<span key={gs.turn} className="flip-in">{`Q${gs.quarter} ${gs.year}`}</span>} c={P.text} icon="calendar-days"/>
+            <TopStat l={t("Treasury")} v={fmt(gs.budget||0)} c={(gs.budget||0)<20000?P.redText:P.text} icon="coins" trend={trends?.budget?.delta} tip={trendTitle(trends?.budget)}/>
+            <TopStat l={t("Members")} v={gs.members||0} c={P.text} icon="users" trend={trends?.members?.delta} tip={trendTitle(trends?.members,"Plus rival poaching, defections and events.")}/>
+            <TopStat l={t("Influence")} v={Math.round(gs.prestige||0)} c={P.text} icon="landmark" trend={trends?.influence?.delta} tip={trendTitle(trends?.influence,"Plus project deliveries, events, coups.")}/>
+            <TopStat l={t("Board")} v={`${Math.round(gs.boardConf||0)}`} c={(gs.boardConf||0)<30?P.redText:P.text} icon="shield-halved" trend={trends?.board?.delta} tip={trendTitle(trends?.board,"Plus completions +3, failures −8..−15, events.")}/>
+            <TopStat l={t("Net Income")} v={`${(gs.qNet||0)>=0?"+":""}${fmtN(gs.qNet||0)}`} c={(gs.qNet||0)>=0?P.accent:P.red} icon="chart-line" tip={trendTitle(trends?.budget,"Last quarter's actual cashflow.")}/>
           </div>
         </div>
 
@@ -6433,7 +6472,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
                   <div style={{height:2.5,background:P.bright,borderRadius:0,marginTop:3}}>
                     <div style={{width:`${prog*100}%`,height:"100%",background:st.color,borderRadius:0}}/>
                   </div>
-                  <div style={{fontSize:11,color:st.color,marginTop:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{left}Q · {st.label}</div>
+                  <div style={{fontSize:11,color:st.color,marginTop:2,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{left}Q · {t(st.label)}</div>
                 </button>
               );
             })}
@@ -6460,7 +6499,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
           ) : (
             <>
               <button className="btn cut" onClick={()=>dispatch({type:"nextTurn"})} style={{flex:1,padding:"13px",borderRadius:0,border:"none",background:`${P.accent}`,color:P.bg,fontWeight:700,fontSize:15,letterSpacing:0}}>
-                {byRole(gs.roster,"manager")<1 ? "No General Manager — hire one" : <>Next Quarter</>}
+                {byRole(gs.roster,"manager")<1 ? "No General Manager — hire one" : <>{t("Next Quarter")}</>}
               </button>
               <button className="btn" onClick={()=>setAuto(a=>!a)} style={{padding:"13px 16px",borderRadius:0,border:`1px solid ${auto?P.accent:P.border}`,background:auto?`${P.accent}22`:P.card,color:auto?P.accent:P.text,fontWeight:700,fontSize:15}}>
                 {auto?<Icon name="pause" size={15}/>:<Icon name="forward" size={15}/>}
@@ -6497,14 +6536,15 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
       <div className="glass-flat" style={{background:P.panel,borderBottom:`1px solid ${P.border}`,padding:"8px 16px",display:"flex",alignItems:"center",gap:14,flexShrink:0,flexWrap:"wrap"}}>
         <div style={{display:"flex",alignItems:"center",gap:8,marginRight:6}}>
           <div>
-            <div title={gs.clusterName || gs.sector?.name || ""} style={{fontSize:14,fontWeight:600,color:P.text,maxWidth:280,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName || gs.sector?.name || ""}</div>
-            <div style={{fontSize:12,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{stage.name}, {gs.region||""}</div>
+            <div title={gs.clusterName || t(gs.sector?.name || "")} style={{fontSize:14,fontWeight:600,color:P.text,maxWidth:280,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName || t(gs.sector?.name || "")}</div>
+            <div style={{fontSize:12,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{t(stage.name)}, {gs.region||""}</div>
           </div>
         </div>
-        <button className="btn" onClick={()=>setModal("rules")} title="Game rules" style={{padding:"4px 10px",borderRadius:6,border:"1px solid transparent",background:"transparent",color:P.muted,fontSize:11.5,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5,flexShrink:0}}>
-          Rules
+        <button className="btn" onClick={()=>setModal("rules")} title={t("Game rules")} style={{padding:"4px 10px",borderRadius:6,border:"1px solid transparent",background:"transparent",color:P.muted,fontSize:11.5,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5,flexShrink:0}}>
+          {t("Rules")}
         </button>
-        <button className="btn" onClick={onTheme} title={dark?"Switch to light mode":"Switch to dark mode"} style={{padding:"4px 9px",borderRadius:6,border:"1px solid transparent",background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
+        {onLang && <button className="btn lang-switch" onClick={onLang} title={t("Language")} aria-label={t("Language")} style={{padding:"4px 9px",borderRadius:6,border:"1px solid transparent",background:"transparent",color:P.muted,fontSize:12,fontWeight:600}}>{lang === "fr" ? "EN" : "FR"}</button>}
+        <button className="btn" onClick={onTheme} title={t(dark?"Switch to light mode":"Switch to dark mode")} style={{padding:"4px 9px",borderRadius:6,border:"1px solid transparent",background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
           <Icon name={dark?"sun":"moon"} size={12} color={P.muted}/>
         </button>
         <button className="btn" onClick={onSnd} title={snd?"Mute sound":"Enable sound"} style={{padding:"4px 9px",borderRadius:6,border:"1px solid transparent",background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
@@ -6513,28 +6553,28 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
         <button className="btn" onClick={onTextScale} aria-pressed={textBig} title={textBig?"Normal text size":"Larger text size"} style={{padding:"4px 9px",borderRadius:6,border:"1px solid transparent",background:textBig?`${P.accent}0d`:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
           <Icon name="text-height" size={12} color={textBig?P.accent:P.muted}/>
         </button>
-        <button className="btn" onClick={() => gs.digest ? setDigestReopen(t=>t+1) : null} title="Show the latest quarter review" style={{padding:"4px 9px",borderRadius:6,border:"1px solid transparent",background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
+        <button className="btn" onClick={() => gs.digest ? setDigestReopen(t=>t+1) : null} title={t("Show the latest quarter review")} style={{padding:"4px 9px",borderRadius:6,border:"1px solid transparent",background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
           <Icon name="clipboard-check" size={12} color={P.muted}/>
         </button>
-        <button className="btn" onClick={()=>setModal("slots")} title="Save slots" style={{padding:"4px 9px",borderRadius:6,border:"1px solid transparent",background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
+        <button className="btn" onClick={()=>setModal("slots")} title={t("Save slots")} style={{padding:"4px 9px",borderRadius:6,border:"1px solid transparent",background:"transparent",display:"inline-flex",alignItems:"center",flexShrink:0}}>
           <Icon name="floppy-disk" size={12} color={P.muted}/>
         </button>
         {canUndo && (
-          <button className="btn" onClick={onUndo} title="Undo last quarter (U) — once per quarter, Junior & Officer only" style={{padding:"4px 10px",borderRadius:6,border:"1px solid transparent",background:"transparent",color:P.aoldText,fontSize:11.5,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5,flexShrink:0}}>
-            Undo
+          <button className="btn" onClick={onUndo} title={t("Undo last quarter (U) — once per quarter, Junior & Officer only")} style={{padding:"4px 10px",borderRadius:6,border:"1px solid transparent",background:"transparent",color:P.aoldText,fontSize:11.5,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5,flexShrink:0}}>
+            {t("Undo")}
           </button>
         )}
         {gs.pendingEvent && (
           <div style={{fontSize:11.5,padding:"5px 10px",borderRadius:0,background:"transparent",border:"none",color:P.redText,fontWeight:600,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
-            An event is waiting
+            {t("An event is waiting")}
           </div>
         )}
         <div style={{marginLeft:"auto",display:"flex",gap:28,alignItems:"flex-end",flexWrap:"wrap"}}>
-          <TopStat l="Period"   v={<span key={gs.turn} className="flip-in">{`Q${gs.quarter} ${gs.year}`}</span>}        c={P.text} icon="calendar-days"/>
-          <TopStat l="Treasury" v={fmt(gs.budget||0)}                   c={(gs.budget||0)<20000?P.redText:P.text} icon="coins"/>
-          <TopStat l="Members"  v={gs.members||0}                       c={P.text} icon="users" trend={trends?.members?.delta} tip={trendTitle(trends?.members,"Plus rival poaching, defections and events.")}/>
-          <TopStat l="Influence" v={Math.round(gs.prestige||0)}          c={P.text} icon="landmark" trend={trends?.influence?.delta} tip={trendTitle(trends?.influence,"Plus project deliveries, events, coups.")}/>
-          <TopStat l="Board" v={`${Math.round(gs.boardConf||0)}%`} c={(gs.boardConf||0)<30?P.redText:P.text} icon="shield-halved" trend={trends?.board?.delta} tip={trendTitle(trends?.board,"Plus completions +3, failures −8..−15, events.")}/>
+          <TopStat l={t("Period")}   v={<span key={gs.turn} className="flip-in">{`Q${gs.quarter} ${gs.year}`}</span>}        c={P.text} icon="calendar-days"/>
+          <TopStat l={t("Treasury")} v={fmt(gs.budget||0)}                   c={(gs.budget||0)<20000?P.redText:P.text} icon="coins"/>
+          <TopStat l={t("Members")}  v={gs.members||0}                       c={P.text} icon="users" trend={trends?.members?.delta} tip={trendTitle(trends?.members,"Plus rival poaching, defections and events.")}/>
+          <TopStat l={t("Influence")} v={Math.round(gs.prestige||0)}          c={P.text} icon="landmark" trend={trends?.influence?.delta} tip={trendTitle(trends?.influence,"Plus project deliveries, events, coups.")}/>
+          <TopStat l={t("Board")} v={`${Math.round(gs.boardConf||0)}%`} c={(gs.boardConf||0)<30?P.redText:P.text} icon="shield-halved" trend={trends?.board?.delta} tip={trendTitle(trends?.board,"Plus completions +3, failures −8..−15, events.")}/>
         </div>
       </div>
 
@@ -6550,25 +6590,25 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
           <AttentionQueue items={attention} onGo={goTo}/>
           {/* Turn controls: a medallion ends the quarter, with the smaller controls beside it */}
           <div style={{position:"absolute",right:16,bottom:14,zIndex:45,display:"flex",alignItems:"flex-end",gap:12}}>
-            <button className="btn glass" onClick={() => setModal("evolve")} title="What the next stage requires"
+            <button className="btn glass" onClick={() => setModal("evolve")} title={t("What the next stage requires")}
               style={{padding:"10px 14px",color:ok?P.accent:P.text,fontSize:12,fontWeight:ok?600:500,marginBottom:22}}>
               {(() => {
                 // Stage goals at a glance: how many of the next stage's conditions are met
                 const reqs = evolveReqs(gs); const met = reqs.filter(r => r.ok).length;
-                return ok ? "Evolve now" : (gs.stage||0) >= 5 ? "Final stage" : `Stage goals ${met}/${reqs.length}`;
+                return ok ? t("Evolve now") : (gs.stage||0) >= 5 ? t("Final stage") : t("Stage goals {a}/{b}", {a: met, b: reqs.length});
               })()}
             </button>
-            <button className="btn orb-sm" onClick={()=>setAuto(a=>!a)} disabled={!!gs.pendingEvent} title="Advance quarters automatically until something needs you" aria-pressed={!!auto}
+            <button className="btn orb-sm" onClick={()=>setAuto(a=>!a)} disabled={!!gs.pendingEvent} title={t("Advance quarters automatically until something needs you")} aria-pressed={!!auto}
               style={{color:auto?P.accent:P.text,fontSize:12,fontWeight:600,marginBottom:22,opacity:gs.pendingEvent?0.5:1}}>
-              {auto ? "Pause" : "Auto"}
+              {t(auto ? "Pause" : "Auto")}
             </button>
             <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:7}}>
               <button className="btn orb" onClick={() => dispatch({type:"nextTurn"})} disabled={!!gs.pendingEvent || byRole(gs.roster,"manager")<1}
                 aria-label={gs.pendingEvent ? "Resolve the event first" : byRole(gs.roster,"manager")<1 ? "Hire a General Manager first" : "Next Quarter"}>
-                <span style={{fontSize:15,fontWeight:600,color:"inherit"}}>{gs.pendingEvent ? "Resolve event first" : byRole(gs.roster,"manager")<1 ? "Hire a General Manager" : "Next quarter"}</span>
+                <span style={{fontSize:15,fontWeight:600,color:"inherit"}}>{t(gs.pendingEvent ? "Resolve event first" : byRole(gs.roster,"manager")<1 ? "Hire a General Manager" : "Next quarter")}</span>
               </button>
               <div style={{padding:"2px 4px",fontSize:11,color:attention.length?P.accent:P.muted,whiteSpace:"nowrap",fontWeight:500}}>
-                {attention.length ? `${attention.length} thing${attention.length===1?"":"s"} could use you first` : `Q${gs.quarter} ${gs.year} · all clear`}
+                {attention.length ? t(attention.length===1 ? "1 action can be completed" : "{n} actions can be completed", {n: attention.length}) : t("Nothing pending")}
               </div>
             </div>
           </div>
@@ -6577,7 +6617,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
         <div className="sheet sheet-left" style={{position:"absolute",left:0,top:0,bottom:0,zIndex:60,width:leftWc,overflow:"hidden",display:leftOpen?"flex":"none"}}>
           <LeftPanel gs={gs} dispatch={dispatch}/>
         </div>
-        {leftOpen && <div className={`resizer col${dragging==="left"?" on":""}`} role="separator" aria-orientation="vertical" aria-label="Resize the summary panel" title="Drag to resize, double-click to reset"
+        {leftOpen && <div className={`resizer col${dragging==="left"?" on":""}`} role="separator" aria-orientation="vertical" aria-label={t("Resize the summary panel")} title={t("Drag to resize, double-click to reset")}
           style={{left:leftWc-3}} onDoubleClick={() => setLeftW(215)}
           onPointerDown={e => { const w0 = leftWc; startDrag("left", e, dx => setLeftW(clamp(w0 + dx, 190, 380))); }}/>}
         <button className="btn" onClick={()=>setLeftOpen(o=>!o)} aria-expanded={leftOpen} aria-label={leftOpen?"Hide the cluster summary":"Show the cluster summary"} title={leftOpen?"Hide the cluster summary":"Show the cluster summary"}
@@ -6586,7 +6626,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
           style={{position:"absolute",right:dockOpen?dockW+1:0,top:"50%",transform:"translateY(-50%)",zIndex:61,width:18,height:58,padding:0,border:`1px solid ${P.border}`,borderRadius:"6px 0 0 6px",background:P.panel,color:P.accent,fontSize:13,transition:"right .18s ease"}}>{dockOpen?"›":"‹"}</button>
 
         {/* RIGHT DOCK: Projects / Staff / Network tabs + compact activity & log */}
-        {dockOpen && <div className={`resizer col${dragging==="dock"?" on":""}`} role="separator" aria-orientation="vertical" aria-label="Resize the management panel" title="Drag to resize, double-click to reset"
+        {dockOpen && <div className={`resizer col${dragging==="dock"?" on":""}`} role="separator" aria-orientation="vertical" aria-label={t("Resize the management panel")} title={t("Drag to resize, double-click to reset")}
           style={{right:dockW-5}} onDoubleClick={() => setDockWSet(null)}
           onPointerDown={e => { const w0 = dockW; startDrag("dock", e, dx => setDockWSet(clamp(w0 - dx, 300, Math.min(680, vw*0.45)))); }}/>}
         <div className="sheet sheet-right" style={{position:"absolute",right:0,top:0,bottom:0,zIndex:60,width:dockW,display:dockOpen?"flex":"none",flexDirection:"column",background:P.panel,borderLeft:`1px solid ${P.border}`,overflow:"hidden"}}>
@@ -6594,7 +6634,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
             {[["projects","folder-open","Projects",P.blue],["staff","users","Staff",P.purple],["network","earth-europe","Network",P.teal],["rivals","chess-knight","Rivals",P.red]].map(([id,icon,lbl,col]) => (
               <button key={id} className="btn" onClick={()=>setRightTab(id)} aria-pressed={rightTab===id}
                 style={{flex:1,padding:"11px 4px 8px",border:"none",borderBottom:`3px solid ${rightTab===id?P.gold:"transparent"}`,background:"transparent",color:rightTab===id?P.accent:P.muted,fontSize:12.5,fontWeight:rightTab===id?700:400}}>
-                {lbl}
+                {t(lbl)}
               </button>
             ))}
           </div>
@@ -6607,7 +6647,7 @@ function Game({ gs, dispatch, vw, auto, setAuto, dark, onTheme, canUndo, onUndo,
             </div>
           </div>
           <div style={{position:"relative",flexShrink:0}}>
-            <div className={`resizer row${dragging==="log"?" on":""}`} role="separator" aria-orientation="horizontal" aria-label="Resize the projects and log area" title="Drag to resize, double-click to reset"
+            <div className={`resizer row${dragging==="log"?" on":""}`} role="separator" aria-orientation="horizontal" aria-label={t("Resize the projects and log area")} title={t("Drag to resize, double-click to reset")}
               style={{top:-4}} onDoubleClick={() => setLogH(212)}
               onPointerDown={e => { const h0 = logH; startDrag("log", e, (dx, dy) => setLogH(clamp(h0 - dy, 110, 560))); }}/>
           </div>
@@ -6684,7 +6724,7 @@ function GameOver({ gs, onRestart }) {
           <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:10}}>
             <div style={{fontSize:44,fontWeight:800,color:gradeCol,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',lineHeight:1}}>{grade}</div>
             <div>
-              <div style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Report card</div>
+              <div style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{t("Report card")}</div>
               <div style={{fontSize:16,fontWeight:700,color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{fmtN(score)} points</div>
               <div style={{fontSize:11,color:P.muted}}>{scen.name} · {DIFFICULTIES[gs.difficulty]?.label||gs.difficulty}{gs.seedStr?` · seed "${gs.seedStr}"`:""}</div>
             </div>
@@ -6707,29 +6747,29 @@ function GameOver({ gs, onRestart }) {
             })}
           </div>
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-            <button className="btn link" onClick={shareNative} title="Share your result, with a link that loads this exact starting position">
+            <button className="btn link" onClick={shareNative} title={t("Share your result, with a link that loads this exact starting position")}>
               <Icon name="bullhorn" size={12} color={P.accent}/>
-              Share result
+              {t("Share result")}
             </button>
-            <button className="btn link" onClick={copyResult} title="Copies a short summary of how the run went">
+            <button className="btn link" onClick={copyResult} title={t("Copies a short summary of how the run went")}>
               <Icon name="clipboard-list" size={12} color={P.accent}/>
-              Copy summary
+              {t("Copy summary")}
             </button>
             {gs.seedStr && (
-              <button className="btn link" onClick={copyLink} title="A link that opens the game with this challenge already loaded">
+              <button className="btn link" onClick={copyLink} title={t("A link that opens the game with this challenge already loaded")}>
               <Icon name="link" size={12} color={P.accent}/>
-                Copy challenge link
+                {t("Copy challenge link")}
               </button>
             )}
-            <button className="btn link" onClick={copyChallenge} title="Copies a CM1|… code: a friend can paste it on the setup screen and play the identical campaign, then compare report cards">
+            <button className="btn link" onClick={copyChallenge} title={t("Copies a CM1|… code: a friend can paste it on the setup screen and play the identical campaign, then compare report cards")}>
               <Icon name="chess-knight" size={12} color={P.accent}/>
-              Copy challenge code
+              {t("Copy challenge code")}
             </button>
             {gs.seedStr ? null : (
-              <span style={{fontSize:11.5,color:P.muted,alignSelf:"center"}}>Start a seeded campaign to share a replayable challenge.</span>
+              <span style={{fontSize:11.5,color:P.muted,alignSelf:"center"}}>{t("Start a seeded campaign to share a replayable challenge.")}</span>
             )}
             {hist.length >= 2 && (
-              <button className="btn link" onClick={() => downloadCSV(gs)}><Icon name="file-csv" size={12} color={P.accent}/> Export run as CSV ⬇</button>
+              <button className="btn link" onClick={() => downloadCSV(gs)}><Icon name="file-csv" size={12} color={P.accent}/> {t("Export run as CSV ⬇")}</button>
             )}
           </div>
           {shareMsg && (
@@ -6737,7 +6777,7 @@ function GameOver({ gs, onRestart }) {
           )}
         </div>
         <button className="btn orb" onClick={onRestart} style={{margin:"0 auto"}}>
-          Play again
+          {t("Play again")}
         </button>
       </div>
     </div>
@@ -6927,21 +6967,21 @@ function SaveSlots({ gs, onClose, onLoad }) {
   const doSave = async i => { setBusy(true); await saveToSlot(i, gs); await refresh(); setBusy(false); };
   const doLoad = async i => { const s = await loadSlot(i); if (s && onLoad) onLoad(s); };
   return (
-    <Modal title="Save Slots" icon="floppy-disk" iconColor={P.accent} onClose={onClose} width={440}>
+    <Modal title={t("Save Slots")} icon="floppy-disk" iconColor={P.accent} onClose={onClose} width={440}>
       
-      {!slots ? <div style={{color:P.muted,fontSize:12}}>Loading…</div> : slots.map(s => (
+      {!slots ? <div style={{color:P.muted,fontSize:12}}>{t("Loading…")}</div> : slots.map(s => (
         <div key={s.i} style={{display:"flex",alignItems:"center",gap:8,padding:"9px 11px",marginBottom:6,borderRadius:0,border:`1px solid ${P.border}`,background:P.card}}>
           <div style={{flex:1,minWidth:0}}>
             <div style={{fontSize:12,fontWeight:700,color:s.empty?P.muted:P.text}}>{s.empty ? `Slot ${s.i+1} — empty` : s.label}</div>
-            {!s.empty && <div style={{fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{STAGES[s.stage]?.name} · Q{s.q} {s.year}</div>}
+            {!s.empty && <div style={{fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{t(STAGES[s.stage]?.name)} · Q{s.q} {s.year}</div>}
           </div>
-          {gs && <button className="btn" disabled={busy} onClick={()=>doSave(s.i)} style={{padding:"5px 11px",borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent",color:P.accent,fontSize:11,fontWeight:700}}>Save here</button>}
-          {!s.empty && onLoad && <button className="btn" onClick={()=>doLoad(s.i)} style={{padding:"5px 11px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11,fontWeight:700}}>Load</button>}
+          {gs && <button className="btn" disabled={busy} onClick={()=>doSave(s.i)} style={{padding:"5px 11px",borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent",color:P.accent,fontSize:11,fontWeight:700}}>{t("Save here")}</button>}
+          {!s.empty && onLoad && <button className="btn" onClick={()=>doLoad(s.i)} style={{padding:"5px 11px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11,fontWeight:700}}>{t("Load")}</button>}
         </div>
       ))}
 
       <div style={{marginTop:16,paddingTop:14,borderTop:`1px solid ${P.border}`}}>
-        <Lbl t="Move a run between devices"/>
+        <Lbl t={t("Move a run between devices")}/>
         <div style={{fontSize:11,color:P.muted,marginBottom:9,lineHeight:1.5}}>
           Slots live in this browser only — clearing site data or switching device loses them.
           A save code (or file) is a portable copy you can keep or send to someone else.
@@ -6959,14 +6999,14 @@ function SaveSlots({ gs, onClose, onLoad }) {
             </div>
             {code && (
               <div>
-                <textarea readOnly value={code} onFocus={e=>e.target.select()} rows={3} aria-label="Your save code — copy all of it"
+                <textarea readOnly value={code} onFocus={e=>e.target.select()} rows={3} aria-label={t("Your save code — copy all of it")}
                   style={{width:"100%",boxSizing:"border-box",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',fontSize:11,padding:8,borderRadius:0,border:`1px solid ${P.border}`,background:P.bright,color:P.text,resize:"vertical",lineHeight:1.35}}/>
                 <div style={{display:"flex",alignItems:"center",gap:8,marginTop:5}}>
                   <button className="btn" onClick={async()=>{
                     let done=false;
                     try { if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(code); done=true; } } catch(e) {}
                     setMsg(done ? {t:"good",x:"Save code copied to the clipboard."} : {t:"bad",x:"Couldn't copy automatically — select the text and copy it manually."});
-                  }} style={{padding:"5px 11px",borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent",color:P.accent,fontSize:11,fontWeight:700}}>Copy</button>
+                  }} style={{padding:"5px 11px",borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent",color:P.accent,fontSize:11,fontWeight:700}}>{t("Copy")}</button>
                   <span style={{fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{code.length.toLocaleString()} characters — copy all of it</span>
                 </div>
               </div>
@@ -6975,15 +7015,15 @@ function SaveSlots({ gs, onClose, onLoad }) {
         )}
 
         <div>
-          <div style={{fontSize:11,fontWeight:700,color:P.text,marginBottom:5}}>Restore from a code or file</div>
-          <textarea value={paste} onChange={e=>{ setPaste(e.target.value); setMsg(null); }} rows={2} placeholder="Paste a save code here…" aria-label="Paste a save code to restore a run"
+          <div style={{fontSize:11,fontWeight:700,color:P.text,marginBottom:5}}>{t("Restore from a code or file")}</div>
+          <textarea value={paste} onChange={e=>{ setPaste(e.target.value); setMsg(null); }} rows={2} placeholder={t("Paste a save code here…")} aria-label={t("Paste a save code to restore a run")}
             style={{width:"100%",boxSizing:"border-box",fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',fontSize:11,padding:8,borderRadius:0,border:`1px solid ${P.border}`,background:P.card,color:P.text,resize:"vertical"}}/>
           <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:6}}>
             <button className="btn" disabled={!paste.trim()} onClick={()=>{
               const r = importSave(paste);
               if (r.ok && onLoad) { onLoad(r.state); }
               else setMsg({t:"bad",x:r.error||"That code could not be read."});
-            }} style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${paste.trim()?P.green:P.border}66`,background:paste.trim()?`${P.green}0d`:"transparent",color:paste.trim()?P.greenText:P.muted,fontSize:11,fontWeight:700}}>Restore this run</button>
+            }} style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${paste.trim()?P.green:P.border}66`,background:paste.trim()?`${P.green}0d`:"transparent",color:paste.trim()?P.greenText:P.muted,fontSize:11,fontWeight:700}}>{t("Restore this run")}</button>
             <label className="btn" style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11,fontWeight:700,cursor:"pointer",display:"inline-flex",alignItems:"center",gap:5}}>
               <Icon name="folder-open" size={11} color={P.muted}/> Choose a file
               <input type="file" accept=".cmsave,.txt,text/plain" style={{display:"none"}} onChange={e=>{
@@ -7016,6 +7056,9 @@ function SaveSlots({ gs, onClose, onLoad }) {
 export default function App() {
   const [screen, setScreen] = useState("setup");
   const [dark, setDark] = useState(false);
+  const [lang, setLang] = useState(() => { try { return localStorage.getItem("cm_lang") || "en"; } catch (e) { return "en"; } });
+  applyLang(lang);
+  const onLang = () => setLang(l => { const n = l === "fr" ? "en" : "fr"; try { localStorage.setItem("cm_lang", n); } catch (e) {} return n; });
   useEffect(() => { // restore theme
     try { window.storage?.get?.("cm_theme").then(r => { if (r?.value === "dark") { applyTheme(true); setDark(true); } }).catch(()=>{}); } catch(e) {}
   }, []);
@@ -7096,12 +7139,12 @@ export default function App() {
 
   const eff = gs?.gameWon ? "won" : gs?.gameOver ? "lost" : screen;
   return (
-    <>
+    <div key={lang} style={{display:"contents"}}>
       <style>{CSS}</style>
-      {eff==="setup" && <Setup onStart={startNew} canResume={savedExists} onResume={resume} mobile={vw<820} dark={dark} onTheme={onTheme} onOpenSlots={()=>setSetupSlots(true)}/>}
+      {eff==="setup" && <Setup lang={lang} onLang={onLang} onStart={startNew} canResume={savedExists} onResume={resume} mobile={vw<820} dark={dark} onTheme={onTheme} onOpenSlots={()=>setSetupSlots(true)}/>}
       {eff==="setup" && setupSlots && <SaveSlots gs={null} onLoad={s => { setGs(s); setScreen("game"); setSetupSlots(false); }} onClose={()=>setSetupSlots(false)}/>}
-      {eff==="game"  && <Game gs={gs} dispatch={dispatch} vw={vw} auto={auto} setAuto={setAuto} dark={dark} onTheme={onTheme} canUndo={canUndo} onUndo={onUndo} snd={snd} onSnd={onSnd} textBig={textBig} onTextScale={onTextScale} digestOn={digestOn} onDigestToggle={onDigestToggle}/>}
+      {eff==="game"  && <Game lang={lang} onLang={onLang} gs={gs} dispatch={dispatch} vw={vw} auto={auto} setAuto={setAuto} dark={dark} onTheme={onTheme} canUndo={canUndo} onUndo={onUndo} snd={snd} onSnd={onSnd} textBig={textBig} onTextScale={onTextScale} digestOn={digestOn} onDigestToggle={onDigestToggle}/>}
       {(eff==="won"||eff==="lost") && <GameOver gs={gs} onRestart={restart}/>}
-    </>
+    </div>
   );
 }

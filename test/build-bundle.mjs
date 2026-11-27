@@ -54,7 +54,7 @@ const UI_EXPORTS = [
   "ProjectsModal", "StaffModal", "NetworkModal", "RivalsModal", "RulesModal",
   "EvolveModal", "LogModal", "EventModal", "StatsModal", "ProjCard",
   "DigestCard", "SaveSlots", "Tutorial", "MapLegend", "StageBanner",
-  "ProgressRing", "EmptyState", "FloatingDeltas", "InfoDot", "AttentionQueue", "Facts", "SetupMap", "ICON_PATHS", "ActiveProjectRow", "regionFromLabel", "countryRegionShapes", "Lbl", "BAND", "Diamond",
+  "ProgressRing", "EmptyState", "FloatingDeltas", "InfoDot", "AttentionQueue", "Facts", "SetupMap", "ICON_PATHS", "STAGES", "SCENARIOS", "DIFFICULTIES", "STAFF_ROLES", "RIVAL_ARCHETYPES", "RIVAL_OPS", "t", "applyLang", "FR", "ActiveProjectRow", "regionFromLabel", "countryRegionShapes", "Lbl", "BAND", "Diamond",
   "CSS", "P", "applyTheme", "applyTextScale", "fmt",
 ];
 

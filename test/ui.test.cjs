@@ -490,7 +490,7 @@ const click = (el) => act(() => {
   ok(!!label, "hovering a country shows a label");
   ok(label && label.textContent.includes(longName), "a long rival name appears in full, never clipped");
   ok(G.CSS.includes(".map-hover{") && /\.map-hover\{[^}]*max-width:240px/.test(G.CSS), "the label wraps at a fixed width");
-  ok(label && /Click for options/.test(label.textContent), "it tells you clicking does more");
+  ok(label && /Click to see options/.test(label.textContent), "it tells you clicking does more");
   ok(!qsa("svg text").some(t => /HOME COUNTRY|UNEXPLORED/.test(t.textContent)), "the old in-map tooltip that scaled with zoom is gone");
 }
 
@@ -548,9 +548,11 @@ const click = (el) => act(() => {
   ok(tiles.length >= 6, "hiring is a grid of tiles");
   ok(tiles.every(t => t.querySelector("svg") && /€/.test(t.textContent)), "each tile shows an icon and a salary");
   ok(tiles.every(t => t.textContent.length < 50), "tiles carry no descriptions, so the grid fits without scrolling");
-  ok(qsa(".hire-detail").length === 0, "no note sits under the roles until you point at one");
+  ok(!document.body.querySelector(".role-pop"), "no description shows until you point at a role");
   act(() => { tiles[1].dispatchEvent(new dom.window.MouseEvent("mouseover", { bubbles:true })); });
-  ok(qsa(".hire-detail").length === 1 && qsa(".hire-detail")[0].textContent.length > 20, "pointing at a role shows its description");
+  const pop = document.body.querySelector(".role-pop");
+  ok(!!pop && pop.textContent.length > 20, "pointing at a role shows its description");
+  ok(pop && pop.parentElement === document.body, "the description opens beside the tile at the page root, never under the grid");
   ok(!/three quarters/i.test(text()), "the staff panel does not restate the hiring rule");
   render(null); render(React.createElement(G.RulesModal, { onClose: () => {} }));
   ok(/three quarters of the new salary/.test(text()), "the hiring rule is explained in How to play");
@@ -700,6 +702,40 @@ const click = (el) => act(() => {
   ok(Math.min(...ys) < -300 && Math.max(...ys) > 900, "surrounding land extends far enough that a tall frame shows no cut edges");
 }
 
+/* ── French ───────────────────────────────────────────────── */
+{
+  const src = require("fs").readFileSync(require("path").join(__dirname, "..", "src", "ClusterManagerSimulator.jsx"), "utf8");
+  const keys = new Set([...src.matchAll(/\bt\("((?:[^"\\]|\\.)*)"/g)].map(m => JSON.parse('"' + m[1] + '"')));
+  const missing = [...keys].filter(k => !(k in G.FR));
+  ok(missing.length === 0, `every interface string has a French version${missing.length ? `: ${missing.slice(0,5).join(" | ")}` : ""}`);
+  ok(Object.entries(G.FR).every(([en, fr]) => (en.match(/\{\w+\}/g)||[]).every(ph => fr.includes(ph))), "every French string keeps its placeholders");
+  for (const e of G.ECOSYSTEMS) ok(G.FR[e.name], `the ${e.name} ecosystem has a French name`);
+  ok(G.STAGES.every(st => G.FR[st.name]), "every stage has a French name");
+
+  G.applyLang("fr");
+  ok(G.t("Next quarter") === "Trimestre suivant", "French switches the interface");
+  ok(G.t("{n} actions can be completed", { n: 3 }) === "3 actions possibles", "placeholders are filled in French");
+  ok(G.t("Some text that has no translation") === "Some text that has no translation", "a missing string falls back to English");
+  render(null);
+  render(React.createElement(G.Setup, { onStart: () => {}, canResume: false, onResume: () => {}, mobile: false, lang: "fr", onLang: () => {} }));
+  ok(/Ou choisissez un pays/.test(text()) && /English/.test(text()), "the setup screen is French and offers English back");
+  G.applyLang("en");
+  render(null);
+  let switched = false;
+  render(React.createElement(G.Setup, { onStart: () => {}, canResume: false, onResume: () => {}, mobile: false, lang: "en", onLang: () => { switched = true; } }));
+  const fr = qsa("button").find(b => /Français/.test(b.textContent));
+  ok(!!fr, "the setup screen offers French");
+  if (fr) { click(fr); ok(switched, "choosing it switches the language"); }
+  render(null);
+  render(React.createElement(G.Game, { gs: G.initState("Austria", "Styria", { id:"digital", name:"Digital", color:"#38bdf8", icon:"display" }), dispatch: () => {}, vw: 1280, onRestart: () => {}, lang: "en", onLang: () => {} }));
+  ok(qsa("button.lang-switch").some(b => b.textContent === "FR"), "the game top bar has a language switch");
+}
+
+/* ── wording of the turn caption and the map card position ── */
+{
+  ok(G.t("{n} actions can be completed", { n: 3 }) === "3 actions can be completed", "the turn caption counts actions that can be completed");
+}
+
 /* ── dark mode and back again ─────────────────────────────── */
 {
   // Regression: switching back to light mode referenced a palette that no longer
@@ -845,7 +881,7 @@ const click = (el) => act(() => {
   ok(!!qsa("button").find((b) => /Stage goals \d+\/\d+|Evolve now|Final stage/.test(b.textContent)),
      "the evolve control shows progress toward the next stage");
   ok(next && /orb/.test(next.className), "it is the primary turn button");
-  ok(/could use you first|all clear/.test(text()), "a caption under it reports how much is still open");
+  ok(/can be completed|Nothing pending/.test(text()), "a caption under it reports how many actions can be completed");
 
   // a plate takes you to the panel that deals with it
   const plate = qsa('[role="listitem"]').find((b) => /project/i.test(b.textContent));
