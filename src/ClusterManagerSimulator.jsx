@@ -361,7 +361,7 @@ function applyTextScale(big) {
 /* Language. English is written inline; FR maps each English string to French and
    anything missing falls back to English. {name} placeholders are filled from vars. */
 let LANG = "en";
-let FR = {"{d} difficulty": "Niveau {d}", "a quarter": "par trimestre", ", {n} quarters of runway": ", {n} trimestres de réserve", "fee {m}/quarter, mix ×{x}": "cotisation {m}/trimestre, mix ×{x}", "market {n}% claimed (you and rivals)": "marché pris à {n} % (vous et les rivaux)", "Regional": "Régional", "National": "National", "EU": "UE", "{n}% risk": "{n} % de risque", "{a} of {b} slots": "{a} créneau(x) sur {b}", "{n} done": "{n} terminé(s)", "Needs {x}": "Il faut {x}", "Balanced": "Équilibré", "SME drive": "Priorité PME", "Corporate": "Grandes entreprises", "Research": "Recherche", "Key": "Légende", "not rated": "non classé", "Strong": "Fort", "Moderate": "Modéré", "Leader": "Leader", "Emerging": "Émergent", "Strong, Leader": "Fort, leader", "Moderate, Strong": "Modéré, fort", "Moderate, Strong, Leader": "Modéré, fort, leader","Switch to light mode":"Passer en mode clair","Switch to dark mode":"Passer en mode sombre","Open a regional office here":"Ouvrir un bureau régional ici","Needs {m}; you have {b}":"Il faut {m} ; vous avez {b}","Other countries open up at {s}":"D'autres pays s'ouvrent à l'étape {s}","Your stage allows 1 country; evolve to hold more":"Votre étape permet 1 pays ; évoluez pour en tenir plus","Your stage allows {n} countries; evolve to hold more":"Votre étape permet {n} pays ; évoluez pour en tenir plus","Out of reach: hold a neighbouring country first":"Hors de portée : tenez d'abord un pays voisin","Enter {c} with an office here":"Entrer en {c} avec un bureau ici","Language":"Langue","EU industrial strategy simulation":"Simulation de stratégie industrielle européenne","Cluster Manager":"Cluster Manager","Grow a regional cluster into an EU-wide cluster network.":"Faites d'un cluster régional un réseau de clusters à l'échelle de l'UE.","Load a saved slot":"Charger une sauvegarde","Continue saved game":"Reprendre la partie","Country":"Pays","Region":"Région","Ecosystem":"Écosystème","Back":"Retour","Scenario":"Scénario","Seed or challenge code":"Graine ou code de défi","Seed (optional)":"Graine (facultatif)","Paste challenge code…":"Coller un code de défi…","Start as a real cluster":"Commencer avec un vrai cluster","Search 1,400+ real clusters by name or city…":"Rechercher parmi plus de 1 400 clusters, par nom ou ville…","Search real cluster organisations":"Rechercher de vrais clusters","No match":"Aucun résultat","Names: European Cluster Collaboration Platform. Events are fiction.":"Noms : European Cluster Collaboration Platform. Les événements sont fictifs.","Or pick a country":"Ou choisissez un pays","Region in {c}":"Région en {c}","Start my own cluster here":"Créer mon cluster ici","Or take over":"Ou reprendre","Industrial ecosystem":"Écosystème industriel","Priority in {r}":"Priorité en {r}","Difficulty":"Difficulté","Home region":"Région d'origine","Change your home region":"Changer de région d'origine","Cluster name":"Nom du cluster","Name your cluster organisation":"Nommez votre cluster","Start in {r}":"Commencer en {r}","How to play":"Comment jouer","Light mode":"Mode clair","Dark mode":"Mode sombre","Click a country to start":"Cliquez sur un pays pour commencer",": click a region":" : cliquez sur une région","Optional seed for a reproducible campaign":"Graine facultative pour une partie reproductible","Any text: two players with the same seed, scenario and difficulty get an identical campaign start":"Tout texte : deux joueurs avec la même graine, le même scénario et la même difficulté démarrent la même partie","A friend's CM1 code sets seed, difficulty and scenario automatically":"Le code CM1 d'un ami règle automatiquement graine, difficulté et scénario","Paste a friend's challenge code":"Collez le code de défi d'un ami","Period":"Période","Treasury":"Trésorerie","Members":"Membres","Influence":"Influence","Board":"Conseil","Rules":"Règles","Undo":"Annuler","Toggle dark mode":"Mode sombre","Toggle sound":"Son","Save slots":"Sauvegardes","Save Slots":"Sauvegardes","Show the latest quarter review":"Afficher le dernier bilan trimestriel","Undo last quarter (U) — once per quarter, Junior & Officer only":"Annuler le dernier trimestre (U), une fois par trimestre, niveaux Junior et Officier","An event is waiting":"Un événement attend","Game rules":"Règles du jeu","Before you end the quarter":"Avant de finir le trimestre","Actions you can complete":"Actions possibles","Next quarter":"Trimestre suivant","Next Quarter":"Trimestre suivant","Resolve event first":"Réglez d'abord l'événement","Hire a General Manager":"Recrutez un directeur général","1 action can be completed":"1 action possible","{n} actions can be completed":"{n} actions possibles","Nothing pending":"Rien en attente","Pause":"Pause","Auto":"Auto","Advance quarters automatically until something needs you":"Avancer automatiquement jusqu'à ce qu'une décision soit nécessaire","What the next stage requires":"Ce qu'exige l'étape suivante","Evolve now":"Évoluer","Final stage":"Dernière étape","Stage goals {a}/{b}":"Objectifs d'étape {a}/{b}","Click to see options":"Cliquez pour voir les options","Your home country":"Votre pays d'origine","Fully covered":"Entièrement couvert","You hold {a} of {b} regions":"Vous tenez {a} régions sur {b}","Not in your network":"Hors de votre réseau","Close region card":"Fermer la fiche région","Open an office for {m}":"Ouvrir un bureau pour {m}","Enter {c} for {m}":"Entrer en {c} pour {m}","{e} is a smart-specialisation priority here":"{e} est une priorité de spécialisation intelligente ici","{e} is not a priority here":"{e} n'est pas une priorité ici","Your office is here":"Votre bureau est ici","Map key":"Légende","Show map key":"Afficher la légende","Close map key":"Fermer la légende","Unexplored":"Inexploré","Candidate country":"Pays candidat","Outside the Union":"Hors de l'Union","Rival territory":"Territoire rival","Active region":"Région active","Full national coverage":"Couverture nationale complète","Political seat":"Siège politique","Zoom in":"Zoom avant","Zoom out":"Zoom arrière","Zoom in on the map":"Agrandir la carte","Zoom out of the map":"Réduire la carte","Fit the whole map":"Voir toute la carte","Reset the map to fit the whole of Europe":"Recadrer la carte sur toute l'Europe","Resize the summary panel":"Redimensionner le panneau de synthèse","Resize the management panel":"Redimensionner le panneau de gestion","Resize the projects and log area":"Redimensionner la zone projets et journal","Drag to resize, double-click to reset":"Faites glisser pour redimensionner, double-cliquez pour réinitialiser","An event needs a decision":"Un événement demande une décision","Hire a General Manager to continue":"Recrutez un directeur général pour continuer","Cash for under {n} quarters":"Trésorerie pour moins de {n} trimestres","Board confidence at {n}%":"Confiance du conseil à {n} %","Ready to become {s}":"Prêt à devenir {s}","the next stage":"l'étape suivante","No project running, 1 call open":"Aucun projet en cours, 1 appel ouvert","No project running, {n} calls open":"Aucun projet en cours, {n} appels ouverts","A project slot is free":"Un créneau de projet est libre","Room for {n} more staff":"Place pour {n} employés de plus","Next stage needs more regions":"L'étape suivante exige plus de régions","Fees":"Cotisations","Projects":"Projets","Salaries":"Salaires","Overheads":"Frais généraux","Servicing":"Services aux membres","Delivery":"Réalisation","Regional innovation tier":"Niveau d'innovation régional","priority":"priorité","not a priority":"pas une priorité","Is your ecosystem a smart-specialisation priority here?":"Votre écosystème est-il une priorité de spécialisation intelligente ici ?","cross-ecosystem":"inter-écosystèmes","As a national body you work across ecosystems":"En tant qu'organisme national, vous travaillez sur plusieurs écosystèmes","Small and medium firms":"PME","Large companies":"Grandes entreprises","Research organisations":"Organismes de recherche","Recruitment focus":"Priorité de recrutement","Fades {n} a quarter":"Baisse de {n} par trimestre","Your political standing with public authorities. It fades each quarter unless you keep earning it.":"Votre poids auprès des pouvoirs publics. Il baisse chaque trimestre si vous ne l'entretenez pas.","Seats":"Sièges","Yours":"À vous","Open":"Libre","Board confidence":"Confiance du conseil","Board confidence trend":"Évolution de la confiance du conseil","Influence trend":"Évolution de l'influence","Members trend":"Évolution des membres","Crisis: +3% extra churn":"Crise : +3 % de départs","Crisis: +3% extra member churn":"Crise : +3 % de départs de membres","Staff":"Équipe","Network":"Réseau","Rivals":"Rivaux","Failure risk for a new project":"Risque d'échec d'un nouveau projet","Projects running, out of the slots you have":"Projets en cours, sur vos créneaux disponibles","Projects completed":"Projets terminés","How project risk and slots work":"Fonctionnement du risque et des créneaux","No call is open to you yet":"Aucun appel ne vous est encore ouvert","Each kind of project needs its specialist:":"Chaque type de projet demande son spécialiste :","Analyst":"Analyste","Communications":"Communication","Training":"Formation","Lobbyist":"Lobbyiste","Research projects":"Projets de recherche","Communications projects":"Projets de communication","Training projects":"Projets de formation","Lobbying projects":"Projets de lobbying","Networking projects":"Projets de réseau","Not yet available":"Pas encore disponible","Why some calls are locked":"Pourquoi certains appels sont verrouillés","Type of project":"Type de projet","Who funds it":"Financeur","Specialist who runs it":"Spécialiste responsable","Volume":"Volume","Margin":"Marge","Risk":"Risque","Partners":"Partenaires","Number of partners":"Nombre de partenaires","Influence gained on delivery":"Influence gagnée à la livraison","Members gained on delivery":"Membres gagnés à la livraison","Members needed to apply":"Membres requis pour postuler","Staff needed to apply":"Personnel requis pour postuler","Needs {m} to start":"Il faut {m} pour commencer","Start project, {m} a quarter":"Lancer le projet, {m} par trimestre","How payment works":"Fonctionnement du paiement","Active projects ({n})":"Projets en cours ({n})","None running":"Aucun en cours","No project running":"Aucun projet en cours","{n} q left":"{n} trim. restants","Quarters until delivery":"Trimestres avant la livraison","Project volume":"Volume du projet","Event log":"Journal","Staff on the payroll":"Personnel salarié","Salaries a quarter":"Salaires par trimestre","Management capacity: staff led, out of the most your managers can lead":"Capacité d'encadrement : personnes encadrées, sur le maximum possible","Members lost each quarter":"Membres perdus par trimestre","Project failure risk":"Risque d'échec des projets","How staffing works":"Fonctionnement du recrutement","Team ({n})":"Équipe ({n})","required":"obligatoire","Release":"Licencier","Release the most recent hire":"Licencier la dernière recrue","Hire":"Recruter","Point at a role for details":"Survolez un rôle pour le détail","Not enough money yet":"Pas encore assez d'argent","Regions with an office":"Régions avec un bureau","Countries held, out of the most your stage allows":"Pays tenus, sur le maximum autorisé à votre étape","Cost of a new regional office":"Coût d'un nouveau bureau régional","Cost of entering a new country":"Coût d'entrée dans un nouveau pays","Open an office":"Ouvrir un bureau","About regional offices":"À propos des bureaux régionaux","Enter a country":"Entrer dans un pays","About entering a country":"À propos de l'entrée dans un pays","No unclaimed country borders your network yet.":"Aucun pays libre ne borde encore votre réseau.","Member market":"Marché des membres","How the rivalry works":"Fonctionnement de la rivalité","Share of the member market you hold":"Votre part du marché des membres","Share pressed by rivals":"Part prise par les rivaux","Members nobody has recruited yet":"Membres que personne n'a encore recrutés","No rivals remain. The market is yours.":"Il ne reste aucun rival. Le marché est à vous.","Ahead of you":"Devant vous","Closing in":"Se rapproche","Truce":"Trêve","Countries":"Pays","Stage":"Étape","Next stage":"Étape suivante","Now":"Actuelle","Next":"Suivante","Goals met":"Objectifs atteints","Become {s} for {m}":"Devenir {s} pour {m}","Costs {m} once every goal is met":"Coûte {m} une fois tous les objectifs atteints","Cluster Dashboard":"Tableau de bord","Report card":"Bilan","Share result":"Partager le résultat","Copy summary":"Copier le résumé","Copy challenge link":"Copier le lien du défi","Copy challenge code":"Copier le code du défi","Play again":"Rejouer","Start a seeded campaign to share a replayable challenge.":"Lancez une partie avec graine pour partager un défi rejouable.","Share your result, with a link that loads this exact starting position":"Partagez votre résultat, avec un lien vers la même position de départ","Copies a short summary of how the run went":"Copie un court résumé de la partie","A link that opens the game with this challenge already loaded":"Un lien qui ouvre le jeu avec ce défi déjà chargé","Copies a CM1|… code: a friend can paste it on the setup screen and play the identical campaign, then compare report cards":"Copie un code CM1|… : un ami peut le coller à l'écran de départ, jouer la même partie et comparer les bilans","Export run as CSV ⬇":"Exporter la partie en CSV ⬇","Export the full run history as CSV":"Exporter tout l'historique en CSV","CSV ⬇":"CSV ⬇","Event History":"Historique","Advance quarters to see history.":"Avancez de quelques trimestres pour voir l'historique.","Cashflow":"Flux de trésorerie","Membership fees":"Cotisations","Project income":"Revenus des projets","Member servicing":"Services aux membres","Delivery costs":"Coûts de réalisation","Net Income":"Résultat net","This quarter":"Ce trimestre","Show automatically each quarter":"Afficher à chaque trimestre","Dismiss quarter review":"Fermer le bilan trimestriel","Cluster evolved":"Le cluster a évolué","Stage 5 unlocked":"Étape 5 débloquée","Project income +10%":"Revenus des projets +10 %","Rival Race · first to Pan-European Cluster Network":"Course des rivaux : premier au réseau paneuropéen de clusters","Rival Race · first to a Pan-European Cluster Network":"Course des rivaux : premier à un réseau paneuropéen de clusters","Staff Management":"Gestion de l'équipe","Available Projects":"Projets disponibles","Save here":"Sauvegarder ici","Load":"Charger","Copy":"Copier","Loading…":"Chargement…","Move a run between devices":"Transférer une partie entre appareils","Restore from a code or file":"Restaurer depuis un code ou un fichier","Restore this run":"Restaurer cette partie","Paste a save code here…":"Collez un code de sauvegarde ici…","Paste a save code to restore a run":"Collez un code de sauvegarde pour restaurer une partie","Your save code — copy all of it":"Votre code de sauvegarde, copiez-le en entier","Close":"Fermer","Skip":"Passer","Watch":"Suivre","Got it, let's go":"Compris, c'est parti","Quick orientation":"Repères","Cost:":"Coût :","Evolution cost:":"Coût de l'évolution :","Evolve":"Évoluer","Stats ▾":"Statistiques ▾","General Manager":"Directeur général","Cluster Initiative":"Initiative de cluster","Cluster Organisation":"Organisation de cluster","National Association":"Association nationale","Cross-Border Metacluster":"Métacluster transfrontalier","EU Platform":"Plateforme européenne","Pan-European Cluster Network":"Réseau paneuropéen de clusters","Energy-Renewables":"Énergies renouvelables","Agri-food":"Agroalimentaire","Mobility, Transport, Automotive":"Mobilité, transport, automobile","Digital":"Numérique","Health":"Santé","Energy Intensive Industries":"Industries à forte intensité énergétique","Tourism":"Tourisme","Construction":"Construction","Creative and Cultural Industries":"Industries culturelles et créatives","Electronics":"Électronique","Aerospace and Defence":"Aérospatiale et défense","Proximity and Social Economy":"Économie sociale et de proximité","Textiles":"Textile","Retail":"Commerce de détail","Classic Campaign":"Campagne classique","Rescue Mission":"Mission de sauvetage","Late Entrant":"Arrivée tardive","Merger Aftermath":"Après la fusion","The standard start: a young initiative, three rivals, an open map.":"Le départ standard : une jeune initiative, trois rivaux, une carte ouverte.","Take over a collapsing cluster: board at 25, thin reserves, restless members — but an established base.":"Reprenez un cluster en difficulté : conseil à 25, réserves minces, membres nerveux, mais une base établie.","The race started without you: every rival is already established at Stage 2. Extra seed capital is your only edge.":"La course a commencé sans vous : chaque rival est déjà à l'étape 2. Un capital de départ plus élevé est votre seul atout.","Two clusters just became one. Plenty of members and a corporate-heavy roll, but a duplicated payroll, a sceptical board and integration nobody has actually done yet.":"Deux clusters viennent de fusionner. Beaucoup de membres, surtout des grandes entreprises, mais une masse salariale en double, un conseil sceptique et une intégration à faire.","Junior":"Junior","Officer":"Officier","Expert":"Expert","Learn the ropes: fewer failures, richer margins, more seed capital, gentler rivals.":"Pour apprendre : moins d'échecs, de meilleures marges, plus de capital, des rivaux plus doux.","A fair fight with a modest safety net. Recommended first campaign.":"Un combat équilibré avec un léger filet de sécurité. Recommandé pour commencer.","No safety net: rivals at full strength, delivery risk is real, and nobody is waiting for you.":"Sans filet : rivaux à pleine puissance, risque réel et personne ne vous attend.","Communications Director":"Directeur de la communication","Policy Lobbyist":"Chargé des affaires publiques","Training Coordinator":"Coordinateur de formation","Project Manager":"Chef de projet","Research Analyst":"Analyste de recherche","Finance Director":"Directeur financier","Legal Counsel":"Juriste","Human Resources Manager":"Responsable des ressources humaines","Executive Director":"Directeur exécutif","Regional Coordinator":"Coordinateur régional","Country Manager":"Directeur pays","THE boss: the cluster cannot operate a single quarter without its General Manager, and there is never more than one. -0.5% churn. Unlocks network projects and EU lobbying.":"Le patron : le cluster ne peut fonctionner un seul trimestre sans son directeur général, et il n'y en a jamais qu'un. -0,5 % de départs. Débloque les projets de réseau et le lobbying européen.","+4 members/quarter, +2 influence/quarter. Slows influence decay. Needed for the Regional S3 Committee seat.":"+4 membres/trimestre, +2 influence/trimestre. Ralentit la baisse d'influence. Requis pour le siège au comité régional S3.","+3 influence/quarter. Bad events weakened by 55%. Opens political seats (national: 1, EU: 2). 2 required to evolve to EU Platform.":"+3 influence/trimestre. Événements négatifs atténués de 55 %. Ouvre les sièges politiques (national : 1, UE : 2). 2 requis pour devenir Plateforme européenne.","+5 members/quarter. Churn -0.8%/quarter per hire.":"+5 membres/trimestre. Départs -0,8 %/trimestre par recrue.","+18% project income. Project failure risk -14% per hire.":"+18 % de revenus des projets. Risque d'échec -14 % par recrue.","+4 influence/quarter. Unlocks Horizon Europe RIA/KIC. 1 required to evolve to National Association.":"+4 influence/trimestre. Débloque les RIA/KIC d'Horizon Europe. 1 requis pour devenir Association nationale.","Overhead -20%. Unlocks the largest EU calls. 1 required to evolve to Cross-Border Metacluster.":"Frais généraux -20 %. Débloque les plus grands appels européens. 1 requis pour devenir Métacluster transfrontalier.","Failure risk -8% per hire. Audit events negated. Evolution demands 1/2/3 Legal Counsel from Stage 3 up.":"Risque d'échec -8 % par recrue. Annule les événements d'audit. L'évolution exige 1/2/3 juristes à partir de l'étape 3.","Churn -1%/quarter. Salary inflation events negated.":"Départs -1 %/trimestre. Annule les événements d'inflation salariale.","Governance role. Extends management capacity by +7 staff (span of control). Board +4/quarter (first hire), +2/quarter each extra. Halves the board penalty from failed projects. Income +10%. 2 required for Stage 5.":"Rôle de gouvernance. Augmente la capacité d'encadrement de 7 personnes. Conseil +4/trimestre (première recrue), +2/trimestre ensuite. Divise par deux la pénalité du conseil en cas d'échec. Revenus +10 %. 2 requis pour l'étape 5.","Runs one regional office. Hired automatically with every regional expansion and cannot be dismissed while the office is open.":"Dirige un bureau régional. Recruté automatiquement à chaque expansion régionale, il ne peut être licencié tant que le bureau est ouvert.","Leads a national office. Hired automatically with every country expansion and cannot be dismissed while the office is open.":"Dirige un bureau national. Recruté automatiquement à chaque nouveau pays, il ne peut être licencié tant que le bureau est ouvert.","The Poacher":"Le Braconnier","The Brussels Insider":"L'Initié de Bruxelles","The Expansionist":"L'Expansionniste","The Deliverer":"Le Méthodique","The Discounter":"Le Casseur de prix","Talent Raid":"Débauchage","PR Campaign":"Campagne de communication","Joint Consortium":"Consortium commun","Acquire Rival":"Racheter le rival","Scout":"Surveiller"};
+let FR = {"Rivals ahead of you cut income by {n}%":"Les rivaux en avance réduisent vos revenus de {n} %","members":"membres","projects":"projets","staff":"équipe","overhead":"frais généraux","delivery ({m} covered by interim payments)":"réalisation ({m} couverts par les acomptes)","Europe":"Europe","Stage {n} of 5":"Étape {n} sur 5","Market consolidated":"Marché consolidé","Outpaced by {r}":"Dépassé par {r}","Cluster dissolved":"Cluster dissous","You unified all EU clusters after {q} quarters ({y} years). The {e} sector now speaks with one European voice.":"Vous avez unifié les clusters européens en {q} trimestres ({y} ans). Le secteur {e} parle désormais d'une seule voix européenne.","{r} formed a Pan-European Cluster Network after {q} quarters while you reached {s}. Europe consolidated without you.":"{r} a formé un réseau paneuropéen de clusters en {q} trimestres, alors que vous avez atteint l'étape {s}. L'Europe s'est consolidée sans vous.","Your cluster ran out of resources after {q} quarters. Final stage: {s}.":"Votre cluster a épuisé ses ressources en {q} trimestres. Dernière étape : {s}.","Achievements":"Succès","Slot {n}, empty":"Emplacement {n}, vide","Loaded {f}. Press Restore this run.":"{f} chargé. Appuyez sur Restaurer cette partie.","Final treasury":"Trésorerie finale","Final stage":"Dernière étape","Projects done":"Projets terminés","Peak treasury":"Trésorerie maximale","Rivals gone":"Rivaux éliminés","Seats held":"Sièges tenus","{n} years":"{n} ans","{n} quarters":"{n} trimestres","Members":"Membres","Countries":"Pays","Currently rising: {r} per quarter":"En hausse : {r} par trimestre","Currently falling: {r} per quarter":"En baisse : {r} par trimestre","Holding steady: {r} per quarter":"Stable : {r} par trimestre","Mostly because of {x}.":"Surtout grâce à : {x}.","Mostly down to {x}.":"Surtout à cause de : {x}.","Nothing is moving this quarter.":"Rien ne bouge ce trimestre.","Pushing it up":"Facteurs de hausse","Pulling it down":"Facteurs de baisse","Also: {x}":"Aussi : {x}","Plus rival poaching, defections and events.":"S'y ajoutent le débauchage des rivaux, les départs et les événements.","Plus one-off effects: project completions +3, failures −8..−15, events.":"S'y ajoutent des effets ponctuels : projets terminés +3, échecs −8 à −15, événements.","Communications Directors":"Directeurs de la communication","Executive Directors":"Directeurs exécutifs","General Manager":"Directeur général","Policy Lobbyists":"Chargés des affaires publiques","Project Managers":"Chefs de projet","Regional S3 Committee seat":"Siège au comité régional S3","Research Analysts":"Analystes de recherche","corporate anchor members (35%+)":"grandes entreprises d'ancrage (35 %+)","political seats":"sièges politiques","staff-driven recruitment":"recrutement par l'équipe","churn {n}%/Q":"départs {n} %/trim.","churn {n}%/Q (board crisis)":"départs {n} %/trim. (crise au conseil)","churn above 4%":"départs au-delà de 4 %","influence {n}":"influence {n}","market saturation ({n}% claimed)":"saturation du marché ({n} % pris)","runway {n} quarters":"réserve de {n} trimestres","visibility fade (stage {n}, S3-aligned)":"perte de visibilité (étape {n}, aligné S3)","visibility fade (stage {n}, not S3-aligned)":"perte de visibilité (étape {n}, non aligné S3)","{n} members":"{n} membres","influence {n}+":"influence {n}+","{n}+ regions":"{n}+ régions","{n}+ countries":"{n}+ pays","board {n}+":"conseil {n}+","S3-aligned sector":"secteur aligné S3","{m} liquidity":"{m} de trésorerie","influence {n}+ to displace the holder":"influence {n}+ pour déloger le titulaire","Regional S3 Committee":"Comité régional S3","National Cluster Platform":"Plateforme nationale des clusters","EU High-Level Group":"Groupe de haut niveau de l'UE","regional-call margins +3pp · region expansion −25% · board +1/Q · influence +1/Q":"marges des appels régionaux +3 pts, expansion régionale −25 %, conseil +1/trim., influence +1/trim.","national-call margins +4pp · country expansion −20% · rival poaching −50% · influence +1/Q":"marges des appels nationaux +4 pts, expansion nationale −20 %, débauchage des rivaux −50 %, influence +1/trim.","EU-call margins +5pp · rivals 15% slower · failure risk −3pp · influence +1/Q":"marges des appels européens +5 pts, rivaux 15 % plus lents, risque d'échec −3 pts, influence +1/trim.","Stage 1+":"Étape 1+","Stage 2+":"Étape 2+","Stage 3+":"Étape 3+","influence 35+":"influence 35+","influence 60+":"influence 60+","influence 80+":"influence 80+","6 projects delivered":"6 projets livrés","full coverage of a country":"couverture complète d'un pays","2 Policy Lobbyists":"2 chargés des affaires publiques","EU-funded project delivered":"un projet européen livré","{s}, chaired by {h}. Needs: {x}":"{s}, présidé par {h}. Il faut : {x}","displacement next quarter":"délogement au prochain trimestre","{s}. Needs: {x}":"{s}. Il faut : {x}","Budget":"Budget","Projects done":"Projets terminés","Managers":"Directeurs","Regions":"Régions","Analysts":"Analystes","Lobbyists":"Chargés des affaires publiques","Staff":"Équipe","{m} a quarter, salaries +1% a quarter":"{m} par trimestre, salaires +1 % par trimestre","1 country":"1 pays","{n} countries":"{n} pays","1 region":"1 région","{n} regions":"{n} régions","{n} projects done":"{n} projets terminés","1 country fully covered":"1 pays entièrement couvert","{n} countries fully covered":"{n} pays entièrement couverts","Governance, 1 director":"Gouvernance, 1 directeur","Governance, {n} directors":"Gouvernance, {n} directeurs","Board +{n} a quarter":"Conseil +{n} par trimestre","Influence +{n} a quarter":"Influence +{n} par trimestre","Board loss on failure −{n}":"Perte du conseil en cas d'échec −{n}","Rivals have formed a coalition for {n} more quarters":"Les rivaux ont formé une coalition pour encore {n} trimestres","Intel for {q} q: {p}% to {s}":"Renseignements pour {q} trim. : {p} % vers {s}","you {n}%":"vous {n} %","rivals {n}%":"rivaux {n} %","open {n}%":"libre {n} %","You {a}%, rivals {b}%, open {c}%":"Vous {a} %, rivaux {b} %, libre {c} %","Contests you in {x}":"Vous dispute {x}","Progress to their next stage: {n}%":"Progression vers leur étape suivante : {n} %","Health {n}":"Santé {n}","Health {n}, weak enough to buy out":"Santé {n}, assez faible pour un rachat","available in {n} quarters":"disponible dans {n} trimestres","not enough money":"pas assez d'argent","needs influence 50+":"influence 50+ requise","truce already active":"trêve déjà active","only when their health is 25 or less":"seulement si leur santé est de 25 ou moins","Recruit their members away. 75% success; backfires hurt your influence and board.":"Débauchez leurs membres. 75 % de réussite ; un échec nuit à votre influence et au conseil.","Discredit their progress (−15–25). 20% risk it backfires on your influence.":"Discréditez leur progression (−15 à −25). 20 % de risque de retour de flamme sur votre influence.","A 12-quarter truce: they stop poaching you and shared bids lift your margins (+2pp).":"Une trêve de 12 trimestres : ils cessent de vous débaucher et les offres communes augmentent vos marges (+2 pts).","Buy out a collapsing rival (health ≤ 25): absorb 60% of their members, +8 influence.":"Rachetez un rival en difficulté (santé ≤ 25) : récupérez 60 % de ses membres, +8 influence.","Counter-intelligence for 4 quarters: see their exact plans and blunt their poaching by 15%.":"Contre-espionnage pendant 4 trimestres : voyez leurs plans exacts et réduisez leur débauchage de 15 %.","aggressive member raids, fragile delivery":"débauchage agressif, réalisation fragile","races for political seats and drains your influence":"vise les sièges politiques et affaiblit votre influence","claims territory fast, finances stretched thin":"s'étend vite, finances tendues","quiet and methodical, dangerously fast to evolve":"discret et méthodique, évolue dangereusement vite","undercuts fees wherever your networks overlap":"casse les cotisations là où vos réseaux se croisent","Contested by {x}, which raises the risk.":"Disputé par {x}, ce qui augmente le risque.","Or click any region on the map":"Ou cliquez sur une région de la carte","Expansion opens at {s}":"L'expansion s'ouvre à l'étape {s}","{a}/{b} countries":"{a}/{b} pays","{m}/office":"{m}/bureau","{m}/country":"{m}/pays",", contested by a rival":", disputé par un rival","Open an office in {r}":"Ouvrir un bureau en {r}","Home country":"Pays d'origine","Every region held: national coverage bonus":"Toutes les régions tenues : bonus de couverture nationale","Hold every region for a national coverage bonus":"Tenez toutes les régions pour un bonus de couverture nationale","−{m}/q":"−{m}/trim.","Hire {r} for {m} a quarter":"Recruter {r} pour {m} par trimestre","{m}/q":"{m}/trim.","{n}, level {l}":"{n}, niveau {l}","Salaries are up {n}% since founding and rise 1% every quarter, for new hires and the whole payroll.\n\nThe General Manager leads 7 people; each Executive Director adds 7. At most 2 of each role, and exactly one General Manager.":"Les salaires ont augmenté de {n} % depuis la création et progressent de 1 % par trimestre, pour les recrues comme pour toute l'équipe.\n\nLe directeur général encadre 7 personnes ; chaque directeur exécutif en ajoute 7. Au plus 2 par rôle, et un seul directeur général.","Plus rival poaching, defections and event effects.":"S'y ajoutent le débauchage des rivaux, les départs et les événements.","Plus one-off effects: project deliveries, events, coups.":"S'y ajoutent des effets ponctuels : projets livrés, événements, coups.","membership fees":"cotisations","project payouts & interim":"paiements des projets et acomptes","salaries":"salaires","overheads":"frais généraux","member servicing":"services aux membres","project delivery costs":"coûts de réalisation des projets","Decision":"Décision","Opportunity":"Opportunité","Alert":"Alerte","budget":"budget","members":"membres","influence":"influence","board":"conseil","lose your {r}":"perte de votre {r}","rival strengthened":"rival renforcé","gain {n}% of their members":"gain de {n} % de leurs membres","lose staff":"perte d'un employé","rival +{n}% progress":"rival +{n} % de progression","rival {n}% progress":"rival {n} % de progression","Evolved to {s}":"Évolution : {s}","tap country again to close":"touchez à nouveau le pays pour fermer","Slots are stored in this browser only; clearing site data or switching device loses them.":"Les sauvegardes restent dans ce navigateur ; effacer les données du site ou changer d'appareil les supprime.","Create save code":"Créer un code de sauvegarde","Download file":"Télécharger le fichier","Choose a file":"Choisir un fichier","Build the first EU-wide cluster network":"Construisez le premier réseau de clusters à l'échelle de l'UE","Watch treasury, board and rivals.":"Surveillez trésorerie, conseil et rivaux.","Start a project":"Lancez un projet","Projects tab, then Start project.":"Onglet Projets, puis Lancer le projet.","Hire a specialist":"Recrutez un spécialiste","Staff tab: a Communications Director recruits members.":"Onglet Équipe : un directeur de la communication recrute des membres.","End the quarter":"Finissez le trimestre","Next quarter, or press Space.":"Trimestre suivant, ou touche Espace.","You're set":"C'est parti","Expand, win seats, watch the Rivals tab.":"Étendez-vous, gagnez des sièges, surveillez l'onglet Rivaux.","Start":"Commencer","Done":"Terminé","✓ Challenge loaded: {d}, {s}. Pick your country to match.":"✓ Défi chargé : {d}, {s}. Choisissez le pays correspondant.","Abruzzo":"Abruzzes","Adriatic Croatia":"Croatie adriatique","Andalusia":"Andalousie","Aosta Valley":"Vallée d'Aoste","Asturias":"Asturies","Attica":"Attique","Austria":"Autriche","Azores":"Açores","Balearic Islands":"Îles Baléares","Basque Country":"Pays basque","Bavaria":"Bavière","Bratislava Region":"Région de Bratislava","Brittany":"Bretagne","Brussels Capital Region":"Région de Bruxelles-Capitale","Calabria":"Calabre","Campania":"Campanie","Canary Islands":"Îles Canaries","Cantabria":"Cantabrie","Capital Region":"Région capitale","Carinthia":"Carinthie","Castile and León":"Castille-et-León","Castile-La Mancha":"Castille-La Manche","Catalonia":"Catalogne","Central & Western Lithuania":"Lituanie centrale et occidentale","Central Bohemia":"Bohême-Centrale","Central Finland":"Finlande-Centrale","Central Greece":"Grèce-Centrale","Central Jutland":"Jutland-Central","Central Macedonia":"Macédoine-Centrale","Central Moravia":"Moravie-Centrale","Central Ostrobothnia":"Ostrobotnie-Centrale","Central Slovakia":"Slovaquie centrale","Central Transdanubia":"Transdanubie centrale","City of Zagreb":"Ville de Zagreb","Corsica":"Corse","Crete":"Crète","Cyprus":"Chypre","Dalarna":"Dalécarlie","East Netherlands":"Pays-Bas orientaux","Eastern & Midland":"Est et Midlands","Eastern Macedonia & Thrace":"Macédoine-Orientale-et-Thrace","Eastern Slovakia":"Slovaquie orientale","Eastern Slovenia":"Slovénie orientale","Emilia-Romagna":"Émilie-Romagne","Epirus":"Épire","Estonia":"Estonie","Extremadura":"Estrémadure","Flanders":"Flandre","Friuli-Venezia Giulia":"Frioul-Vénétie Julienne","Galicia":"Galice","Greater Poland":"Grande-Pologne","Ionian Islands":"Îles Ioniennes","Italy":"Italie","Kuyavia-Pomerania":"Couïavie-Poméranie","Lapland":"Laponie","Latvia":"Lettonie","Lazio":"Latium","Lesser Poland":"Petite-Pologne","Liguria":"Ligurie","Lisbon Metropolitan Area":"Aire métropolitaine de Lisbonne","Lombardy":"Lombardie","Lower Austria":"Basse-Autriche","Lower Saxony":"Basse-Saxe","Lower Silesia":"Basse-Silésie","Madeira":"Madère","Masovia":"Mazovie","Mecklenburg-Vorpommern":"Mecklembourg-Poméranie-Occidentale","Moravian-Silesia":"Moravie-Silésie","Murcia":"Murcie","Normandy":"Normandie","North":"Nord","North Aegean":"Égée-Septentrionale","North Jutland":"Jutland-du-Nord","North Karelia":"Carélie du Nord","North Netherlands":"Pays-Bas septentrionaux","North Ostrobothnia":"Ostrobotnie du Nord","North Rhine-Westphalia":"Rhénanie-du-Nord-Westphalie","North Savo":"Savonie du Nord","North-East":"Nord-Est","North-West":"Nord-Ouest","Northeast":"Nord-Est","Northern & Western":"Nord et Ouest","Northern Croatia":"Croatie du Nord","Northern Great Plain":"Grande Plaine du Nord","Northern Hungary":"Hongrie du Nord","Northwest":"Nord-Ouest","Ostrobothnia":"Ostrobotnie","Pannonian Croatia":"Croatie pannonienne","Peloponnese":"Péloponnèse","Piedmont":"Piémont","Podlasie":"Podlachie","Poland":"Pologne","Pomerania":"Poméranie","Puglia":"Pouilles","Rhineland-Palatinate":"Rhénanie-Palatinat","Romania":"Roumanie","Saarland":"Sarre","Sardinia":"Sardaigne","Saxony":"Saxe","Saxony-Anhalt":"Saxe-Anhalt","Sicily":"Sicile","Silesia":"Silésie","Skåne":"Scanie","South Aegean":"Égée-Méridionale","South Karelia":"Carélie du Sud","South Netherlands":"Pays-Bas méridionaux","South Ostrobothnia":"Ostrobotnie du Sud","South Savo":"Savonie du Sud","South Tyrol":"Tyrol du Sud","South-East":"Sud-Est","South-Muntenia":"Munténie-Sud","South-West Oltenia":"Olténie Sud-Ouest","Southeast":"Sud-Est","Southern":"Sud","Southern Denmark":"Danemark-du-Sud","Southern Great Plain":"Grande Plaine du Sud","Southern Transdanubia":"Transdanubie méridionale","Southwest":"Sud-Ouest","Southwest Finland":"Finlande du Sud-Ouest","Spain":"Espagne","Styria":"Styrie","Subcarpathia":"Basses-Carpates","Södermanland":"Sudermanie","Thessaly":"Thessalie","Thuringia":"Thuringe","Trentino":"Trentin","Tuscany":"Toscane","Umbria":"Ombrie","Upper Austria":"Haute-Autriche","Valencia":"Communauté valencienne","Veneto":"Vénétie","Vienna":"Vienne","Wallonia":"Wallonie","Warmia-Masuria":"Varmie-Mazurie","West":"Ouest","West Netherlands":"Pays-Bas occidentaux","West Pomerania":"Poméranie occidentale","Western Greece":"Grèce-Occidentale","Western Macedonia":"Macédoine-Occidentale","Western Slovakia":"Slovaquie occidentale","Western Slovenia":"Slovénie occidentale","Western Transdanubia":"Transdanubie occidentale","Zealand":"Seeland","Świętokrzyskie":"Sainte-Croix","Hamburg":"Hambourg","Brandenburg":"Brandebourg","Bremen":"Brême","Helsinki Uusimaa":"Helsinki-Uusimaa","Malta":"Malte","Belgium":"Belgique","Bulgaria":"Bulgarie","Croatia":"Croatie","Czech Republic":"Tchéquie","Denmark":"Danemark","Finland":"Finlande","Germany":"Allemagne","Greece":"Grèce","Hungary":"Hongrie","Ireland":"Irlande","Lithuania":"Lituanie","Netherlands":"Pays-Bas","Slovakia":"Slovaquie","Slovenia":"Slovénie","Sweden":"Suède","Innovation":"Innovation","Cohesion":"Cohésion","More Developed":"Plus développée","Transition":"En transition","Less Developed":"Moins développée","Transition, More Developed":"En transition, plus développée","Less Developed, Transition, More Developed":"Moins développée, en transition, plus développée","{d} difficulty": "Niveau {d}", "a quarter": "par trimestre", ", {n} quarters of runway": ", {n} trimestres de réserve", "fee {m}/quarter, mix ×{x}": "cotisation {m}/trimestre, mix ×{x}", "market {n}% claimed (you and rivals)": "marché pris à {n} % (vous et les rivaux)", "Regional": "Régional", "National": "National", "EU": "UE", "{n}% risk": "{n} % de risque", "{a} of {b} slots": "{a} créneau(x) sur {b}", "{n} done": "{n} terminé(s)", "Needs {x}": "Il faut {x}", "Balanced": "Équilibré", "SME drive": "Priorité PME", "Corporate": "Grandes entreprises", "Research": "Recherche", "Key": "Légende", "not rated": "non classé", "Strong": "Fort", "Moderate": "Modéré", "Leader": "Leader", "Emerging": "Émergent", "Strong, Leader": "Fort, leader", "Moderate, Strong": "Modéré, fort", "Moderate, Strong, Leader": "Modéré, fort, leader","Switch to light mode":"Passer en mode clair","Switch to dark mode":"Passer en mode sombre","Open a regional office here":"Ouvrir un bureau régional ici","Needs {m}; you have {b}":"Il faut {m} ; vous avez {b}","Other countries open up at {s}":"D'autres pays s'ouvrent à l'étape {s}","Your stage allows 1 country; evolve to hold more":"Votre étape permet 1 pays ; évoluez pour en tenir plus","Your stage allows {n} countries; evolve to hold more":"Votre étape permet {n} pays ; évoluez pour en tenir plus","Out of reach: hold a neighbouring country first":"Hors de portée : tenez d'abord un pays voisin","Enter {c} with an office here":"Entrer en {c} avec un bureau ici","Language":"Langue","EU industrial strategy simulation":"Simulation de stratégie industrielle européenne","Cluster Manager":"Cluster Manager","Grow a regional cluster into an EU-wide cluster network.":"Faites d'un cluster régional un réseau de clusters à l'échelle de l'UE.","Load a saved slot":"Charger une sauvegarde","Continue saved game":"Reprendre la partie","Country":"Pays","Region":"Région","Ecosystem":"Écosystème","Back":"Retour","Scenario":"Scénario","Seed or challenge code":"Graine ou code de défi","Seed (optional)":"Graine (facultatif)","Paste challenge code…":"Coller un code de défi…","Start as a real cluster":"Commencer avec un vrai cluster","Search 1,400+ real clusters by name or city…":"Rechercher parmi plus de 1 400 clusters, par nom ou ville…","Search real cluster organisations":"Rechercher de vrais clusters","No match":"Aucun résultat","Names: European Cluster Collaboration Platform. Events are fiction.":"Noms : European Cluster Collaboration Platform. Les événements sont fictifs.","Or pick a country":"Ou choisissez un pays","Region in {c}":"Région en {c}","Start my own cluster here":"Créer mon cluster ici","Or take over":"Ou reprendre","Industrial ecosystem":"Écosystème industriel","Priority in {r}":"Priorité en {r}","Difficulty":"Difficulté","Home region":"Région d'origine","Change your home region":"Changer de région d'origine","Cluster name":"Nom du cluster","Name your cluster organisation":"Nommez votre cluster","Start in {r}":"Commencer en {r}","How to play":"Comment jouer","Light mode":"Mode clair","Dark mode":"Mode sombre","Click a country to start":"Cliquez sur un pays pour commencer",": click a region":" : cliquez sur une région","Optional seed for a reproducible campaign":"Graine facultative pour une partie reproductible","Any text: two players with the same seed, scenario and difficulty get an identical campaign start":"Tout texte : deux joueurs avec la même graine, le même scénario et la même difficulté démarrent la même partie","A friend's CM1 code sets seed, difficulty and scenario automatically":"Le code CM1 d'un ami règle automatiquement graine, difficulté et scénario","Paste a friend's challenge code":"Collez le code de défi d'un ami","Period":"Période","Treasury":"Trésorerie","Members":"Membres","Influence":"Influence","Board":"Conseil","Rules":"Règles","Undo":"Annuler","Toggle dark mode":"Mode sombre","Toggle sound":"Son","Save slots":"Sauvegardes","Save Slots":"Sauvegardes","Show the latest quarter review":"Afficher le dernier bilan trimestriel","Undo last quarter (U) — once per quarter, Junior & Officer only":"Annuler le dernier trimestre (U), une fois par trimestre, niveaux Junior et Officier","An event is waiting":"Un événement attend","Game rules":"Règles du jeu","Before you end the quarter":"Avant de finir le trimestre","Actions you can complete":"Actions possibles","Next quarter":"Trimestre suivant","Next Quarter":"Trimestre suivant","Resolve event first":"Réglez d'abord l'événement","Hire a General Manager":"Recrutez un directeur général","1 action can be completed":"1 action possible","{n} actions can be completed":"{n} actions possibles","Nothing pending":"Rien en attente","Pause":"Pause","Auto":"Auto","Advance quarters automatically until something needs you":"Avancer automatiquement jusqu'à ce qu'une décision soit nécessaire","What the next stage requires":"Ce qu'exige l'étape suivante","Evolve now":"Évoluer","Final stage":"Dernière étape","Stage goals {a}/{b}":"Objectifs d'étape {a}/{b}","Click to see options":"Cliquez pour voir les options","Your home country":"Votre pays d'origine","Fully covered":"Entièrement couvert","You hold {a} of {b} regions":"Vous tenez {a} régions sur {b}","Not in your network":"Hors de votre réseau","Close region card":"Fermer la fiche région","Open an office for {m}":"Ouvrir un bureau pour {m}","Enter {c} for {m}":"Entrer en {c} pour {m}","{e} is a smart-specialisation priority here":"{e} est une priorité de spécialisation intelligente ici","{e} is not a priority here":"{e} n'est pas une priorité ici","Your office is here":"Votre bureau est ici","Map key":"Légende","Show map key":"Afficher la légende","Close map key":"Fermer la légende","Unexplored":"Inexploré","Candidate country":"Pays candidat","Outside the Union":"Hors de l'Union","Rival territory":"Territoire rival","Active region":"Région active","Full national coverage":"Couverture nationale complète","Political seat":"Siège politique","Zoom in":"Zoom avant","Zoom out":"Zoom arrière","Zoom in on the map":"Agrandir la carte","Zoom out of the map":"Réduire la carte","Fit the whole map":"Voir toute la carte","Reset the map to fit the whole of Europe":"Recadrer la carte sur toute l'Europe","Resize the summary panel":"Redimensionner le panneau de synthèse","Resize the management panel":"Redimensionner le panneau de gestion","Resize the projects and log area":"Redimensionner la zone projets et journal","Drag to resize, double-click to reset":"Faites glisser pour redimensionner, double-cliquez pour réinitialiser","An event needs a decision":"Un événement demande une décision","Hire a General Manager to continue":"Recrutez un directeur général pour continuer","Cash for under {n} quarters":"Trésorerie pour moins de {n} trimestres","Board confidence at {n}%":"Confiance du conseil à {n} %","Ready to become {s}":"Prêt à devenir {s}","the next stage":"l'étape suivante","No project running, 1 call open":"Aucun projet en cours, 1 appel ouvert","No project running, {n} calls open":"Aucun projet en cours, {n} appels ouverts","A project slot is free":"Un créneau de projet est libre","Room for {n} more staff":"Place pour {n} employés de plus","Next stage needs more regions":"L'étape suivante exige plus de régions","Fees":"Cotisations","Projects":"Projets","Salaries":"Salaires","Overheads":"Frais généraux","Servicing":"Services aux membres","Delivery":"Réalisation","Regional innovation tier":"Niveau d'innovation régional","priority":"priorité","not a priority":"pas une priorité","Is your ecosystem a smart-specialisation priority here?":"Votre écosystème est-il une priorité de spécialisation intelligente ici ?","cross-ecosystem":"inter-écosystèmes","As a national body you work across ecosystems":"En tant qu'organisme national, vous travaillez sur plusieurs écosystèmes","Small and medium firms":"PME","Large companies":"Grandes entreprises","Research organisations":"Organismes de recherche","Recruitment focus":"Priorité de recrutement","Fades {n} a quarter":"Baisse de {n} par trimestre","Your political standing with public authorities. It fades each quarter unless you keep earning it.":"Votre poids auprès des pouvoirs publics. Il baisse chaque trimestre si vous ne l'entretenez pas.","Seats":"Sièges","Yours":"À vous","Open":"Libre","Board confidence":"Confiance du conseil","Board confidence trend":"Évolution de la confiance du conseil","Influence trend":"Évolution de l'influence","Members trend":"Évolution des membres","Crisis: +3% extra churn":"Crise : +3 % de départs","Crisis: +3% extra member churn":"Crise : +3 % de départs de membres","Staff":"Équipe","Network":"Réseau","Rivals":"Rivaux","Failure risk for a new project":"Risque d'échec d'un nouveau projet","Projects running, out of the slots you have":"Projets en cours, sur vos créneaux disponibles","Projects completed":"Projets terminés","How project risk and slots work":"Fonctionnement du risque et des créneaux","No call is open to you yet":"Aucun appel ne vous est encore ouvert","Each kind of project needs its specialist:":"Chaque type de projet demande son spécialiste :","Analyst":"Analyste","Communications":"Communication","Training":"Formation","Lobbyist":"Lobbyiste","Research projects":"Projets de recherche","Communications projects":"Projets de communication","Training projects":"Projets de formation","Lobbying projects":"Projets de lobbying","Networking projects":"Projets de réseau","Not yet available":"Pas encore disponible","Why some calls are locked":"Pourquoi certains appels sont verrouillés","Type of project":"Type de projet","Who funds it":"Financeur","Specialist who runs it":"Spécialiste responsable","Volume":"Volume","Margin":"Marge","Risk":"Risque","Partners":"Partenaires","Number of partners":"Nombre de partenaires","Influence gained on delivery":"Influence gagnée à la livraison","Members gained on delivery":"Membres gagnés à la livraison","Members needed to apply":"Membres requis pour postuler","Staff needed to apply":"Personnel requis pour postuler","Needs {m} to start":"Il faut {m} pour commencer","Start project, {m} a quarter":"Lancer le projet, {m} par trimestre","How payment works":"Fonctionnement du paiement","Active projects ({n})":"Projets en cours ({n})","None running":"Aucun en cours","No project running":"Aucun projet en cours","{n} q left":"{n} trim. restants","Quarters until delivery":"Trimestres avant la livraison","Project volume":"Volume du projet","Event log":"Journal","Staff on the payroll":"Personnel salarié","Salaries a quarter":"Salaires par trimestre","Management capacity: staff led, out of the most your managers can lead":"Capacité d'encadrement : personnes encadrées, sur le maximum possible","Members lost each quarter":"Membres perdus par trimestre","Project failure risk":"Risque d'échec des projets","How staffing works":"Fonctionnement du recrutement","Team ({n})":"Équipe ({n})","required":"obligatoire","Release":"Licencier","Release the most recent hire":"Licencier la dernière recrue","Hire":"Recruter","Point at a role for details":"Survolez un rôle pour le détail","Not enough money yet":"Pas encore assez d'argent","Regions with an office":"Régions avec un bureau","Countries held, out of the most your stage allows":"Pays tenus, sur le maximum autorisé à votre étape","Cost of a new regional office":"Coût d'un nouveau bureau régional","Cost of entering a new country":"Coût d'entrée dans un nouveau pays","Open an office":"Ouvrir un bureau","About regional offices":"À propos des bureaux régionaux","Enter a country":"Entrer dans un pays","About entering a country":"À propos de l'entrée dans un pays","No unclaimed country borders your network yet.":"Aucun pays libre ne borde encore votre réseau.","Member market":"Marché des membres","How the rivalry works":"Fonctionnement de la rivalité","Share of the member market you hold":"Votre part du marché des membres","Share pressed by rivals":"Part prise par les rivaux","Members nobody has recruited yet":"Membres que personne n'a encore recrutés","No rivals remain. The market is yours.":"Il ne reste aucun rival. Le marché est à vous.","Ahead of you":"Devant vous","Closing in":"Se rapproche","Truce":"Trêve","Countries":"Pays","Stage":"Étape","Next stage":"Étape suivante","Now":"Actuelle","Next":"Suivante","Goals met":"Objectifs atteints","Become {s} for {m}":"Devenir {s} pour {m}","Costs {m} once every goal is met":"Coûte {m} une fois tous les objectifs atteints","Cluster Dashboard":"Tableau de bord","Report card":"Bilan","Share result":"Partager le résultat","Copy summary":"Copier le résumé","Copy challenge link":"Copier le lien du défi","Copy challenge code":"Copier le code du défi","Play again":"Rejouer","Start a seeded campaign to share a replayable challenge.":"Lancez une partie avec graine pour partager un défi rejouable.","Share your result, with a link that loads this exact starting position":"Partagez votre résultat, avec un lien vers la même position de départ","Copies a short summary of how the run went":"Copie un court résumé de la partie","A link that opens the game with this challenge already loaded":"Un lien qui ouvre le jeu avec ce défi déjà chargé","Copies a CM1|… code: a friend can paste it on the setup screen and play the identical campaign, then compare report cards":"Copie un code CM1|… : un ami peut le coller à l'écran de départ, jouer la même partie et comparer les bilans","Export run as CSV ⬇":"Exporter la partie en CSV ⬇","Export the full run history as CSV":"Exporter tout l'historique en CSV","CSV ⬇":"CSV ⬇","Event History":"Historique","Advance quarters to see history.":"Avancez de quelques trimestres pour voir l'historique.","Cashflow":"Flux de trésorerie","Membership fees":"Cotisations","Project income":"Revenus des projets","Member servicing":"Services aux membres","Delivery costs":"Coûts de réalisation","Net Income":"Résultat net","This quarter":"Ce trimestre","Show automatically each quarter":"Afficher à chaque trimestre","Dismiss quarter review":"Fermer le bilan trimestriel","Cluster evolved":"Le cluster a évolué","Stage 5 unlocked":"Étape 5 débloquée","Project income +10%":"Revenus des projets +10 %","Rival Race · first to Pan-European Cluster Network":"Course des rivaux : premier au réseau paneuropéen de clusters","Rival Race · first to a Pan-European Cluster Network":"Course des rivaux : premier à un réseau paneuropéen de clusters","Staff Management":"Gestion de l'équipe","Available Projects":"Projets disponibles","Save here":"Sauvegarder ici","Load":"Charger","Copy":"Copier","Loading…":"Chargement…","Move a run between devices":"Transférer une partie entre appareils","Restore from a code or file":"Restaurer depuis un code ou un fichier","Restore this run":"Restaurer cette partie","Paste a save code here…":"Collez un code de sauvegarde ici…","Paste a save code to restore a run":"Collez un code de sauvegarde pour restaurer une partie","Your save code — copy all of it":"Votre code de sauvegarde, copiez-le en entier","Close":"Fermer","Skip":"Passer","Watch":"Suivre","Got it, let's go":"Compris, c'est parti","Quick orientation":"Repères","Cost:":"Coût :","Evolution cost:":"Coût de l'évolution :","Evolve":"Évoluer","Stats ▾":"Statistiques ▾","General Manager":"Directeur général","Cluster Initiative":"Initiative de cluster","Cluster Organisation":"Organisation de cluster","National Association":"Association nationale","Cross-Border Metacluster":"Métacluster transfrontalier","EU Platform":"Plateforme européenne","Pan-European Cluster Network":"Réseau paneuropéen de clusters","Energy-Renewables":"Énergies renouvelables","Agri-food":"Agroalimentaire","Mobility, Transport, Automotive":"Mobilité, transport, automobile","Digital":"Numérique","Health":"Santé","Energy Intensive Industries":"Industries à forte intensité énergétique","Tourism":"Tourisme","Construction":"Construction","Creative and Cultural Industries":"Industries culturelles et créatives","Electronics":"Électronique","Aerospace and Defence":"Aérospatiale et défense","Proximity and Social Economy":"Économie sociale et de proximité","Textiles":"Textile","Retail":"Commerce de détail","Classic Campaign":"Campagne classique","Rescue Mission":"Mission de sauvetage","Late Entrant":"Arrivée tardive","Merger Aftermath":"Après la fusion","The standard start: a young initiative, three rivals, an open map.":"Le départ standard : une jeune initiative, trois rivaux, une carte ouverte.","Take over a collapsing cluster: board at 25, thin reserves, restless members — but an established base.":"Reprenez un cluster en difficulté : conseil à 25, réserves minces, membres nerveux, mais une base établie.","The race started without you: every rival is already established at Stage 2. Extra seed capital is your only edge.":"La course a commencé sans vous : chaque rival est déjà à l'étape 2. Un capital de départ plus élevé est votre seul atout.","Two clusters just became one. Plenty of members and a corporate-heavy roll, but a duplicated payroll, a sceptical board and integration nobody has actually done yet.":"Deux clusters viennent de fusionner. Beaucoup de membres, surtout des grandes entreprises, mais une masse salariale en double, un conseil sceptique et une intégration à faire.","Junior":"Junior","Officer":"Officier","Expert":"Expert","Learn the ropes: fewer failures, richer margins, more seed capital, gentler rivals.":"Pour apprendre : moins d'échecs, de meilleures marges, plus de capital, des rivaux plus doux.","A fair fight with a modest safety net. Recommended first campaign.":"Un combat équilibré avec un léger filet de sécurité. Recommandé pour commencer.","No safety net: rivals at full strength, delivery risk is real, and nobody is waiting for you.":"Sans filet : rivaux à pleine puissance, risque réel et personne ne vous attend.","Communications Director":"Directeur de la communication","Policy Lobbyist":"Chargé des affaires publiques","Training Coordinator":"Coordinateur de formation","Project Manager":"Chef de projet","Research Analyst":"Analyste de recherche","Finance Director":"Directeur financier","Legal Counsel":"Juriste","Human Resources Manager":"Responsable des ressources humaines","Executive Director":"Directeur exécutif","Regional Coordinator":"Coordinateur régional","Country Manager":"Directeur pays","THE boss: the cluster cannot operate a single quarter without its General Manager, and there is never more than one. -0.5% churn. Unlocks network projects and EU lobbying.":"Le patron : le cluster ne peut fonctionner un seul trimestre sans son directeur général, et il n'y en a jamais qu'un. -0,5 % de départs. Débloque les projets de réseau et le lobbying européen.","+4 members/quarter, +2 influence/quarter. Slows influence decay. Needed for the Regional S3 Committee seat.":"+4 membres/trimestre, +2 influence/trimestre. Ralentit la baisse d'influence. Requis pour le siège au comité régional S3.","+3 influence/quarter. Bad events weakened by 55%. Opens political seats (national: 1, EU: 2). 2 required to evolve to EU Platform.":"+3 influence/trimestre. Événements négatifs atténués de 55 %. Ouvre les sièges politiques (national : 1, UE : 2). 2 requis pour devenir Plateforme européenne.","+5 members/quarter. Churn -0.8%/quarter per hire.":"+5 membres/trimestre. Départs -0,8 %/trimestre par recrue.","+18% project income. Project failure risk -14% per hire.":"+18 % de revenus des projets. Risque d'échec -14 % par recrue.","+4 influence/quarter. Unlocks Horizon Europe RIA/KIC. 1 required to evolve to National Association.":"+4 influence/trimestre. Débloque les RIA/KIC d'Horizon Europe. 1 requis pour devenir Association nationale.","Overhead -20%. Unlocks the largest EU calls. 1 required to evolve to Cross-Border Metacluster.":"Frais généraux -20 %. Débloque les plus grands appels européens. 1 requis pour devenir Métacluster transfrontalier.","Failure risk -8% per hire. Audit events negated. Evolution demands 1/2/3 Legal Counsel from Stage 3 up.":"Risque d'échec -8 % par recrue. Annule les événements d'audit. L'évolution exige 1/2/3 juristes à partir de l'étape 3.","Churn -1%/quarter. Salary inflation events negated.":"Départs -1 %/trimestre. Annule les événements d'inflation salariale.","Governance role. Extends management capacity by +7 staff (span of control). Board +4/quarter (first hire), +2/quarter each extra. Halves the board penalty from failed projects. Income +10%. 2 required for Stage 5.":"Rôle de gouvernance. Augmente la capacité d'encadrement de 7 personnes. Conseil +4/trimestre (première recrue), +2/trimestre ensuite. Divise par deux la pénalité du conseil en cas d'échec. Revenus +10 %. 2 requis pour l'étape 5.","Runs one regional office. Hired automatically with every regional expansion and cannot be dismissed while the office is open.":"Dirige un bureau régional. Recruté automatiquement à chaque expansion régionale, il ne peut être licencié tant que le bureau est ouvert.","Leads a national office. Hired automatically with every country expansion and cannot be dismissed while the office is open.":"Dirige un bureau national. Recruté automatiquement à chaque nouveau pays, il ne peut être licencié tant que le bureau est ouvert.","The Poacher":"Le Braconnier","The Brussels Insider":"L'Initié de Bruxelles","The Expansionist":"L'Expansionniste","The Deliverer":"Le Méthodique","The Discounter":"Le Casseur de prix","Talent Raid":"Débauchage","PR Campaign":"Campagne de communication","Joint Consortium":"Consortium commun","Acquire Rival":"Racheter le rival","Scout":"Surveiller"};
 const t = (str, vars) => {
   let out = (LANG === "fr" && FR[str]) || str;
   if (vars) out = String(out).replace(/\{(\w+)\}/g, (m, k) => (vars[k] != null ? vars[k] : m));
@@ -2640,7 +2640,7 @@ const SEATS = [
 const seatStatus = gs => SEATS.map(st => {
   const heldBy = (gs?.rivalSeats||{})[st.id] || null;
   const reqs = st.reqs(gs||{});
-  if (heldBy) reqs.push({ l:`influence ${(st.infl||0)+15}+ to displace the holder`, ok:(gs?.prestige||0) >= (st.infl||0)+15 });
+  if (heldBy) reqs.push({ l:t("influence {n}+ to displace the holder", {n: (st.infl||0)+15}), ok:(gs?.prestige||0) >= (st.infl||0)+15 });
   return {...st, held:!!(gs?.seats||{})[st.id], heldBy, holderName: heldBy ? ((gs?.rivals||[]).find(r=>r.id===heldBy)?.name || "a rival") : null, reqs};
 });
 const seatsHeld  = gs => SEATS.filter(st => (gs?.seats||{})[st.id]).length;
@@ -2666,11 +2666,11 @@ function statTrends(gs) {
   // Influence
   const decay = ([2,3,4,5,6,8][gs.stage] ?? 2) + (gs.s3Aligned ? -1 : 1);
   const infFactors = nz([
-    F("Communications Directors", byRoleEff(r,"comms")*2), F("Policy Lobbyists", byRoleEff(r,"lobbyist")*3),
-    F("Research Analysts", byRoleEff(r,"analyst")*4), F("General Manager", byRoleEff(r,"manager")*0.5),
-    F("Executive Directors", byRoleEff(r,"director")*2), F("Project Managers", pm>0?1:0),
-    F("political seats", seatsHeld(gs)),
-    F(`visibility fade (stage ${gs.stage}${gs.s3Aligned?", S3-aligned":", not S3-aligned"})`, -decay),
+    F(t("Communications Directors"), byRoleEff(r,"comms")*2), F(t("Policy Lobbyists"), byRoleEff(r,"lobbyist")*3),
+    F(t("Research Analysts"), byRoleEff(r,"analyst")*4), F(t("General Manager"), byRoleEff(r,"manager")*0.5),
+    F(t("Executive Directors"), byRoleEff(r,"director")*2), F(t("Project Managers"), pm>0?1:0),
+    F(t("political seats"), seatsHeld(gs)),
+    F(t(gs.s3Aligned ? "visibility fade (stage {n}, S3-aligned)" : "visibility fade (stage {n}, not S3-aligned)", {n: gs.stage}), -decay),
   ]);
   const infDelta = infFactors.reduce((t,x)=>t+x.v,0);
 
@@ -2682,9 +2682,9 @@ function statTrends(gs) {
   const extraChurn = (gs.boardConf||0) < 25 ? 0.03 : (gs.boardConf||0) < 45 ? 0.01 : 0;
   const churned = Math.floor((gs.members||1) * (churnRate + extraChurn));
   const memFactors = nz([
-    F("staff-driven recruitment", growthRaw),
-    F(`market saturation (${Math.round(marketShare(gs)*100)}% claimed)`, -growthRaw*(1-mktFree)),
-    F(`churn ${Math.round((churnRate+extraChurn)*100)}%/Q${extraChurn?" (board crisis)":""}`, -churned),
+    F(t("staff-driven recruitment"), growthRaw),
+    F(t("market saturation ({n}% claimed)", {n: Math.round(marketShare(gs)*100)}), -growthRaw*(1-mktFree)),
+    F(t(extraChurn ? "churn {n}%/Q (board crisis)" : "churn {n}%/Q", {n: Math.round((churnRate+extraChurn)*100)}), -churned),
   ]);
   const memDelta = Math.floor(growthRaw*mktFree) - churned;
 
@@ -2692,20 +2692,20 @@ function statTrends(gs) {
   const burn  = (gs.qStaff||0) + (gs.qOverhead||0) + (gs.qServicing||0) + Math.max(0, (gs.qDelivery||0) - (gs.qInterim||0));
   const runway = burn > 0 ? (gs.budget||0)/burn : 99;
   const brdFactors = nz([
-    F("Executive Directors", dir > 0 ? 4 + (dir-1)*2 : 0),
-    F(`runway ${runway>90?"9+":runway.toFixed(1)} quarters`, runway>6?2:runway<2?-10:runway<3?-4:runway<4?-2:0),
-    F(`influence ${Math.round(gs.prestige||0)}`, (gs.prestige||0)>70?2:(gs.prestige||0)<20?-4:(gs.prestige||0)<30?-2:0),
-    F("Regional S3 Committee seat", (gs.seats||{}).regional?1:0),
-    F("corporate anchor members (35%+)", corpShare(gs)>=0.35?1:0),
-    F(`churn above 4%`, churned > (gs.members||1)*0.04 ? -3 : 0),
+    F(t("Executive Directors"), dir > 0 ? 4 + (dir-1)*2 : 0),
+    F(t("runway {n} quarters", {n: runway>90?"9+":runway.toFixed(1)}), runway>6?2:runway<2?-10:runway<3?-4:runway<4?-2:0),
+    F(t("influence {n}", {n: Math.round(gs.prestige||0)}), (gs.prestige||0)>70?2:(gs.prestige||0)<20?-4:(gs.prestige||0)<30?-2:0),
+    F(t("Regional S3 Committee seat"), (gs.seats||{}).regional?1:0),
+    F(t("corporate anchor members (35%+)"), corpShare(gs)>=0.35?1:0),
+    F(t("churn above 4%"), churned > (gs.members||1)*0.04 ? -3 : 0),
   ]);
   const brdDelta = brdFactors.reduce((t,x)=>t+x.v,0);
 
   // Budget: last quarter's actual cashflow
   const budFactors = nz([
-    F("membership fees", gs.qMember||0), F("project payouts & interim", (gs.qProj||0)+(gs.qInterim||0)),
-    F("salaries", -(gs.qStaff||0)), F("overheads", -(gs.qOverhead||0)),
-    F("member servicing", -(gs.qServicing||0)), F("project delivery costs", -(gs.qDelivery||0)),
+    F(t("membership fees"), gs.qMember||0), F(t("project payouts & interim"), (gs.qProj||0)+(gs.qInterim||0)),
+    F(t("salaries"), -(gs.qStaff||0)), F(t("overheads"), -(gs.qOverhead||0)),
+    F(t("member servicing"), -(gs.qServicing||0)), F(t("project delivery costs"), -(gs.qDelivery||0)),
   ]);
   return {
     influence:{delta:infDelta, factors:infFactors},
@@ -2936,22 +2936,23 @@ function attentionItems(gs) {
   return items.sort((a, b) => (b.urgent?1:0) - (a.urgent?1:0));
 }
 
-const trendTitle = (t, extra) => {
-  if (!t) return "";
+const trendTitle = (tr, extra) => {
+  if (!tr) return "";
   const round1 = v => Math.round(v*10)/10;
-  const sorted = [...(t.factors||[])].sort((a,b) => Math.abs(b.v) - Math.abs(a.v));
+  const sorted = [...(tr.factors||[])].sort((a,b) => Math.abs(b.v) - Math.abs(a.v));
   const ups   = sorted.filter(f => f.v > 0);
   const downs = sorted.filter(f => f.v < 0);
-  const dir = t.delta > 0 ? "rising" : t.delta < 0 ? "falling" : "flat";
+  const rate = `${tr.delta>=0?"+":"\u2212"}${Math.abs(round1(tr.delta))}`;
+  const head = tr.delta > 0 ? t("Currently rising: {r} per quarter", {r: rate}) : tr.delta < 0 ? t("Currently falling: {r} per quarter", {r: rate}) : t("Holding steady: {r} per quarter", {r: rate});
   const lead = sorted.length
-    ? `Mostly ${sorted[0].v >= 0 ? "because of" : "down to"} ${sorted[0].l}.`
-    : "Nothing is moving this quarter.";
+    ? t(sorted[0].v >= 0 ? "Mostly because of {x}." : "Mostly down to {x}.", {x: sorted[0].l})
+    : t("Nothing is moving this quarter.");
   const line = f => `   ${f.v>=0?"+":"\u2212"}${Math.abs(round1(f.v))}  ${f.l}`;
   const block = (title, rows) => rows.length ? `\n${title}\n${rows.map(line).join("\n")}` : "";
-  return `${dir === "flat" ? "Holding steady" : `Currently ${dir}`}: ${t.delta>=0?"+":"\u2212"}${Math.abs(round1(t.delta))} per quarter\n${lead}`
-    + block("Pushing it up", ups)
-    + block("Pulling it down", downs)
-    + (extra ? `\n\nAlso: ${extra}` : "");
+  return `${head}\n${lead}`
+    + block(t("Pushing it up"), ups)
+    + block(t("Pulling it down"), downs)
+    + (extra ? `\n\n${t("Also: {x}", {x: t(extra)})}` : "");
 };
 
 /* ── TEAM BALANCE ──────────────────────────────────────────────
@@ -3039,7 +3040,7 @@ function expansionOption(gs, country, regionName) {
     return { state:"blocked", text:t("Out of reach: hold a neighbouring country first") };
   const cost = countryExpansionCost(gs, country);
   return { state: budget >= cost ? "country" : "short", cost, kind:"country",
-    text: budget >= cost ? t("Enter {c} with an office here", {c: country}) : t("Needs {m}; you have {b}", {m: fmt(cost), b: fmt(budget)}),
+    text: budget >= cost ? t("Enter {c} with an office here", {c: t(country)}) : t("Needs {m}; you have {b}", {m: fmt(cost), b: fmt(budget)}),
     action: { type:"expandCountry", country, region: regionName, cost } };
 }
 // The playable region a NUTS-2 polygon belongs to (some countries plan at a coarser level).
@@ -3054,13 +3055,13 @@ const computeFullCountries = gs => (gs.countries||[]).filter(c => isCountryFull(
 
 // Enabling conditions: every call now has its own gates and an upfront own-contribution
 function projectConditions(p, gs) {
-  const list = [{l:`${p.mem} members`, ok:(gs.members||0) >= p.mem}];
-  if (p.preq)  list.push({l:`influence ${p.preq}+`, ok:(gs.prestige||0) >= p.preq});
-  if (p.reg)   list.push({l:`${p.reg}+ regions`, ok:(gs.regions||[]).length >= p.reg});
-  if (p.ctr)   list.push({l:`${p.ctr}+ countries`, ok:(gs.countries||[]).length >= p.ctr});
-  if (p.brd)   list.push({l:`board ${p.brd}+`, ok:(gs.boardConf||0) >= p.brd});
-  if (p.s3)    list.push({l:"S3-aligned sector", ok:!!gs.s3Aligned});
-  list.push({l:`${fmt(projNeed(p, p.part||0))} liquidity`, ok:(gs.budget||0) >= projNeed(p, p.part||0)});
+  const list = [{l:t("{n} members", {n: p.mem}), ok:(gs.members||0) >= p.mem}];
+  if (p.preq)  list.push({l:t("influence {n}+", {n: p.preq}), ok:(gs.prestige||0) >= p.preq});
+  if (p.reg)   list.push({l:t("{n}+ regions", {n: p.reg}), ok:(gs.regions||[]).length >= p.reg});
+  if (p.ctr)   list.push({l:t("{n}+ countries", {n: p.ctr}), ok:(gs.countries||[]).length >= p.ctr});
+  if (p.brd)   list.push({l:t("board {n}+", {n: p.brd}), ok:(gs.boardConf||0) >= p.brd});
+  if (p.s3)    list.push({l:t("S3-aligned sector"), ok:!!gs.s3Aligned});
+  list.push({l:t("{m} liquidity", {m: fmt(projNeed(p, p.part||0))}), ok:(gs.budget||0) >= projNeed(p, p.part||0)});
   return list;
 }
 
@@ -4149,8 +4150,8 @@ function EUMap({ gs, sel, setSel, lift=0, dispatch }) {
       const top  = Math.min(hovXY.y + 14, Math.max(6, hovXY.h - 140));
       return (
         <div className="map-hover" style={{left, top}}>
-          <div style={{fontWeight:600}}>{r && r.name !== name ? r.name : name}</div>
-          <div style={{color:P.muted}}>{r && r.name !== name ? `${name}. ` : ""}{status}</div>
+          <div style={{fontWeight:600}}>{t(r && r.name !== name ? r.name : name)}</div>
+          <div style={{color:P.muted}}>{r && r.name !== name ? `${t(name)}. ` : ""}{status}</div>
           {here.map(rv => (
             <div key={rv.id} style={{display:"flex",gap:7,alignItems:"baseline",marginTop:3}}>
               <span aria-hidden="true" style={{width:8,height:8,borderRadius:2,background:rv.color,flexShrink:0,transform:"translateY(1px)"}}/>
@@ -4176,8 +4177,8 @@ function EUMap({ gs, sel, setSel, lift=0, dispatch }) {
             } : { left:12, bottom:48 })}}>
           <button className="btn" onClick={() => setPick(null)} aria-label={t("Close region card")}
             style={{position:"absolute",top:8,right:8,background:"transparent",border:"none",padding:4,display:"flex"}}><Icon name="xmark" size={12} color={P.muted}/></button>
-          <div className="title-caps" style={{fontSize:16,lineHeight:1.25,paddingRight:22}}>{pick.name}</div>
-          <div style={{fontSize:12,color:P.muted,marginTop:2,lineHeight:1.45}}>{pick.country}, {rec.nuts || pick.code}{rec.ris ? `. Innovation: ${rec.ris.toLowerCase()}` : ""}{rec.coh ? `. Cohesion: ${rec.coh.toLowerCase()}` : ""}</div>
+          <div className="title-caps" style={{fontSize:16,lineHeight:1.25,paddingRight:22}}>{t(pick.name)}</div>
+          <div style={{fontSize:12,color:P.muted,marginTop:2,lineHeight:1.45}}>{t(pick.country)}, {rec.nuts || pick.code}{rec.ris ? `. ${t("Innovation")}: ${t(rec.ris).toLowerCase()}` : ""}{rec.coh ? `. ${t("Cohesion")}: ${t(rec.coh).toLowerCase()}` : ""}</div>
           <div style={{fontSize:11.5,marginTop:8,color:aligned?P.greenText:P.muted}}>
             {t(aligned ? "{e} is a smart-specialisation priority here" : "{e} is not a priority here", {e: t(gs.sector?.name)})}
           </div>
@@ -4187,7 +4188,7 @@ function EUMap({ gs, sel, setSel, lift=0, dispatch }) {
             <>
               <button className="btn" disabled={!go || !dispatch} onClick={() => dispatch && dispatch(opt.action)}
                 style={{marginTop:12,width:"100%",padding:"10px 12px",border:"none",borderRadius:6,background:go?P.accent:P.bright,color:go?P.onAccent:P.muted,fontSize:13,fontWeight:600}}>
-                {opt.kind === "country" ? t("Enter {c} for {m}", {c: pick.country, m: fmt(opt.cost)}) : t("Open an office for {m}", {m: fmt(opt.cost)})}
+                {opt.kind === "country" ? t("Enter {c} for {m}", {c: t(pick.country), m: fmt(opt.cost)}) : t("Open an office for {m}", {m: fmt(opt.cost)})}
               </button>
               <div style={{fontSize:11.5,color:P.muted,marginTop:6,lineHeight:1.45}}>
                 {opt.state === "short" ? opt.text
@@ -4495,7 +4496,7 @@ function LeftPanel({ gs, dispatch }) {
       <div style={{padding:"12px 6px 14px"}}>
         <div style={{fontSize:15,fontWeight:600,color:P.text,lineHeight:1.25,marginBottom:8}}>{t(stage.name)}</div>
         <Facts items={[
-          {i:"location-dot", t:`${gs.region||""}${gs.regionNuts ? `, ${gs.regionNuts}` : ""}`, tip:t("Home region")},
+          {i:"location-dot", t:`${t(gs.region||"")}${gs.regionNuts ? `, ${gs.regionNuts}` : ""}`, tip:t("Home region")},
           {i:"chart-line", t:t(gs.regionRis||"not rated").toLowerCase(), tip:t("Regional innovation tier")},
           {i:"bullseye", t:t(gs.s3Aligned ? "priority" : "not a priority"), tip:t("Is your ecosystem a smart-specialisation priority here?"), color:gs.s3Aligned?P.greenText:undefined},
           (gs.stage||0)>=2 && {i:"circle-nodes", t:t("cross-ecosystem"), tip:t("As a national body you work across ecosystems")},
@@ -4510,7 +4511,7 @@ function LeftPanel({ gs, dispatch }) {
           <span style={{color:(gs.qNet||0)>=0?P.greenText:P.redText}}>{(gs.qNet||0)>=0?"+":"−"}{fmt(Math.abs(gs.qNet||0))}</span> {t("a quarter")}{runway>=99 ? "" : t(", {n} quarters of runway", {n: runway})}
         </div>
         {(gs.rivals||[]).filter(r=>r.stage>gs.stage).length>0 && (
-          <div style={{fontSize:12,color:P.redText,marginTop:2}}>Rivals ahead of you cut income by {Math.min(3,(gs.rivals||[]).filter(r=>r.stage>gs.stage).length)*6}%</div>
+          <div style={{fontSize:12,color:P.redText,marginTop:2}}>{t("Rivals ahead of you cut income by {n}%", {n: Math.min(3,(gs.rivals||[]).filter(r=>r.stage>gs.stage).length)*6})}</div>
         )}
         <dl className="rows">
           <dt><Icon name="users" size={11} color={P.muted}/> {t("Fees")}</dt><dd>+{fmt(gs.qMember||0)}</dd>
@@ -4576,8 +4577,8 @@ function LeftPanel({ gs, dispatch }) {
           <div style={{fontSize:13,fontWeight:600,color:P.text,marginBottom:6}}>{t("Seats")}</div>
           {seatStatus(gs).map(st => {
             const rv = st.heldBy ? (gs.rivals||[]).find(r=>r.id===st.heldBy) : null;
-            const missing = st.reqs.filter(r=>!r.ok).map(r=>r.l).join(", ");
-            const tip = st.held ? `${t(st.label)}: ${st.effects}` : rv ? `${t(st.label)}, chaired by ${st.holderName}. Needs: ${missing || "displacement next quarter"}` : `${t(st.label)}. Needs: ${missing}`;
+            const missing = st.reqs.filter(r=>!r.ok).map(r=>t(r.l)).join(", ");
+            const tip = st.held ? `${t(st.label)}: ${t(st.effects)}` : rv ? t("{s}, chaired by {h}. Needs: {x}", {s: t(st.label), h: st.holderName, x: missing || t("displacement next quarter")}) : t("{s}. Needs: {x}", {s: t(st.label), x: missing});
             return (
               <div key={st.id} className="seat-row" title={tip}>
                 <Icon name={({regional:"building-columns",national:"landmark",eu:"earth-europe"})[st.id]||"landmark"} size={12} color={st.held?P.accent:P.muted}/>
@@ -4607,8 +4608,8 @@ function LeftPanel({ gs, dispatch }) {
       <div style={{padding:"14px 6px 12px",borderTop:`1px solid ${P.border}`}}>
         <Lbl t={t("Staff")}/>
         <div style={{fontSize:18,fontWeight:700,color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{staffTotal(gs.roster)}</div>
-        <div style={{fontSize:11,color:P.muted}}>cost {fmt(staffCostQ(gs.roster, gs.turn))}/quarter · salaries +1%/Q</div>
-        <div style={{fontSize:11,color:P.muted,marginTop:2}}>fail risk: <span style={{color:failRate>25?P.red:failRate>15?P.orange:P.green}}>{failRate}%</span></div>
+        <div style={{fontSize:11.5,color:P.muted}}>{t("{m} a quarter, salaries +1% a quarter", {m: fmt(staffCostQ(gs.roster, gs.turn))})}</div>
+        <div style={{fontSize:11.5,color:P.muted,marginTop:2}}>{t("Project failure risk")}: <span style={{color:failRate>25?P.redText:P.text}}>{failRate}%</span></div>
       </div>
 
       {/* Evolution requirements */}
@@ -4617,7 +4618,7 @@ function LeftPanel({ gs, dispatch }) {
           <Lbl t={<>{STAGES[Math.min(5,gs.stage+1)]?.name||""}</>}/>
           {reqs.map((r,i) => (
             <div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',lineHeight:1.9,color:r.ok?P.green:P.muted}}>
-              <span style={{display:"inline-flex",alignItems:"center",gap:4}}>{r.ok?<Icon name="check" size={9} color={P.green}/>:<Icon name="circle" size={4} color={P.muted}/>} {r.l}</span>
+              <span style={{display:"inline-flex",alignItems:"center",gap:4}}>{r.ok?<Icon name="check" size={9} color={P.green}/>:<Icon name="circle" size={4} color={P.muted}/>} {t(r.l)}</span>
               <span>{r.money?fmt(r.cur):r.cur}/{r.money?fmt(r.req):r.req}</span>
             </div>
           ))}
@@ -4628,23 +4629,25 @@ function LeftPanel({ gs, dispatch }) {
       {/* Network */}
       <div style={{padding:"14px 6px 12px",borderTop:`1px solid ${P.border}`}}>
         <Lbl t={t("Network")}/>
-        <div style={{fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.blue}}>{(gs.countries||[]).length} countr{(gs.countries||[]).length===1?"y":"ies"}</div>
-        <div style={{fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.teal}}>{(gs.regions||[]).length} region{(gs.regions||[]).length!==1?"s":""}</div>
-        <div style={{fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.muted,marginTop:2}}>{(gs.completedProjects||[]).length} projects done</div>
-        {(gs.fullCountries||[]).length > 0 && <div style={{fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:P.goldText,marginTop:2}}>{(gs.fullCountries||[]).length} countr{(gs.fullCountries||[]).length===1?"y":"ies"} fully covered</div>}
+        <Facts style={{flexDirection:"column",gap:6}} items={[
+          {i:"earth-europe", t:t((gs.countries||[]).length===1 ? "1 country" : "{n} countries", {n:(gs.countries||[]).length})},
+          {i:"location-dot", t:t((gs.regions||[]).length===1 ? "1 region" : "{n} regions", {n:(gs.regions||[]).length})},
+          {i:"check-double", t:t("{n} projects done", {n:(gs.completedProjects||[]).length})},
+          (gs.fullCountries||[]).length > 0 && {i:"check", t:t((gs.fullCountries||[]).length===1 ? "1 country fully covered" : "{n} countries fully covered", {n:(gs.fullCountries||[]).length}), color:P.accent},
+        ]}/>
       </div>
 
       {/* Director governance panel */}
       {byRole(gs.roster,"director") > 0 && (
-        <div style={{background:P.card,borderRadius:0,padding:"10px 12px",border:`1px solid ${P.accent}`}}>
-          <Lbl t={<>Governance · {byRole(gs.roster,"director")} Director{byRole(gs.roster,"director")>1?"s":""}</>}/>
-          <div style={{fontSize:11.5,color:P.text,lineHeight:1.7}}>
-            <div>Board +{4+(byRole(gs.roster,"director")-1)*2}/quarter</div>
-            <div>Influence +{byRole(gs.roster,"director")*2}/quarter</div>
-            <div>{t("Project income +10%")}</div>
-            <div>Failure board hit reduced by {Math.min(8,byRole(gs.roster,"director")*4)}</div>
-            {byRole(gs.roster,"director")>=2 && <div style={{color:P.green,fontWeight:700,marginTop:2,display:"flex",alignItems:"center",gap:4}}><Icon name="check" size={10} color={P.green}/> {t("Stage 5 unlocked")}</div>}
-          </div>
+        <div style={{padding:"14px 6px 12px",borderTop:`1px solid ${P.border}`}}>
+          <Lbl t={t(byRole(gs.roster,"director")===1 ? "Governance, 1 director" : "Governance, {n} directors", {n: byRole(gs.roster,"director")})}/>
+          <Facts style={{flexDirection:"column",gap:6}} items={[
+            {i:"shield-halved", t:t("Board +{n} a quarter", {n: 4+(byRole(gs.roster,"director")-1)*2})},
+            {i:"landmark", t:t("Influence +{n} a quarter", {n: byRole(gs.roster,"director")*2})},
+            {i:"arrow-trend-up", t:t("Project income +10%")},
+            {i:"triangle-exclamation", t:t("Board loss on failure −{n}", {n: Math.min(8,byRole(gs.roster,"director")*4)})},
+            byRole(gs.roster,"director")>=2 && {i:"check", t:t("Stage 5 unlocked"), color:P.greenText},
+          ]}/>
         </div>
       )}
 
@@ -4791,10 +4794,10 @@ function ProjCard({ p, gs, failRate, onStart }) {
         <div><dt><Icon name="arrow-trend-up" size={11} color={P.muted}/> {t("Margin")}</dt><dd style={{color:P.greenText}}>{Math.round(margin*100)}%</dd></div>
         <div><dt><Icon name="triangle-exclamation" size={11} color={P.muted}/> {t("Risk")}</dt><dd style={{color:shownFail>25?P.redText:P.text}}>{shownFail}%</dd></div>
       </dl>
-      {contest.rivals.length>0 && <div style={{fontSize:12,color:P.redText,marginTop:4}}>Contested by {contest.rivals.map(r=>r.name).join(" and ")}, which raises the risk.</div>}
+      {contest.rivals.length>0 && <div style={{fontSize:12,color:P.redText,marginTop:4}}>{t("Contested by {x}, which raises the risk.", {x: contest.rivals.map(r=>r.name).join(" & ")})}</div>}
       {conds.length > 0 && (
         <ul className="conds">
-          {conds.map((c,i) => <li key={i} className={c.ok?"met":"unmet"}>{c.l}</li>)}
+          {conds.map((c,i) => <li key={i} className={c.ok?"met":"unmet"}>{t(c.l)}</li>)}
         </ul>
       )}
       <Facts style={{marginTop:8}} items={[
@@ -4910,12 +4913,12 @@ function StaffModal({ gs, dispatch, onClose, panel }) {
       <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
         <Facts items={[
           {i:"users", t:`${staffTotal(roster)}`, tip:t("Staff on the payroll")},
-          {i:"coins", t:`−${fmt(staffCostQ(roster, gs.turn))}/q`, tip:t("Salaries a quarter")},
+          {i:"coins", t:t("−{m}/q", {m: fmt(staffCostQ(roster, gs.turn))}), tip:t("Salaries a quarter")},
           {i:"sitemap", t:`${visibleStaff(roster)}/${staffSpan(roster)}`, tip:t("Management capacity: staff led, out of the most your managers can lead"), color:visibleStaff(roster)>=staffSpan(roster)?P.redText:undefined},
           {i:"user-minus", t:`${churnPct}%`, tip:t("Members lost each quarter")},
           {i:"triangle-exclamation", t:`${failRate}%`, tip:t("Project failure risk")},
         ]}/>
-        <InfoDot label={t("How staffing works")} text={`Salaries are up ${infl}% since founding and rise 1% every quarter, for new hires and the whole payroll.\n\nThe General Manager leads 7 people; each Executive Director adds 7. At most 2 of each role, and exactly one General Manager.`}/>
+        <InfoDot label={t("How staffing works")} text={t("Salaries are up {n}% since founding and rise 1% every quarter, for new hires and the whole payroll.\n\nThe General Manager leads 7 people; each Executive Director adds 7. At most 2 of each role, and exactly one General Manager.", {n: infl})}/>
       </div>
 
       {roster.length > 0 && (
@@ -4928,10 +4931,10 @@ function StaffModal({ gs, dispatch, onClose, panel }) {
               // Firing releases the most recent hire of that role (cheapest severance first)
               const newest = idxs.reduce((a,b) => ((b.r.hiredTurn||0) >= (a.r.hiredTurn||0) ? b : a), idxs[0]);
               return (
-                <li key={`team-${def.id}`} title={idxs.map(x => `${x.r.name||"—"}, level ${skillOf(x.r)}`).join("\n")}>
+                <li key={`team-${def.id}`} title={idxs.map(x => t("{n}, level {l}", {n: x.r.name||"—", l: skillOf(x.r)})).join("\n")}>
                   <Icon name={def.icon||"user"} size={13} color={P.accent}/>
                   <span className="nm">{t(def.name)}{count>1 ? ` ×${count}` : ""}</span>
-                  <span className="tnum mu">−{fmt(roleCost(def, gs.turn)*count)}/q</span>
+                  <span className="tnum mu">{t("−{m}/q", {m: fmt(roleCost(def, gs.turn)*count)})}</span>
                   {def.hidden || def.id === "manager"
                     ? <span className="mu" style={{fontSize:11.5}}>{t("required")}</span>
                     : <button className="btn fire" onClick={() => dispatch({type:"fire",idx:newest.i})} title={t("Release the most recent hire")}>{t("Release")}</button>}
@@ -4958,11 +4961,11 @@ function StaffModal({ gs, dispatch, onClose, panel }) {
             <button key={`hire-${roleId}`} className="btn hire-tile" disabled={!afford}
               onMouseEnter={e => point(roleId, e.currentTarget)} onFocus={e => point(roleId, e.currentTarget)} onBlur={() => setHoverRole(null)}
               onClick={() => dispatch({type:"hire",roleId})}
-              aria-label={`Hire ${t(staffRole.name)} for ${fmt(price)} a quarter${blockReason ? `. ${blockReason}` : ""}`}>
+              aria-label={t("Hire {r} for {m} a quarter", {r: t(staffRole.name), m: fmt(price)}) + (blockReason ? `. ${blockReason}` : "")}>
               {count > 0 && <span className="cnt">{count}</span>}
               <Icon name={staffRole.icon} size={18} color={afford?P.accent:P.muted}/>
               <span className="nm">{t(staffRole.name)}</span>
-              <span className="tnum pr">{fmt(price)}/q</span>
+              <span className="tnum pr">{t("{m}/q", {m: fmt(price)})}</span>
             </button>
           );
         })}
@@ -5016,16 +5019,16 @@ function RivalsModal({ gs, dispatch, onClose, panel }) {
       </div>
       {(gs.coalitionUntil||0) > (gs.turn||0) && (
         <div style={{fontSize:12.5,color:P.redText,margin:"4px 0 8px",display:"flex",gap:7,alignItems:"center"}}>
-          <Icon name="triangle-exclamation" size={12} color={P.redText}/> Rivals have formed a coalition for {(gs.coalitionUntil||0)-(gs.turn||0)} more quarters
+          <Icon name="triangle-exclamation" size={12} color={P.redText}/> {t("Rivals have formed a coalition for {n} more quarters", {n: (gs.coalitionUntil||0)-(gs.turn||0)})}
         </div>
       )}
-      <div className="mkt" title={`You ${youPct}%, rivals ${rvPct}%, open ${Math.max(0,100-youPct-rvPct)}%`}>
+      <div className="mkt" title={t("You {a}%, rivals {b}%, open {c}%", {a: youPct, b: rvPct, c: Math.max(0,100-youPct-rvPct)})}>
         <span style={{width:`${youPct}%`,background:P.accent}}/><span style={{width:`${rvPct}%`,background:P.red,opacity:.75}}/>
       </div>
       <Facts style={{marginTop:6}} items={[
-        {i:"users", t:`you ${youPct}%`, tip:t("Share of the member market you hold")},
-        {i:"chess-knight", t:`rivals ${rvPct}%`, tip:t("Share pressed by rivals")},
-        {i:"seedling", t:`open ${Math.max(0,100-youPct-rvPct)}%`, tip:t("Members nobody has recruited yet")},
+        {i:"users", t:t("you {n}%", {n: youPct}), tip:t("Share of the member market you hold")},
+        {i:"chess-knight", t:t("rivals {n}%", {n: rvPct}), tip:t("Share pressed by rivals")},
+        {i:"seedling", t:t("open {n}%", {n: Math.max(0,100-youPct-rvPct)}), tip:t("Members nobody has recruited yet")},
       ]}/>
       {(gs.rivals||[]).length===0 && <div style={{padding:"24px 0",color:P.accent,fontWeight:600}}>{t("No rivals remain. The market is yours.")}</div>}
       <div style={{marginTop:14}}>
@@ -5048,19 +5051,19 @@ function RivalsModal({ gs, dispatch, onClose, panel }) {
                 {status && <span className="tag" style={{color:status[1]}}>{t(status[0])}</span>}
               </div>
               <Facts style={{marginTop:6}} items={[
-                {i:"chess-knight", t:arch.label, tip:arch.blurb},
-                {i:"flag", t:STAGES[rv.stage]?.name, tip:t("Stage")},
+                {i:"chess-knight", t:t(arch.label), tip:t(arch.blurb)},
+                {i:"flag", t:t(STAGES[rv.stage]?.name), tip:t("Stage")},
                 {i:"users", t:`${rv.members||0}`, tip:t("Members")},
                 {i:"earth-europe", t:`${(rv.countries||[]).length}`, tip:t("Countries")},
-                shared.length>0 && {i:"triangle-exclamation", t:shared.map(c=>NAME_TO_ISO[c]||c).join(", "), tip:`Contests you in ${shared.join(", ")}`, color:P.redText},
+                shared.length>0 && {i:"triangle-exclamation", t:shared.map(c=>NAME_TO_ISO[c]||c).join(", "), tip:t("Contests you in {x}", {x: shared.join(", ")}), color:P.redText},
               ]}/>
               <div className="rv-bars">
-                <span title={`Progress to their next stage: ${Math.round(rv.progress||0)}%`}><Icon name="arrow-up-right-dots" size={11} color={P.muted}/><span className="bar"><span style={{width:`${Math.min(100,rv.progress||0)}%`,background:rv.color}}/></span></span>
-                <span title={`Health ${Math.round(hp)}${hp<=25?", weak enough to buy out":""}`}><Icon name="heart-pulse" size={11} color={P.muted}/><span className="bar"><span style={{width:`${hp}%`,background:hp>60?P.green:hp>30?P.orange:P.red}}/></span></span>
+                <span title={t("Progress to their next stage: {n}%", {n: Math.round(rv.progress||0)})}><Icon name="arrow-up-right-dots" size={11} color={P.muted}/><span className="bar"><span style={{width:`${Math.min(100,rv.progress||0)}%`,background:rv.color}}/></span></span>
+                <span title={t(hp<=25 ? "Health {n}, weak enough to buy out" : "Health {n}", {n: Math.round(hp)})}><Icon name="heart-pulse" size={11} color={P.muted}/><span className="bar"><span style={{width:`${hp}%`,background:hp>60?P.green:hp>30?P.orange:P.red}}/></span></span>
               </div>
               {(rv.scoutedUntil||0) > (gs.turn||0) && (
                 <div style={{fontSize:12,color:P.muted,marginTop:6}}>
-                  <Icon name="magnifying-glass-chart" size={11} color={P.muted}/> Intel for {(rv.scoutedUntil||0)-(gs.turn||0)} q: {Math.round(rv.progress||0)}% to {t(STAGES[Math.min(5,(rv.stage||0)+1)]?.name)}
+                  <Icon name="magnifying-glass-chart" size={11} color={P.muted}/> {t("Intel for {q} q: {p}% to {s}", {q: (rv.scoutedUntil||0)-(gs.turn||0), p: Math.round(rv.progress||0), s: t(STAGES[Math.min(5,(rv.stage||0)+1)]?.name)})}
                 </div>
               )}
               <div className="ops">
@@ -5068,15 +5071,15 @@ function RivalsModal({ gs, dispatch, onClose, panel }) {
                   const cost = op.cost(gs, rv);
                   const ready = opReady(gs, rv.id, opId);
                   const cdLeft = Math.max(0, ((gs.rivalOps||{})[`${rv.id}:${opId}`]||0) - (gs.turn||0));
-                  const blocked = !ready ? `available in ${cdLeft} quarters`
-                    : (gs.budget||0) < cost ? "not enough money"
-                    : opId==="pact" && (gs.prestige||0) < 50 ? "needs influence 50+"
-                    : opId==="pact" && truce ? "truce already active"
-                    : opId==="acquire" && hp > 25 ? "only when their health is 25 or less"
+                  const blocked = !ready ? t("available in {n} quarters", {n: cdLeft})
+                    : (gs.budget||0) < cost ? t("not enough money")
+                    : opId==="pact" && (gs.prestige||0) < 50 ? t("needs influence 50+")
+                    : opId==="pact" && truce ? t("truce already active")
+                    : opId==="acquire" && hp > 25 ? t("only when their health is 25 or less")
                     : null;
                   const type = { raid:"rivalRaid", pr:"rivalPR", pact:"rivalPact", acquire:"rivalAcquire", scout:"rivalScout" }[opId];
                   return (
-                    <button key={opId} className="btn op" disabled={!!blocked} title={`${t(op.label)}: ${blocked || op.desc}`}
+                    <button key={opId} className="btn op" disabled={!!blocked} title={`${t(op.label)}: ${blocked || t(op.desc)}`}
                       aria-label={`${t(op.label)}, ${fmt(cost)}${blocked ? `, ${blocked}` : ""}`}
                       onClick={() => dispatch({type, rid:rv.id})}>
                       <Icon name={op.icon} size={13} color={blocked?P.muted:P.accent}/>
@@ -5130,13 +5133,13 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
   const body = (
     <>
       <Facts items={[
-        {i:"location-dot", t:`${(gs.regions||[]).length} regions`, tip:t("Regions with an office")},
-        {i:"earth-europe", t:`${(gs.countries||[]).length}/${countryCap(gs)} countries`, tip:t("Countries held, out of the most your stage allows")},
-        gs.stage >= 1 && {i:"building", t:`${fmt(rCost)}/office`, tip:t("Cost of a new regional office")},
-        gs.stage >= 2 && {i:"flag", t:`${fmt(cCost)}/country`, tip:t("Cost of entering a new country")},
+        {i:"location-dot", t:t("{n} regions", {n:(gs.regions||[]).length}), tip:t("Regions with an office")},
+        {i:"earth-europe", t:t("{a}/{b} countries", {a:(gs.countries||[]).length, b:countryCap(gs)}), tip:t("Countries held, out of the most your stage allows")},
+        gs.stage >= 1 && {i:"building", t:t("{m}/office", {m: fmt(rCost)}), tip:t("Cost of a new regional office")},
+        gs.stage >= 2 && {i:"flag", t:t("{m}/country", {m: fmt(cCost)}), tip:t("Cost of entering a new country")},
       ]}/>
       <div style={{fontSize:12,color:P.muted,margin:"8px 0 2px",display:"flex",alignItems:"center",gap:7}}>
-        <Icon name="map-location-dot" size={12} color={P.accent}/> Or click any region on the map
+        <Icon name="map-location-dot" size={12} color={P.accent}/> {t("Or click any region on the map")}
       </div>
 
       <ul className="net-list">
@@ -5146,9 +5149,9 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
           const full   = (gs.fullCountries||[]).includes(c);
           const home   = c === gs.country;
           return (
-            <li key={c} title={full ? "Every region held: national coverage bonus" : "Hold every region for a national coverage bonus"}>
+            <li key={c} title={t(full ? "Every region held: national coverage bonus" : "Hold every region for a national coverage bonus")}>
               <Icon name={home ? "star" : full ? "check" : "location-dot"} size={11} color={home||full ? P.accent : P.muted}/>
-              <span className="nm">{c}</span>
+              <span className="nm">{t(c)}</span>
               <span className="bar"><span style={{width:`${total ? active/total*100 : 0}%`}}/></span>
               <span className="tnum mu">{active}/{total}</span>
             </li>
@@ -5173,15 +5176,15 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
                 {cs.length > 1 && (
                   <div className="seg" role="group" aria-label={t("Country")} style={{gridTemplateColumns:`repeat(${Math.min(cs.length,4)},1fr)`,marginBottom:8}}>
                     {cs.map(c => (
-                      <button key={c} className="btn" onClick={() => setRegCountry(c)} aria-pressed={selC===c}>{c}</button>
+                      <button key={c} className="btn" onClick={() => setRegCountry(c)} aria-pressed={selC===c}>{t(c)}</button>
                     ))}
                   </div>
                 )}
                 <div className="ops">
                   {(byCountry[selC]||[]).map(o => (
-                    <button key={`${o.c}-${o.n}`} className="btn op" disabled={budget<rCost} title={budget<rCost ? `Needs ${fmt(rCost)}` : `Open an office in ${o.n}`}
+                    <button key={`${o.c}-${o.n}`} className="btn op" disabled={budget<rCost} title={budget<rCost ? t("Needs {x}", {x: fmt(rCost)}) : t("Open an office in {r}", {r: t(o.n)})}
                       onClick={() => dispatch({type:"expandRegion",region:regionLabel(o),cost:rCost})}>
-                      <Icon name="plus" size={10} color={budget<rCost?P.muted:P.accent}/>{o.n}
+                      <Icon name="plus" size={10} color={budget<rCost?P.muted:P.accent}/>{t(o.n)}
                     </button>
                   ))}
                 </div>
@@ -5204,8 +5207,8 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
               const cost = contested ? Math.round(cCost*1.5) : cCost;
               return (
                 <button key={c} className="btn op" disabled={budget<cost} onClick={() => dispatch({type:"expandCountry",country:c,cost})}
-                  title={`${c}: ${fmt(cost)}${contested ? ", contested by a rival" : ""}`}>
-                  <Icon name={contested ? "triangle-exclamation" : "plus"} size={10} color={budget<cost ? P.muted : contested ? P.redText : P.accent}/>{c}
+                  title={`${t(c)}: ${fmt(cost)}${contested ? t(", contested by a rival") : ""}`}>
+                  <Icon name={contested ? "triangle-exclamation" : "plus"} size={10} color={budget<cost ? P.muted : contested ? P.redText : P.accent}/>{t(c)}
                   {contested && <span className="tnum" style={{color:P.muted}}>{fmt(cost)}</span>}
                 </button>
               );
@@ -5214,7 +5217,7 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
         </div>
       )}
       {gs.stage >= 2 && atCap && (gs.countries||[]).length < 27 && (
-        <div style={{fontSize:12,color:P.muted,marginTop:12,display:"flex",gap:7,alignItems:"center"}}><Icon name="lock" size={11} color={P.muted}/> Your stage allows {capC} countries; evolve to hold more</div>
+        <div style={{fontSize:12,color:P.muted,marginTop:12,display:"flex",gap:7,alignItems:"center"}}><Icon name="lock" size={11} color={P.muted}/> {t("Your stage allows {n} countries; evolve to hold more", {n: capC})}</div>
       )}
       {gs.stage >= 2 && !atCap && avC.length===0 && Object.keys(EU_COUNTRIES).some(c => !(gs.countries||[]).includes(c)) && (
         <div style={{fontSize:12,color:P.muted,marginTop:12}}>{t("No unclaimed country borders your network yet.")}</div>
@@ -5222,7 +5225,7 @@ function NetworkModal({ gs, dispatch, onClose, panel }) {
       {gs.stage < 1 && (
         <div style={{textAlign:"center",padding:"28px 8px",color:P.muted,fontSize:12.5}}>
           <div style={{marginBottom:8}}><Icon name="lock" size={18} color={P.muted}/></div>
-          Expansion opens at {STAGES[1].name}
+          {t("Expansion opens at {s}", {s: t(STAGES[1].name)})}
         </div>
       )}
     </>
@@ -5259,7 +5262,7 @@ function EvolveModal({ gs, dispatch, onClose }) {
           return (
             <li key={i} className={r.ok ? "ok" : ""}>
               <Icon name={r.ok ? "check" : "circle"} size={11} color={r.ok ? P.greenText : P.muted}/>
-              <span className="nm">{r.l}</span>
+              <span className="nm">{t(r.l)}</span>
               <span className="tnum v">{r.money ? fmt(r.cur) : r.cur} / {r.money ? fmt(r.req) : r.req}</span>
               <span className="bar"><span style={{width:`${pct}%`,background:r.ok ? P.green : P.accent}}/></span>
             </li>
@@ -5303,28 +5306,28 @@ function EventModal({ ev, onDismiss }) {
   const isChoice = ev.t === "choice" || (Array.isArray(ev.choices) && ev.choices.length > 0);
   const isGood   = ev.t === "good";
   const col      = isChoice ? P.blue : isGood ? P.green : P.red;
-  const heading  = isChoice ? "DECISION" : isGood ? "OPPORTUNITY" : "ALERT";
+  const heading  = t(isChoice ? "Decision" : isGood ? "Opportunity" : "Alert");
   const headingIcon = isChoice ? "scale-balanced" : isGood ? "circle-info" : "triangle-exclamation";
   const headAnim = isChoice ? "" : isGood ? "glow-good" : "wiggle";
   // Build impact lines for simple events
   const lines = [];
   if (!isChoice) {
-    if (ev.bfx && ev.bfx!==0) lines.push(`Budget ${ev.bfx>0?"+":""}${Math.abs(ev.bfx)<1?Math.round(ev.bfx*100)+"%":fmt(ev.bfx)}`);
-    if (ev.mfx && ev.mfx!==0) lines.push(`Members ${ev.mfx>0?"+":""}${ev.mfx}`);
-    if (ev.pfx && ev.pfx!==0) lines.push(`Influence ${ev.pfx>0?"+":""}${ev.pfx}`);
-    if (ev.sfx && ev.sfx < 0) lines.push("Staff -1");
+    if (ev.bfx && ev.bfx!==0) lines.push(`${t("Budget")} ${ev.bfx>0?"+":""}${Math.abs(ev.bfx)<1?Math.round(ev.bfx*100)+"%":fmt(ev.bfx)}`);
+    if (ev.mfx && ev.mfx!==0) lines.push(`${t("Members")} ${ev.mfx>0?"+":""}${ev.mfx}`);
+    if (ev.pfx && ev.pfx!==0) lines.push(`${t("Influence")} ${ev.pfx>0?"+":""}${ev.pfx}`);
+    if (ev.sfx && ev.sfx < 0) lines.push(`${t("Staff")} -1`);
   }
   const fxLine = (fx) => {
     const parts = [];
-    if (fx.bfx) parts.push(`${fx.bfx>0?"+":""}${Math.abs(fx.bfx)<1?Math.round(fx.bfx*100)+"%":fmt(fx.bfx)} budget`);
-    if (fx.mfx) parts.push(`${fx.mfx>0?"+":""}${fx.mfx} members`);
-    if (fx.pfx) parts.push(`${fx.pfx>0?"+":""}${fx.pfx} influence`);
-    if (fx.loseRole) parts.push(`lose your ${STAFF_ROLES.find(d=>d.id===fx.loseRole)?.name || fx.loseRole}`);
-    if (fx.rvHealth && fx.rvHealth.d>0) parts.push(`rival strengthened`);
-    if (fx.stealPct) parts.push(`gain ${Math.round(fx.stealPct.pct*100)}% of their members`);
-    if (fx.brd) parts.push(`board ${fx.brd>0?"+":""}${fx.brd}`);
-    if (fx.sfx < 0) parts.push("lose staff");
-    if (fx.rvProg) parts.push(fx.rvProg>0?`rival +${fx.rvProg}% progress`:`rival ${fx.rvProg}% progress`);
+    if (fx.bfx) parts.push(`${fx.bfx>0?"+":""}${Math.abs(fx.bfx)<1?Math.round(fx.bfx*100)+"%":fmt(fx.bfx)} ${t("budget")}`);
+    if (fx.mfx) parts.push(`${fx.mfx>0?"+":""}${fx.mfx} ${t("members")}`);
+    if (fx.pfx) parts.push(`${fx.pfx>0?"+":""}${fx.pfx} ${t("influence")}`);
+    if (fx.loseRole) parts.push(t("lose your {r}", {r: t(STAFF_ROLES.find(d=>d.id===fx.loseRole)?.name || fx.loseRole)}));
+    if (fx.rvHealth && fx.rvHealth.d>0) parts.push(t("rival strengthened"));
+    if (fx.stealPct) parts.push(t("gain {n}% of their members", {n: Math.round(fx.stealPct.pct*100)}));
+    if (fx.brd) parts.push(`${t("board")} ${fx.brd>0?"+":""}${fx.brd}`);
+    if (fx.sfx < 0) parts.push(t("lose staff"));
+    if (fx.rvProg) parts.push(t(fx.rvProg>0 ? "rival +{n}% progress" : "rival {n}% progress", {n: fx.rvProg}));
     return parts.join(" · ") || "No direct effect";
   };
   return (
@@ -5399,11 +5402,11 @@ function StatsModal({ gs, onClose, dispatch }) {
             {" · runway "}<span style={{color:runway<3?P.red:runway<6?P.orange:P.green}}>{runway>=99?"∞":runway+"Q"}</span>
           </div>
           <div style={{marginTop:8,display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
-            <div style={{color:P.accent}}>+{fmt(gs.qMember||0)} <span style={{color:P.muted}}>members</span></div>
-            <div style={{color:(gs.qProj||0)>0?P.blue:P.muted}}>+{fmt(gs.qProj||0)} <span style={{color:P.muted}}>projects</span></div>
-            <div style={{color:P.red}}>-{fmt(gs.qStaff||0)} <span style={{color:P.muted}}>staff</span></div>
-            <div style={{color:P.orange}}>-{fmt(gs.qOverhead||0)} <span style={{color:P.muted}}>overhead</span></div>
-            {(gs.qDelivery||0) > 0 && <div style={{color:P.purple,gridColumn:"1 / -1"}}>-{fmt(gs.qDelivery||0)} <span style={{color:P.muted}}>delivery ({fmt(gs.qInterim||0)} interim-covered)</span></div>}
+            <div style={{color:P.accent}}>+{fmt(gs.qMember||0)} <span style={{color:P.muted}}>{t("members")}</span></div>
+            <div style={{color:(gs.qProj||0)>0?P.blue:P.muted}}>+{fmt(gs.qProj||0)} <span style={{color:P.muted}}>{t("projects")}</span></div>
+            <div style={{color:P.red}}>-{fmt(gs.qStaff||0)} <span style={{color:P.muted}}>{t("staff")}</span></div>
+            <div style={{color:P.orange}}>-{fmt(gs.qOverhead||0)} <span style={{color:P.muted}}>{t("overhead")}</span></div>
+            {(gs.qDelivery||0) > 0 && <div style={{color:P.purple,gridColumn:"1 / -1"}}>-{fmt(gs.qDelivery||0)} <span style={{color:P.muted}}>{t("delivery ({m} covered by interim payments)", {m: fmt(gs.qInterim||0)})}</span></div>}
           </div>
         </Card>
 
@@ -5465,7 +5468,7 @@ function StatsModal({ gs, onClose, dispatch }) {
           <Card>
             <Lbl t={t("Staff")}/>
             <div style={{fontSize:22,fontWeight:700,color:P.text,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{staffTotal(gs.roster)}</div>
-            <div style={{fontSize:11.5,color:P.muted}}>fail risk <span style={{color:failRate>25?P.red:failRate>15?P.orange:P.green}}>{failRate}%</span></div>
+            <div style={{fontSize:11.5,color:P.muted}}>{t("Project failure risk")} <span style={{color:failRate>25?P.redText:P.text}}>{failRate}%</span></div>
           </Card>
         </div>
 
@@ -5473,7 +5476,7 @@ function StatsModal({ gs, onClose, dispatch }) {
           <Lbl t={t("Influence")}/>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
             <span style={{fontSize:22,fontWeight:700,color:P.purple,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{Math.round(gs.prestige||0)}</span>
-            <span style={{fontSize:11.5,color:P.muted}}>fades -{decay}/quarter</span>
+            <span style={{fontSize:11.5,color:P.muted}}>{t("Fades {n} a quarter", {n: decay})}</span>
           </div>
           <Bar val={gs.prestige||0} color={P.purple}/>
           
@@ -5488,8 +5491,8 @@ function StatsModal({ gs, onClose, dispatch }) {
                     : st.heldBy ? <span style={{color:P.redText,fontWeight:600,maxWidth:150,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{st.holderName}</span>
                     : <span style={{color:P.muted}}>{t("Open")}</span>}
                 </div>
-                <div style={{fontSize:12,color:P.muted,margin:"0 0 0 21px"}}>{String(st.effects||"").replace(/ · /g, ", ")}</div>
-                {!st.held && <ul className="conds" style={{margin:"6px 0 0 21px"}}>{st.reqs.map((c,i) => <li key={i} className={c.ok?"met":"unmet"}>{c.l}</li>)}</ul>}
+                <div style={{fontSize:12,color:P.muted,margin:"0 0 0 21px"}}>{t(st.effects||"").replace(/ · /g, ", ")}</div>
+                {!st.held && <ul className="conds" style={{margin:"6px 0 0 21px"}}>{st.reqs.map((c,i) => <li key={i} className={c.ok?"met":"unmet"}>{t(c.l)}</li>)}</ul>}
               </div>
             ))}
           </div>
@@ -5511,7 +5514,7 @@ function StatsModal({ gs, onClose, dispatch }) {
             <div style={{display:"grid",gap:4,marginTop:2}}>
               {reqs.map((r,i)=>(
                 <div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',color:r.ok?P.green:P.muted}}>
-                  <span style={{display:"inline-flex",alignItems:"center",gap:4}}>{r.ok?<Icon name="check" size={9} color={P.green}/>:<Icon name="circle" size={4} color={P.muted}/>} {r.l}</span>
+                  <span style={{display:"inline-flex",alignItems:"center",gap:4}}>{r.ok?<Icon name="check" size={9} color={P.green}/>:<Icon name="circle" size={4} color={P.muted}/>} {t(r.l)}</span>
                   <span>{r.money?fmt(r.cur):r.cur} / {r.money?fmt(r.req):r.req}</span>
                 </div>
               ))}
@@ -5557,6 +5560,42 @@ function RulesModal({ onClose }) {
   const T = ({children}) => <div style={{fontSize:11.5,color:P.text,lineHeight:1.65,marginBottom:6}}>{children}</div>;
   const B = ({children}) => <strong style={{color:P.blue}}>{children}</strong>;
   return (
+    LANG === "fr" ? (
+    <Modal title="Comment jouer" icon="circle-question" iconColor={P.accent} onClose={onClose} width={760}>
+      <div style={{maxHeight:"68vh",overflowY:"auto",paddingRight:8}}>
+        <T>Vous dirigez une <B>organisation de cluster</B> : une structure qui relie entreprises, universités et pouvoirs publics au sein d'un écosystème industriel. Partant d'une petite initiative régionale, faites-en le <B>Réseau paneuropéen de clusters</B>, ou survivez à tous vos rivaux pour gagner par <B>consolidation du marché</B>. Vous perdez si la confiance du conseil tombe à zéro, si l'argent manque, ou si un rival bâtit le réseau avant vous.</T>
+
+        <H t="La boucle trimestrielle"/>
+        <T>Chaque tour est un trimestre. Recrutez, lancez des projets, étendez le réseau, menez des opérations contre les rivaux, puis appuyez sur <B>Trimestre suivant</B> : salaires et frais généraux sont payés, les projets avancent, les membres cotisent, les rivaux agissent et des événements peuvent exiger une décision. Rien n'avance sans <B>directeur général</B> : le cluster a un seul patron, et le perdre bloque tout jusqu'à son remplacement.</T>
+
+        <H t="L'argent : les projets sont des investissements"/>
+        <T>Les projets financés sur fonds publics ne vous versent pas leur volume : <B>vous financez la réalisation</B> par tranches trimestrielles égales. Les acomptes remboursent 70 % au fil de l'eau ; en cas de succès, le paiement final solde le reste <B>avec une marge</B> (environ 15 % pour un appel local, jusqu'à 32 % pour un appel européen, améliorée par les sièges, les chefs de projet, l'alignement S3 et la difficulté). En cas d'échec, un audit vous rembourse seulement 60 % des coûts : une vraie perte. Chaque appel affiche ses flux de trésorerie et ses conditions (membres, influence, conseil, trésorerie…) avant que vous ne vous engagiez. Les cotisations sont votre revenu régulier ; les salaires augmentent de 1 % par trimestre.</T>
+
+        <H t="Règles d'équipe"/>
+        <T><B>Un seul directeur général</B>, toujours. Il encadre jusqu'à 7 personnes ; chaque <B>directeur exécutif en ajoute 7</B>. Règle d'équilibre : aucun rôle ne peut dépasser un tiers de l'équipe visible. Des juristes sont requis pour évoluer au-delà de l'étape 2 (1, 2 puis 3). L'expansion recrute du <B>personnel de bureau obligatoire</B> : un coordinateur régional par région, un directeur pays par pays, impossibles à licencier tant que le bureau existe. Pour recruter, il faut <B>trois trimestres du nouveau salaire</B> en trésorerie.</T>
+
+        <H t="Réseau et géographie"/>
+        <T>Étendez-vous région par région sur une vraie carte NUTS. Les nouveaux pays doivent <B>border votre réseau</B> (les liaisons par ferry comptent), et la portée internationale dépend de la maturité : une association nationale gère <B>3</B> pays, un métacluster transfrontalier <B>9</B>, une plateforme européenne <B>19</B>. Activer toutes les régions d'un pays rapporte un <B>bonus de couverture nationale</B> (réduit de moitié si un rival y opère). Chaque bureau ajoute des frais de coordination et du risque.</T>
+
+        <H t="Influence et sièges politiques"/>
+        <T>L'<B>influence</B> est votre poids auprès des pouvoirs publics : elle se gagne en livrant des projets et grâce aux équipes communication, affaires publiques et recherche, et elle baisse chaque trimestre. Une influence durable donne des <B>sièges</B> permanents : le comité régional S3, la plateforme nationale des clusters et le groupe de haut niveau de l'UE. Chacun n'a qu'un président et apporte de meilleures marges, une expansion moins chère, une protection contre le débauchage et des rivaux plus lents. Les rivaux visent aussi les sièges vacants ; reprenez les leurs en les dépassant en influence (seuil +15).</T>
+
+        <H t="Les rivaux"/>
+        <T>Trois clusters rivaux visent l'étape 5, chacun avec sa personnalité : Braconnier, Initié de Bruxelles, Expansionniste, Méthodique ou Casseur de prix. Ils s'étendent sur la carte, vous disputent les appels quand ils sont devant, débauchent vos membres là où les réseaux se croisent et puisent dans le même <B>marché limité de membres</B>. Ripostez depuis l'onglet Rivaux : <B>débauchage</B>, <B>campagnes de communication</B>, <B>consortiums</B> (trêve de 12 trimestres, meilleures marges) et <B>rachats</B> de rivaux en difficulté (santé de 25 ou moins). La santé d'un rival s'érode sous la pression : à zéro, il disparaît et ses membres se dispersent. De <B>nouveaux entrants</B> finissent par remplacer les rivaux disparus ; seule l'élimination du <B>dernier</B> rival termine la course par consolidation du marché. Si vous dominez tout le monde au niveau métacluster, les rivaux peuvent former une <B>coalition</B> temporaire contre vous : un consortium avec l'un d'eux la brise. L'opération <B>Surveiller</B> révèle les plans exacts d'un rival et réduit son débauchage pendant quatre trimestres.</T>
+
+        <H t="Le conseil"/>
+        <T>Le conseil surveille votre réserve de trésorerie, votre influence, les départs et vos résultats. Les projets terminés et les sièges renforcent sa confiance ; les échecs, les réserves faibles et la stagnation l'érodent. À zéro, le cluster est dissous.</T>
+
+        <H t="Évolution"/>
+        <T>Six étapes : initiative de cluster, organisation de cluster, association nationale, métacluster transfrontalier, plateforme européenne, puis <B>Réseau paneuropéen de clusters</B>. Chaque évolution exige du personnel, des membres, de l'argent, de l'influence, une présence géographique et des projets livrés ; le panneau des objectifs montre toujours ce qui manque. À partir de l'association nationale, le cluster devient <B>inter-écosystèmes</B> : aligné S3 partout, mais en concurrence avec tous les rivaux pour les membres.</T>
+        <T><B>Composition des membres.</B> Vos membres sont des PME (cotisation ×0,8, volatiles), des grandes entreprises (cotisation ×2,1 ; plus de 35 % renforce la confiance du conseil) et des organismes de recherche (cotisation ×0,5 ; plus de 20 % améliore les marges des projets de recherche). Choisissez une priorité de recrutement dans le bloc Membres. Les régions au statut d'innovation <B>émergent</B> bénéficient de l'intensité des fonds de cohésion : de meilleures marges régionales et nationales, pour une réalisation un peu plus risquée.</T>
+        <T><B>Personnel.</B> Chaque recrue est une personne nommée avec un niveau (1 à 5) qui progresse tous les 10 trimestres et augmente son efficacité de 10 % par niveau ; environ une sur huit est une star qui commence au niveau 3. Les meilleurs demandent parfois une augmentation. Les <B>scénarios</B> changent votre point de départ, les <B>succès</B> récompensent certains exploits, et une graine sur l'écran de départ rend la partie reproductible : copiez un <B>code de défi</B> depuis le bilan pour qu'un ami joue la même partie. Raccourcis : Espace = trimestre suivant, 1 à 4 = panneaux, U = annuler (Junior et Officier, une étape), Échap = fermer.</T>
+
+        <H t="Difficulté"/>
+        <T><B>Junior</B> adoucit les risques d'échec, les marges, le capital de départ et la pression des rivaux ; <B>Officier</B> est un combat équilibré ; <B>Expert</B> est le réglage original, sans pitié. Les anciennes sauvegardes se jouent en Expert.</T>
+      </div>
+    </Modal>
+    ) :
     <Modal title="How to Play" icon="circle-question" iconColor={P.accent} onClose={onClose} width={760}>
       <div style={{maxHeight:"68vh",overflowY:"auto",paddingRight:8}}>
         <T>You run a <B>cluster organisation</B>: a body that connects companies, universities and public authorities in one industrial ecosystem. Starting as a small regional initiative, grow it into the <B>Pan-European Cluster Network</B> — or outlast every rival and win by <B>market consolidation</B>. You lose if the board's confidence hits zero, the money runs out, or a rival builds the Network first.</T>
@@ -5710,11 +5749,11 @@ function SetupMap({ country, region, counts, onCountry, onRegion, onEurope }) {
       </svg>
       {zoomed && onEurope && (
         <button className="btn link" onClick={onEurope} style={{position:"absolute",top:14,left:16}}>
-          <Icon name="chevron-left" size={11} color={P.accent}/> Europe
+          <Icon name="chevron-left" size={11} color={P.accent}/> {t("Europe")}
         </button>
       )}
       <div style={{position:"absolute",left:20,bottom:18,fontSize:13,color:P.muted,pointerEvents:"none"}}>
-        {label ? <span style={{color:P.text,fontWeight:600}}>{label}</span> : t("Click a country to start")}
+        {label ? <span style={{color:P.text,fontWeight:600}}>{t(label)}</span> : t("Click a country to start")}
         {zoomed && !hov && !region ? <span>{t(": click a region")}</span> : null}
         {zoomed && counts && (hov || region) && counts[hov || region] > 0 ? <span>, {counts[hov || region]} real cluster{counts[hov || region]===1?"":"s"}</span> : null}
       </div>
@@ -5847,7 +5886,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
           {canResume && (
             <div style={{marginTop:16}}>
               <button className="btn" onClick={onResume} style={{padding:"12px 24px",borderRadius:8,border:"none",background:P.accent,color:P.onAccent,fontWeight:700,fontSize:15,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>
-                <Icon name="play" size={11} color="currentColor" style={{marginRight:8}}/> Continue saved game
+                <Icon name="play" size={11} color="currentColor" style={{marginRight:8}}/> {t("Continue saved game")}
               </button>
               
             </div>
@@ -5855,7 +5894,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
           {onOpenSlots && (
             <div style={{marginTop:canResume?4:16}}>
               <button className="btn" onClick={onOpenSlots} style={{padding:"8px 14px",borderRadius:8,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontWeight:700,fontSize:12,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',display:"inline-flex",alignItems:"center",gap:6}}>
-                <Icon name="floppy-disk" size={12} color={P.muted}/> Load a saved slot
+                <Icon name="floppy-disk" size={12} color={P.muted}/> {t("Load a saved slot")}
               </button>
             </div>
           )}
@@ -5895,7 +5934,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                     style={{flex:"1 1 150px",minWidth:0,padding:"6px 9px",borderRadius:0,border:`1px dashed ${P.border}`,background:P.panel,color:P.text,fontSize:11,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',outline:"none"}}/>
                 </div>
                 </details>
-                {challengeApplied && <div style={{fontSize:11.5,color:P.greenText,marginTop:5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>✓ Challenge loaded: {DIFFICULTIES[diff]?.label} · {SCENARIOS.find(x=>x.id===scenario)?.name} · pick your country to match</div>}
+                {challengeApplied && <div style={{fontSize:11.5,color:P.greenText,marginTop:5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{t("✓ Challenge loaded: {d}, {s}. Pick your country to match.", {d: t(DIFFICULTIES[diff]?.label), s: t(SCENARIOS.find(x=>x.id===scenario)?.name)})}</div>}
               </div>
               <div style={{marginBottom:18}}>
                 <div style={{fontSize:13,fontWeight:600,marginBottom:8}}>{t("Start as a real cluster")}</div>
@@ -5924,7 +5963,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
               
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(140px,1fr))",gap:6,maxHeight:290,overflowY:"auto",paddingRight:4}}>
                 {Object.keys(EU_COUNTRIES).sort().map(c => (
-                  <button key={c} className="btn" style={sel(country===c)} onClick={() => { setCountry(c); setStep(1); }}>{c}</button>
+                  <button key={c} className="btn" style={sel(country===c)} onClick={() => { setCountry(c); setStep(1); }}>{t(c)}</button>
                 ))}
               </div>
             </>
@@ -5932,12 +5971,12 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
           {step===1 && (
             <>
               <button className="btn" onClick={() => setStep(0)} style={{background:"none",border:"none",color:P.accent,fontSize:13,marginBottom:12,padding:0,fontFamily:"inherit",cursor:"pointer",display:"inline-flex",alignItems:"center",gap:5}}><Icon name="arrow-left" size={11} color={P.accent}/> {t("Back")}</button>
-              <div style={{marginBottom:10,fontSize:13,fontWeight:600}}>{t("Region in {c}", {c: country})}</div>
+              <div style={{marginBottom:10,fontSize:13,fontWeight:600}}>{t("Region in {c}", {c: t(country)})}</div>
               
               {region && (
                 <div className="region-pick" style={{marginBottom:14,padding:"12px 14px",borderRadius:10,background:P.bright}}>
                   <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10}}>
-                    <span style={{fontSize:14,fontWeight:600}}>{region}</span>
+                    <span style={{fontSize:14,fontWeight:600}}>{t(region)}</span>
                     <button className="btn" onClick={() => setStep(2)} style={{padding:"8px 14px",borderRadius:8,border:"none",background:P.accent,color:P.onAccent,fontSize:12.5,fontWeight:600}}>
                       {t("Start my own cluster here")}
                     </button>
@@ -5962,7 +6001,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                   const strong = /Leader|Strong/.test(rec.ris||"");
                   return (
                     <button key={rec.name} className="btn" style={{...sel(region===rec.name), display:"flex", flexDirection:"column", alignItems:"flex-start", gap:2, padding:"7px 11px"}} onClick={() => { setRegion(rec.name); setStep(1); }}>
-                      <span style={{fontWeight:600,display:"inline-flex",alignItems:"center",gap:4}}>{strong && <Icon name="star" size={10} color={P.accent}/>}{rec.name}</span>
+                      <span style={{fontWeight:600,display:"inline-flex",alignItems:"center",gap:4}}>{strong && <Icon name="star" size={10} color={P.accent}/>}{t(rec.name)}</span>
                       <span style={{fontSize:12,color:P.muted}}>{t(rec.ris||"not rated").toLowerCase()}</span>
                     </button>
                   );
@@ -5974,7 +6013,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
             <>
               <button className="btn" onClick={() => setStep(1)} style={{background:"none",border:"none",color:P.accent,fontSize:13,marginBottom:12,padding:0,fontFamily:"inherit",cursor:"pointer",display:"inline-flex",alignItems:"center",gap:5}}><Icon name="arrow-left" size={11} color={P.accent}/> {t("Back")}</button>
               <div style={{marginBottom:2,fontSize:13,fontWeight:600}}>{t("Industrial ecosystem")}</div>
-              <div style={{marginBottom:10,fontSize:12,color:P.muted,display:"flex",alignItems:"center",gap:6}}><Icon name="bullseye" size={11} color={P.green}/>{t("Priority in {r}", {r: region})}</div>
+              <div style={{marginBottom:10,fontSize:12,color:P.muted,display:"flex",alignItems:"center",gap:6}}><Icon name="bullseye" size={11} color={P.green}/>{t("Priority in {r}", {r: t(region)})}</div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:6,maxHeight:280,overflowY:"auto",paddingRight:4}}>
                 {[...ECOSYSTEMS].map(e => {
                   const rec = getRegion(country, region);
@@ -6008,7 +6047,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                       style={{width:"100%",boxSizing:"border-box",padding:"10px 12px",borderRadius:8,border:`1px solid ${P.border}`,background:P.panel,color:P.text,fontSize:13,outline:"none"}}>
                       {(REGIONS_BY_COUNTRY[country]||[]).map(r => (
                         <option key={r.nuts+r.name} value={r.name}>
-                          {r.name}{ecosystemAligns(r, sector.name) ? "  ◎" : ""}
+                          {t(r.name)}{ecosystemAligns(r, sector.name) ? "  ◎" : ""}
                         </option>
                       ))}
                     </select>
@@ -6023,7 +6062,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
                   </div>
                   
                   <button className="btn orb" onClick={() => onStart(country, region, sector, diff, scenario, seed.trim(), clusterName.trim())} style={{marginTop:18,width:"100%"}}>
-                    {t("Start in {r}", {r: region})}
+                    {t("Start in {r}", {r: t(region)})}
                   </button>
                 </>
               )}
@@ -6035,7 +6074,7 @@ function Setup({ onStart, canResume, onResume, mobile, dark, onTheme, onOpenSlot
       {/* Quiet links below the grid, so the map and the setup card end on the same line */}
       <div style={{gridColumn:mobile?"auto":"2",display:"flex",alignItems:"center",gap:20,marginTop:mobile?0:-24,paddingLeft:2}}>
         <button className="btn link" onClick={() => setShowRules(true)}>
-          <Icon name="circle-question" size={13} color={P.accent}/> How to play
+          <Icon name="circle-question" size={13} color={P.accent}/> {t("How to play")}
         </button>
         <button className="btn link" onClick={onTheme} aria-label={t(dark ? "Switch to light mode" : "Switch to dark mode")}>
           <Icon name={dark?"sun":"moon"} size={13} color={P.accent}/> {t(dark ? "Light mode" : "Dark mode")}
@@ -6133,7 +6172,7 @@ function DigestCard({ gs, digestOn, reopenTick, onDigestToggle }) {
           <span style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Q{((d.turn-1)%4)+1} {2024+Math.floor((d.turn-1)/4)} review</span>
           <span style={{marginLeft:"auto",fontSize:11,color:P.muted}}>{expanded?"▲":"▼"}</span>
         </div>
-        {d.evolved && <div style={{fontSize:11,fontWeight:700,color:P.goldText,marginBottom:4}}>⭐ Evolved to {d.evolved}!</div>}
+        {d.evolved && <div style={{fontSize:11,fontWeight:700,color:P.goldText,marginBottom:4}}>{t("Evolved to {s}", {s: t(d.evolved)})}</div>}
         <div style={{display:"flex",flexWrap:"wrap",gap:"2px 10px"}}>
           {chip(d.dBudget, "", v=>fmt(Math.abs(v)))}
           {chip(d.dMembers, "mem")}
@@ -6189,7 +6228,7 @@ function StageBanner({ banner, sector }) {
           <Icon name="arrow-up-right-dots" size={22} color={sc}/>
         </div>
         <div style={{fontSize:30,fontWeight:800,color:sc,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',marginTop:6,textShadow:`0 4px 24px ${sc}66`}}>{t(STAGES[banner.to]?.name)}</div>
-        <div style={{fontSize:11,color:"#64748b",marginTop:6,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Stage {banner.to} of 5</div>
+        <div style={{fontSize:11,color:"#64748b",marginTop:6,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{t("Stage {n} of 5", {n: banner.to})}</div>
       </div>
     </div>
   );
@@ -6224,14 +6263,14 @@ function Tutorial({ gs }) {
     <div className="event-in glass tut" role="status" style={{position:"fixed",left:16,bottom:76,zIndex:2600,width:280,padding:"14px 16px"}}>
       <div style={{display:"flex",alignItems:"center",gap:10}}>
         <Icon name={st.i||"flag"} size={14} color={P.accent}/>
-        <span style={{fontSize:13.5,fontWeight:600,color:P.text,flex:1}}>{st.t}</span>
+        <span style={{fontSize:13.5,fontWeight:600,color:P.text,flex:1}}>{t(st.t)}</span>
         {step>0 && step<TUT_STEPS.length-1 && <span className="tnum" style={{fontSize:11.5,color:P.muted}}>{step}/{TUT_STEPS.length-2}</span>}
       </div>
-      <div style={{fontSize:12.5,color:P.muted,margin:"6px 0 12px 24px",lineHeight:1.45}}>{st.d}</div>
+      <div style={{fontSize:12.5,color:P.muted,margin:"6px 0 12px 24px",lineHeight:1.45}}>{t(st.d)}</div>
       <div style={{display:"flex",gap:16,justifyContent:"flex-end",alignItems:"center"}}>
         <button className="btn link" style={{color:P.muted,fontSize:12.5}} onClick={() => setStep(finish())}>{t("Skip")}</button>
         {(step === 0 || step === TUT_STEPS.length-1) && (
-          <button className="btn" onClick={() => step === 0 ? setStep(1) : setStep(finish())} style={{padding:"7px 14px",borderRadius:8,border:"none",background:P.accent,color:P.onAccent,fontSize:12.5,fontWeight:600}}>{step===0?"Start":"Done"}</button>
+          <button className="btn" onClick={() => step === 0 ? setStep(1) : setStep(finish())} style={{padding:"7px 14px",borderRadius:8,border:"none",background:P.accent,color:P.onAccent,fontSize:12.5,fontWeight:600}}>{t(step===0?"Start":"Done")}</button>
         )}
       </div>
     </div>
@@ -6424,7 +6463,7 @@ function Game({ lang, onLang, gs, dispatch, vw, auto, setAuto, dark, onTheme, ca
             <Icon name={gs.sector?.icon||"display"} size={18} color={gs.sector?.color||P.text}/>
             <div style={{flex:1,minWidth:0}}>
               <div title={gs.clusterName || t(gs.sector?.name)} style={{fontSize:12,fontWeight:700,color:gs.sector?.color||P.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName || t(gs.sector?.name)}</div>
-              <div style={{fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName ? `${t(stage.name)} · ${t(gs.sector?.name)}` : stage.name}</div>
+              <div style={{fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif',whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName ? `${t(stage.name)}, ${t(gs.sector?.name)}` : t(stage.name)}</div>
             </div>
             {/* Re-opening the quarter review existed only in the desktop header,
                 which left no way back to it on a phone once it faded. */}
@@ -6454,7 +6493,7 @@ function Game({ lang, onLang, gs, dispatch, vw, auto, setAuto, dark, onTheme, ca
           <EUMap gs={gs} sel={sel} setSel={setSel} dispatch={dispatch}/>
           <DigestCard gs={gs} digestOn={digestOn} reopenTick={digestReopen} onDigestToggle={onDigestToggle}/>
           <MapLegend gs={gs}/>
-          {sel && <div style={{position:"absolute",bottom:8,left:8,fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>tap country again to close</div>}
+          {sel && <div style={{position:"absolute",bottom:8,left:8,fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{t("tap country again to close")}</div>}
           {tipCard}
         </div>
 
@@ -6537,7 +6576,7 @@ function Game({ lang, onLang, gs, dispatch, vw, auto, setAuto, dark, onTheme, ca
         <div style={{display:"flex",alignItems:"center",gap:8,marginRight:6}}>
           <div>
             <div title={gs.clusterName || t(gs.sector?.name || "")} style={{fontSize:14,fontWeight:600,color:P.text,maxWidth:280,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{gs.clusterName || t(gs.sector?.name || "")}</div>
-            <div style={{fontSize:12,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{t(stage.name)}, {gs.region||""}</div>
+            <div style={{fontSize:12,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{t(stage.name)}, {t(gs.region||"")}</div>
           </div>
         </div>
         <button className="btn" onClick={()=>setModal("rules")} title={t("Game rules")} style={{padding:"4px 10px",borderRadius:6,border:"1px solid transparent",background:"transparent",color:P.muted,fontSize:11.5,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5,flexShrink:0}}>
@@ -6695,28 +6734,28 @@ function GameOver({ gs, onRestart }) {
         <div style={{marginBottom:14,display:"flex",justifyContent:"center"}}><Icon name={won?"trophy":rival?"flag":"money-bill-wave"} size={40} color={won?P.accent:P.muted}/></div>
         {gs.clusterName ? <div style={{fontSize:13,fontWeight:500,color:P.muted,marginBottom:6}}>{gs.clusterName}</div> : null}
         <h1 style={{fontSize:34,fontWeight:700,color:P.text,margin:"0 0 10px",letterSpacing:-1,lineHeight:1.1}}>
-          {won ? (gs.winType==="consolidation" ? "Market consolidated" : "Pan-European Cluster Network") : rival ? `Outpaced by ${rival}` : "Cluster dissolved"}
+          {won ? t(gs.winType==="consolidation" ? "Market consolidated" : "Pan-European Cluster Network") : rival ? t("Outpaced by {r}", {r: rival}) : t("Cluster dissolved")}
         </h1>
         <p style={{fontSize:14,color:P.muted,margin:"0 auto 26px",lineHeight:1.6,maxWidth:"48ch"}}>
           {won
-            ? `You unified all EU clusters after ${gs.turn} quarters (${yrs} years). The ${gs.sector?.name||""} sector now speaks with one European voice.`
+            ? t("You unified all EU clusters after {q} quarters ({y} years). The {e} sector now speaks with one European voice.", {q: gs.turn, y: yrs, e: t(gs.sector?.name||"")})
             : rival
-            ? `${rival} formed a Pan-European Cluster Network after ${gs.turn} quarters while you reached ${STAGES[gs.stage]?.name||""}. Europe consolidated without you.`
-            : `Your cluster ran out of resources after ${gs.turn} quarters. Final stage: ${STAGES[gs.stage]?.name||""}.`}
+            ? t("{r} formed a Pan-European Cluster Network after {q} quarters while you reached {s}. Europe consolidated without you.", {r: rival, q: gs.turn, s: t(STAGES[gs.stage]?.name||"")})
+            : t("Your cluster ran out of resources after {q} quarters. Final stage: {s}.", {q: gs.turn, s: t(STAGES[gs.stage]?.name||"")})}
         </p>
         <dl className="end-figs">
           {[
             ["coins",            fmt(gs.budget||0),                   "Final treasury"],
             ["users",            fmtN(gs.members||0),                 "Members"],
-            ["flag",             STAGES[gs.stage]?.name||"",          "Final stage"],
+            ["flag",             t(STAGES[gs.stage]?.name||""),       "Final stage"],
             ["check-double",     (gs.completedProjects||[]).length+"", "Projects done"],
             ["earth-europe",     (gs.countries||[]).length+"",         "Countries"],
-            ["hourglass-half",   `${yrs} years`,                      `${gs.turn} quarters`],
+            ["hourglass-half",   t("{n} years", {n: yrs}),             t("{n} quarters", {n: gs.turn})],
             ["arrow-trend-up",   fmt(gs.peak?.budget||gs.budget||0),  "Peak treasury"],
             ["chess-knight",     (gs.rivalsGone||0)+"",               "Rivals gone"],
             ["landmark",         seatsHeld(gs)+"/3",                  "Seats held"],
           ].map(([ic,v,l]) => (
-            <div key={l}><dt><Icon name={ic} size={12} color={P.muted}/>{l}</dt><dd>{v}</dd></div>
+            <div key={l}><dt><Icon name={ic} size={12} color={P.muted}/>{t(l)}</dt><dd>{v}</dd></div>
           ))}
         </dl>
         {/* ── REPORT CARD ── */}
@@ -6739,7 +6778,7 @@ function GameOver({ gs, onRestart }) {
               ))}
             </div>
           )}
-          <div style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>Achievements {Object.keys(achvAll).length}/{ACHIEVEMENTS.length}</div>
+          <div style={{fontSize:11,fontWeight:700,color:P.muted,letterSpacing:0,marginBottom:5,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{t("Achievements")} {Object.keys(achvAll).length}/{ACHIEVEMENTS.length}</div>
           <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:12}}>
             {ACHIEVEMENTS.map(a => {
               const got = !!achvAll[a.id];
@@ -6972,7 +7011,7 @@ function SaveSlots({ gs, onClose, onLoad }) {
       {!slots ? <div style={{color:P.muted,fontSize:12}}>{t("Loading…")}</div> : slots.map(s => (
         <div key={s.i} style={{display:"flex",alignItems:"center",gap:8,padding:"9px 11px",marginBottom:6,borderRadius:0,border:`1px solid ${P.border}`,background:P.card}}>
           <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:12,fontWeight:700,color:s.empty?P.muted:P.text}}>{s.empty ? `Slot ${s.i+1} — empty` : s.label}</div>
+            <div style={{fontSize:12,fontWeight:700,color:s.empty?P.muted:P.text}}>{s.empty ? t("Slot {n}, empty", {n: s.i+1}) : s.label}</div>
             {!s.empty && <div style={{fontSize:11.5,color:P.muted,fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}>{t(STAGES[s.stage]?.name)} · Q{s.q} {s.year}</div>}
           </div>
           {gs && <button className="btn" disabled={busy} onClick={()=>doSave(s.i)} style={{padding:"5px 11px",borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent",color:P.accent,fontSize:11,fontWeight:700}}>{t("Save here")}</button>}
@@ -6983,7 +7022,7 @@ function SaveSlots({ gs, onClose, onLoad }) {
       <div style={{marginTop:16,paddingTop:14,borderTop:`1px solid ${P.border}`}}>
         <Lbl t={t("Move a run between devices")}/>
         <div style={{fontSize:11,color:P.muted,marginBottom:9,lineHeight:1.5}}>
-          Slots live in this browser only — clearing site data or switching device loses them.
+          {t("Slots are stored in this browser only; clearing site data or switching device loses them.")}
           A save code (or file) is a portable copy you can keep or send to someone else.
         </div>
 
@@ -6991,10 +7030,10 @@ function SaveSlots({ gs, onClose, onLoad }) {
           <div style={{marginBottom:12}}>
             <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:6}}>
               <button className="btn" onClick={()=>{ setCode(exportSave(gs)); setMsg(null); }} style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.accent}`,background:"transparent",color:P.accent,fontSize:11,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5}}>
-                <Icon name="clipboard-list" size={11} color={P.accent}/> Create save code
+                <Icon name="clipboard-list" size={11} color={P.accent}/> {t("Create save code")}
               </button>
               <button className="btn" onClick={()=>{ setMsg(downloadSave(gs) ? {t:"good",x:"Save file downloaded."} : {t:"bad",x:"This browser blocked the download."}); }} style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11,fontWeight:700,display:"inline-flex",alignItems:"center",gap:5}}>
-                <Icon name="floppy-disk" size={11} color={P.muted}/> Download file
+                <Icon name="floppy-disk" size={11} color={P.muted}/> {t("Download file")}
               </button>
             </div>
             {code && (
@@ -7025,12 +7064,12 @@ function SaveSlots({ gs, onClose, onLoad }) {
               else setMsg({t:"bad",x:r.error||"That code could not be read."});
             }} style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${paste.trim()?P.green:P.border}66`,background:paste.trim()?`${P.green}0d`:"transparent",color:paste.trim()?P.greenText:P.muted,fontSize:11,fontWeight:700}}>{t("Restore this run")}</button>
             <label className="btn" style={{padding:"6px 12px",borderRadius:0,border:`1px solid ${P.border}`,background:"transparent",color:P.text,fontSize:11,fontWeight:700,cursor:"pointer",display:"inline-flex",alignItems:"center",gap:5}}>
-              <Icon name="folder-open" size={11} color={P.muted}/> Choose a file
+              <Icon name="folder-open" size={11} color={P.muted}/> {t("Choose a file")}
               <input type="file" accept=".cmsave,.txt,text/plain" style={{display:"none"}} onChange={e=>{
                 const f = e.target.files && e.target.files[0];
                 if (!f) return;
                 const rd = new FileReader();
-                rd.onload = () => { setPaste(String(rd.result||"").trim()); setMsg({t:"good",x:`Loaded ${f.name} — press “Restore this run”.`}); };
+                rd.onload = () => { setPaste(String(rd.result||"").trim()); setMsg({t:"good",x:t("Loaded {f}. Press Restore this run.", {f: f.name})}); };
                 rd.onerror = () => setMsg({t:"bad",x:"That file couldn't be read."});
                 rd.readAsText(f);
                 e.target.value = "";

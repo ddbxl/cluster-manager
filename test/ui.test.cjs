@@ -731,6 +731,26 @@ const click = (el) => act(() => {
   ok(qsa("button.lang-switch").some(b => b.textContent === "FR"), "the game top bar has a language switch");
 }
 
+/* ── French covers regions, rules and tooltips ────────────── */
+{
+  const R = G.REGIONS_BY_COUNTRY;
+  const named = Object.values(R).flat().map(r => r.name);
+  const fr = named.filter(n => G.FR[n]);
+  ok(fr.length >= 140, `region names with a distinct French form are translated (${fr.length} of ${named.length}; the rest are spelled the same)`);
+  ok(G.FR["Bavaria"] === "Bavière" && G.FR["Brittany"] === "Bretagne", "well-known regions use their French names");
+  ok(Object.keys(R).filter(c => !["France","Luxembourg","Portugal"].includes(c)).every(c => G.FR[c]), "every country whose name differs in French has its French name");
+  G.applyLang("fr");
+  render(null); render(React.createElement(G.RulesModal, { onClose: () => {} }));
+  ok(/Comment jouer/.test(text()) && /La boucle trimestrielle/.test(text()), "the rules page is French");
+  const tr = { delta: 10, factors: [{ l: G.t("Executive Directors"), v: 4 }, { l: G.t("political seats"), v: -1 }] };
+  const tip = G.trendTitle(tr, "Plus rival poaching, defections and events.");
+  ok(/En hausse/.test(tip) && /Directeurs exécutifs/.test(tip) && /Facteurs de hausse/.test(tip), "trend explanations are French");
+  ok(!/Currently|Mostly|Pushing/.test(tip), "with no English left in them");
+  G.applyLang("en");
+  render(null); render(React.createElement(G.RulesModal, { onClose: () => {} }));
+  ok(/The quarterly loop/.test(text()), "and English still shows the English rules");
+}
+
 /* ── wording of the turn caption and the map card position ── */
 {
   ok(G.t("{n} actions can be completed", { n: 3 }) === "3 actions can be completed", "the turn caption counts actions that can be completed");
